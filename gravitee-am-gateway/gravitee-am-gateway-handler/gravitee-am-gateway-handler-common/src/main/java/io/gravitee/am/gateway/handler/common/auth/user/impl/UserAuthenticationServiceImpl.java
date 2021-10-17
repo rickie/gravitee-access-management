@@ -82,24 +82,14 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
     @Autowired
     private EmailService emailService;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.connect_migrated(principal, afterAuthentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<User> connect(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
- return RxJava2Adapter.monoToSingle(connect_migrated(principal, afterAuthentication));
-}
+    
 @Override
     public Mono<User> connect_migrated(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
         // save or update the user
         return saveOrUpdate_migrated(principal, afterAuthentication).flatMap(user->checkAccountStatus_migrated(user).then(Mono.defer(()->userService.enhance_migrated(user))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadPreAuthenticatedUser_migrated(subject, request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> loadPreAuthenticatedUser(String subject, Request request) {
- return RxJava2Adapter.monoToMaybe(loadPreAuthenticatedUser_migrated(subject, request));
-}
+    
 @Override
     public Mono<User> loadPreAuthenticatedUser_migrated(String subject, Request request) {
         // find user by its technical id
@@ -116,24 +106,14 @@ return RxJava2Adapter.monoToMaybe(update_migrated(z, idpUser, false).flatMap(use
 }).apply(v)))).switchIfEmpty(Mono.defer(()->userService.enhance_migrated(z))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadPreAuthenticatedUser_migrated(principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> loadPreAuthenticatedUser(io.gravitee.am.identityprovider.api.User principal) {
- return RxJava2Adapter.monoToMaybe(loadPreAuthenticatedUser_migrated(principal));
-}
+    
 @Override
     public Mono<User> loadPreAuthenticatedUser_migrated(io.gravitee.am.identityprovider.api.User principal) {
         String source = (String) principal.getAdditionalInformation().get(SOURCE_FIELD);
         return userService.findByDomainAndExternalIdAndSource_migrated(domain.getId(), principal.getId(), source).switchIfEmpty(Mono.defer(()->userService.findByDomainAndUsernameAndSource_migrated(domain.getId(), principal.getUsername(), source)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.lockAccount_migrated(criteria, accountSettings, client, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable lockAccount(LoginAttemptCriteria criteria, AccountSettings accountSettings, Client client, User user) {
- return RxJava2Adapter.monoToCompletable(lockAccount_migrated(criteria, accountSettings, client, user));
-}
+    
 @Override
     public Mono<Void> lockAccount_migrated(LoginAttemptCriteria criteria, AccountSettings accountSettings, Client client, User user) {
         if (user == null) {

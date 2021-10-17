@@ -31,21 +31,9 @@ import reactor.core.publisher.Mono;
  */
 @Repository
 public interface SpringEnvironmentRepository extends RxJava2CrudRepository<JdbcEnvironment, String> {
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByIdAndOrganization_migrated(id, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JdbcEnvironment> findByIdAndOrganization(String id, String organizationId) {
-    return RxJava2Adapter.monoToMaybe(findByIdAndOrganization_migrated(id, organizationId));
-}
-default Mono<JdbcEnvironment> findByIdAndOrganization_migrated(String id, String organizationId) {
-    return RxJava2Adapter.maybeToMono(findByIdAndOrganization(id, organizationId));
-}
+      
+Mono<JdbcEnvironment> findByIdAndOrganization_migrated(String id, String organizationId);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByOrganization_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcEnvironment> findByOrganization(String organizationId) {
-    return RxJava2Adapter.fluxToFlowable(findByOrganization_migrated(organizationId));
-}
-default Flux<JdbcEnvironment> findByOrganization_migrated(String organizationId) {
-    return RxJava2Adapter.flowableToFlux(findByOrganization(organizationId));
-}
+      
+Flux<JdbcEnvironment> findByOrganization_migrated(String organizationId);
 }

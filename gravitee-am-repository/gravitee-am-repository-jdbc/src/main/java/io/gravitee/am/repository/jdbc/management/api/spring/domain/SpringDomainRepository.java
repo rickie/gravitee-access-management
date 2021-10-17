@@ -32,31 +32,14 @@ import reactor.core.publisher.Mono;
  */
 @Repository
 public interface SpringDomainRepository extends RxJava2CrudRepository<JdbcDomain, String> {
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByReferenceId_migrated(refId, refType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcDomain> findAllByReferenceId(@Param(value = "refId")
+      
+Flux<JdbcDomain> findAllByReferenceId_migrated(@Param(value = "refId")
 String refId, @Param(value = "refType")
-String refType) {
-    return RxJava2Adapter.fluxToFlowable(findAllByReferenceId_migrated(refId, refType));
-}
-default Flux<JdbcDomain> findAllByReferenceId_migrated(@Param(value = "refId")
-String refId, @Param(value = "refType")
-String refType) {
-    return RxJava2Adapter.flowableToFlux(findAllByReferenceId(refId, refType));
-}
+String refType);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByHrid_migrated(refId, refType, hrid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JdbcDomain> findByHrid(@Param(value = "refId")
+      
+Mono<JdbcDomain> findByHrid_migrated(@Param(value = "refId")
 String refId, @Param(value = "refType")
 String refType, @Param(value = "hrid")
-String hrid) {
-    return RxJava2Adapter.monoToMaybe(findByHrid_migrated(refId, refType, hrid));
-}
-default Mono<JdbcDomain> findByHrid_migrated(@Param(value = "refId")
-String refId, @Param(value = "refType")
-String refType, @Param(value = "hrid")
-String hrid) {
-    return RxJava2Adapter.maybeToMono(findByHrid(refId, refType, hrid));
-}
+String hrid);
 }

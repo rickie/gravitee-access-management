@@ -31,17 +31,9 @@ import reactor.core.publisher.Mono;
  */
 @Repository
 public interface SpringAuthorizationCodeRepository extends RxJava2CrudRepository<JdbcAuthorizationCode, String> {
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByCode_migrated(code, now))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JdbcAuthorizationCode> findByCode(@Param(value = "code")
+      
+Mono<JdbcAuthorizationCode> findByCode_migrated(@Param(value = "code")
 String code, @Param(value = "now")
-LocalDateTime now) {
-    return RxJava2Adapter.monoToMaybe(findByCode_migrated(code, now));
-}
-default Mono<JdbcAuthorizationCode> findByCode_migrated(@Param(value = "code")
-String code, @Param(value = "now")
-LocalDateTime now) {
-    return RxJava2Adapter.maybeToMono(findByCode(code, now));
-}
+LocalDateTime now);
 
 }

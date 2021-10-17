@@ -64,20 +64,10 @@ default Mono<AuthorizationCode> delete_migrated(String id) {
      * @param code The authorization code.
      * @return
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByCode_migrated(code))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<AuthorizationCode> findByCode(String code) {
-    return RxJava2Adapter.monoToMaybe(findByCode_migrated(code));
-}
-default Mono<AuthorizationCode> findByCode_migrated(String code) {
-    return RxJava2Adapter.maybeToMono(findByCode(code));
-}
+      
+Mono<AuthorizationCode> findByCode_migrated(String code);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable purgeExpiredData() {
-    return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
-}default Mono<Void> purgeExpiredData_migrated() {
+      default Mono<Void> purgeExpiredData_migrated() {
         return Mono.empty();
     }
 }

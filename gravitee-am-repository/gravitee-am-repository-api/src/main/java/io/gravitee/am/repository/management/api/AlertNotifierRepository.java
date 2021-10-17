@@ -54,14 +54,8 @@ default Mono<AlertNotifier> findById_migrated(String id) {
      * @param referenceId the id of the reference.
      * @return the alert notifiers found.
      */
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<AlertNotifier> findAll(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
-default Flux<AlertNotifier> findAll_migrated(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
-}
+      
+Flux<AlertNotifier> findAll_migrated(ReferenceType referenceType, String referenceId);
 
     /**
      * Find all the alert notifier attached to the specified reference and matching the specified criteria.
@@ -71,12 +65,6 @@ default Flux<AlertNotifier> findAll_migrated(ReferenceType referenceType, String
      * @param criteria the criteria to match.
      * @return the alert notifiers found.
      */
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<AlertNotifier> findByCriteria(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria) {
-    return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
-}
-default Flux<AlertNotifier> findByCriteria_migrated(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria) {
-    return RxJava2Adapter.flowableToFlux(findByCriteria(referenceType, referenceId, criteria));
-}
+      
+Flux<AlertNotifier> findByCriteria_migrated(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria);
 }

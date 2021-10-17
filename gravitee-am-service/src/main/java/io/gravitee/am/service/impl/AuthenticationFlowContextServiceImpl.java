@@ -57,12 +57,7 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
     @Value("${authenticationFlow.retryInterval:1000}")
     private int retryDelay;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.clearContext_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable clearContext(final String transactionId) {
- return RxJava2Adapter.monoToCompletable(clearContext_migrated(transactionId));
-}
+    
 @Override
     public Mono<Void> clearContext_migrated(final String transactionId) {
         if (transactionId == null) {
@@ -71,12 +66,7 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
         return authContextRepository.delete_migrated(transactionId);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadContext_migrated(transactionId, expectedVersion))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<AuthenticationFlowContext> loadContext(final String transactionId, final int expectedVersion) {
- return RxJava2Adapter.monoToMaybe(loadContext_migrated(transactionId, expectedVersion));
-}
+    
 @Override
     public Mono<AuthenticationFlowContext> loadContext_migrated(final String transactionId, final int expectedVersion) {
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authContextRepository.findLastByTransactionId_migrated(transactionId).switchIfEmpty(Mono.fromSupplier(() -> {
@@ -94,12 +84,7 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
         }))).retryWhen(new RetryWithDelay(consistencyRetries, retryDelay)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.removeContext_migrated(transactionId, expectedVersion))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<AuthenticationFlowContext> removeContext(String transactionId, int expectedVersion) {
- return RxJava2Adapter.monoToMaybe(removeContext_migrated(transactionId, expectedVersion));
-}
+    
 @Override
     public Mono<AuthenticationFlowContext> removeContext_migrated(String transactionId, int expectedVersion) {
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.loadContext_migrated(transactionId, expectedVersion))

@@ -29,22 +29,10 @@ import reactor.core.publisher.Flux;
  */
 public interface BotDetectionRepository extends CrudRepository<BotDetection, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<BotDetection> findAll() {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
-default Flux<BotDetection> findAll_migrated() {
-    return RxJava2Adapter.flowableToFlux(findAll());
-}
+      
+Flux<BotDetection> findAll_migrated();
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<BotDetection> findByReference(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceType, referenceId));
-}
-default Flux<BotDetection> findByReference_migrated(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.flowableToFlux(findByReference(referenceType, referenceId));
-}
+      
+Flux<BotDetection> findByReference_migrated(ReferenceType referenceType, String referenceId);
 
 }

@@ -52,11 +52,7 @@ public abstract class AbstractRequestResolver<R extends OAuth2Request> {
      * @param client the client which trigger the request
      * @return the oauth 2.0 request
      */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveAuthorizedScopes_migrated(request, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Single<R> resolveAuthorizedScopes(R request, Client client, User endUser) {
- return RxJava2Adapter.monoToSingle(resolveAuthorizedScopes_migrated(request, client, endUser));
-}
+    
 protected Mono<R> resolveAuthorizedScopes_migrated(R request, Client client, User endUser) {
         final Set<String> requestScopes = request.getScopes();
         Set<String> clientResolvedScopes = new HashSet<>();

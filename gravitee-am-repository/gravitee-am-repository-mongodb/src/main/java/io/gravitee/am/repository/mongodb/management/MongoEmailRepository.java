@@ -53,34 +53,19 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
         super.createIndex(emailsCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_CLIENT, 1).append(FIELD_TEMPLATE, 1));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Email> findAll() {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
+    
 @Override
     public Flux<Email> findAll_migrated() {
         return Flux.from(emailsCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Email> findAll(ReferenceType referenceType, String referenceId) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
+    
 @Override
     public Flux<Email> findAll_migrated(ReferenceType referenceType, String referenceId) {
         return Flux.from(emailsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByClient_migrated(referenceType, referenceId, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Email> findByClient(ReferenceType referenceType, String referenceId, String client) {
- return RxJava2Adapter.fluxToFlowable(findByClient_migrated(referenceType, referenceId, client));
-}
+    
 @Override
     public Flux<Email> findByClient_migrated(ReferenceType referenceType, String referenceId, String client) {
         return Flux.from(emailsCollection.find(
@@ -91,12 +76,7 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
                 )).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByTemplate_migrated(referenceType, referenceId, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Email> findByTemplate(ReferenceType referenceType, String referenceId, String template) {
- return RxJava2Adapter.monoToMaybe(findByTemplate_migrated(referenceType, referenceId, template));
-}
+    
 @Override
     public Mono<Email> findByTemplate_migrated(ReferenceType referenceType, String referenceId, String template) {
         return Flux.from(emailsCollection.find(
@@ -108,23 +88,13 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
                         .first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndTemplate_migrated(domain, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Email> findByDomainAndTemplate(String domain, String template) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndTemplate_migrated(domain, template));
-}
+    
 @Override
     public Mono<Email> findByDomainAndTemplate_migrated(String domain, String template) {
         return findByTemplate_migrated(ReferenceType.DOMAIN, domain, template);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByClientAndTemplate_migrated(referenceType, referenceId, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Email> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template) {
- return RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(referenceType, referenceId, client, template));
-}
+    
 @Override
     public Mono<Email> findByClientAndTemplate_migrated(ReferenceType referenceType, String referenceId, String client, String template) {
         return Flux.from(emailsCollection.find(
@@ -136,12 +106,7 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
                         .first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientAndTemplate_migrated(domain, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Email> findByDomainAndClientAndTemplate(String domain, String client, String template) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndTemplate_migrated(domain, client, template));
-}
+    
 @Override
     public Mono<Email> findByDomainAndClientAndTemplate_migrated(String domain, String client, String template) {
         return findByClientAndTemplate_migrated(ReferenceType.DOMAIN, domain, client, template);

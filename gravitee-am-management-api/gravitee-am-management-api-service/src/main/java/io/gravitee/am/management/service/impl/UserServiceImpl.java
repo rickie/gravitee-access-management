@@ -97,34 +97,19 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
         return this.userService;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<User>> search(ReferenceType referenceType, String referenceId, String query, int page, int size) {
- return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, query, page, size));
-}
+    
 @Override
     public Mono<Page<User>> search_migrated(ReferenceType referenceType, String referenceId, String query, int page, int size) {
         return userService.search_migrated(referenceType, referenceId, query, page, size);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, filterCriteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<User>> search(ReferenceType referenceType, String referenceId, FilterCriteria filterCriteria, int page, int size) {
- return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, filterCriteria, page, size));
-}
+    
 @Override
     public Mono<Page<User>> search_migrated(ReferenceType referenceType, String referenceId, FilterCriteria filterCriteria, int page, int size) {
         return userService.search_migrated(referenceType, referenceId, filterCriteria, page, size);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(referenceType, referenceId, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<User>> findAll(ReferenceType referenceType, String referenceId, int page, int size) {
- return RxJava2Adapter.monoToSingle(findAll_migrated(referenceType, referenceId, page, size));
-}
+    
 @Override
     public Mono<Page<User>> findAll_migrated(ReferenceType referenceType, String referenceId, int page, int size) {
         return userService.findAll_migrated(referenceType, referenceId, page, size);
@@ -268,23 +253,13 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
         return update_migrated(ReferenceType.DOMAIN, domain, id, updateUser, principal);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateStatus_migrated(domain, id, status, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<User> updateStatus(String domain, String id, boolean status, io.gravitee.am.identityprovider.api.User principal) {
- return RxJava2Adapter.monoToSingle(updateStatus_migrated(domain, id, status, principal));
-}
+    
 @Override
     public Mono<User> updateStatus_migrated(String domain, String id, boolean status, io.gravitee.am.identityprovider.api.User principal) {
         return updateStatus_migrated(ReferenceType.DOMAIN, domain, id, status, principal);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.resetPassword_migrated(domain, userId, password, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable resetPassword(Domain domain, String userId, String password, io.gravitee.am.identityprovider.api.User principal) {
- return RxJava2Adapter.monoToCompletable(resetPassword_migrated(domain, userId, password, principal));
-}
+    
 @Override
     public Mono<Void> resetPassword_migrated(Domain domain, String userId, String password, io.gravitee.am.identityprovider.api.User principal) {
         return userService.findById_migrated(ReferenceType.DOMAIN, domain.getId(), userId).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user -> {
@@ -335,12 +310,7 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
                 }).apply(y)))).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.sendRegistrationConfirmation_migrated(domainId, userId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable sendRegistrationConfirmation(String domainId, String userId, io.gravitee.am.identityprovider.api.User principal) {
- return RxJava2Adapter.monoToCompletable(sendRegistrationConfirmation_migrated(domainId, userId, principal));
-}
+    
 @Override
     public Mono<Void> sendRegistrationConfirmation_migrated(String domainId, String userId, io.gravitee.am.identityprovider.api.User principal) {
         return domainService.findById_migrated(domainId).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))).flatMap(domain1->findById_migrated(ReferenceType.DOMAIN, domainId, userId).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<User, CompletableSource>toJdkFunction((io.gravitee.am.model.User user)->{
@@ -354,12 +324,7 @@ return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(checkClientFu
 }).apply(y)))).then()).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.unlock_migrated(referenceType, referenceId, userId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable unlock(ReferenceType referenceType, String referenceId, String userId, io.gravitee.am.identityprovider.api.User principal) {
- return RxJava2Adapter.monoToCompletable(unlock_migrated(referenceType, referenceId, userId, principal));
-}
+    
 @Override
     public Mono<Void> unlock_migrated(ReferenceType referenceType, String referenceId, String userId, io.gravitee.am.identityprovider.api.User principal) {
         return findById_migrated(referenceType, referenceId, userId).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user -> {
@@ -376,12 +341,7 @@ return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(checkClientFu
                 }).apply(v)))).doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UNLOCKED).user(user1))).doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UNLOCKED).throwable(throwable))).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.assignRoles_migrated(referenceType, referenceId, userId, roles, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<User> assignRoles(ReferenceType referenceType, String referenceId, String userId, List<String> roles, io.gravitee.am.identityprovider.api.User principal) {
- return RxJava2Adapter.monoToSingle(assignRoles_migrated(referenceType, referenceId, userId, roles, principal));
-}
+    
 @Override
     public Mono<User> assignRoles_migrated(ReferenceType referenceType, String referenceId, String userId, List<String> roles, io.gravitee.am.identityprovider.api.User principal) {
         return assignRoles0_migrated(referenceType, referenceId, userId, roles, principal, false);
@@ -398,12 +358,7 @@ return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(checkClientFu
         return assignRoles0_migrated(referenceType, referenceId, userId, roles, principal, true);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enrollFactors_migrated(userId, factors, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<User> enrollFactors(String userId, List<EnrolledFactor> factors, io.gravitee.am.identityprovider.api.User principal) {
- return RxJava2Adapter.monoToSingle(enrollFactors_migrated(userId, factors, principal));
-}
+    
 @Override
     public Mono<User> enrollFactors_migrated(String userId, List<EnrolledFactor> factors, io.gravitee.am.identityprovider.api.User principal) {
         return userService.findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {

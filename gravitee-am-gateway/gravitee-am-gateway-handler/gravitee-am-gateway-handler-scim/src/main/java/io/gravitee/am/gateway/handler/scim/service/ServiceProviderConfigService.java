@@ -27,12 +27,6 @@ import reactor.core.publisher.Mono;
  */
 public interface ServiceProviderConfigService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.get_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<ServiceProviderConfiguration> get() {
-    return RxJava2Adapter.monoToSingle(get_migrated());
-}
-default Mono<ServiceProviderConfiguration> get_migrated() {
-    return RxJava2Adapter.singleToMono(get());
-}
+      
+Mono<ServiceProviderConfiguration> get_migrated();
 }

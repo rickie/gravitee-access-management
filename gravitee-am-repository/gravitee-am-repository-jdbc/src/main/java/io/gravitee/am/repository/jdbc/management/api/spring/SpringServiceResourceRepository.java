@@ -30,16 +30,8 @@ import reactor.core.publisher.Flux;
  */
 @Repository
 public interface SpringServiceResourceRepository extends RxJava2CrudRepository<JdbcServiceResource, String> {
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcServiceResource> findByReference(@Param(value = "refType")
+      
+Flux<JdbcServiceResource> findByReference_migrated(@Param(value = "refType")
 String referenceType, @Param(value = "refId")
-String referenceId) {
-    return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceType, referenceId));
-}
-default Flux<JdbcServiceResource> findByReference_migrated(@Param(value = "refType")
-String referenceType, @Param(value = "refId")
-String referenceId) {
-    return RxJava2Adapter.flowableToFlux(findByReference(referenceType, referenceId));
-}
+String referenceId);
 }

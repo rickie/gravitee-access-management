@@ -33,32 +33,14 @@ import reactor.core.publisher.Mono;
  */
 public interface GroupService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.list_migrated(page, size, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<ListResponse<Group>> list(int page, int size, String baseUrl) {
-    return RxJava2Adapter.monoToSingle(list_migrated(page, size, baseUrl));
-}
-default Mono<ListResponse<Group>> list_migrated(int page, int size, String baseUrl) {
-    return RxJava2Adapter.singleToMono(list(page, size, baseUrl));
-}
+      
+Mono<ListResponse<Group>> list_migrated(int page, int size, String baseUrl);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(memberId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Group> findByMember(String memberId) {
-    return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId));
-}
-default Flux<Group> findByMember_migrated(String memberId) {
-    return RxJava2Adapter.flowableToFlux(findByMember(memberId));
-}
+      
+Flux<Group> findByMember_migrated(String memberId);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.get_migrated(groupId, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Group> get(String groupId, String baseUrl) {
-    return RxJava2Adapter.monoToMaybe(get_migrated(groupId, baseUrl));
-}
-default Mono<Group> get_migrated(String groupId, String baseUrl) {
-    return RxJava2Adapter.maybeToMono(get(groupId, baseUrl));
-}
+      
+Mono<Group> get_migrated(String groupId, String baseUrl);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(group, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

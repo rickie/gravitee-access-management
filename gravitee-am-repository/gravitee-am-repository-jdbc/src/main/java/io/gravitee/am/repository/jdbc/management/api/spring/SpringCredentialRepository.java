@@ -30,48 +30,21 @@ import reactor.core.publisher.Flux;
  */
 @Repository
 public interface SpringCredentialRepository extends RxJava2CrudRepository<JdbcCredential, String> {
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUserId_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcCredential> findByUserId(@Param(value = "refType")
+      
+Flux<JdbcCredential> findByUserId_migrated(@Param(value = "refType")
 String referenceType, @Param(value = "refId")
 String referenceId, @Param(value = "userId")
-String userId) {
-    return RxJava2Adapter.fluxToFlowable(findByUserId_migrated(referenceType, referenceId, userId));
-}
-default Flux<JdbcCredential> findByUserId_migrated(@Param(value = "refType")
-String referenceType, @Param(value = "refId")
-String referenceId, @Param(value = "userId")
-String userId) {
-    return RxJava2Adapter.flowableToFlux(findByUserId(referenceType, referenceId, userId));
-}
+String userId);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUsername_migrated(referenceType, referenceId, username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcCredential> findByUsername(@Param(value = "refType")
+      
+Flux<JdbcCredential> findByUsername_migrated(@Param(value = "refType")
 String referenceType, @Param(value = "refId")
 String referenceId, @Param(value = "username")
-String username) {
-    return RxJava2Adapter.fluxToFlowable(findByUsername_migrated(referenceType, referenceId, username));
-}
-default Flux<JdbcCredential> findByUsername_migrated(@Param(value = "refType")
-String referenceType, @Param(value = "refId")
-String referenceId, @Param(value = "username")
-String username) {
-    return RxJava2Adapter.flowableToFlux(findByUsername(referenceType, referenceId, username));
-}
+String username);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCredentialId_migrated(referenceType, referenceId, credentialId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcCredential> findByCredentialId(@Param(value = "refType")
+      
+Flux<JdbcCredential> findByCredentialId_migrated(@Param(value = "refType")
 String referenceType, @Param(value = "refId")
 String referenceId, @Param(value = "credId")
-String credentialId) {
-    return RxJava2Adapter.fluxToFlowable(findByCredentialId_migrated(referenceType, referenceId, credentialId));
-}
-default Flux<JdbcCredential> findByCredentialId_migrated(@Param(value = "refType")
-String referenceType, @Param(value = "refId")
-String referenceId, @Param(value = "credId")
-String credentialId) {
-    return RxJava2Adapter.flowableToFlux(findByCredentialId(referenceType, referenceId, credentialId));
-}
+String credentialId);
 }

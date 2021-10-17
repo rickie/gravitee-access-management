@@ -40,12 +40,6 @@ default Mono<AuthorizationCode> create_migrated(AuthorizationRequest authorizati
     return RxJava2Adapter.singleToMono(create(authorizationRequest, user));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.remove_migrated(code, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<AuthorizationCode> remove(String code, Client client) {
-    return RxJava2Adapter.monoToMaybe(remove_migrated(code, client));
-}
-default Mono<AuthorizationCode> remove_migrated(String code, Client client) {
-    return RxJava2Adapter.maybeToMono(remove(code, client));
-}
+      
+Mono<AuthorizationCode> remove_migrated(String code, Client client);
 }

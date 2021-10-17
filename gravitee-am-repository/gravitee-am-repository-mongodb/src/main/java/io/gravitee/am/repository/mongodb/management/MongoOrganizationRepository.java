@@ -51,12 +51,7 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
         super.init(collection);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByHrids_migrated(hrids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Organization> findByHrids(List<String> hrids) {
- return RxJava2Adapter.fluxToFlowable(findByHrids_migrated(hrids));
-}
+    
 @Override
     public Flux<Organization> findByHrids_migrated(List<String> hrids) {
         return Flux.from(collection.find(in(HRID_KEY, hrids))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
@@ -111,12 +106,7 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
         return Mono.from(collection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.count_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Long> count() {
- return RxJava2Adapter.monoToSingle(count_migrated());
-}
+    
 @Override
     public Mono<Long> count_migrated() {
 

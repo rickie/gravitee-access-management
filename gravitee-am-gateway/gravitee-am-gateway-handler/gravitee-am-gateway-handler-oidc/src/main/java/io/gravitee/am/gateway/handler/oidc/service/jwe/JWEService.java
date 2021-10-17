@@ -34,14 +34,8 @@ public interface JWEService {
      * @param client client which want to encrypt the token
      * @return JWT encrypted string representation
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encryptIdToken_migrated(signedJwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<String> encryptIdToken(String signedJwt, Client client) {
-    return RxJava2Adapter.monoToSingle(encryptIdToken_migrated(signedJwt, client));
-}
-default Mono<String> encryptIdToken_migrated(String signedJwt, Client client) {
-    return RxJava2Adapter.singleToMono(encryptIdToken(signedJwt, client));
-}
+      
+Mono<String> encryptIdToken_migrated(String signedJwt, Client client);
 
     /**
      * Encode raw JWT to JWT signed representation using userinfo_encrypted_response_alg Client preferences.
@@ -49,14 +43,8 @@ default Mono<String> encryptIdToken_migrated(String signedJwt, Client client) {
      * @param client client which want to encrypt the token
      * @return JWT encrypted string representation
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encryptUserinfo_migrated(signedJwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<String> encryptUserinfo(String signedJwt, Client client) {
-    return RxJava2Adapter.monoToSingle(encryptUserinfo_migrated(signedJwt, client));
-}
-default Mono<String> encryptUserinfo_migrated(String signedJwt, Client client) {
-    return RxJava2Adapter.singleToMono(encryptUserinfo(signedJwt, client));
-}
+      
+Mono<String> encryptUserinfo_migrated(String signedJwt, Client client);
 
     /**
      *
@@ -65,14 +53,8 @@ default Mono<String> encryptUserinfo_migrated(String signedJwt, Client client) {
      * @param encRequired true if the jwt has to be encrypted
      * @return the decoded JWT or an error if encRequired is true and the JWT isn't encoded
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.decrypt_migrated(jwt, client, encRequired))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<JWT> decrypt(String jwt, Client client, boolean encRequired) {
-    return RxJava2Adapter.monoToSingle(decrypt_migrated(jwt, client, encRequired));
-}
-default Mono<JWT> decrypt_migrated(String jwt, Client client, boolean encRequired) {
-    return RxJava2Adapter.singleToMono(decrypt(jwt, client, encRequired));
-}
+      
+Mono<JWT> decrypt_migrated(String jwt, Client client, boolean encRequired);
 
     /**
      * Decrypt JWT send by RP.
@@ -82,23 +64,11 @@ default Mono<JWT> decrypt_migrated(String jwt, Client client, boolean encRequire
      * @param encRequired true if the jwt has to be encrypted
      * @return the decoded JWT or an error if encRequired is true and the JWT isn't encoded
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.decrypt_migrated(jwt, encRequired))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<JWT> decrypt(String jwt, boolean encRequired) {
-    return RxJava2Adapter.monoToSingle(decrypt_migrated(jwt, encRequired));
-}
-default Mono<JWT> decrypt_migrated(String jwt, boolean encRequired) {
-    return RxJava2Adapter.singleToMono(decrypt(jwt, encRequired));
-}
+      
+Mono<JWT> decrypt_migrated(String jwt, boolean encRequired);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.isEncrypted_migrated(jwt))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Boolean> isEncrypted(String jwt) {
-    return RxJava2Adapter.monoToSingle(isEncrypted_migrated(jwt));
-}
-default Mono<Boolean> isEncrypted_migrated(String jwt) {
-    return RxJava2Adapter.singleToMono(isEncrypted(jwt));
-}
+      
+Mono<Boolean> isEncrypted_migrated(String jwt);
 
     /**
      * Encode raw JWT to JWT signed representation using authorization_encrypted_response_alg Client preferences.
@@ -106,12 +76,6 @@ default Mono<Boolean> isEncrypted_migrated(String jwt) {
      * @param client client which want to encrypt the token
      * @return JWT encrypted string representation
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encryptAuthorization_migrated(signedJwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<String> encryptAuthorization(String signedJwt, Client client) {
-    return RxJava2Adapter.monoToSingle(encryptAuthorization_migrated(signedJwt, client));
-}
-default Mono<String> encryptAuthorization_migrated(String signedJwt, Client client) {
-    return RxJava2Adapter.singleToMono(encryptAuthorization(signedJwt, client));
-}
+      
+Mono<String> encryptAuthorization_migrated(String signedJwt, Client client);
 }

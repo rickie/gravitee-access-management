@@ -32,14 +32,7 @@ import reactor.core.publisher.Flux;
 @Repository
 public interface SpringApplicationScopeRepository extends RxJava2CrudRepository<JdbcApplication.ScopeSettings, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByApplicationId_migrated(applicationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<ScopeSettings> findAllByApplicationId(@Param(value = "appId")
-String applicationId) {
-    return RxJava2Adapter.fluxToFlowable(findAllByApplicationId_migrated(applicationId));
-}
-default Flux<ScopeSettings> findAllByApplicationId_migrated(@Param(value = "appId")
-String applicationId) {
-    return RxJava2Adapter.flowableToFlux(findAllByApplicationId(applicationId));
-}
+      
+Flux<ScopeSettings> findAllByApplicationId_migrated(@Param(value = "appId")
+String applicationId);
 }

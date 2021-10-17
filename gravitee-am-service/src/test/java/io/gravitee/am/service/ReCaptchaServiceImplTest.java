@@ -201,11 +201,7 @@ public class ReCaptchaServiceImplTest {
         verify(client).getDelegate();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.spyHttpRequest_migrated(httpRequest))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Single<HttpRequest> spyHttpRequest(HttpRequest httpRequest) {
- return RxJava2Adapter.monoToSingle(spyHttpRequest_migrated(httpRequest));
-}
+    
 protected Mono<HttpRequest> spyHttpRequest_migrated(HttpRequest httpRequest) {
 
 

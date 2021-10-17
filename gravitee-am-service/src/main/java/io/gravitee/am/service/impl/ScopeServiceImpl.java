@@ -110,12 +110,7 @@ public class ScopeServiceImpl implements ScopeService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Scope>> search(String domain, String query, int page, int size) {
- return RxJava2Adapter.monoToSingle(search_migrated(domain, query, page, size));
-}
+    
 @Override
     public Mono<Page<Scope>> search_migrated(String domain, String query, int page, int size) {
         LOGGER.debug("Search scopes by domain and query: {} {}", domain, query);
@@ -367,12 +362,7 @@ return RxJava2Adapter.monoToSingle(applicationService.update_migrated(applicatio
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndKey_migrated(domain, scopeKey))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Scope> findByDomainAndKey(String domain, String scopeKey) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndKey_migrated(domain, scopeKey));
-}
+    
 @Override
     public Mono<Scope> findByDomainAndKey_migrated(String domain, String scopeKey) {
         LOGGER.debug("Find scopes by domain: {} and scope key: {}", domain, scopeKey);
@@ -384,12 +374,7 @@ return RxJava2Adapter.monoToSingle(applicationService.update_migrated(applicatio
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomainAndKeys_migrated(domain, scopeKeys))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<Scope>> findByDomainAndKeys(String domain, List<String> scopeKeys) {
- return RxJava2Adapter.monoToSingle(findByDomainAndKeys_migrated(domain, scopeKeys));
-}
+    
 @Override
     public Mono<List<Scope>> findByDomainAndKeys_migrated(String domain, List<String> scopeKeys) {
         LOGGER.debug("Find scopes by domain: {} and scope keys: {}", domain, scopeKeys);
@@ -408,12 +393,7 @@ return RxJava2Adapter.monoToSingle(applicationService.update_migrated(applicatio
      * Throw InvalidClientMetadataException if null or empty, or contains unknown scope.
      * @param scopes Array of scope to validate.
      */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateScope_migrated(domain, scopes))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Boolean> validateScope(String domain, List<String> scopes) {
- return RxJava2Adapter.monoToSingle(validateScope_migrated(domain, scopes));
-}
+    
 @Override
     public Mono<Boolean> validateScope_migrated(String domain, List<String> scopes) {
         if (scopes == null || scopes.isEmpty()) {

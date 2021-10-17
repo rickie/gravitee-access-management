@@ -31,14 +31,7 @@ import reactor.core.publisher.Flux;
  */
 @Repository
 public interface SpringGroupRoleRepository extends RxJava2CrudRepository<JdbcGroup.JdbcRole, String> {
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByGroup_migrated(group))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcRole> findAllByGroup(@Param(value = "gid")
-String group) {
-    return RxJava2Adapter.fluxToFlowable(findAllByGroup_migrated(group));
-}
-default Flux<JdbcRole> findAllByGroup_migrated(@Param(value = "gid")
-String group) {
-    return RxJava2Adapter.flowableToFlux(findAllByGroup(group));
-}
+      
+Flux<JdbcRole> findAllByGroup_migrated(@Param(value = "gid")
+String group);
 }

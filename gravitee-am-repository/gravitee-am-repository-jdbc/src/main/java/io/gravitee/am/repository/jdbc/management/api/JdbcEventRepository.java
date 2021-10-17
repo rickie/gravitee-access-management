@@ -63,12 +63,7 @@ public class JdbcEventRepository extends AbstractJdbcRepository implements Event
         return mapper.map(entity, JdbcEvent.class);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByTimeFrame_migrated(from, to))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Event> findByTimeFrame(long from, long to) {
- return RxJava2Adapter.fluxToFlowable(findByTimeFrame_migrated(from, to));
-}
+    
 @Override
     public Flux<Event> findByTimeFrame_migrated(long from, long to) {
         LOGGER.debug("findByTimeFrame({}, {})", from, to);

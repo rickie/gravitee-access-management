@@ -127,14 +127,7 @@ public class UserAuthenticationManagerTest {
         .thenReturn(
             Mono.just(
                     new AuthenticationProvider() {
-                      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-                      @Override
-                      public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(
-                          Authentication authentication) {
-                        return RxJava2Adapter.monoToMaybe(
-                            loadUserByUsername_migrated(authentication));
-                      }
+                      
 
                       @Override
                       public Mono<io.gravitee.am.identityprovider.api.User>
@@ -142,13 +135,7 @@ public class UserAuthenticationManagerTest {
                         return Mono.just(new DefaultUser("username"));
                       }
 
-                      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-                      @Override
-                      public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(
-                          String username) {
-                        return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
-                      }
+                      
 
                       @Override
                       public Mono<io.gravitee.am.identityprovider.api.User>
@@ -196,14 +183,7 @@ public class UserAuthenticationManagerTest {
         .thenReturn(
             Mono.just(
                     new AuthenticationProvider() {
-                      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-                      @Override
-                      public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(
-                          Authentication authentication) {
-                        return RxJava2Adapter.monoToMaybe(
-                            loadUserByUsername_migrated(authentication));
-                      }
+                      
 
                       @Override
                       public Mono<io.gravitee.am.identityprovider.api.User>
@@ -211,13 +191,7 @@ public class UserAuthenticationManagerTest {
                         throw new BadCredentialsException();
                       }
 
-                      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-                      @Override
-                      public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(
-                          String username) {
-                        return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
-                      }
+                      
 
                       @Override
                       public Mono<io.gravitee.am.identityprovider.api.User>
@@ -276,14 +250,7 @@ public class UserAuthenticationManagerTest {
         .thenReturn(
             Mono.just(
                     new AuthenticationProvider() {
-                      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-                      @Override
-                      public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(
-                          Authentication authentication) {
-                        return RxJava2Adapter.monoToMaybe(
-                            loadUserByUsername_migrated(authentication));
-                      }
+                      
 
                       @Override
                       public Mono<io.gravitee.am.identityprovider.api.User>
@@ -291,13 +258,7 @@ public class UserAuthenticationManagerTest {
                         throw new BadCredentialsException();
                       }
 
-                      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-                      @Override
-                      public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(
-                          String username) {
-                        return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
-                      }
+                      
 
                       @Override
                       public Mono<io.gravitee.am.identityprovider.api.User>
@@ -311,14 +272,7 @@ public class UserAuthenticationManagerTest {
         .thenReturn(
             Mono.just(
                     new AuthenticationProvider() {
-                      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-                      @Override
-                      public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(
-                          Authentication authentication) {
-                        return RxJava2Adapter.monoToMaybe(
-                            loadUserByUsername_migrated(authentication));
-                      }
+                      
 
                       @Override
                       public Mono<io.gravitee.am.identityprovider.api.User>
@@ -326,13 +280,7 @@ public class UserAuthenticationManagerTest {
                         return Mono.just(new DefaultUser("username"));
                       }
 
-                      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-                      @Override
-                      public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(
-                          String username) {
-                        return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
-                      }
+                      
 
                       @Override
                       public Mono<io.gravitee.am.identityprovider.api.User>
@@ -387,14 +335,7 @@ public class UserAuthenticationManagerTest {
         .thenReturn(
             Mono.just(
                     new AuthenticationProvider() {
-                      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-                      @Override
-                      public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(
-                          Authentication authentication) {
-                        return RxJava2Adapter.monoToMaybe(
-                            loadUserByUsername_migrated(authentication));
-                      }
+                      
 
                       @Override
                       public Mono<io.gravitee.am.identityprovider.api.User>
@@ -402,13 +343,7 @@ public class UserAuthenticationManagerTest {
                         return Mono.just(new DefaultUser("username"));
                       }
 
-                      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-                      @Override
-                      public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(
-                          String username) {
-                        return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
-                      }
+                      
 
                       @Override
                       public Mono<io.gravitee.am.identityprovider.api.User>
@@ -476,14 +411,7 @@ public class UserAuthenticationManagerTest {
         .thenReturn(
             Mono.just(
                     new AuthenticationProvider() {
-                      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-                      @Override
-                      public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(
-                          Authentication authentication) {
-                        return RxJava2Adapter.monoToMaybe(
-                            loadUserByUsername_migrated(authentication));
-                      }
+                      
 
                       @Override
                       public Mono<io.gravitee.am.identityprovider.api.User>
@@ -491,13 +419,7 @@ public class UserAuthenticationManagerTest {
                         return Mono.error(new UsernameNotFoundException("username"));
                       }
 
-                      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-                      @Override
-                      public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(
-                          String username) {
-                        return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
-                      }
+                      
 
                       @Override
                       public Mono<io.gravitee.am.identityprovider.api.User>
@@ -554,14 +476,7 @@ public class UserAuthenticationManagerTest {
         .thenReturn(
             Mono.just(
                     new AuthenticationProvider() {
-                      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-                      @Override
-                      public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(
-                          Authentication authentication) {
-                        return RxJava2Adapter.monoToMaybe(
-                            loadUserByUsername_migrated(authentication));
-                      }
+                      
 
                       @Override
                       public Mono<io.gravitee.am.identityprovider.api.User>
@@ -569,13 +484,7 @@ public class UserAuthenticationManagerTest {
                         return Mono.error(new BadCredentialsException("username"));
                       }
 
-                      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-                      @Override
-                      public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(
-                          String username) {
-                        return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
-                      }
+                      
 
                       @Override
                       public Mono<io.gravitee.am.identityprovider.api.User>

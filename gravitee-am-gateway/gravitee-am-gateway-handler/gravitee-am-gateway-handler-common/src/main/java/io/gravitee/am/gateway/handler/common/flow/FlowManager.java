@@ -32,13 +32,7 @@ import reactor.core.publisher.Mono;
  */
 public interface FlowManager extends Service {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByExtensionPoint_migrated(extensionPoint, client, filter))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<Policy>> findByExtensionPoint(ExtensionPoint extensionPoint, Client client, FlowPredicate filter) {
-    return RxJava2Adapter.monoToSingle(findByExtensionPoint_migrated(extensionPoint, client, filter));
-}
-default Mono<List<Policy>> findByExtensionPoint_migrated(ExtensionPoint extensionPoint, Client client, FlowPredicate filter) {
-    return RxJava2Adapter.singleToMono(findByExtensionPoint(extensionPoint, client, filter));
-}
+      
+Mono<List<Policy>> findByExtensionPoint_migrated(ExtensionPoint extensionPoint, Client client, FlowPredicate filter);
 
 }

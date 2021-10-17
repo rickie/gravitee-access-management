@@ -46,12 +46,6 @@ default Maybe<PermissionTicket> findById(String id) {
 default Mono<PermissionTicket> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.remove_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<PermissionTicket> remove(String id) {
-    return RxJava2Adapter.monoToSingle(remove_migrated(id));
-}
-default Mono<PermissionTicket> remove_migrated(String id) {
-    return RxJava2Adapter.singleToMono(remove(id));
-}
+      
+Mono<PermissionTicket> remove_migrated(String id);
 }

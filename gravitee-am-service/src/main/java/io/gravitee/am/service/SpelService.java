@@ -26,12 +26,6 @@ import reactor.core.publisher.Mono;
  * @author GraviteeSource Team
  */
 public interface SpelService {
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getGrammar_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<JSONObject> getGrammar() {
-    return RxJava2Adapter.monoToSingle(getGrammar_migrated());
-}
-default Mono<JSONObject> getGrammar_migrated() {
-    return RxJava2Adapter.singleToMono(getGrammar());
-}
+      
+Mono<JSONObject> getGrammar_migrated();
 }

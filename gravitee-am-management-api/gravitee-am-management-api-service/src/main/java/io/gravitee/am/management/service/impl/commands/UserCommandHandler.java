@@ -56,28 +56,5 @@ public class UserCommandHandler implements CommandHandler<UserCommand, UserReply
         return Command.Type.USER_COMMAND;
     }
 
-    @Override
-    public Single<UserReply> handle(UserCommand command) {
-
-        UserPayload userPayload = command.getPayload();
-
-        NewUser newUser = new NewUser();
-        newUser.setInternal(false);
-        newUser.setExternalId(userPayload.getId());
-        newUser.setUsername(userPayload.getUsername());
-        newUser.setFirstName(userPayload.getFirstName());
-        newUser.setLastName(userPayload.getLastName());
-        newUser.setEmail(userPayload.getEmail());
-        newUser.setSource(COCKPIT_SOURCE);
-        newUser.setAdditionalInformation(new HashMap<>());
-
-        if(userPayload.getAdditionalInformation() != null) {
-            newUser.getAdditionalInformation().putAll(userPayload.getAdditionalInformation());
-        }
-
-        newUser.getAdditionalInformation().computeIfAbsent(StandardClaims.PICTURE, k -> userPayload.getPicture());
-
-        return RxJava2Adapter.monoToSingle(userService.createOrUpdate_migrated(ReferenceType.ORGANIZATION, userPayload.getOrganizationId(), newUser).doOnSuccess(user -> logger.info("User [{}] created with id [{}].", user.getUsername(), user.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> new UserReply(command.getId(), CommandStatus.SUCCEEDED))).doOnError(error -> logger.info("Error occurred when creating user [{}] for organization [{}].", userPayload.getUsername(), userPayload.getOrganizationId(), error)))
-                .onErrorReturn(throwable -> new UserReply(command.getId(), CommandStatus.ERROR));
-    }
+    
 }

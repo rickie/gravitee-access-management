@@ -99,11 +99,7 @@ public class JdbcPushedAuthorizationRequestRepository extends AbstractJdbcReposi
         return parRepository.deleteById(id).as(RxJava2Adapter::completableToMono).doOnError(error -> LOGGER.error("Unable to delete PushedAuthorizationRequest with id {}", id, error));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Completable purgeExpiredData() {
- return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
-}
+    
 public Mono<Void> purgeExpiredData_migrated() {
         LOGGER.debug("purgeExpiredData()");
         LocalDateTime now = LocalDateTime.now(UTC);

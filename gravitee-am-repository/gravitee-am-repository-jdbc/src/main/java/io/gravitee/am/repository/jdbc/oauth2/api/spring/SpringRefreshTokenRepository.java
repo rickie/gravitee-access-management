@@ -31,16 +31,8 @@ import reactor.core.publisher.Mono;
  */
 @Repository
 public interface SpringRefreshTokenRepository extends RxJava2CrudRepository<JdbcRefreshToken, String> {
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByToken_migrated(token, now))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JdbcRefreshToken> findByToken(@Param(value = "token")
+      
+Mono<JdbcRefreshToken> findByToken_migrated(@Param(value = "token")
 String token, @Param(value = "now")
-LocalDateTime now) {
-    return RxJava2Adapter.monoToMaybe(findByToken_migrated(token, now));
-}
-default Mono<JdbcRefreshToken> findByToken_migrated(@Param(value = "token")
-String token, @Param(value = "now")
-LocalDateTime now) {
-    return RxJava2Adapter.maybeToMono(findByToken(token, now));
-}
+LocalDateTime now);
 }

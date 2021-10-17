@@ -33,32 +33,14 @@ import reactor.core.publisher.Mono;
  * @author GraviteeSource Team
  */
 public interface AlertTriggerService {
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<AlertTrigger> getById(String id) {
-    return RxJava2Adapter.monoToSingle(getById_migrated(id));
-}
-default Mono<AlertTrigger> getById_migrated(String id) {
-    return RxJava2Adapter.singleToMono(getById(id));
-}
+      
+Mono<AlertTrigger> getById_migrated(String id);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<AlertTrigger> getById(ReferenceType referenceType, String referenceId, String id) {
-    return RxJava2Adapter.monoToSingle(getById_migrated(referenceType, referenceId, id));
-}
-default Mono<AlertTrigger> getById_migrated(ReferenceType referenceType, String referenceId, String id) {
-    return RxJava2Adapter.singleToMono(getById(referenceType, referenceId, id));
-}
+      
+Mono<AlertTrigger> getById_migrated(ReferenceType referenceType, String referenceId, String id);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndCriteria_migrated(domainId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<AlertTrigger> findByDomainAndCriteria(String domainId, AlertTriggerCriteria criteria) {
-    return RxJava2Adapter.fluxToFlowable(findByDomainAndCriteria_migrated(domainId, criteria));
-}
-default Flux<AlertTrigger> findByDomainAndCriteria_migrated(String domainId, AlertTriggerCriteria criteria) {
-    return RxJava2Adapter.flowableToFlux(findByDomainAndCriteria(domainId, criteria));
-}
+      
+Flux<AlertTrigger> findByDomainAndCriteria_migrated(String domainId, AlertTriggerCriteria criteria);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOrUpdate_migrated(referenceType, referenceId, patchAlertTrigger, byUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

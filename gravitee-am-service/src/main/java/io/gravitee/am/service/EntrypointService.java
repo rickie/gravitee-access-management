@@ -43,14 +43,8 @@ default Mono<Entrypoint> findById_migrated(String id, String organizationId) {
     return RxJava2Adapter.singleToMono(findById(id, organizationId));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Entrypoint> findAll(String organizationId) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
-}
-default Flux<Entrypoint> findAll_migrated(String organizationId) {
-    return RxJava2Adapter.flowableToFlux(findAll(organizationId));
-}
+      
+Flux<Entrypoint> findAll_migrated(String organizationId);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(organizationId, entrypoint, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -61,14 +55,8 @@ default Mono<Entrypoint> create_migrated(String organizationId, NewEntrypoint en
     return RxJava2Adapter.singleToMono(create(organizationId, entrypoint, principal));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.createDefaults_migrated(organization))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Entrypoint> createDefaults(Organization organization) {
-    return RxJava2Adapter.fluxToFlowable(createDefaults_migrated(organization));
-}
-default Flux<Entrypoint> createDefaults_migrated(Organization organization) {
-    return RxJava2Adapter.flowableToFlux(createDefaults(organization));
-}
+      
+Flux<Entrypoint> createDefaults_migrated(Organization organization);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(entrypointId, organizationId, entrypoint, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

@@ -68,23 +68,13 @@ public class MongoAuthenticationFlowContextRepository extends AbstractManagement
         return Flux.from(authContextCollection.find(eq(FIELD_ID, id)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findLastByTransactionId_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<AuthenticationFlowContext> findLastByTransactionId(String transactionId) {
- return RxJava2Adapter.monoToMaybe(findLastByTransactionId_migrated(transactionId));
-}
+    
 @Override
     public Mono<AuthenticationFlowContext> findLastByTransactionId_migrated(String transactionId) {
         return Flux.from(authContextCollection.find(and(eq(FIELD_TRANSACTION_ID, transactionId), gt(FIELD_RESET_TIME, new Date()))).sort(new BasicDBObject(FIELD_VERSION, -1)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByTransactionId_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<AuthenticationFlowContext> findByTransactionId(String transactionId) {
- return RxJava2Adapter.fluxToFlowable(findByTransactionId_migrated(transactionId));
-}
+    
 @Override
     public Flux<AuthenticationFlowContext> findByTransactionId_migrated(String transactionId) {
         return Flux.from(authContextCollection.find(and(eq(FIELD_TRANSACTION_ID, transactionId), gt(FIELD_RESET_TIME, new Date()))).sort(new BasicDBObject(FIELD_VERSION, -1))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));

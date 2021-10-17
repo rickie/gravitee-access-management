@@ -235,35 +235,21 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
         return flowRepository.findById_migrated(referenceType.name(), referenceId, id).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(this::completeFlow_migrated);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Flow> findAll(ReferenceType referenceType, String referenceId) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
+    
 @Override
     public Flux<Flow> findAll_migrated(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findAll({}, {})", referenceType, referenceId);
         return flowRepository.findAll_migrated(referenceType.name(), referenceId).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(flow -> RxJava2Adapter.fluxToFlowable(completeFlow_migrated(flow).flux())));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByApplication_migrated(referenceType, referenceId, application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Flow> findByApplication(ReferenceType referenceType, String referenceId, String application) {
- return RxJava2Adapter.fluxToFlowable(findByApplication_migrated(referenceType, referenceId, application));
-}
+    
 @Override
     public Flux<Flow> findByApplication_migrated(ReferenceType referenceType, String referenceId, String application) {
         LOGGER.debug("findByApplication({}, {}, {})", referenceType, referenceId, application);
         return flowRepository.findByApplication_migrated(referenceType.name(), referenceId, application).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(flow -> RxJava2Adapter.fluxToFlowable(completeFlow_migrated(flow).flux())));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.completeFlow_migrated(flow))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Single<Flow> completeFlow(Flow flow) {
- return RxJava2Adapter.monoToSingle(completeFlow_migrated(flow));
-}
+    
 protected Mono<Flow> completeFlow_migrated(Flow flow) {
         return dbClient.select()
                 .from(JdbcFlow.JdbcStep.class)

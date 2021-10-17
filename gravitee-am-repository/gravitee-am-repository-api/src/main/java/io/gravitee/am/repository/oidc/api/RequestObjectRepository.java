@@ -56,11 +56,7 @@ default Mono<Void> delete_migrated(String id) {
     return RxJava2Adapter.completableToMono(delete(id));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable purgeExpiredData() {
-    return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
-}default Mono<Void> purgeExpiredData_migrated() {
+      default Mono<Void> purgeExpiredData_migrated() {
         return Mono.empty();
     }
 }

@@ -33,46 +33,20 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface SpringMembershipRepository extends RxJava2CrudRepository<JdbcMembership, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceId, referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcMembership> findByReference(@Param(value = "refId")
+      
+Flux<JdbcMembership> findByReference_migrated(@Param(value = "refId")
 String referenceId, @Param(value = "refType")
-String referenceType) {
-    return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceId, referenceType));
-}
-default Flux<JdbcMembership> findByReference_migrated(@Param(value = "refId")
-String referenceId, @Param(value = "refType")
-String referenceType) {
-    return RxJava2Adapter.flowableToFlux(findByReference(referenceId, referenceType));
-}
+String referenceType);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(memberId, memberType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcMembership> findByMember(@Param(value = "mid")
+      
+Flux<JdbcMembership> findByMember_migrated(@Param(value = "mid")
 String memberId, @Param(value = "mtype")
-String memberType) {
-    return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId, memberType));
-}
-default Flux<JdbcMembership> findByMember_migrated(@Param(value = "mid")
-String memberId, @Param(value = "mtype")
-String memberType) {
-    return RxJava2Adapter.flowableToFlux(findByMember(memberId, memberType));
-}
+String memberType);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByReferenceAndMember_migrated(referenceId, referenceType, memberId, memberType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JdbcMembership> findByReferenceAndMember(@Param(value = "refId")
+      
+Mono<JdbcMembership> findByReferenceAndMember_migrated(@Param(value = "refId")
 String referenceId, @Param(value = "refType")
 String referenceType, @Param(value = "mid")
 String memberId, @Param(value = "mtype")
-String memberType) {
-    return RxJava2Adapter.monoToMaybe(findByReferenceAndMember_migrated(referenceId, referenceType, memberId, memberType));
-}
-default Mono<JdbcMembership> findByReferenceAndMember_migrated(@Param(value = "refId")
-String referenceId, @Param(value = "refType")
-String referenceType, @Param(value = "mid")
-String memberId, @Param(value = "mtype")
-String memberType) {
-    return RxJava2Adapter.maybeToMono(findByReferenceAndMember(referenceId, referenceType, memberId, memberType));
-}
+String memberType);
 }

@@ -81,12 +81,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
         return mapper.map(entity, JdbcDomain.Vhost.class);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Domain> findAll() {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
+    
 @Override
     public Flux<Domain> findAll_migrated() {
         LOGGER.debug("findAll()");
@@ -94,12 +89,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
         return RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByCriteria_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Domain> findAllByCriteria(DomainCriteria criteria) {
- return RxJava2Adapter.fluxToFlowable(findAllByCriteria_migrated(criteria));
-}
+    
 @Override
     public Flux<Domain> findAllByCriteria_migrated(DomainCriteria criteria) {
 
@@ -119,12 +109,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
                 .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Domain> findByIdIn(Collection<String> ids) {
- return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
-}
+    
 @Override
     public Flux<Domain> findByIdIn_migrated(Collection<String> ids) {
         LOGGER.debug("findByIdIn({})", ids);
@@ -135,12 +120,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
         return RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByReferenceId_migrated(environmentId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Domain> findAllByReferenceId(String environmentId) {
- return RxJava2Adapter.fluxToFlowable(findAllByReferenceId_migrated(environmentId));
-}
+    
 @Override
     public Flux<Domain> findAllByReferenceId_migrated(String environmentId) {
         LOGGER.debug("findAllByReferenceId({})", environmentId);
@@ -161,12 +141,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
         return RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident)))).next();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByHrid_migrated(referenceType, referenceId, hrid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Domain> findByHrid(ReferenceType referenceType, String referenceId, String hrid) {
- return RxJava2Adapter.monoToMaybe(findByHrid_migrated(referenceType, referenceId, hrid));
-}
+    
 @Override
     public Mono<Domain> findByHrid_migrated(ReferenceType referenceType, String referenceId, String hrid) {
         LOGGER.debug("findByHrid({})", hrid);
@@ -239,12 +214,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
                 .as(trx::transactional).doOnError((error) -> LOGGER.error("unable to delete Domain with id {}", domainId, error)).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.search_migrated(environmentId, query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Domain> search(String environmentId, String query){
- return RxJava2Adapter.fluxToFlowable(search_migrated(environmentId, query));
-}
+    
 @Override
     public Flux<Domain> search_migrated(String environmentId, String query){
         LOGGER.debug("search({}, {})", environmentId, query);

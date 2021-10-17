@@ -33,50 +33,23 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface SpringScopeApprovalRepository extends RxJava2CrudRepository<JdbcScopeApproval, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndUserAndClient_migrated(domain, user, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcScopeApproval> findByDomainAndUserAndClient(@Param(value = "domain")
+      
+Flux<JdbcScopeApproval> findByDomainAndUserAndClient_migrated(@Param(value = "domain")
 String domain, @Param(value = "user")
 String user, @Param(value = "client")
-String client) {
-    return RxJava2Adapter.fluxToFlowable(findByDomainAndUserAndClient_migrated(domain, user, client));
-}
-default Flux<JdbcScopeApproval> findByDomainAndUserAndClient_migrated(@Param(value = "domain")
-String domain, @Param(value = "user")
-String user, @Param(value = "client")
-String client) {
-    return RxJava2Adapter.flowableToFlux(findByDomainAndUserAndClient(domain, user, client));
-}
+String client);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndUser_migrated(domain, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcScopeApproval> findByDomainAndUser(@Param(value = "domain")
+      
+Flux<JdbcScopeApproval> findByDomainAndUser_migrated(@Param(value = "domain")
 String domain, @Param(value = "user")
-String user) {
-    return RxJava2Adapter.fluxToFlowable(findByDomainAndUser_migrated(domain, user));
-}
-default Flux<JdbcScopeApproval> findByDomainAndUser_migrated(@Param(value = "domain")
-String domain, @Param(value = "user")
-String user) {
-    return RxJava2Adapter.flowableToFlux(findByDomainAndUser(domain, user));
-}
+String user);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndUserAndClientAndScope_migrated(domain, user, client, scope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JdbcScopeApproval> findByDomainAndUserAndClientAndScope(@Param(value = "domain")
+      
+Mono<JdbcScopeApproval> findByDomainAndUserAndClientAndScope_migrated(@Param(value = "domain")
 String domain, @Param(value = "user")
 String user, @Param(value = "client")
 String client, @Param(value = "scope")
-String scope) {
-    return RxJava2Adapter.monoToMaybe(findByDomainAndUserAndClientAndScope_migrated(domain, user, client, scope));
-}
-default Mono<JdbcScopeApproval> findByDomainAndUserAndClientAndScope_migrated(@Param(value = "domain")
-String domain, @Param(value = "user")
-String user, @Param(value = "client")
-String client, @Param(value = "scope")
-String scope) {
-    return RxJava2Adapter.maybeToMono(findByDomainAndUserAndClientAndScope(domain, user, client, scope));
-}
+String scope);
 
 
 }

@@ -34,32 +34,14 @@ import reactor.core.publisher.Mono;
  * @author GraviteeSource Team
  */
 public interface AlertNotifierService {
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getById_migrated(referenceType, referenceId, notifierId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<AlertNotifier> getById(ReferenceType referenceType, String referenceId, String notifierId) {
-    return RxJava2Adapter.monoToSingle(getById_migrated(referenceType, referenceId, notifierId));
-}
-default Mono<AlertNotifier> getById_migrated(ReferenceType referenceType, String referenceId, String notifierId) {
-    return RxJava2Adapter.singleToMono(getById(referenceType, referenceId, notifierId));
-}
+      
+Mono<AlertNotifier> getById_migrated(ReferenceType referenceType, String referenceId, String notifierId);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndCriteria_migrated(domainId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<AlertNotifier> findByDomainAndCriteria(String domainId, AlertNotifierCriteria criteria) {
-    return RxJava2Adapter.fluxToFlowable(findByDomainAndCriteria_migrated(domainId, criteria));
-}
-default Flux<AlertNotifier> findByDomainAndCriteria_migrated(String domainId, AlertNotifierCriteria criteria) {
-    return RxJava2Adapter.flowableToFlux(findByDomainAndCriteria(domainId, criteria));
-}
+      
+Flux<AlertNotifier> findByDomainAndCriteria_migrated(String domainId, AlertNotifierCriteria criteria);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReferenceAndCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<AlertNotifier> findByReferenceAndCriteria(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria) {
-    return RxJava2Adapter.fluxToFlowable(findByReferenceAndCriteria_migrated(referenceType, referenceId, criteria));
-}
-default Flux<AlertNotifier> findByReferenceAndCriteria_migrated(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria) {
-    return RxJava2Adapter.flowableToFlux(findByReferenceAndCriteria(referenceType, referenceId, criteria));
-}
+      
+Flux<AlertNotifier> findByReferenceAndCriteria_migrated(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(referenceType, referenceId, newAlertNotifier, byUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

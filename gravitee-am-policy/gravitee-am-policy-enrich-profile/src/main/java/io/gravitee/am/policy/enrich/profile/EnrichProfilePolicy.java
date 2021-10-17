@@ -118,11 +118,7 @@ public class EnrichProfilePolicy {
         return needUpdate;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enrichProfile_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Single<User> enrichProfile(ExecutionContext context) {
- return RxJava2Adapter.monoToSingle(enrichProfile_migrated(context));
-}
+    
 protected Mono<User> enrichProfile_migrated(ExecutionContext context) {
         UserRepository userRepository = context.getComponent(UserRepository.class);
         User user = (User)context.getAttribute("user");

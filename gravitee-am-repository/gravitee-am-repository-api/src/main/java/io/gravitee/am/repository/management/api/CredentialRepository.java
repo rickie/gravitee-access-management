@@ -31,48 +31,18 @@ import reactor.core.publisher.Mono;
  */
 public interface CredentialRepository extends CrudRepository<Credential, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUserId_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Credential> findByUserId(ReferenceType referenceType, String referenceId, String userId) {
-    return RxJava2Adapter.fluxToFlowable(findByUserId_migrated(referenceType, referenceId, userId));
-}
-default Flux<Credential> findByUserId_migrated(ReferenceType referenceType, String referenceId, String userId) {
-    return RxJava2Adapter.flowableToFlux(findByUserId(referenceType, referenceId, userId));
-}
+      
+Flux<Credential> findByUserId_migrated(ReferenceType referenceType, String referenceId, String userId);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUsername_migrated(referenceType, referenceId, username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Credential> findByUsername(ReferenceType referenceType, String referenceId, String username) {
-    return RxJava2Adapter.fluxToFlowable(findByUsername_migrated(referenceType, referenceId, username));
-}
-default Flux<Credential> findByUsername_migrated(ReferenceType referenceType, String referenceId, String username) {
-    return RxJava2Adapter.flowableToFlux(findByUsername(referenceType, referenceId, username));
-}
+      
+Flux<Credential> findByUsername_migrated(ReferenceType referenceType, String referenceId, String username);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCredentialId_migrated(referenceType, referenceId, credentialId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Credential> findByCredentialId(ReferenceType referenceType, String referenceId, String credentialId) {
-    return RxJava2Adapter.fluxToFlowable(findByCredentialId_migrated(referenceType, referenceId, credentialId));
-}
-default Flux<Credential> findByCredentialId_migrated(ReferenceType referenceType, String referenceId, String credentialId) {
-    return RxJava2Adapter.flowableToFlux(findByCredentialId(referenceType, referenceId, credentialId));
-}
+      
+Flux<Credential> findByCredentialId_migrated(ReferenceType referenceType, String referenceId, String credentialId);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable deleteByUserId(ReferenceType referenceType, String referenceId, String userId) {
-    return RxJava2Adapter.monoToCompletable(deleteByUserId_migrated(referenceType, referenceId, userId));
-}
-default Mono<Void> deleteByUserId_migrated(ReferenceType referenceType, String referenceId, String userId) {
-    return RxJava2Adapter.completableToMono(deleteByUserId(referenceType, referenceId, userId));
-}
+      
+Mono<Void> deleteByUserId_migrated(ReferenceType referenceType, String referenceId, String userId);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByAaguid_migrated(referenceType, referenceId, aaguid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable deleteByAaguid(ReferenceType referenceType, String referenceId, String aaguid) {
-    return RxJava2Adapter.monoToCompletable(deleteByAaguid_migrated(referenceType, referenceId, aaguid));
-}
-default Mono<Void> deleteByAaguid_migrated(ReferenceType referenceType, String referenceId, String aaguid) {
-    return RxJava2Adapter.completableToMono(deleteByAaguid(referenceType, referenceId, aaguid));
-}
+      
+Mono<Void> deleteByAaguid_migrated(ReferenceType referenceType, String referenceId, String aaguid);
 }

@@ -34,14 +34,8 @@ import reactor.core.publisher.Mono;
  */
 public interface ReporterService {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Reporter> findAll() {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
-default Flux<Reporter> findAll_migrated() {
-    return RxJava2Adapter.flowableToFlux(findAll());
-}
+      
+Flux<Reporter> findAll_migrated();
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -61,14 +55,8 @@ default Mono<Reporter> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createDefault_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Reporter> createDefault(String domain) {
-    return RxJava2Adapter.monoToSingle(createDefault_migrated(domain));
-}
-default Mono<Reporter> createDefault_migrated(String domain) {
-    return RxJava2Adapter.singleToMono(createDefault(domain));
-}
+      
+Mono<Reporter> createDefault_migrated(String domain);
 
     NewReporter createInternal(String domain);
 

@@ -29,12 +29,6 @@ import reactor.core.publisher.Mono;
  */
 public interface RulesEngine {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.fire_migrated(rules, executionContext))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable fire(List<Rule> rules, ExecutionContext executionContext) {
-    return RxJava2Adapter.monoToCompletable(fire_migrated(rules, executionContext));
-}
-default Mono<Void> fire_migrated(List<Rule> rules, ExecutionContext executionContext) {
-    return RxJava2Adapter.completableToMono(fire(rules, executionContext));
-}
+      
+Mono<Void> fire_migrated(List<Rule> rules, ExecutionContext executionContext);
 }

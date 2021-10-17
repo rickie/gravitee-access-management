@@ -72,12 +72,7 @@ private Mono<AccessToken> findById_migrated(String id) {
         return Flux.from(accessTokenCollection.find(eq(FIELD_ID, id)).limit(1).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByToken_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<AccessToken> findByToken(String token) {
- return RxJava2Adapter.monoToMaybe(findByToken_migrated(token));
-}
+    
 @Override
     public Mono<AccessToken> findByToken_migrated(String token) {
         return Flux.from(accessTokenCollection.find(eq(FIELD_TOKEN, token)).limit(1).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
@@ -94,12 +89,7 @@ private Mono<AccessToken> findById_migrated(String id) {
         return Mono.from(accessTokenCollection.insertOne(convert(accessToken))).flatMap(success->findById_migrated(accessToken.getId()).single());
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.bulkWrite_migrated(accessTokens))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable bulkWrite(List<AccessToken> accessTokens) {
- return RxJava2Adapter.monoToCompletable(bulkWrite_migrated(accessTokens));
-}
+    
 @Override
     public Mono<Void> bulkWrite_migrated(List<AccessToken> accessTokens) {
         return Mono.from(accessTokenCollection.bulkWrite(convert(accessTokens))).then();
@@ -116,81 +106,46 @@ private Mono<AccessToken> findById_migrated(String id) {
         return Mono.from(accessTokenCollection.findOneAndDelete(eq(FIELD_TOKEN, token))).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToObservable(this.findByClientIdAndSubject_migrated(clientId, subject))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Observable<AccessToken> findByClientIdAndSubject(String clientId, String subject) {
- return RxJava2Adapter.fluxToObservable(findByClientIdAndSubject_migrated(clientId, subject));
-}
+    
 @Override
     public Flux<AccessToken> findByClientIdAndSubject_migrated(String clientId, String subject) {
         return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(accessTokenCollection.find(and(eq(FIELD_CLIENT, clientId), eq(FIELD_SUBJECT, subject)))))
                 .map(this::convert), BackpressureStrategy.BUFFER);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToObservable(this.findByClientId_migrated(clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Observable<AccessToken> findByClientId(String clientId) {
- return RxJava2Adapter.fluxToObservable(findByClientId_migrated(clientId));
-}
+    
 @Override
     public Flux<AccessToken> findByClientId_migrated(String clientId) {
         return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(accessTokenCollection.find(eq(FIELD_CLIENT, clientId))))
                 .map(this::convert), BackpressureStrategy.BUFFER);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToObservable(this.findByAuthorizationCode_migrated(authorizationCode))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Observable<AccessToken> findByAuthorizationCode(String authorizationCode) {
- return RxJava2Adapter.fluxToObservable(findByAuthorizationCode_migrated(authorizationCode));
-}
+    
 @Override
     public Flux<AccessToken> findByAuthorizationCode_migrated(String authorizationCode) {
         return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(accessTokenCollection.find(eq(FIELD_AUTHORIZATION_CODE, authorizationCode))))
                 .map(this::convert), BackpressureStrategy.BUFFER);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByClientId_migrated(clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Long> countByClientId(String clientId) {
- return RxJava2Adapter.monoToSingle(countByClientId_migrated(clientId));
-}
+    
 @Override
     public Mono<Long> countByClientId_migrated(String clientId) {
         return Mono.from(accessTokenCollection.countDocuments(eq(FIELD_CLIENT, clientId)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteByUserId(String userId) {
- return RxJava2Adapter.monoToCompletable(deleteByUserId_migrated(userId));
-}
+    
 @Override
     public Mono<Void> deleteByUserId_migrated(String userId) {
         return Mono.from(accessTokenCollection.deleteMany(eq(FIELD_SUBJECT, userId))).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainIdClientIdAndUserId_migrated(domainId, clientId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteByDomainIdClientIdAndUserId(String domainId, String clientId, String userId) {
- return RxJava2Adapter.monoToCompletable(deleteByDomainIdClientIdAndUserId_migrated(domainId, clientId, userId));
-}
+    
 @Override
     public Mono<Void> deleteByDomainIdClientIdAndUserId_migrated(String domainId, String clientId, String userId) {
         return Mono.from(accessTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_CLIENT, clientId), eq(FIELD_SUBJECT, userId)))).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainIdAndUserId_migrated(domainId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteByDomainIdAndUserId(String domainId, String userId) {
- return RxJava2Adapter.monoToCompletable(deleteByDomainIdAndUserId_migrated(domainId, userId));
-}
+    
 @Override
     public Mono<Void> deleteByDomainIdAndUserId_migrated(String domainId, String userId) {
         return Mono.from(accessTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_SUBJECT, userId)))).then();

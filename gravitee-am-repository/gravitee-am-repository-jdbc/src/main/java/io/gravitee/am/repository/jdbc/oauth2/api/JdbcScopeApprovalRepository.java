@@ -62,12 +62,7 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
         return mapper.map(entity, JdbcScopeApproval.class);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndUserAndClient_migrated(domain, userId, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<ScopeApproval> findByDomainAndUserAndClient(String domain, String userId, String clientId) {
- return RxJava2Adapter.fluxToFlowable(findByDomainAndUserAndClient_migrated(domain, userId, clientId));
-}
+    
 @Override
     public Flux<ScopeApproval> findByDomainAndUserAndClient_migrated(String domain, String userId, String clientId) {
         LOGGER.debug("findByDomainAndUserAndClient({}, {}, {})", domain, userId, clientId);
@@ -75,12 +70,7 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
         return scopeApprovalRepository.findByDomainAndUserAndClient_migrated(domain, userId, clientId).filter(bean -> bean.getExpiresAt() == null || bean.getExpiresAt().isAfter(now)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndUser_migrated(domain, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<ScopeApproval> findByDomainAndUser(String domain, String user) {
- return RxJava2Adapter.fluxToFlowable(findByDomainAndUser_migrated(domain, user));
-}
+    
 @Override
     public Flux<ScopeApproval> findByDomainAndUser_migrated(String domain, String user) {
         LOGGER.debug("findByDomainAndUser({}, {}, {})", domain, user);
@@ -88,12 +78,7 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
         return scopeApprovalRepository.findByDomainAndUser_migrated(domain, user).filter(bean -> bean.getExpiresAt() == null || bean.getExpiresAt().isAfter(now)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.upsert_migrated(scopeApproval))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<ScopeApproval> upsert(ScopeApproval scopeApproval) {
- return RxJava2Adapter.monoToSingle(upsert_migrated(scopeApproval));
-}
+    
 @Override
     public Mono<ScopeApproval> upsert_migrated(ScopeApproval scopeApproval) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(scopeApprovalRepository.findByDomainAndUserAndClientAndScope_migrated(scopeApproval.getDomain(), scopeApproval.getUserId(), scopeApproval.getClientId(), scopeApproval.getScope()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
@@ -126,12 +111,7 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
                 .fetch().rowsUpdated().then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainAndUserAndClient_migrated(domain, user, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteByDomainAndUserAndClient(String domain, String user, String client) {
- return RxJava2Adapter.monoToCompletable(deleteByDomainAndUserAndClient_migrated(domain, user, client));
-}
+    
 @Override
     public Mono<Void> deleteByDomainAndUserAndClient_migrated(String domain, String user, String client) {
         LOGGER.debug("deleteByDomainAndUserAndClient({}, {}, {})", domain, user, client);
@@ -143,12 +123,7 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
                 .fetch().rowsUpdated().then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainAndUser_migrated(domain, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteByDomainAndUser(String domain, String user) {
- return RxJava2Adapter.monoToCompletable(deleteByDomainAndUser_migrated(domain, user));
-}
+    
 @Override
     public Mono<Void> deleteByDomainAndUser_migrated(String domain, String user) {
         LOGGER.debug("deleteByDomainAndUser({}, {})", domain, user);
@@ -215,11 +190,7 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
         return RxJava2Adapter.completableToMono(scopeApprovalRepository.deleteById(id));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Completable purgeExpiredData() {
- return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
-}
+    
 public Mono<Void> purgeExpiredData_migrated() {
         LOGGER.debug("purgeExpiredData()");
         LocalDateTime now = LocalDateTime.now(UTC);

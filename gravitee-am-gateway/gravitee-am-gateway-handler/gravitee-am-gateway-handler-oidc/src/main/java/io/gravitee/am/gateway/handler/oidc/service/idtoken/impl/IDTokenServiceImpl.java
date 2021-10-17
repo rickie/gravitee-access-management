@@ -133,12 +133,7 @@ public class IDTokenServiceImpl implements IDTokenService {
                 }).apply(v)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.extractUser_migrated(idToken, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<User> extractUser(String idToken, Client client) {
- return RxJava2Adapter.monoToSingle(extractUser_migrated(idToken, client));
-}
+    
 @Override
     public Mono<User> extractUser_migrated(String idToken, Client client) {
         return jwtService.decodeAndVerify_migrated(idToken, client).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, Single<User>>)jwt -> {

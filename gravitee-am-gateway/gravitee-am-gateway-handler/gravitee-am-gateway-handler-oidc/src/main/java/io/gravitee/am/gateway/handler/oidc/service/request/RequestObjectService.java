@@ -43,14 +43,8 @@ public interface RequestObjectService {
      * @param encRequired true if the request object has to be encrypted (JWE)
      * @return
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.readRequestObject_migrated(request, client, encRequired))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<JWT> readRequestObject(String request, Client client, boolean encRequired) {
-    return RxJava2Adapter.monoToSingle(readRequestObject_migrated(request, client, encRequired));
-}
-default Mono<JWT> readRequestObject_migrated(String request, Client client, boolean encRequired) {
-    return RxJava2Adapter.singleToMono(readRequestObject(request, client, encRequired));
-}
+      
+Mono<JWT> readRequestObject_migrated(String request, Client client, boolean encRequired);
 
     /**
      * Validate encryption, signature and read the content of the JWT token from the URI.
@@ -59,25 +53,13 @@ default Mono<JWT> readRequestObject_migrated(String request, Client client, bool
      * @param client
      * @return
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.readRequestObjectFromURI_migrated(requestUri, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<JWT> readRequestObjectFromURI(String requestUri, Client client) {
-    return RxJava2Adapter.monoToSingle(readRequestObjectFromURI_migrated(requestUri, client));
-}
-default Mono<JWT> readRequestObjectFromURI_migrated(String requestUri, Client client) {
-    return RxJava2Adapter.singleToMono(readRequestObjectFromURI(requestUri, client));
-}
+      
+Mono<JWT> readRequestObjectFromURI_migrated(String requestUri, Client client);
 
     /**
      * Register a request object for a given Client
      * @return
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.registerRequestObject_migrated(request, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<RequestObjectRegistrationResponse> registerRequestObject(RequestObjectRegistrationRequest request, Client client) {
-    return RxJava2Adapter.monoToSingle(registerRequestObject_migrated(request, client));
-}
-default Mono<RequestObjectRegistrationResponse> registerRequestObject_migrated(RequestObjectRegistrationRequest request, Client client) {
-    return RxJava2Adapter.singleToMono(registerRequestObject(request, client));
-}
+      
+Mono<RequestObjectRegistrationResponse> registerRequestObject_migrated(RequestObjectRegistrationRequest request, Client client);
 }

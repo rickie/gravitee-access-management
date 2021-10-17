@@ -82,23 +82,13 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private CredentialService credentialService;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.get_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> get(String userId) {
- return RxJava2Adapter.monoToMaybe(get_migrated(userId));
-}
+    
 @Override
     public Mono<User> get_migrated(String userId) {
         return userService.findById_migrated(userId);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getActivity_migrated(user, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Audit>> getActivity(User user, AuditReportableCriteria criteria, int page, int size) {
- return RxJava2Adapter.monoToSingle(getActivity_migrated(user, criteria, page, size));
-}
+    
 @Override
     public Mono<Page<Audit>> getActivity_migrated(User user, AuditReportableCriteria criteria, int page, int size) {
         try {
@@ -146,56 +136,31 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getFactors_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<Factor>> getFactors(String domain) {
- return RxJava2Adapter.monoToSingle(getFactors_migrated(domain));
-}
+    
 @Override
     public Mono<List<Factor>> getFactors_migrated(String domain) {
         return factorService.findByDomain_migrated(domain).collectList();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getFactor_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Factor> getFactor(String id) {
- return RxJava2Adapter.monoToMaybe(getFactor_migrated(id));
-}
+    
 @Override
     public Mono<Factor> getFactor_migrated(String id) {
         return factorService.findById_migrated(id);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.upsertFactor_migrated(userId, enrolledFactor, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<User> upsertFactor(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
- return RxJava2Adapter.monoToSingle(upsertFactor_migrated(userId, enrolledFactor, principal));
-}
+    
 @Override
     public Mono<User> upsertFactor_migrated(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
         return userService.upsertFactor_migrated(userId, enrolledFactor, principal);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.removeFactor_migrated(userId, factorId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable removeFactor(String userId, String factorId, io.gravitee.am.identityprovider.api.User principal) {
- return RxJava2Adapter.monoToCompletable(removeFactor_migrated(userId, factorId, principal));
-}
+    
 @Override
     public Mono<Void> removeFactor_migrated(String userId, String factorId, io.gravitee.am.identityprovider.api.User principal) {
         return userService.removeFactor_migrated(userId, factorId, principal);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getWebAuthnCredentials_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<Credential>> getWebAuthnCredentials(User user) {
- return RxJava2Adapter.monoToSingle(getWebAuthnCredentials_migrated(user));
-}
+    
 @Override
     public Mono<List<Credential>> getWebAuthnCredentials_migrated(User user) {
         return credentialService.findByUserId_migrated(ReferenceType.DOMAIN, user.getReferenceId(), user.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
@@ -204,12 +169,7 @@ public class AccountServiceImpl implements AccountService {
                 })).collectList();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getWebAuthnCredential_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Credential> getWebAuthnCredential(String id) {
- return RxJava2Adapter.monoToSingle(getWebAuthnCredential_migrated(id));
-}
+    
 @Override
     public Mono<Credential> getWebAuthnCredential_migrated(String id) {
         return credentialService.findById_migrated(id).switchIfEmpty(Mono.error(new CredentialNotFoundException(id))).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {

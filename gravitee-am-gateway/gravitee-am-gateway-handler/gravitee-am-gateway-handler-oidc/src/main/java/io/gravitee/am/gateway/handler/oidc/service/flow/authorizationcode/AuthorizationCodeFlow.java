@@ -68,12 +68,7 @@ public class AuthorizationCodeFlow extends AbstractFlow {
         this.authorizationCodeService = authorizationCodeService;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.prepareResponse_migrated(authorizationRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    protected Single<AuthorizationResponse> prepareResponse(AuthorizationRequest authorizationRequest, Client client, User endUser) {
- return RxJava2Adapter.monoToSingle(prepareResponse_migrated(authorizationRequest, client, endUser));
-}
+    
 @Override
     protected Mono<AuthorizationResponse> prepareResponse_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
         return authorizationCodeService.create_migrated(authorizationRequest, endUser).map(RxJavaReactorMigrationUtil.toJdkFunction(code -> {

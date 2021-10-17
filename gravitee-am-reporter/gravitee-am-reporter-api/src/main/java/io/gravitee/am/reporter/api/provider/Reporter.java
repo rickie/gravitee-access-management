@@ -32,23 +32,11 @@ import reactor.core.publisher.Mono;
  */
 public interface Reporter<R extends Reportable, C extends ReportableCriteria> extends io.gravitee.reporter.api.Reporter {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Page<R>> search(ReferenceType referenceType, String referenceId, C criteria, int page, int size) {
-    return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
-}
-default Mono<Page<R>> search_migrated(ReferenceType referenceType, String referenceId, C criteria, int page, int size) {
-    return RxJava2Adapter.singleToMono(search(referenceType, referenceId, criteria, page, size));
-}
+      
+Mono<Page<R>> search_migrated(ReferenceType referenceType, String referenceId, C criteria, int page, int size);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.aggregate_migrated(referenceType, referenceId, criteria, analyticsType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Map<Object, Object>> aggregate(ReferenceType referenceType, String referenceId, C criteria, io.gravitee.am.common.analytics.Type analyticsType) {
-    return RxJava2Adapter.monoToSingle(aggregate_migrated(referenceType, referenceId, criteria, analyticsType));
-}
-default Mono<Map<Object, Object>> aggregate_migrated(ReferenceType referenceType, String referenceId, C criteria, Type analyticsType) {
-    return RxJava2Adapter.singleToMono(aggregate(referenceType, referenceId, criteria, analyticsType));
-}
+      
+Mono<Map<Object, Object>> aggregate_migrated(ReferenceType referenceType, String referenceId, C criteria, Type analyticsType);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

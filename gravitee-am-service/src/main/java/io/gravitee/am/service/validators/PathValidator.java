@@ -31,11 +31,7 @@ public class PathValidator {
 
     private static final Pattern PATH_PATTERN = Pattern.compile("/?[a-z0-9-._]+(?:/[a-z0-9-._]+)*/?|/", Pattern.CASE_INSENSITIVE);
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(PathValidator.validate_migrated(path))", imports = {"io.gravitee.am.service.validators.PathValidator", "reactor.adapter.rxjava.RxJava2Adapter"})
-@Deprecated
-public static Completable validate(String path) {
- return RxJava2Adapter.monoToCompletable(validate_migrated(path));
-}
+    
 public static Mono<Void> validate_migrated(String path) {
 
         if (path == null || "".equals(path)) {

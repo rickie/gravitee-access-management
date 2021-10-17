@@ -39,32 +39,14 @@ default Mono<Client> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByClientId_migrated(clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Client> findByClientId(String clientId) {
-    return RxJava2Adapter.monoToMaybe(findByClientId_migrated(clientId));
-}
-default Mono<Client> findByClientId_migrated(String clientId) {
-    return RxJava2Adapter.maybeToMono(findByClientId(clientId));
-}
+      
+Mono<Client> findByClientId_migrated(String clientId);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientId_migrated(domain, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Client> findByDomainAndClientId(String domain, String clientId) {
-    return RxJava2Adapter.monoToMaybe(findByDomainAndClientId_migrated(domain, clientId));
-}
-default Mono<Client> findByDomainAndClientId_migrated(String domain, String clientId) {
-    return RxJava2Adapter.maybeToMono(findByDomainAndClientId(domain, clientId));
-}
+      
+Mono<Client> findByDomainAndClientId_migrated(String domain, String clientId);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findTemplates_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<Client>> findTemplates() {
-    return RxJava2Adapter.monoToSingle(findTemplates_migrated());
-}
-default Mono<List<Client>> findTemplates_migrated() {
-    return RxJava2Adapter.singleToMono(findTemplates());
-}
+      
+Mono<List<Client>> findTemplates_migrated();
 
     Client addDynamicClientRegistred(Client client);
 

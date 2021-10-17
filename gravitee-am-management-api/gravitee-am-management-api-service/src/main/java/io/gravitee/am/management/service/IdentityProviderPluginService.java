@@ -34,32 +34,14 @@ public interface IdentityProviderPluginService {
     String EXPAND_ICON = "icon";
     String EXPAND_LABELS = "labels";
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<IdentityProviderPlugin>> findAll(List<String> expand) {
-    return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
-}
-default Mono<List<IdentityProviderPlugin>> findAll_migrated(List<String> expand) {
-    return RxJava2Adapter.singleToMono(findAll(expand));
-}
+      
+Mono<List<IdentityProviderPlugin>> findAll_migrated(List<String> expand);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(external))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<IdentityProviderPlugin>> findAll(Boolean external) {
-    return RxJava2Adapter.monoToSingle(findAll_migrated(external));
-}
-default Mono<List<IdentityProviderPlugin>> findAll_migrated(Boolean external) {
-    return RxJava2Adapter.singleToMono(findAll(external));
-}
+      
+Mono<List<IdentityProviderPlugin>> findAll_migrated(Boolean external);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(external, expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<IdentityProviderPlugin>> findAll(Boolean external, List<String> expand) {
-    return RxJava2Adapter.monoToSingle(findAll_migrated(external, expand));
-}
-default Mono<List<IdentityProviderPlugin>> findAll_migrated(Boolean external, List<String> expand) {
-    return RxJava2Adapter.singleToMono(findAll(external, expand));
-}
+      
+Mono<List<IdentityProviderPlugin>> findAll_migrated(Boolean external, List<String> expand);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(identityProviderPlugin))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -70,21 +52,9 @@ default Mono<IdentityProviderPlugin> findById_migrated(String identityProviderPl
     return RxJava2Adapter.maybeToMono(findById(identityProviderPlugin));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(identityProviderPlugin))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<String> getSchema(String identityProviderPlugin) {
-    return RxJava2Adapter.monoToMaybe(getSchema_migrated(identityProviderPlugin));
-}
-default Mono<String> getSchema_migrated(String identityProviderPlugin) {
-    return RxJava2Adapter.maybeToMono(getSchema(identityProviderPlugin));
-}
+      
+Mono<String> getSchema_migrated(String identityProviderPlugin);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getIcon_migrated(identityProviderPlugin))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<String> getIcon(String identityProviderPlugin) {
-    return RxJava2Adapter.monoToMaybe(getIcon_migrated(identityProviderPlugin));
-}
-default Mono<String> getIcon_migrated(String identityProviderPlugin) {
-    return RxJava2Adapter.maybeToMono(getIcon(identityProviderPlugin));
-}
+      
+Mono<String> getIcon_migrated(String identityProviderPlugin);
 }

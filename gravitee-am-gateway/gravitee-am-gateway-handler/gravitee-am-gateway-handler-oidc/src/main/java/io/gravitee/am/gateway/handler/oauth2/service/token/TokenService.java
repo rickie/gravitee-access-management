@@ -34,32 +34,14 @@ import reactor.core.publisher.Mono;
  */
 public interface TokenService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getAccessToken_migrated(accessToken, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Token> getAccessToken(String accessToken, Client client) {
-    return RxJava2Adapter.monoToMaybe(getAccessToken_migrated(accessToken, client));
-}
-default Mono<Token> getAccessToken_migrated(String accessToken, Client client) {
-    return RxJava2Adapter.maybeToMono(getAccessToken(accessToken, client));
-}
+      
+Mono<Token> getAccessToken_migrated(String accessToken, Client client);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getRefreshToken_migrated(refreshToken, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Token> getRefreshToken(String refreshToken, Client client) {
-    return RxJava2Adapter.monoToMaybe(getRefreshToken_migrated(refreshToken, client));
-}
-default Mono<Token> getRefreshToken_migrated(String refreshToken, Client client) {
-    return RxJava2Adapter.maybeToMono(getRefreshToken(refreshToken, client));
-}
+      
+Mono<Token> getRefreshToken_migrated(String refreshToken, Client client);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.introspect_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Token> introspect(String token) {
-    return RxJava2Adapter.monoToSingle(introspect_migrated(token));
-}
-default Mono<Token> introspect_migrated(String token) {
-    return RxJava2Adapter.singleToMono(introspect(token));
-}
+      
+Mono<Token> introspect_migrated(String token);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(oAuth2Request, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -70,30 +52,12 @@ default Mono<Token> create_migrated(OAuth2Request oAuth2Request, Client client, 
     return RxJava2Adapter.singleToMono(create(oAuth2Request, client, endUser));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.refresh_migrated(refreshToken, tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Token> refresh(String refreshToken, TokenRequest tokenRequest, Client client) {
-    return RxJava2Adapter.monoToSingle(refresh_migrated(refreshToken, tokenRequest, client));
-}
-default Mono<Token> refresh_migrated(String refreshToken, TokenRequest tokenRequest, Client client) {
-    return RxJava2Adapter.singleToMono(refresh(refreshToken, tokenRequest, client));
-}
+      
+Mono<Token> refresh_migrated(String refreshToken, TokenRequest tokenRequest, Client client);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteAccessToken_migrated(accessToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable deleteAccessToken(String accessToken) {
-    return RxJava2Adapter.monoToCompletable(deleteAccessToken_migrated(accessToken));
-}
-default Mono<Void> deleteAccessToken_migrated(String accessToken) {
-    return RxJava2Adapter.completableToMono(deleteAccessToken(accessToken));
-}
+      
+Mono<Void> deleteAccessToken_migrated(String accessToken);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteRefreshToken_migrated(refreshToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable deleteRefreshToken(String refreshToken) {
-    return RxJava2Adapter.monoToCompletable(deleteRefreshToken_migrated(refreshToken));
-}
-default Mono<Void> deleteRefreshToken_migrated(String refreshToken) {
-    return RxJava2Adapter.completableToMono(deleteRefreshToken(refreshToken));
-}
+      
+Mono<Void> deleteRefreshToken_migrated(String refreshToken);
 }

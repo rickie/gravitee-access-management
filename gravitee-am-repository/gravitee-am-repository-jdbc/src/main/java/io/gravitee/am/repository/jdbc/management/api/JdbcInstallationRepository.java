@@ -60,12 +60,7 @@ public class JdbcInstallationRepository extends AbstractJdbcRepository implement
         return mapped;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.find_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Installation> find() {
- return RxJava2Adapter.monoToMaybe(find_migrated());
-}
+    
 @Override
     public Mono<Installation> find_migrated() {
         LOGGER.debug("find()");

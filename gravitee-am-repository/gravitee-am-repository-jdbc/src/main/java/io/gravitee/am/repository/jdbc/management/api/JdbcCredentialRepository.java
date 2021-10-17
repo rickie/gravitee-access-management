@@ -56,36 +56,21 @@ public class JdbcCredentialRepository extends AbstractJdbcRepository implements 
         return mapper.map(entity, JdbcCredential.class);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUserId_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Credential> findByUserId(ReferenceType referenceType, String referenceId, String userId) {
- return RxJava2Adapter.fluxToFlowable(findByUserId_migrated(referenceType, referenceId, userId));
-}
+    
 @Override
     public Flux<Credential> findByUserId_migrated(ReferenceType referenceType, String referenceId, String userId) {
         LOGGER.debug("findByUserId({},{},{})", referenceType, referenceId, userId);
         return credentialRepository.findByUserId_migrated(referenceType.name(), referenceId, userId).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUsername_migrated(referenceType, referenceId, username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Credential> findByUsername(ReferenceType referenceType, String referenceId, String username) {
- return RxJava2Adapter.fluxToFlowable(findByUsername_migrated(referenceType, referenceId, username));
-}
+    
 @Override
     public Flux<Credential> findByUsername_migrated(ReferenceType referenceType, String referenceId, String username) {
         LOGGER.debug("findByUsername({},{},{})", referenceType, referenceId, username);
         return credentialRepository.findByUsername_migrated(referenceType.name(), referenceId, username).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCredentialId_migrated(referenceType, referenceId, credentialId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Credential> findByCredentialId(ReferenceType referenceType, String referenceId, String credentialId) {
- return RxJava2Adapter.fluxToFlowable(findByCredentialId_migrated(referenceType, referenceId, credentialId));
-}
+    
 @Override
     public Flux<Credential> findByCredentialId_migrated(ReferenceType referenceType, String referenceId, String credentialId) {
         LOGGER.debug("findByCredentialId({},{},{})", referenceType, referenceId, credentialId);
@@ -149,12 +134,7 @@ public class JdbcCredentialRepository extends AbstractJdbcRepository implements 
 
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteByUserId(ReferenceType referenceType, String referenceId, String userId) {
- return RxJava2Adapter.monoToCompletable(deleteByUserId_migrated(referenceType, referenceId, userId));
-}
+    
 @Override
     public Mono<Void> deleteByUserId_migrated(ReferenceType referenceType, String referenceId, String userId) {
         LOGGER.debug("deleteByUserId({})", userId);
@@ -167,12 +147,7 @@ public class JdbcCredentialRepository extends AbstractJdbcRepository implements 
                 .then().doOnError(error -> LOGGER.error("Unable to delete credential for userId {}", userId, error));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByAaguid_migrated(referenceType, referenceId, aaguid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteByAaguid(ReferenceType referenceType, String referenceId, String aaguid) {
- return RxJava2Adapter.monoToCompletable(deleteByAaguid_migrated(referenceType, referenceId, aaguid));
-}
+    
 @Override
     public Mono<Void> deleteByAaguid_migrated(ReferenceType referenceType, String referenceId, String aaguid) {
         LOGGER.debug("deleteByAaguid({})", aaguid);

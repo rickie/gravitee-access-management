@@ -82,23 +82,13 @@ public class MongoAccessPolicyRepository extends AbstractManagementMongoReposito
         return Flux.from(accessPoliciesCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_RESOURCE, resource)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByResources_migrated(resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<AccessPolicy> findByResources(List<String> resources) {
- return RxJava2Adapter.fluxToFlowable(findByResources_migrated(resources));
-}
+    
 @Override
     public Flux<AccessPolicy> findByResources_migrated(List<String> resources) {
         return Flux.from(accessPoliciesCollection.find(in(FIELD_RESOURCE, resources))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByResource_migrated(resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Long> countByResource(String resource) {
- return RxJava2Adapter.monoToSingle(countByResource_migrated(resource));
-}
+    
 @Override
     public Mono<Long> countByResource_migrated(String resource) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.from(accessPoliciesCollection.countDocuments(eq(FIELD_RESOURCE, resource)))).first(0l));

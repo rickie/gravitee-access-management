@@ -78,12 +78,7 @@ public class HttpUserProvider implements UserProvider {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByEmail_migrated(email))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> findByEmail(String email) {
- return RxJava2Adapter.monoToMaybe(findByEmail_migrated(email));
-}
+    
 @Override
     public Mono<User> findByEmail_migrated(String email) {
         // prepare request
@@ -95,12 +90,7 @@ public class HttpUserProvider implements UserProvider {
         return findByUser_migrated(usersResourceConfiguration, readResourceConfiguration, user);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> findByUsername(String username) {
- return RxJava2Adapter.monoToMaybe(findByUsername_migrated(username));
-}
+    
 @Override
     public Mono<User> findByUsername_migrated(String username) {
         // prepare request

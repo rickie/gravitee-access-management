@@ -47,32 +47,14 @@ default Mono<Membership> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Membership> findByCriteria(ReferenceType referenceType, String referenceId, MembershipCriteria criteria) {
-    return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
-}
-default Flux<Membership> findByCriteria_migrated(ReferenceType referenceType, String referenceId, MembershipCriteria criteria) {
-    return RxJava2Adapter.flowableToFlux(findByCriteria(referenceType, referenceId, criteria));
-}
+      
+Flux<Membership> findByCriteria_migrated(ReferenceType referenceType, String referenceId, MembershipCriteria criteria);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceId, referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Membership> findByReference(String referenceId, ReferenceType referenceType) {
-    return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceId, referenceType));
-}
-default Flux<Membership> findByReference_migrated(String referenceId, ReferenceType referenceType) {
-    return RxJava2Adapter.flowableToFlux(findByReference(referenceId, referenceType));
-}
+      
+Flux<Membership> findByReference_migrated(String referenceId, ReferenceType referenceType);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(memberId, memberType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Membership> findByMember(String memberId, MemberType memberType) {
-    return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId, memberType));
-}
-default Flux<Membership> findByMember_migrated(String memberId, MemberType memberType) {
-    return RxJava2Adapter.flowableToFlux(findByMember(memberId, memberType));
-}
+      
+Flux<Membership> findByMember_migrated(String memberId, MemberType memberType);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.addOrUpdate_migrated(organizationId, membership, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -83,23 +65,11 @@ default Mono<Membership> addOrUpdate_migrated(String organizationId, Membership 
     return RxJava2Adapter.singleToMono(addOrUpdate(organizationId, membership, principal));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.setPlatformAdmin_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Membership> setPlatformAdmin(String userId) {
-    return RxJava2Adapter.monoToSingle(setPlatformAdmin_migrated(userId));
-}
-default Mono<Membership> setPlatformAdmin_migrated(String userId) {
-    return RxJava2Adapter.singleToMono(setPlatformAdmin(userId));
-}
+      
+Mono<Membership> setPlatformAdmin_migrated(String userId);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getMetadata_migrated(memberships))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Map<String, Map<String, Object>>> getMetadata(List<Membership> memberships) {
-    return RxJava2Adapter.monoToSingle(getMetadata_migrated(memberships));
-}
-default Mono<Map<String, Map<String, Object>>> getMetadata_migrated(List<Membership> memberships) {
-    return RxJava2Adapter.singleToMono(getMetadata(memberships));
-}
+      
+Mono<Map<String, Map<String, Object>>> getMetadata_migrated(List<Membership> memberships);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(membershipId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -135,14 +105,8 @@ default Completable delete(String membershipId) {
      *
      * @see #addDomainUserRoleIfNecessary(String, String, String, NewMembership, User)
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.addDomainUserRoleIfNecessary_migrated(organizationId, environmentId, domainId, newMembership, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable addDomainUserRoleIfNecessary(String organizationId, String environmentId, String domainId, NewMembership newMembership, User principal) {
-    return RxJava2Adapter.monoToCompletable(addDomainUserRoleIfNecessary_migrated(organizationId, environmentId, domainId, newMembership, principal));
-}
-default Mono<Void> addDomainUserRoleIfNecessary_migrated(String organizationId, String environmentId, String domainId, NewMembership newMembership, User principal) {
-    return RxJava2Adapter.completableToMono(addDomainUserRoleIfNecessary(organizationId, environmentId, domainId, newMembership, principal));
-}
+      
+Mono<Void> addDomainUserRoleIfNecessary_migrated(String organizationId, String environmentId, String domainId, NewMembership newMembership, User principal);
 
     /**
      * When adding membership to a domain, some permissions are necessary on the domain's environment.
@@ -151,12 +115,6 @@ default Mono<Void> addDomainUserRoleIfNecessary_migrated(String organizationId, 
      *
      * If the group or user already has a role on the environment, nothing is done.
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.addEnvironmentUserRoleIfNecessary_migrated(organizationId, environmentId, newMembership, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable addEnvironmentUserRoleIfNecessary(String organizationId, String environmentId, NewMembership newMembership, User principal) {
-    return RxJava2Adapter.monoToCompletable(addEnvironmentUserRoleIfNecessary_migrated(organizationId, environmentId, newMembership, principal));
-}
-default Mono<Void> addEnvironmentUserRoleIfNecessary_migrated(String organizationId, String environmentId, NewMembership newMembership, User principal) {
-    return RxJava2Adapter.completableToMono(addEnvironmentUserRoleIfNecessary(organizationId, environmentId, newMembership, principal));
-}
+      
+Mono<Void> addEnvironmentUserRoleIfNecessary_migrated(String organizationId, String environmentId, NewMembership newMembership, User principal);
 }

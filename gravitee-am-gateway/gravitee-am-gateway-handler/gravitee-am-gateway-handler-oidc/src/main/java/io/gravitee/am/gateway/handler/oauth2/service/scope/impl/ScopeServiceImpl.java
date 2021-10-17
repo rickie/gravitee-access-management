@@ -37,12 +37,7 @@ public class ScopeServiceImpl implements ScopeService {
     @Autowired
     private ScopeManager scopeManager;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Set<Scope>> getAll() {
- return RxJava2Adapter.monoToSingle(getAll_migrated());
-}
+    
 @Override
     public Mono<Set<Scope>> getAll_migrated() {
         return Mono.just(scopeManager.findAll());

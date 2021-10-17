@@ -75,12 +75,7 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
     return authorizationCodeRepository.create_migrated(authorizationCode);
   }
 
-  @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.remove_migrated(code, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-  public Maybe<AuthorizationCode> remove(String code, Client client) {
- return RxJava2Adapter.monoToMaybe(remove_migrated(code, client));
-}
+  
 @Override
   public Mono<AuthorizationCode> remove_migrated(String code, Client client) {
     return authorizationCodeRepository.findByCode_migrated(code).switchIfEmpty(handleInvalidCode_migrated(code)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthorizationCode, MaybeSource<AuthorizationCode>>toJdkFunction(authorizationCode -> {

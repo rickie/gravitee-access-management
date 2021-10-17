@@ -57,12 +57,7 @@ public class TokenServiceImpl implements TokenService {
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findTotalTokensByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<TotalToken> findTotalTokensByDomain(String domain) {
- return RxJava2Adapter.monoToSingle(findTotalTokensByDomain_migrated(domain));
-}
+    
 @Override
     public Mono<TotalToken> findTotalTokensByDomain_migrated(String domain) {
         LOGGER.debug("Find total tokens by domain: {}", domain);
@@ -80,12 +75,7 @@ public class TokenServiceImpl implements TokenService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findTotalTokensByApplication_migrated(application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<TotalToken> findTotalTokensByApplication(Application application) {
- return RxJava2Adapter.monoToSingle(findTotalTokensByApplication_migrated(application));
-}
+    
 @Override
     public Mono<TotalToken> findTotalTokensByApplication_migrated(Application application) {
         LOGGER.debug("Find total tokens by application : {}", application);
@@ -100,12 +90,7 @@ public class TokenServiceImpl implements TokenService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findTotalTokens_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<TotalToken> findTotalTokens() {
- return RxJava2Adapter.monoToSingle(findTotalTokens_migrated());
-}
+    
 @Override
     public Mono<TotalToken> findTotalTokens_migrated() {
         LOGGER.debug("Find total tokens");
@@ -122,12 +107,7 @@ public class TokenServiceImpl implements TokenService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteByUserId(String userId) {
- return RxJava2Adapter.monoToCompletable(deleteByUserId_migrated(userId));
-}
+    
 @Override
     public Mono<Void> deleteByUserId_migrated(String userId) {
         LOGGER.debug("Delete tokens by user : {}", userId);

@@ -97,24 +97,14 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
         return accessPolicyRepository.findByDomainAndResource_migrated(domain, resource).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByResources_migrated(resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<AccessPolicy> findByResources(List<String> resources) {
- return RxJava2Adapter.fluxToFlowable(findByResources_migrated(resources));
-}
+    
 @Override
     public Flux<AccessPolicy> findByResources_migrated(List<String> resources) {
         LOGGER.debug("findByResources({})", resources);
         return accessPolicyRepository.findByResourceIn_migrated(resources).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByResource_migrated(resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Long> countByResource(String resource) {
- return RxJava2Adapter.monoToSingle(countByResource_migrated(resource));
-}
+    
 @Override
     public Mono<Long> countByResource_migrated(String resource) {
         LOGGER.debug("countByResource({})", resource);

@@ -73,12 +73,7 @@ public abstract class AbstractSocialAuthenticationProvider<T extends SocialIdent
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.signOutUrl_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Request> signOutUrl(Authentication authentication) {
- return RxJava2Adapter.monoToMaybe(signOutUrl_migrated(authentication));
-}
+    
 @Override
     public Mono<Request> signOutUrl_migrated(Authentication authentication) {
         final String endpoint = getConfiguration().getLogoutUri();
@@ -92,23 +87,13 @@ public abstract class AbstractSocialAuthenticationProvider<T extends SocialIdent
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> loadUserByUsername(Authentication authentication) {
- return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
-}
+    
 @Override
     public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
         return RxJava2Adapter.maybeToMono(authenticate(authentication)).flatMap(z->profile(z, authentication).as(RxJava2Adapter::maybeToMono));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> loadUserByUsername(String username) {
- return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
-}
+    
 @Override
     public Mono<User> loadUserByUsername_migrated(String username) {
         return Mono.empty();
@@ -129,11 +114,11 @@ public abstract class AbstractSocialAuthenticationProvider<T extends SocialIdent
         return this.getIdentityProviderRoleMapper().apply(authContext, attributes);
     }
 
-    protected abstract Maybe<Token> authenticate(Authentication authentication);
+    
 
     protected abstract Mono<Token> authenticate_migrated(Authentication authentication);
 
-    protected abstract Maybe<User> profile(Token token, Authentication authentication);
+    
 
     protected abstract Mono<User> profile_migrated(Token token, Authentication authentication);
 

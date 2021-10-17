@@ -91,12 +91,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordValidator passwordValidator;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.list_migrated(filter, page, size, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<ListResponse<User>> list(Filter filter, int page, int size, String baseUrl) {
- return RxJava2Adapter.monoToSingle(list_migrated(filter, page, size, baseUrl));
-}
+    
 @Override
     public Mono<ListResponse<User>> list_migrated(Filter filter, int page, int size, String baseUrl) {
         LOGGER.debug("Find users by domain: {}", domain.getId());
@@ -123,12 +118,7 @@ public class UserServiceImpl implements UserService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.get_migrated(userId, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> get(String userId, String baseUrl) {
- return RxJava2Adapter.monoToMaybe(get_migrated(userId, baseUrl));
-}
+    
 @Override
     public Mono<User> get_migrated(String userId, String baseUrl) {
         LOGGER.debug("Find user by id : {}", userId);

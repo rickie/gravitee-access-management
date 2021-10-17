@@ -34,14 +34,8 @@ import reactor.core.publisher.Mono;
  */
 @Repository
 public interface SpringAccessPolicyRepository extends RxJava2CrudRepository<JdbcAccessPolicy, String> {
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Long> countByDomain(String domain) {
-    return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));
-}
-default Mono<Long> countByDomain_migrated(String domain) {
-    return RxJava2Adapter.singleToMono(countByDomain(domain));
-}
+      
+Mono<Long> countByDomain_migrated(String domain);
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain, page))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -54,14 +48,8 @@ String domain, Pageable page) {
     return RxJava2Adapter.flowableToFlux(findByDomain(domain, page));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByResource_migrated(resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Long> countByResource(String resource) {
-    return RxJava2Adapter.monoToSingle(countByResource_migrated(resource));
-}
-default Mono<Long> countByResource_migrated(String resource) {
-    return RxJava2Adapter.singleToMono(countByResource(resource));
-}
+      
+Mono<Long> countByResource_migrated(String resource);
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndResource_migrated(domain, resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -76,14 +64,7 @@ String resource) {
     return RxJava2Adapter.flowableToFlux(findByDomainAndResource(domain, resource));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByResourceIn_migrated(resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcAccessPolicy> findByResourceIn(@Param(value = "resources")
-List<String> resources) {
-    return RxJava2Adapter.fluxToFlowable(findByResourceIn_migrated(resources));
-}
-default Flux<JdbcAccessPolicy> findByResourceIn_migrated(@Param(value = "resources")
-List<String> resources) {
-    return RxJava2Adapter.flowableToFlux(findByResourceIn(resources));
-}
+      
+Flux<JdbcAccessPolicy> findByResourceIn_migrated(@Param(value = "resources")
+List<String> resources);
 }

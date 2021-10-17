@@ -42,12 +42,7 @@ public class ApplicationAnalyticsServiceImpl implements ApplicationAnalyticsServ
     @Autowired
     private UserService userService;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.execute_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<AnalyticsResponse> execute(AnalyticsQuery query) {
- return RxJava2Adapter.monoToSingle(execute_migrated(query));
-}
+    
 @Override
     public Mono<AnalyticsResponse> execute_migrated(AnalyticsQuery query) {
         switch (query.getType()) {

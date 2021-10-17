@@ -51,12 +51,7 @@ public class MongoFactorRepository extends AbstractManagementMongoRepository imp
         super.createIndex(factorsCollection,new Document(FIELD_DOMAIN, 1).append(FIELD_FACTOR_TYPE, 1));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Factor> findAll() {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
+    
 @Override
     public Flux<Factor> findAll_migrated() {
         return Flux.from(factorsCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));

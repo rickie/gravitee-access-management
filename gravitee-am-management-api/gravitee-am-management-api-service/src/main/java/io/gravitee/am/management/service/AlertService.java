@@ -45,11 +45,7 @@ public class AlertService {
      *
      * @return <code>true</code> if the alerting feature is available, <code>false</code> else.
      */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.isAlertingAvailable_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Single<Boolean> isAlertingAvailable() {
- return RxJava2Adapter.monoToSingle(isAlertingAvailable_migrated());
-}
+    
 public Mono<Boolean> isAlertingAvailable_migrated() {
         LOGGER.debug("Get alert available status");
 

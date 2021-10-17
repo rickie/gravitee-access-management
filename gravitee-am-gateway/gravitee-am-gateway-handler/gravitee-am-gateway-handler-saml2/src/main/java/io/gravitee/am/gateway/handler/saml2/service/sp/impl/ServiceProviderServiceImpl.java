@@ -40,12 +40,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
     @Autowired
     private IdentityProviderManager identityProviderManager;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.metadata_migrated(providerId, idpUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Metadata> metadata(String providerId, String idpUrl) {
- return RxJava2Adapter.monoToSingle(metadata_migrated(providerId, idpUrl));
-}
+    
 @Override
     public Mono<Metadata> metadata_migrated(String providerId, String idpUrl) {
         return identityProviderManager.get_migrated(providerId).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(providerId))).map(RxJavaReactorMigrationUtil.toJdkFunction(authenticationProvider -> {

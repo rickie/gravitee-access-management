@@ -62,12 +62,7 @@ public class MongoInstallationRepository extends AbstractManagementMongoReposito
         return Flux.from(collection.find(eq(FIELD_ID, id)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.find_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Installation> find() {
- return RxJava2Adapter.monoToMaybe(find_migrated());
-}
+    
 @Override
     public Mono<Installation> find_migrated() {
 

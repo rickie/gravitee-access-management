@@ -46,27 +46,15 @@ public interface PushedAuthorizationRequestService {
      * @param client
      * @return
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.readFromURI_migrated(requestUri, client, oidcMetadata))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<JWT> readFromURI(String requestUri, Client client, OpenIDProviderMetadata oidcMetadata) {
-    return RxJava2Adapter.monoToSingle(readFromURI_migrated(requestUri, client, oidcMetadata));
-}
-default Mono<JWT> readFromURI_migrated(String requestUri, Client client, OpenIDProviderMetadata oidcMetadata) {
-    return RxJava2Adapter.singleToMono(readFromURI(requestUri, client, oidcMetadata));
-}
+      
+Mono<JWT> readFromURI_migrated(String requestUri, Client client, OpenIDProviderMetadata oidcMetadata);
 
     /**
      * Register a request object for a given Client
      * @return
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.registerParameters_migrated(par, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<PushedAuthorizationRequestResponse> registerParameters(PushedAuthorizationRequest par, Client client) {
-    return RxJava2Adapter.monoToSingle(registerParameters_migrated(par, client));
-}
-default Mono<PushedAuthorizationRequestResponse> registerParameters_migrated(PushedAuthorizationRequest par, Client client) {
-    return RxJava2Adapter.singleToMono(registerParameters(par, client));
-}
+      
+Mono<PushedAuthorizationRequestResponse> registerParameters_migrated(PushedAuthorizationRequest par, Client client);
 
     /**
      * Delete the PushedAuthorizationRequest entry from the repository
@@ -74,12 +62,6 @@ default Mono<PushedAuthorizationRequestResponse> registerParameters_migrated(Pus
      * @param uriIdentifier
      * @return
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteRequestUri_migrated(uriIdentifier))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable deleteRequestUri(String uriIdentifier) {
-    return RxJava2Adapter.monoToCompletable(deleteRequestUri_migrated(uriIdentifier));
-}
-default Mono<Void> deleteRequestUri_migrated(String uriIdentifier) {
-    return RxJava2Adapter.completableToMono(deleteRequestUri(uriIdentifier));
-}
+      
+Mono<Void> deleteRequestUri_migrated(String uriIdentifier);
 }

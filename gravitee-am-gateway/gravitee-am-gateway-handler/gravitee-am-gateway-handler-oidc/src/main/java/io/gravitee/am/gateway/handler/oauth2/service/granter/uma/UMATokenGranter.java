@@ -116,24 +116,14 @@ public class UMATokenGranter extends AbstractTokenGranter {
         domain!=null && domain.getUma()!=null && domain.getUma().isEnabled();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.grant_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Token> grant(TokenRequest tokenRequest, Client client) {
- return RxJava2Adapter.monoToSingle(grant_migrated(tokenRequest, client));
-}
+    
 @Override
     public Mono<Token> grant_migrated(TokenRequest tokenRequest, Client client) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(parseRequest_migrated(tokenRequest, client).flatMap(e->resolveResourceOwner_migrated(tokenRequest, client)).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
                 .flatMapSingle(user -> RxJava2Adapter.monoToSingle(handleRequest_migrated(tokenRequest, client, user.orElse(null)))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.parseRequest_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    protected Single<TokenRequest> parseRequest(TokenRequest tokenRequest, Client client) {
- return RxJava2Adapter.monoToSingle(parseRequest_migrated(tokenRequest, client));
-}
+    
 @Override
     protected Mono<TokenRequest> parseRequest_migrated(TokenRequest tokenRequest, Client client) {
         MultiValueMap<String, String> parameters = tokenRequest.parameters();
@@ -178,12 +168,7 @@ public class UMATokenGranter extends AbstractTokenGranter {
         return super.parseRequest_migrated(tokenRequest, client);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.resolveResourceOwner_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    protected Maybe<User> resolveResourceOwner(TokenRequest tokenRequest, Client client) {
- return RxJava2Adapter.monoToMaybe(resolveResourceOwner_migrated(tokenRequest, client));
-}
+    
 @Override
     protected Mono<User> resolveResourceOwner_migrated(TokenRequest tokenRequest, Client client) {
         if(StringUtils.isEmpty(tokenRequest.getClaimToken())) {
@@ -335,11 +320,7 @@ private Mono<OAuth2Request> createOAuth2Request_migrated(TokenRequest tokenReque
      * While oauth2 imply user approvals (RO grant access to his resources to an application),
      * here the subject is a Requesting Party that request grant access to someone else resources.
      */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveRequest_migrated(tokenRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Single<TokenRequest> resolveRequest(TokenRequest tokenRequest, Client client, User endUser) {
- return RxJava2Adapter.monoToSingle(resolveRequest_migrated(tokenRequest, client, endUser));
-}
+    
 protected Mono<TokenRequest> resolveRequest_migrated(TokenRequest tokenRequest, Client client, User endUser) {
         return Mono.error(new TechnicalException("Should not be used"));
     }

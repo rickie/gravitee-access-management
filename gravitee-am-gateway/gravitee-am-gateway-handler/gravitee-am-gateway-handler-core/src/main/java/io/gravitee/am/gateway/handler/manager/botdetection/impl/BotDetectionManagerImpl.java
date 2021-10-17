@@ -124,12 +124,7 @@ public class BotDetectionManagerImpl extends AbstractService implements BotDetec
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validate_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Boolean> validate(BotDetectionContext context) {
- return RxJava2Adapter.monoToSingle(validate_migrated(context));
-}
+    
 @Override
     public Mono<Boolean> validate_migrated(BotDetectionContext context) {
         final BotDetectionProvider botDetectionProvider = this.providers.get(context.getPluginId());

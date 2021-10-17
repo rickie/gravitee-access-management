@@ -49,11 +49,7 @@ public class AbstractUserConsentEndpointHandler {
         this.domain = domain;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getPrincipal_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Single<User> getPrincipal(RoutingContext context) {
- return RxJava2Adapter.monoToSingle(getPrincipal_migrated(context));
-}
+    
 protected Mono<User> getPrincipal_migrated(RoutingContext context) {
         JWT token = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
 

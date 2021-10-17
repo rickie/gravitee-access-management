@@ -27,12 +27,6 @@ import reactor.core.publisher.Mono;
  * @author GraviteeSource Team
  */
 public interface EmailSenderProvider extends ResourceProvider {
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.sendMessage_migrated(message))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable sendMessage(Email message) {
-    return RxJava2Adapter.monoToCompletable(sendMessage_migrated(message));
-}
-default Mono<Void> sendMessage_migrated(Email message) {
-    return RxJava2Adapter.completableToMono(sendMessage(message));
-}
+      
+Mono<Void> sendMessage_migrated(Email message);
 }

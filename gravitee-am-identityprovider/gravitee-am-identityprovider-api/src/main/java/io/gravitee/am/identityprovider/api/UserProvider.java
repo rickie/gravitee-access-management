@@ -31,22 +31,12 @@ import reactor.core.publisher.Mono;
  */
 public interface UserProvider extends Service<UserProvider> {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByEmail_migrated(email))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<User> findByEmail(String email) {
-    return RxJava2Adapter.monoToMaybe(findByEmail_migrated(email));
-}default Mono<User> findByEmail_migrated(String email) {
+      default Mono<User> findByEmail_migrated(String email) {
         return Mono.empty();
     }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<User> findByUsername(String username) {
-    return RxJava2Adapter.monoToMaybe(findByUsername_migrated(username));
-}
-default Mono<User> findByUsername_migrated(String username) {
-    return RxJava2Adapter.maybeToMono(findByUsername(username));
-}
+      
+Mono<User> findByUsername_migrated(String username);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

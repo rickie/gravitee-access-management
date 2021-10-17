@@ -62,11 +62,7 @@ public class NotifierPluginService {
         this.objectMapper = objectMapper;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Flowable<NotifierPlugin> findAll(String... expand) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(expand));
-}
+    
 public Flux<NotifierPlugin> findAll_migrated(String... expand) {
         return Flux.fromIterable(notifierPluginManager.findAll()).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<io.gravitee.plugin.notifier.NotifierPlugin, Single<NotifierPlugin>>toJdkFunction(plugin -> RxJava2Adapter.monoToSingle(convert_migrated(plugin, expand))).apply(e))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(throwable -> {
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to get notifier plugins", throwable)));
@@ -85,11 +81,7 @@ public Mono<NotifierPlugin> findById_migrated(String notifierId) {
                 })).switchIfEmpty(Mono.defer(()->Mono.error(new NotifierPluginNotFoundException(notifierId))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getSchema_migrated(notifierId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Single<String> getSchema(String notifierId) {
- return RxJava2Adapter.monoToSingle(getSchema_migrated(notifierId));
-}
+    
 public Mono<String> getSchema_migrated(String notifierId) {
 
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> notifierPluginManager.getSchema(notifierId))).map(RxJavaReactorMigrationUtil.toJdkFunction(objectMapper::readTree)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(jsonSchema -> {
@@ -112,11 +104,7 @@ public Mono<String> getSchema_migrated(String notifierId) {
                 })).switchIfEmpty(Mono.defer(()->Mono.error(new NotifierPluginSchemaNotFoundException(notifierId))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getIcon_migrated(notifierId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Maybe<String> getIcon(String notifierId) {
- return RxJava2Adapter.monoToMaybe(getIcon_migrated(notifierId));
-}
+    
 public Mono<String> getIcon_migrated(String notifierId) {
 
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> notifierPluginManager.getIcon(notifierId))))
@@ -125,11 +113,7 @@ public Mono<String> getIcon_migrated(String notifierId) {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getDocumentation_migrated(notifierId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Maybe<String> getDocumentation(String notifierId) {
- return RxJava2Adapter.monoToMaybe(getDocumentation_migrated(notifierId));
-}
+    
 public Mono<String> getDocumentation_migrated(String notifierId) {
 
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> notifierPluginManager.getDocumentation(notifierId))))

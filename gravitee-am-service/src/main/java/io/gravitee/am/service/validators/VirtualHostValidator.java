@@ -36,11 +36,7 @@ import reactor.core.publisher.Mono;
  */
 public class VirtualHostValidator {
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(VirtualHostValidator.validate_migrated(vhost, domainRestrictions))", imports = {"io.gravitee.am.service.validators.VirtualHostValidator", "reactor.adapter.rxjava.RxJava2Adapter"})
-@Deprecated
-public static Completable validate(VirtualHost vhost, List<String> domainRestrictions) {
- return RxJava2Adapter.monoToCompletable(validate_migrated(vhost, domainRestrictions));
-}
+    
 public static Mono<Void> validate_migrated(VirtualHost vhost, List<String> domainRestrictions) {
 
         String host = vhost.getHost();
@@ -78,11 +74,7 @@ public static Mono<Void> validate_migrated(VirtualHost vhost, List<String> domai
         return PathValidator.validate_migrated(vhost.getPath());
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(VirtualHostValidator.validateDomainVhosts_migrated(domain, domains))", imports = {"io.gravitee.am.service.validators.VirtualHostValidator", "reactor.adapter.rxjava.RxJava2Adapter"})
-@Deprecated
-public static Completable validateDomainVhosts(Domain domain, List<Domain> domains) {
- return RxJava2Adapter.monoToCompletable(validateDomainVhosts_migrated(domain, domains));
-}
+    
 public static Mono<Void> validateDomainVhosts_migrated(Domain domain, List<Domain> domains) {
 
         List<VirtualHost> otherVhosts = domains.stream()

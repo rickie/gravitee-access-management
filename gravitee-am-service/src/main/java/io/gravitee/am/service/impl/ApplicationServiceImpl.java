@@ -128,12 +128,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Autowired
     private CertificateService certificateService;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Application>> findAll(int page, int size) {
- return RxJava2Adapter.monoToSingle(findAll_migrated(page, size));
-}
+    
 @Override
     public Mono<Page<Application>> findAll_migrated(int page, int size) {
         LOGGER.debug("Find applications");
@@ -159,12 +154,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Application>> search(String domain, String query, int page, int size) {
- return RxJava2Adapter.monoToSingle(search_migrated(domain, query, page, size));
-}
+    
 @Override
     public Mono<Page<Application>> search_migrated(String domain, String query, int page, int size) {
         LOGGER.debug("Search applications with query {} for domain {}", query, domain);
@@ -175,12 +165,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCertificate_migrated(certificate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Application> findByCertificate(String certificate) {
- return RxJava2Adapter.fluxToFlowable(findByCertificate_migrated(certificate));
-}
+    
 @Override
     public Flux<Application> findByCertificate_migrated(String certificate) {
         LOGGER.debug("Find applications by certificate : {}", certificate);
@@ -190,12 +175,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdentityProvider_migrated(identityProvider))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Application> findByIdentityProvider(String identityProvider) {
- return RxJava2Adapter.fluxToFlowable(findByIdentityProvider_migrated(identityProvider));
-}
+    
 @Override
     public Flux<Application> findByIdentityProvider_migrated(String identityProvider) {
         LOGGER.debug("Find applications by identity provider : {}", identityProvider);
@@ -205,12 +185,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByFactor_migrated(factor))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Application> findByFactor(String factor) {
- return RxJava2Adapter.fluxToFlowable(findByFactor_migrated(factor));
-}
+    
 @Override
     public Flux<Application> findByFactor_migrated(String factor) {
         LOGGER.debug("Find applications by factor : {}", factor);
@@ -220,12 +195,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomainAndExtensionGrant_migrated(domain, extensionGrant))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Set<Application>> findByDomainAndExtensionGrant(String domain, String extensionGrant) {
- return RxJava2Adapter.monoToSingle(findByDomainAndExtensionGrant_migrated(domain, extensionGrant));
-}
+    
 @Override
     public Mono<Set<Application>> findByDomainAndExtensionGrant_migrated(String domain, String extensionGrant) {
         LOGGER.debug("Find applications by domain {} and extension grant : {}", domain, extensionGrant);
@@ -236,12 +206,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Application> findByIdIn(List<String> ids) {
- return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
-}
+    
 @Override
     public Flux<Application> findByIdIn_migrated(List<String> ids) {
         LOGGER.debug("Find applications by ids : {}", ids);
@@ -268,12 +233,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientId_migrated(domain, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Application> findByDomainAndClientId(String domain, String clientId) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndClientId_migrated(domain, clientId));
-}
+    
 @Override
     public Mono<Application> findByDomainAndClientId_migrated(String domain, String clientId) {
         LOGGER.debug("Find application by domain: {} and client_id {}", domain, clientId);
@@ -368,12 +328,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateType_migrated(domain, id, type, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Application> updateType(String domain, String id, ApplicationType type, User principal) {
- return RxJava2Adapter.monoToSingle(updateType_migrated(domain, id, type, principal));
-}
+    
 @Override
     public Mono<Application> updateType_migrated(String domain, String id, ApplicationType type, User principal) {
         LOGGER.debug("Update application {} type to {} for domain {}", id, type, domain);
@@ -419,12 +374,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.renewClientSecret_migrated(domain, id, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Application> renewClientSecret(String domain, String id, User principal) {
- return RxJava2Adapter.monoToSingle(renewClientSecret_migrated(domain, id, principal));
-}
+    
 @Override
     public Mono<Application> renewClientSecret_migrated(String domain, String id, User principal) {
         LOGGER.debug("Renew client secret for application {} and domain {}", id, domain);
@@ -479,12 +429,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.count_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Long> count() {
- return RxJava2Adapter.monoToSingle(count_migrated());
-}
+    
 @Override
     public Mono<Long> count_migrated() {
         LOGGER.debug("Count applications");
@@ -498,12 +443,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByDomain_migrated(domainId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Long> countByDomain(String domainId) {
- return RxJava2Adapter.monoToSingle(countByDomain_migrated(domainId));
-}
+    
 @Override
     public Mono<Long> countByDomain_migrated(String domainId) {
         LOGGER.debug("Count applications for domain {}", domainId);
@@ -517,12 +457,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findTopApplications_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Set<TopApplication>> findTopApplications() {
- return RxJava2Adapter.monoToSingle(findTopApplications_migrated());
-}
+    
 @Override
     public Mono<Set<TopApplication>> findTopApplications_migrated() {
         LOGGER.debug("Find top applications");
@@ -541,12 +476,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findTopApplicationsByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Set<TopApplication>> findTopApplicationsByDomain(String domain) {
- return RxJava2Adapter.monoToSingle(findTopApplicationsByDomain_migrated(domain));
-}
+    
 @Override
     public Mono<Set<TopApplication>> findTopApplicationsByDomain_migrated(String domain) {
         LOGGER.debug("Find top applications for domain: {}", domain);

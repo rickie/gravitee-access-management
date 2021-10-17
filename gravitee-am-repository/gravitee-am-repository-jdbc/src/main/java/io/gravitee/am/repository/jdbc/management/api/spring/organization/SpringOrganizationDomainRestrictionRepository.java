@@ -30,12 +30,6 @@ import reactor.core.publisher.Flux;
  */
 @Repository
 public interface SpringOrganizationDomainRestrictionRepository extends RxJava2CrudRepository<JdbcOrganization.DomainRestriction, String> {
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByOrganizationId_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<DomainRestriction> findAllByOrganizationId(String organizationId) {
-    return RxJava2Adapter.fluxToFlowable(findAllByOrganizationId_migrated(organizationId));
-}
-default Flux<DomainRestriction> findAllByOrganizationId_migrated(String organizationId) {
-    return RxJava2Adapter.flowableToFlux(findAllByOrganizationId(organizationId));
-}
+      
+Flux<DomainRestriction> findAllByOrganizationId_migrated(String organizationId);
 }

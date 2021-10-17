@@ -32,14 +32,8 @@ import reactor.core.publisher.Mono;
  */
 public interface UserConsentService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.checkConsent_migrated(client, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Set<String>> checkConsent(Client client, io.gravitee.am.model.User user) {
-    return RxJava2Adapter.monoToSingle(checkConsent_migrated(client, user));
-}
-default Mono<Set<String>> checkConsent_migrated(Client client, io.gravitee.am.model.User user) {
-    return RxJava2Adapter.singleToMono(checkConsent(client, user));
-}
+      
+Mono<Set<String>> checkConsent_migrated(Client client, io.gravitee.am.model.User user);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.saveConsent_migrated(client, approvals, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -50,12 +44,6 @@ default Mono<List<ScopeApproval>> saveConsent_migrated(Client client, List<Scope
     return RxJava2Adapter.singleToMono(saveConsent(client, approvals, principal));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getConsentInformation_migrated(consent))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<Scope>> getConsentInformation(Set<String> consent) {
-    return RxJava2Adapter.monoToSingle(getConsentInformation_migrated(consent));
-}
-default Mono<List<Scope>> getConsentInformation_migrated(Set<String> consent) {
-    return RxJava2Adapter.singleToMono(getConsentInformation(consent));
-}
+      
+Mono<List<Scope>> getConsentInformation_migrated(Set<String> consent);
 }

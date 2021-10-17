@@ -145,12 +145,7 @@ public class CertificateServiceImpl implements CertificateService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Certificate> findAll() {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
+    
 @Override
     public Flux<Certificate> findAll_migrated() {
         LOGGER.debug("Find all certificates");

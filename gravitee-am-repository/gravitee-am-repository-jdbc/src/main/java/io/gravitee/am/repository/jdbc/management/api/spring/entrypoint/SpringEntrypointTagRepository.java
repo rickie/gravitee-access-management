@@ -31,14 +31,7 @@ import reactor.core.publisher.Flux;
  */
 @Repository
 public interface SpringEntrypointTagRepository extends RxJava2CrudRepository<JdbcEntrypoint.Tag, String> {
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByEntrypoint_migrated(entrypointId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Tag> findAllByEntrypoint(@Param(value = "epi")
-String entrypointId) {
-    return RxJava2Adapter.fluxToFlowable(findAllByEntrypoint_migrated(entrypointId));
-}
-default Flux<Tag> findAllByEntrypoint_migrated(@Param(value = "epi")
-String entrypointId) {
-    return RxJava2Adapter.flowableToFlux(findAllByEntrypoint(entrypointId));
-}
+      
+Flux<Tag> findAllByEntrypoint_migrated(@Param(value = "epi")
+String entrypointId);
 }

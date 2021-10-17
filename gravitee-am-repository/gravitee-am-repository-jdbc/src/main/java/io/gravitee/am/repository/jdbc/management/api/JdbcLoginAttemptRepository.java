@@ -61,12 +61,7 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
         return mapper.map(entity, JdbcLoginAttempt.class);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByCriteria_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<LoginAttempt> findByCriteria(LoginAttemptCriteria criteria) {
- return RxJava2Adapter.monoToMaybe(findByCriteria_migrated(criteria));
-}
+    
 @Override
     public Mono<LoginAttempt> findByCriteria_migrated(LoginAttemptCriteria criteria) {
         LOGGER.debug("findByCriteria({})", criteria);
@@ -181,11 +176,7 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
         return RxJava2Adapter.completableToMono(loginAttemptRepository.deleteById(id));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Completable purgeExpiredData() {
- return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
-}
+    
 public Mono<Void> purgeExpiredData_migrated() {
         LOGGER.debug("purgeExpiredData()");
         LocalDateTime now = LocalDateTime.now(UTC);

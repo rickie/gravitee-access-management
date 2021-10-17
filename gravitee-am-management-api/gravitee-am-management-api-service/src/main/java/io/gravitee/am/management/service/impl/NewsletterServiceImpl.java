@@ -78,12 +78,7 @@ public class NewsletterServiceImpl implements NewsletterService, InitializingBea
         });
   }
 
-  @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getTaglines_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-  public Single<List<String>> getTaglines() {
- return RxJava2Adapter.monoToSingle(getTaglines_migrated());
-}
+  
 @Override
   public Mono<List<String>> getTaglines_migrated() {
     if (!newsletterEnabled) {

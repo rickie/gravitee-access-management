@@ -94,12 +94,7 @@ private Mono<AuthorizationCode> findById_migrated(String id) {
         return Flux.from(authorizationCodeCollection.findOneAndDelete(eq(FIELD_ID, code))).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByCode_migrated(code))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<AuthorizationCode> findByCode(String code) {
- return RxJava2Adapter.monoToMaybe(findByCode_migrated(code));
-}
+    
 @Override
     public Mono<AuthorizationCode> findByCode_migrated(String code) {
         return Flux.from(authorizationCodeCollection.find(eq(FIELD_CODE, code)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));

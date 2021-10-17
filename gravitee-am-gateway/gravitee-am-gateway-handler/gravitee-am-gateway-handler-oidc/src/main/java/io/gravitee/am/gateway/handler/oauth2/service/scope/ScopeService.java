@@ -29,14 +29,8 @@ import reactor.core.publisher.Mono;
  */
 public interface ScopeService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Set<Scope>> getAll() {
-    return RxJava2Adapter.monoToSingle(getAll_migrated());
-}
-default Mono<Set<Scope>> getAll_migrated() {
-    return RxJava2Adapter.singleToMono(getAll());
-}
+      
+Mono<Set<Scope>> getAll_migrated();
 
     Scope findByKey(String key);
 

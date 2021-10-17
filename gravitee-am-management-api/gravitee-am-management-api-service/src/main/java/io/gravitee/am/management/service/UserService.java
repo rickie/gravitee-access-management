@@ -72,50 +72,20 @@ default Mono<io.gravitee.am.model.User> update_migrated(String domain, String id
     return RxJava2Adapter.singleToMono(update(domain, id, updateUser, principal));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateStatus_migrated(domain, id, status, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<io.gravitee.am.model.User> updateStatus(String domain, String id, boolean status, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.monoToSingle(updateStatus_migrated(domain, id, status, principal));
-}
-default Mono<io.gravitee.am.model.User> updateStatus_migrated(String domain, String id, boolean status, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.singleToMono(updateStatus(domain, id, status, principal));
-}
+      
+Mono<io.gravitee.am.model.User> updateStatus_migrated(String domain, String id, boolean status, io.gravitee.am.identityprovider.api.User principal);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.resetPassword_migrated(domain, userId, password, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable resetPassword(Domain domain, String userId, String password, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.monoToCompletable(resetPassword_migrated(domain, userId, password, principal));
-}
-default Mono<Void> resetPassword_migrated(Domain domain, String userId, String password, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.completableToMono(resetPassword(domain, userId, password, principal));
-}
+      
+Mono<Void> resetPassword_migrated(Domain domain, String userId, String password, io.gravitee.am.identityprovider.api.User principal);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.sendRegistrationConfirmation_migrated(domain, userId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable sendRegistrationConfirmation(String domain, String userId, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.monoToCompletable(sendRegistrationConfirmation_migrated(domain, userId, principal));
-}
-default Mono<Void> sendRegistrationConfirmation_migrated(String domain, String userId, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.completableToMono(sendRegistrationConfirmation(domain, userId, principal));
-}
+      
+Mono<Void> sendRegistrationConfirmation_migrated(String domain, String userId, io.gravitee.am.identityprovider.api.User principal);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.unlock_migrated(referenceType, referenceId, userId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable unlock(ReferenceType referenceType, String referenceId, String userId, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.monoToCompletable(unlock_migrated(referenceType, referenceId, userId, principal));
-}
-default Mono<Void> unlock_migrated(ReferenceType referenceType, String referenceId, String userId, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.completableToMono(unlock(referenceType, referenceId, userId, principal));
-}
+      
+Mono<Void> unlock_migrated(ReferenceType referenceType, String referenceId, String userId, io.gravitee.am.identityprovider.api.User principal);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.assignRoles_migrated(referenceType, referenceId, userId, roles, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<io.gravitee.am.model.User> assignRoles(ReferenceType referenceType, String referenceId, String userId, List<String> roles, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.monoToSingle(assignRoles_migrated(referenceType, referenceId, userId, roles, principal));
-}
-default Mono<io.gravitee.am.model.User> assignRoles_migrated(ReferenceType referenceType, String referenceId, String userId, List<String> roles, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.singleToMono(assignRoles(referenceType, referenceId, userId, roles, principal));
-}
+      
+Mono<io.gravitee.am.model.User> assignRoles_migrated(ReferenceType referenceType, String referenceId, String userId, List<String> roles, io.gravitee.am.identityprovider.api.User principal);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.revokeRoles_migrated(referenceType, referenceId, userId, roles, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -126,14 +96,8 @@ default Mono<io.gravitee.am.model.User> revokeRoles_migrated(ReferenceType refer
     return RxJava2Adapter.singleToMono(revokeRoles(referenceType, referenceId, userId, roles, principal));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enrollFactors_migrated(userId, factors, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<io.gravitee.am.model.User> enrollFactors(String userId, List<EnrolledFactor> factors, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.monoToSingle(enrollFactors_migrated(userId, factors, principal));
-}
-default Mono<io.gravitee.am.model.User> enrollFactors_migrated(String userId, List<EnrolledFactor> factors, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.singleToMono(enrollFactors(userId, factors, principal));
-}
+      
+Mono<io.gravitee.am.model.User> enrollFactors_migrated(String userId, List<EnrolledFactor> factors, io.gravitee.am.identityprovider.api.User principal);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -143,28 +107,10 @@ default Single<io.gravitee.am.model.User> update(String domain, String id, Updat
         return RxJava2Adapter.singleToMono(update(domain, id, updateUser, null));
     }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateStatus_migrated(domain, userId, status))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<io.gravitee.am.model.User> updateStatus(String domain, String userId, boolean status) {
-    return RxJava2Adapter.monoToSingle(updateStatus_migrated(domain, userId, status));
-}default Mono<User> updateStatus_migrated(String domain, String userId, boolean status) {
-        return RxJava2Adapter.singleToMono(updateStatus(domain, userId, status, null));
-    }
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.unlock_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable unlock(ReferenceType referenceType, String referenceId, String userId) {
-    return RxJava2Adapter.monoToCompletable(unlock_migrated(referenceType, referenceId, userId));
-}default Mono<Void> unlock_migrated(ReferenceType referenceType, String referenceId, String userId) {
-        return RxJava2Adapter.completableToMono(unlock(referenceType, referenceId, userId, null));
-    }
+      Mono<User> updateStatus_migrated(String domain, String userId, boolean status);
+      Mono<Void> unlock_migrated(ReferenceType referenceType, String referenceId, String userId);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.assignRoles_migrated(referenceType, referenceId, userId, roles))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<io.gravitee.am.model.User> assignRoles(ReferenceType referenceType, String referenceId, String userId, List<String> roles) {
-    return RxJava2Adapter.monoToSingle(assignRoles_migrated(referenceType, referenceId, userId, roles));
-}default Mono<User> assignRoles_migrated(ReferenceType referenceType, String referenceId, String userId, List<String> roles) {
-        return RxJava2Adapter.singleToMono(assignRoles(referenceType, referenceId, userId, roles, null));
-    }
+      Mono<User> assignRoles_migrated(ReferenceType referenceType, String referenceId, String userId, List<String> roles);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.revokeRoles_migrated(referenceType, referenceId, userId, roles))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -174,12 +120,6 @@ default Single<io.gravitee.am.model.User> revokeRoles(ReferenceType referenceTyp
         return RxJava2Adapter.singleToMono(revokeRoles(referenceType, referenceId, userId, roles, null));
     }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enrollFactors_migrated(userId, factors))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<io.gravitee.am.model.User> enrollFactors(String userId, List<EnrolledFactor> factors) {
-    return RxJava2Adapter.monoToSingle(enrollFactors_migrated(userId, factors));
-}default Mono<User> enrollFactors_migrated(String userId, List<EnrolledFactor> factors) {
-        return RxJava2Adapter.singleToMono(enrollFactors(userId, factors, null));
-    }
+      Mono<User> enrollFactors_migrated(String userId, List<EnrolledFactor> factors);
 
 }

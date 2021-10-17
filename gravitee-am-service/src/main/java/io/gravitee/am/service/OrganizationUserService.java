@@ -33,26 +33,14 @@ public interface OrganizationUserService extends CommonUserService {
      * @param principal of the user (may be null if creation comes from the Console action, not from a login)
      * @param user on who the default role must be applied
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.setRoles_migrated(principal, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable setRoles(io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
-    return RxJava2Adapter.monoToCompletable(setRoles_migrated(principal, user));
-}
-default Mono<Void> setRoles_migrated(io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
-    return RxJava2Adapter.completableToMono(setRoles(principal, user));
-}
+      
+Mono<Void> setRoles_migrated(io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user);
 
     /**
      * See {@link #setRoles(io.gravitee.am.identityprovider.api.User, User)} with null principal
      * @param user
      * @return
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.setRoles_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable setRoles(io.gravitee.am.model.User user) {
-    return RxJava2Adapter.monoToCompletable(setRoles_migrated(user));
-}
-default Mono<Void> setRoles_migrated(io.gravitee.am.model.User user) {
-    return RxJava2Adapter.completableToMono(setRoles(user));
-}
+      
+Mono<Void> setRoles_migrated(io.gravitee.am.model.User user);
 }

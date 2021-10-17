@@ -31,14 +31,7 @@ import reactor.core.publisher.Flux;
  */
 @Repository
 public interface SpringRoleOauthScopeRepository extends RxJava2CrudRepository<JdbcRole.OAuthScope, String> {
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByRole_migrated(roleId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<OAuthScope> findAllByRole(@Param(value = "roleId")
-String roleId) {
-    return RxJava2Adapter.fluxToFlowable(findAllByRole_migrated(roleId));
-}
-default Flux<OAuthScope> findAllByRole_migrated(@Param(value = "roleId")
-String roleId) {
-    return RxJava2Adapter.flowableToFlux(findAllByRole(roleId));
-}
+      
+Flux<OAuthScope> findAllByRole_migrated(@Param(value = "roleId")
+String roleId);
 }

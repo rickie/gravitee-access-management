@@ -27,12 +27,6 @@ import reactor.core.publisher.Mono;
  */
 public interface IntrospectionTokenService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.introspect_migrated(token, offlineVerification))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<JWT> introspect(String token, boolean offlineVerification) {
-    return RxJava2Adapter.monoToSingle(introspect_migrated(token, offlineVerification));
-}
-default Mono<JWT> introspect_migrated(String token, boolean offlineVerification) {
-    return RxJava2Adapter.singleToMono(introspect(token, offlineVerification));
-}
+      
+Mono<JWT> introspect_migrated(String token, boolean offlineVerification);
 }

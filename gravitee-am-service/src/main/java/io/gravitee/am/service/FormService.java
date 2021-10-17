@@ -46,23 +46,11 @@ default Mono<Form> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Form> findAll(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
-default Flux<Form> findAll_migrated(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
-}
+      
+Flux<Form> findAll_migrated(ReferenceType referenceType, String referenceId);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Form> findAll(ReferenceType referenceType) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType));
-}
-default Flux<Form> findAll_migrated(ReferenceType referenceType) {
-    return RxJava2Adapter.flowableToFlux(findAll(referenceType));
-}
+      
+Flux<Form> findAll_migrated(ReferenceType referenceType);
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -73,68 +61,26 @@ default Flux<Form> findByDomain_migrated(String domain) {
     return RxJava2Adapter.flowableToFlux(findByDomain(domain));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByClient_migrated(referenceType, referenceId, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Form> findByClient(ReferenceType referenceType, String referenceId, String client) {
-    return RxJava2Adapter.fluxToFlowable(findByClient_migrated(referenceType, referenceId, client));
-}
-default Flux<Form> findByClient_migrated(ReferenceType referenceType, String referenceId, String client) {
-    return RxJava2Adapter.flowableToFlux(findByClient(referenceType, referenceId, client));
-}
+      
+Flux<Form> findByClient_migrated(ReferenceType referenceType, String referenceId, String client);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndClient_migrated(domain, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Form> findByDomainAndClient(String domain, String client) {
-    return RxJava2Adapter.fluxToFlowable(findByDomainAndClient_migrated(domain, client));
-}
-default Flux<Form> findByDomainAndClient_migrated(String domain, String client) {
-    return RxJava2Adapter.flowableToFlux(findByDomainAndClient(domain, client));
-}
+      
+Flux<Form> findByDomainAndClient_migrated(String domain, String client);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByTemplate_migrated(referenceType, referenceId, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Form> findByTemplate(ReferenceType referenceType, String referenceId, String template) {
-    return RxJava2Adapter.monoToMaybe(findByTemplate_migrated(referenceType, referenceId, template));
-}
-default Mono<Form> findByTemplate_migrated(ReferenceType referenceType, String referenceId, String template) {
-    return RxJava2Adapter.maybeToMono(findByTemplate(referenceType, referenceId, template));
-}
+      
+Mono<Form> findByTemplate_migrated(ReferenceType referenceType, String referenceId, String template);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndTemplate_migrated(domain, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Form> findByDomainAndTemplate(String domain, String template) {
-    return RxJava2Adapter.monoToMaybe(findByDomainAndTemplate_migrated(domain, template));
-}
-default Mono<Form> findByDomainAndTemplate_migrated(String domain, String template) {
-    return RxJava2Adapter.maybeToMono(findByDomainAndTemplate(domain, template));
-}
+      
+Mono<Form> findByDomainAndTemplate_migrated(String domain, String template);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByClientAndTemplate_migrated(referenceType, referenceId, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Form> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template) {
-    return RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(referenceType, referenceId, client, template));
-}
-default Mono<Form> findByClientAndTemplate_migrated(ReferenceType referenceType, String referenceId, String client, String template) {
-    return RxJava2Adapter.maybeToMono(findByClientAndTemplate(referenceType, referenceId, client, template));
-}
+      
+Mono<Form> findByClientAndTemplate_migrated(ReferenceType referenceType, String referenceId, String client, String template);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientAndTemplate_migrated(domain, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Form> findByDomainAndClientAndTemplate(String domain, String client, String template) {
-    return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndTemplate_migrated(domain, client, template));
-}
-default Mono<Form> findByDomainAndClientAndTemplate_migrated(String domain, String client, String template) {
-    return RxJava2Adapter.maybeToMono(findByDomainAndClientAndTemplate(domain, client, template));
-}
+      
+Mono<Form> findByDomainAndClientAndTemplate_migrated(String domain, String client, String template);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.copyFromClient_migrated(domain, clientSource, clientTarget))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<Form>> copyFromClient(String domain, String clientSource, String clientTarget) {
-    return RxJava2Adapter.monoToSingle(copyFromClient_migrated(domain, clientSource, clientTarget));
-}
-default Mono<List<Form>> copyFromClient_migrated(String domain, String clientSource, String clientTarget) {
-    return RxJava2Adapter.singleToMono(copyFromClient(domain, clientSource, clientTarget));
-}
+      
+Mono<List<Form>> copyFromClient_migrated(String domain, String clientSource, String clientTarget);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(referenceType, referenceId, newForm, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

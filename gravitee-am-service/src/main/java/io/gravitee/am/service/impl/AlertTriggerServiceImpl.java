@@ -76,12 +76,7 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
      * @param id the alert trigger identifier.
      * @return the alert trigger found or an {@link AlertTriggerNotFoundException} if no alert trigger has been found.
      */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<AlertTrigger> getById(String id) {
- return RxJava2Adapter.monoToSingle(getById_migrated(id));
-}
+    
 @Override
     public Mono<AlertTrigger> getById_migrated(String id) {
         LOGGER.debug("Find alert trigger by id: {}", id);
@@ -98,12 +93,7 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
      * @param id the alert trigger identifier.
      * @return the alert trigger found or an {@link AlertTriggerNotFoundException} if no alert trigger has been found.
      */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<AlertTrigger> getById(ReferenceType referenceType, String referenceId, String id) {
- return RxJava2Adapter.monoToSingle(getById_migrated(referenceType, referenceId, id));
-}
+    
 @Override
     public Mono<AlertTrigger> getById_migrated(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("Find alert trigger by id: {}", id);
@@ -118,12 +108,7 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
      * @param criteria the criteria to match.
      * @return the alert triggers found or empty if none has been found.
      */
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndCriteria_migrated(domainId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<AlertTrigger> findByDomainAndCriteria(String domainId, AlertTriggerCriteria criteria) {
- return RxJava2Adapter.fluxToFlowable(findByDomainAndCriteria_migrated(domainId, criteria));
-}
+    
 @Override
     public Flux<AlertTrigger> findByDomainAndCriteria_migrated(String domainId, AlertTriggerCriteria criteria) {
         LOGGER.debug("Find alert trigger by domain {} and criteria: {}", domainId, criteria);

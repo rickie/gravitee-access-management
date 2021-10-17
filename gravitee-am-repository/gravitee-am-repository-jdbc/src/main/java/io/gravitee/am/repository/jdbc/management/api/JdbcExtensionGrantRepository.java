@@ -65,12 +65,7 @@ public class JdbcExtensionGrantRepository extends AbstractJdbcRepository impleme
         return extensionGrantRepository.findByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndName_migrated(domain, name))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<ExtensionGrant> findByDomainAndName(String domain, String name) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndName_migrated(domain, name));
-}
+    
 @Override
     public Mono<ExtensionGrant> findByDomainAndName_migrated(String domain, String name) {
         LOGGER.debug("findByDomainAndName({}, {})", domain, name);

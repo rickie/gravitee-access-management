@@ -186,12 +186,7 @@ public class DomainServiceImpl implements DomainService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByHrid_migrated(environmentId, hrid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Domain> findByHrid(String environmentId, String hrid) {
- return RxJava2Adapter.monoToSingle(findByHrid_migrated(environmentId, hrid));
-}
+    
 @Override
     public Mono<Domain> findByHrid_migrated(String environmentId, String hrid) {
         LOGGER.debug("Find domain by hrid: {}", hrid);
@@ -206,12 +201,7 @@ public class DomainServiceImpl implements DomainService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.search_migrated(organizationId, environmentId, query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Domain> search(String organizationId, String environmentId, String query) {
- return RxJava2Adapter.fluxToFlowable(search_migrated(organizationId, environmentId, query));
-}
+    
 @Override
     public Flux<Domain> search_migrated(String organizationId, String environmentId, String query) {
         LOGGER.debug("Search domains with query {} for environmentId {}", query, environmentId);
@@ -221,12 +211,7 @@ public class DomainServiceImpl implements DomainService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByEnvironment_migrated(organizationId, environmentId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Domain> findAllByEnvironment(String organizationId, String environmentId) {
- return RxJava2Adapter.fluxToFlowable(findAllByEnvironment_migrated(organizationId, environmentId));
-}
+    
 @Override
     public Flux<Domain> findAllByEnvironment_migrated(String organizationId, String environmentId) {
         LOGGER.debug("Find all domains of environment {} (organization {})", environmentId, organizationId);
@@ -237,12 +222,7 @@ public class DomainServiceImpl implements DomainService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<Domain>> findAll() {
- return RxJava2Adapter.monoToSingle(findAll_migrated());
-}
+    
 @Override
     public Mono<List<Domain>> findAll_migrated() {
         LOGGER.debug("Find all domains");
@@ -252,24 +232,14 @@ public class DomainServiceImpl implements DomainService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByCriteria_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Domain> findAllByCriteria(DomainCriteria criteria) {
- return RxJava2Adapter.fluxToFlowable(findAllByCriteria_migrated(criteria));
-}
+    
 @Override
     public Flux<Domain> findAllByCriteria_migrated(DomainCriteria criteria) {
         LOGGER.debug("Find all domains by criteria");
         return domainRepository.findAllByCriteria_migrated(criteria);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Domain> findByIdIn(Collection<String> ids) {
- return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
-}
+    
 @Override
     public Flux<Domain> findByIdIn_migrated(Collection<String> ids) {
         LOGGER.debug("Find domains by id in {}", ids);

@@ -56,12 +56,7 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
     @Autowired
     private IdentityProviderRoleMapper roleMapper;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> loadUserByUsername(Authentication authentication) {
- return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
-}
+    
 @Override
     public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
         final String username = authentication.getPrincipal().toString();
@@ -129,12 +124,7 @@ private Flux<Map<String,Object>> selectUserByMultipleField_migrated(String usern
         return idxParameters;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> loadUserByUsername(String username) {
- return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
-}
+    
 @Override
     public Mono<User> loadUserByUsername_migrated(String username) {
         return selectUserByUsername_migrated(username).map(RxJavaReactorMigrationUtil.toJdkFunction(attributes -> createUser(new SimpleAuthenticationContext(), attributes)));

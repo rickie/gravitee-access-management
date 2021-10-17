@@ -27,12 +27,6 @@ import reactor.core.publisher.Mono;
  */
 public interface ServiceProviderService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.metadata_migrated(providerId, idpUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Metadata> metadata(String providerId, String idpUrl) {
-    return RxJava2Adapter.monoToSingle(metadata_migrated(providerId, idpUrl));
-}
-default Mono<Metadata> metadata_migrated(String providerId, String idpUrl) {
-    return RxJava2Adapter.singleToMono(metadata(providerId, idpUrl));
-}
+      
+Mono<Metadata> metadata_migrated(String providerId, String idpUrl);
 }

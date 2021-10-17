@@ -31,32 +31,14 @@ import reactor.core.publisher.Mono;
  */
 public interface CommonUserService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Page<io.gravitee.am.model.User>> search(ReferenceType referenceType, String referenceId, String query, int page, int size) {
-    return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, query, page, size));
-}
-default Mono<Page<io.gravitee.am.model.User>> search_migrated(ReferenceType referenceType, String referenceId, String query, int page, int size) {
-    return RxJava2Adapter.singleToMono(search(referenceType, referenceId, query, page, size));
-}
+      
+Mono<Page<io.gravitee.am.model.User>> search_migrated(ReferenceType referenceType, String referenceId, String query, int page, int size);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, filterCriteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Page<io.gravitee.am.model.User>> search(ReferenceType referenceType, String referenceId, FilterCriteria filterCriteria, int page, int size) {
-    return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, filterCriteria, page, size));
-}
-default Mono<Page<io.gravitee.am.model.User>> search_migrated(ReferenceType referenceType, String referenceId, FilterCriteria filterCriteria, int page, int size) {
-    return RxJava2Adapter.singleToMono(search(referenceType, referenceId, filterCriteria, page, size));
-}
+      
+Mono<Page<io.gravitee.am.model.User>> search_migrated(ReferenceType referenceType, String referenceId, FilterCriteria filterCriteria, int page, int size);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(referenceType, referenceId, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Page<io.gravitee.am.model.User>> findAll(ReferenceType referenceType, String referenceId, int page, int size) {
-    return RxJava2Adapter.monoToSingle(findAll_migrated(referenceType, referenceId, page, size));
-}
-default Mono<Page<io.gravitee.am.model.User>> findAll_migrated(ReferenceType referenceType, String referenceId, int page, int size) {
-    return RxJava2Adapter.singleToMono(findAll(referenceType, referenceId, page, size));
-}
+      
+Mono<Page<io.gravitee.am.model.User>> findAll_migrated(ReferenceType referenceType, String referenceId, int page, int size);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -76,14 +58,8 @@ default Mono<io.gravitee.am.model.User> update_migrated(ReferenceType referenceT
     return RxJava2Adapter.singleToMono(update(referenceType, referenceId, id, updateUser, principal));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateStatus_migrated(referenceType, referenceId, id, status, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<io.gravitee.am.model.User> updateStatus(ReferenceType referenceType, String referenceId, String id, boolean status, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.monoToSingle(updateStatus_migrated(referenceType, referenceId, id, status, principal));
-}
-default Mono<io.gravitee.am.model.User> updateStatus_migrated(ReferenceType referenceType, String referenceId, String id, boolean status, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.singleToMono(updateStatus(referenceType, referenceId, id, status, principal));
-}
+      
+Mono<io.gravitee.am.model.User> updateStatus_migrated(ReferenceType referenceType, String referenceId, String id, boolean status, io.gravitee.am.identityprovider.api.User principal);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

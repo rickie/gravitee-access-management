@@ -28,11 +28,7 @@ import reactor.core.publisher.Mono;
  */
 public interface PermissionTicketRepository  extends CrudRepository<PermissionTicket, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable purgeExpiredData() {
-    return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
-}default Mono<Void> purgeExpiredData_migrated() {
+      default Mono<Void> purgeExpiredData_migrated() {
         return Mono.empty();
     }
 }

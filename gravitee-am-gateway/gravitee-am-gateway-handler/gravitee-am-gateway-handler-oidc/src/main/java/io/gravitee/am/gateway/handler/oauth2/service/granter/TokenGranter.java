@@ -53,14 +53,8 @@ public interface TokenGranter {
      * @param client OAuth2 client
      * @return The authorization server authenticates the client and validates the authorization grant, and if valid, issues an access token.
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.grant_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Token> grant(TokenRequest tokenRequest, Client client) {
-    return RxJava2Adapter.monoToSingle(grant_migrated(tokenRequest, client));
-}
-default Mono<Token> grant_migrated(TokenRequest tokenRequest, Client client) {
-    return RxJava2Adapter.singleToMono(grant(tokenRequest, client));
-}
+      
+Mono<Token> grant_migrated(TokenRequest tokenRequest, Client client);
 
     default boolean handle(String grantType) {
         return handle(grantType, null);

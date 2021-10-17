@@ -33,12 +33,6 @@ public interface ExtensionGrantProvider {
      * @param tokenRequest tokenRequest token endpoint request
      * @return User representation of the assertion or empty if no user is involved
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.grant_migrated(tokenRequest))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<User> grant(TokenRequest tokenRequest) {
-    return RxJava2Adapter.monoToMaybe(grant_migrated(tokenRequest));
-}
-default Mono<User> grant_migrated(TokenRequest tokenRequest) {
-    return RxJava2Adapter.maybeToMono(grant(tokenRequest));
-}
+      
+Mono<User> grant_migrated(TokenRequest tokenRequest);
 }

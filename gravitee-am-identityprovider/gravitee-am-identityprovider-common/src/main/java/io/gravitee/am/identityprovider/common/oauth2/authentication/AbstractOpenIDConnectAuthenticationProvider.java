@@ -90,11 +90,7 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider extends Abstra
                 .collect(Collectors.toMap(claimName -> claimName, attributes::get));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.retrieveUserFromIdToken_migrated(authContext, idToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Maybe<User> retrieveUserFromIdToken(AuthenticationContext authContext, String idToken) {
- return RxJava2Adapter.monoToMaybe(retrieveUserFromIdToken_migrated(authContext, idToken));
-}
+    
 protected Mono<User> retrieveUserFromIdToken_migrated(AuthenticationContext authContext, String idToken) {
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> jwtProcessor.process(idToken, null))))
                 .onErrorResumeNext(ex -> {
@@ -134,11 +130,7 @@ protected Mono<User> retrieveUserFromIdToken_migrated(AuthenticationContext auth
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.authenticate_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Maybe<Token> authenticate(Authentication authentication) {
- return RxJava2Adapter.monoToMaybe(authenticate_migrated(authentication));
-}
+    
 protected Mono<Token> authenticate_migrated(Authentication authentication) {
         // implicit flow, retrieve the hashValue of the URL (#access_token=....&token_type=...)
         if (AuthenticationFlow.IMPLICIT_FLOW == authenticationFlow()){
@@ -197,11 +189,7 @@ protected Mono<Token> authenticate_migrated(Authentication authentication) {
 
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.profile_migrated(token, authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Maybe<User> profile(Token token, Authentication authentication) {
- return RxJava2Adapter.monoToMaybe(profile_migrated(token, authentication));
-}
+    
 protected Mono<User> profile_migrated(Token token, Authentication authentication) {
         // we only have the id_token, try to decode it and create the end-user
         if (TokenTypeHint.ID_TOKEN == token.getTypeHint()) {

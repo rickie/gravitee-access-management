@@ -70,12 +70,7 @@ public class IdentityProviderManagerImpl extends AbstractService implements Iden
     private ConcurrentMap<String, IdentityProvider> identities = new ConcurrentHashMap<>();
     private ConcurrentMap<String, UserProvider> userProviders = new ConcurrentHashMap<>();
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.get_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<AuthenticationProvider> get(String id) {
- return RxJava2Adapter.monoToMaybe(get_migrated(id));
-}
+    
 @Override
     public Mono<AuthenticationProvider> get_migrated(String id) {
         AuthenticationProvider authenticationProvider = providers.get(id);
@@ -87,12 +82,7 @@ public class IdentityProviderManagerImpl extends AbstractService implements Iden
         return identities.get(id);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getUserProvider_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<UserProvider> getUserProvider(String id) {
- return RxJava2Adapter.monoToMaybe(getUserProvider_migrated(id));
-}
+    
 @Override
     public Mono<UserProvider> getUserProvider_migrated(String id) {
         UserProvider userProvider = userProviders.get(id);

@@ -107,12 +107,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserValidator userValidator;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.verifyToken_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<UserToken> verifyToken(String token) {
- return RxJava2Adapter.monoToMaybe(verifyToken_migrated(token));
-}
+    
 @Override
     public Mono<UserToken> verifyToken_migrated(String token) {
         return Mono.fromSupplier(() -> jwtParser.parse(token)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<UserToken>>toJdkFunction(jwt -> {
@@ -122,12 +117,7 @@ public class UserServiceImpl implements UserService {
                 }).apply(v))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.register_migrated(client, user, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<RegistrationResponse> register(Client client, User user, io.gravitee.am.identityprovider.api.User principal) {
- return RxJava2Adapter.monoToSingle(register_migrated(client, user, principal));
-}
+    
 @Override
     public Mono<RegistrationResponse> register_migrated(Client client, User user, io.gravitee.am.identityprovider.api.User principal) {
         // set user idp source
@@ -175,13 +165,7 @@ public class UserServiceImpl implements UserService {
                         })).doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.USER_REGISTERED).throwable(throwable))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.confirmRegistration_migrated(client, user, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<RegistrationResponse> confirmRegistration(Client client, User user, io.gravitee.am.identityprovider.api.User
-            principal) {
- return RxJava2Adapter.monoToSingle(confirmRegistration_migrated(client, user, principal));
-}
+    
 @Override
     public Mono<RegistrationResponse> confirmRegistration_migrated(Client client, User user, io.gravitee.am.identityprovider.api.User
             principal) {
@@ -219,12 +203,7 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resetPassword_migrated(client, user, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<ResetPasswordResponse> resetPassword(Client client, User user, io.gravitee.am.identityprovider.api.User principal) {
- return RxJava2Adapter.monoToSingle(resetPassword_migrated(client, user, principal));
-}
+    
 @Override
     public Mono<ResetPasswordResponse> resetPassword_migrated(Client client, User user, io.gravitee.am.identityprovider.api.User principal) {
         // get account settings
@@ -287,12 +266,7 @@ public class UserServiceImpl implements UserService {
                 }).apply(v)))).flatMap(userService::enhance_migrated).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> new ResetPasswordResponse(user1, accountSettings != null ? accountSettings.getRedirectUriAfterResetPassword() : null, accountSettings != null ? accountSettings.isAutoLoginAfterResetPassword() : false))).doOnSuccess(response -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.USER_PASSWORD_RESET))).doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.USER_PASSWORD_RESET).throwable(throwable)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.forgotPassword_migrated(params, client, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable forgotPassword(ForgotPasswordParameters params, Client client, io.gravitee.am.identityprovider.api.User principal) {
- return RxJava2Adapter.monoToCompletable(forgotPassword_migrated(params, client, principal));
-}
+    
 @Override
     public Mono<Void> forgotPassword_migrated(ForgotPasswordParameters params, Client client, io.gravitee.am.identityprovider.api.User principal) {
 
@@ -396,12 +370,7 @@ public class UserServiceImpl implements UserService {
                 })).doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(client).principal(principal).type(EventType.FORGOT_PASSWORD_REQUESTED).throwable(throwable))).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.addFactor_migrated(userId, enrolledFactor, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<User> addFactor(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
- return RxJava2Adapter.monoToSingle(addFactor_migrated(userId, enrolledFactor, principal));
-}
+    
 @Override
     public Mono<User> addFactor_migrated(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
         return userService.addFactor_migrated(userId, enrolledFactor, principal);

@@ -108,12 +108,7 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
         return Mono.error(new IllegalStateException("SystemTask can't be updated without control on the operationId"));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateIf_migrated(item, operationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<SystemTask> updateIf(SystemTask item, String operationId) {
- return RxJava2Adapter.monoToSingle(updateIf_migrated(item, operationId));
-}
+    
 @Override
     public Mono<SystemTask> updateIf_migrated(SystemTask item, String operationId) {
         LOGGER.debug("Update SystemTask with id {}", item.getId());

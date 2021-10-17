@@ -65,12 +65,7 @@ public class JdbcTagRepository extends AbstractJdbcRepository implements TagRepo
         return tagRepository.findById_migrated(id, organizationId).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Tag> findAll(String organizationId) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
-}
+    
 @Override
     public Flux<Tag> findAll_migrated(String organizationId) {
         LOGGER.debug("findAll({})", organizationId);

@@ -28,12 +28,6 @@ import reactor.core.publisher.Mono;
  */
 public interface AnalyticsService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.execute_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<AnalyticsResponse> execute(AnalyticsQuery query) {
-    return RxJava2Adapter.monoToSingle(execute_migrated(query));
-}
-default Mono<AnalyticsResponse> execute_migrated(AnalyticsQuery query) {
-    return RxJava2Adapter.singleToMono(execute(query));
-}
+      
+Mono<AnalyticsResponse> execute_migrated(AnalyticsQuery query);
 }

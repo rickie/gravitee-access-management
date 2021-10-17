@@ -96,12 +96,7 @@ public class ResourceServiceImpl implements ResourceService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomainAndClient_migrated(domain, client, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Resource>> findByDomainAndClient(String domain, String client, int page, int size) {
- return RxJava2Adapter.monoToSingle(findByDomainAndClient_migrated(domain, client, page, size));
-}
+    
 @Override
     public Mono<Page<Resource>> findByDomainAndClient_migrated(String domain, String client, int page, int size) {
         LOGGER.debug("Listing resource set for domain {} and client {}", domain, client);
@@ -112,72 +107,42 @@ public class ResourceServiceImpl implements ResourceService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByResources_migrated(resourceIds))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Resource> findByResources(List<String> resourceIds) {
- return RxJava2Adapter.fluxToFlowable(findByResources_migrated(resourceIds));
-}
+    
 @Override
     public Flux<Resource> findByResources_migrated(List<String> resourceIds) {
         LOGGER.debug("Listing resources by ids {}", resourceIds);
         return repository.findByResources_migrated(resourceIds);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.listByDomainAndClientAndUser_migrated(domain, client, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Resource> listByDomainAndClientAndUser(String domain, String client, String userId) {
- return RxJava2Adapter.fluxToFlowable(listByDomainAndClientAndUser_migrated(domain, client, userId));
-}
+    
 @Override
     public Flux<Resource> listByDomainAndClientAndUser_migrated(String domain, String client, String userId) {
         LOGGER.debug("Listing resource for resource owner {} and client {}", userId, client);
         return repository.findByDomainAndClientAndUser_migrated(domain, client, userId);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndClientAndResources_migrated(domain, client, resourceIds))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Resource> findByDomainAndClientAndResources(String domain, String client, List<String> resourceIds) {
- return RxJava2Adapter.fluxToFlowable(findByDomainAndClientAndResources_migrated(domain, client, resourceIds));
-}
+    
 @Override
     public Flux<Resource> findByDomainAndClientAndResources_migrated(String domain, String client, List<String> resourceIds) {
         LOGGER.debug("Getting resource {} for  client {} and resources {}", resourceIds, client, resourceIds);
         return repository.findByDomainAndClientAndResources_migrated(domain, client, resourceIds);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientAndUserAndResource_migrated(domain, client, userId, resourceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Resource> findByDomainAndClientAndUserAndResource(String domain, String client, String userId, String resourceId) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndUserAndResource_migrated(domain, client, userId, resourceId));
-}
+    
 @Override
     public Mono<Resource> findByDomainAndClientAndUserAndResource_migrated(String domain, String client, String userId, String resourceId) {
         LOGGER.debug("Getting resource by resource owner {} and client {} and resource {}", userId, client, resourceId);
         return repository.findByDomainAndClientAndUserAndResource_migrated(domain, client, userId, resourceId);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientResource_migrated(domain, client, resourceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Resource> findByDomainAndClientResource(String domain, String client, String resourceId) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndClientResource_migrated(domain, client, resourceId));
-}
+    
 @Override
     public Mono<Resource> findByDomainAndClientResource_migrated(String domain, String client, String resourceId) {
         LOGGER.debug("Getting resource by domain {} client {} and resource {}", domain, client, resourceId);
         return this.findByDomainAndClientAndResources_migrated(domain, client, Arrays.asList(resourceId)).next();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getMetadata_migrated(resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Map<String, Map<String, Object>>> getMetadata(List<Resource> resources) {
- return RxJava2Adapter.monoToSingle(getMetadata_migrated(resources));
-}
+    
 @Override
     public Mono<Map<String,Map<String,Object>>> getMetadata_migrated(List<Resource> resources) {
         if (resources == null || resources.isEmpty()) {
@@ -279,12 +244,7 @@ public class ResourceServiceImpl implements ResourceService {
         return RxJava2Adapter.flowableToFlux(accessPolicyRepository.findByDomainAndResource(resource.getDomain(), resource.getId())).flatMap(v->accessPolicyRepository.delete_migrated(v.getId())).then().then(repository.delete_migrated(resource.getId()));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAccessPolicies_migrated(domain, client, user, resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<AccessPolicy> findAccessPolicies(String domain, String client, String user, String resource) {
- return RxJava2Adapter.fluxToFlowable(findAccessPolicies_migrated(domain, client, user, resource));
-}
+    
 @Override
     public Flux<AccessPolicy> findAccessPolicies_migrated(String domain, String client, String user, String resource) {
         LOGGER.debug("Find access policies by domain {}, client {}, resource owner {} and resource id {}", domain, client, user, resource);
@@ -297,12 +257,7 @@ public class ResourceServiceImpl implements ResourceService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAccessPoliciesByResources_migrated(resourceIds))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<AccessPolicy> findAccessPoliciesByResources(List<String> resourceIds) {
- return RxJava2Adapter.fluxToFlowable(findAccessPoliciesByResources_migrated(resourceIds));
-}
+    
 @Override
     public Flux<AccessPolicy> findAccessPoliciesByResources_migrated(List<String> resourceIds) {
         LOGGER.debug("Find access policies by resources {}", resourceIds);
@@ -312,12 +267,7 @@ public class ResourceServiceImpl implements ResourceService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countAccessPolicyByResource_migrated(resourceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Long> countAccessPolicyByResource(String resourceId) {
- return RxJava2Adapter.monoToSingle(countAccessPolicyByResource_migrated(resourceId));
-}
+    
 @Override
     public Mono<Long> countAccessPolicyByResource_migrated(String resourceId) {
         LOGGER.debug("Count access policies by resource {}", resourceId);
@@ -327,12 +277,7 @@ public class ResourceServiceImpl implements ResourceService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findAccessPolicy_migrated(domain, client, user, resource, accessPolicy))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<AccessPolicy> findAccessPolicy(String domain, String client, String user, String resource, String accessPolicy) {
- return RxJava2Adapter.monoToMaybe(findAccessPolicy_migrated(domain, client, user, resource, accessPolicy));
-}
+    
 @Override
     public Mono<AccessPolicy> findAccessPolicy_migrated(String domain, String client, String user, String resource, String accessPolicy) {
         LOGGER.debug("Find access policy by domain {}, client {}, resource owner {}, resource id {} and policy id {}", domain, client, user, resource, accessPolicy);
@@ -346,12 +291,7 @@ public class ResourceServiceImpl implements ResourceService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findAccessPolicy_migrated(accessPolicy))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<AccessPolicy> findAccessPolicy(String accessPolicy) {
- return RxJava2Adapter.monoToMaybe(findAccessPolicy_migrated(accessPolicy));
-}
+    
 @Override
     public Mono<AccessPolicy> findAccessPolicy_migrated(String accessPolicy) {
         LOGGER.debug("Find access policy by id {}", accessPolicy);
@@ -362,12 +302,7 @@ public class ResourceServiceImpl implements ResourceService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createAccessPolicy_migrated(accessPolicy, domain, client, user, resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<AccessPolicy> createAccessPolicy(AccessPolicy accessPolicy, String domain, String client, String user, String resource) {
- return RxJava2Adapter.monoToSingle(createAccessPolicy_migrated(accessPolicy, domain, client, user, resource));
-}
+    
 @Override
     public Mono<AccessPolicy> createAccessPolicy_migrated(AccessPolicy accessPolicy, String domain, String client, String user, String resource) {
         LOGGER.debug("Creating access policy for domain {}, client {}, resource owner {} and resource id {}", domain, client, user, resource);
@@ -386,12 +321,7 @@ public class ResourceServiceImpl implements ResourceService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateAccessPolicy_migrated(accessPolicy, domain, client, user, resource, accessPolicyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<AccessPolicy> updateAccessPolicy(AccessPolicy accessPolicy, String domain, String client, String user, String resource, String accessPolicyId) {
- return RxJava2Adapter.monoToSingle(updateAccessPolicy_migrated(accessPolicy, domain, client, user, resource, accessPolicyId));
-}
+    
 @Override
     public Mono<AccessPolicy> updateAccessPolicy_migrated(AccessPolicy accessPolicy, String domain, String client, String user, String resource, String accessPolicyId) {
         LOGGER.debug("Updating access policy for domain {}, client {}, resource owner {}, resource id {} and policy id {}", domain, client, user, resource, accessPolicyId);
@@ -418,12 +348,7 @@ public class ResourceServiceImpl implements ResourceService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteAccessPolicy_migrated(domain, client, user, resource, accessPolicy))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteAccessPolicy(String domain, String client, String user, String resource, String accessPolicy) {
- return RxJava2Adapter.monoToCompletable(deleteAccessPolicy_migrated(domain, client, user, resource, accessPolicy));
-}
+    
 @Override
     public Mono<Void> deleteAccessPolicy_migrated(String domain, String client, String user, String resource, String accessPolicy) {
         LOGGER.debug("Deleting access policy for domain {}, client {}, resource owner {}, resource id and policy id {}", domain, client, user, resource, accessPolicy);

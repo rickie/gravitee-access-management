@@ -76,12 +76,7 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
         super.createIndex(domainsCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_HRID, 1));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Domain> findAll() {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
+    
 @Override
     public Flux<Domain> findAll_migrated() {
         return Flux.from(domainsCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert));
@@ -98,12 +93,7 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
         return Flux.from(domainsCollection.find(eq(FIELD_ID, id)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByHrid_migrated(referenceType, referenceId, hrid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Domain> findByHrid(ReferenceType referenceType, String referenceId, String hrid) {
- return RxJava2Adapter.monoToMaybe(findByHrid_migrated(referenceType, referenceId, hrid));
-}
+    
 @Override
     public Mono<Domain> findByHrid_migrated(ReferenceType referenceType, String referenceId, String hrid) {
         return Flux.from(domainsCollection.find(
@@ -115,23 +105,13 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
                 )).next().map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Domain> findByIdIn(Collection<String> ids) {
- return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
-}
+    
 @Override
     public Flux<Domain> findByIdIn_migrated(Collection<String> ids) {
         return Flux.from(domainsCollection.find(in(FIELD_ID, ids))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByReferenceId_migrated(environmentId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Domain> findAllByReferenceId(String environmentId) {
- return RxJava2Adapter.fluxToFlowable(findAllByReferenceId_migrated(environmentId));
-}
+    
 @Override
     public Flux<Domain> findAllByReferenceId_migrated(String environmentId) {
         Bson mongoQuery = and(
@@ -140,12 +120,7 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
         return Flux.from(domainsCollection.find(mongoQuery)).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.search_migrated(environmentId, query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Domain> search(String environmentId, String query) {
- return RxJava2Adapter.fluxToFlowable(search_migrated(environmentId, query));
-}
+    
 @Override
     public Flux<Domain> search_migrated(String environmentId, String query) {
         // currently search on hrid field
@@ -165,12 +140,7 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
         return Flux.from(domainsCollection.find(mongoQuery)).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByCriteria_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Domain> findAllByCriteria(DomainCriteria criteria) {
- return RxJava2Adapter.fluxToFlowable(findAllByCriteria_migrated(criteria));
-}
+    
 @Override
     public Flux<Domain> findAllByCriteria_migrated(DomainCriteria criteria) {
 

@@ -29,23 +29,11 @@ import reactor.core.publisher.Mono;
  */
 public interface PolicyPluginService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<PolicyPlugin>> findAll() {
-    return RxJava2Adapter.monoToSingle(findAll_migrated());
-}
-default Mono<List<PolicyPlugin>> findAll_migrated() {
-    return RxJava2Adapter.singleToMono(findAll());
-}
+      
+Mono<List<PolicyPlugin>> findAll_migrated();
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<PolicyPlugin>> findAll(List<String> expand) {
-    return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
-}
-default Mono<List<PolicyPlugin>> findAll_migrated(List<String> expand) {
-    return RxJava2Adapter.singleToMono(findAll(expand));
-}
+      
+Mono<List<PolicyPlugin>> findAll_migrated(List<String> expand);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -56,30 +44,12 @@ default Mono<PolicyPlugin> findById_migrated(String policyId) {
     return RxJava2Adapter.maybeToMono(findById(policyId));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<String> getSchema(String policyId) {
-    return RxJava2Adapter.monoToMaybe(getSchema_migrated(policyId));
-}
-default Mono<String> getSchema_migrated(String policyId) {
-    return RxJava2Adapter.maybeToMono(getSchema(policyId));
-}
+      
+Mono<String> getSchema_migrated(String policyId);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getIcon_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<String> getIcon(String policyId) {
-    return RxJava2Adapter.monoToMaybe(getIcon_migrated(policyId));
-}
-default Mono<String> getIcon_migrated(String policyId) {
-    return RxJava2Adapter.maybeToMono(getIcon(policyId));
-}
+      
+Mono<String> getIcon_migrated(String policyId);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getDocumentation_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<String> getDocumentation(String policyId) {
-    return RxJava2Adapter.monoToMaybe(getDocumentation_migrated(policyId));
-}
-default Mono<String> getDocumentation_migrated(String policyId) {
-    return RxJava2Adapter.maybeToMono(getDocumentation(policyId));
-}
+      
+Mono<String> getDocumentation_migrated(String policyId);
 }

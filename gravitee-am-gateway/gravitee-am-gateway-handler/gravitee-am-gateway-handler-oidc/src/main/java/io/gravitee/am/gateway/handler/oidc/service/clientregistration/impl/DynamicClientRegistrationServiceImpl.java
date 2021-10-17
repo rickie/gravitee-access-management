@@ -176,12 +176,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToCompletable(this.clientService.delete_migrated(toDelete.getId())).toSingleDefault(toDelete));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.renewSecret_migrated(toRenew, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Client> renewSecret(Client toRenew, String basePath) {
- return RxJava2Adapter.monoToSingle(renewSecret_migrated(toRenew, basePath));
-}
+    
 @Override
     public Mono<Client> renewSecret_migrated(Client toRenew, String basePath) {
         return clientService.renewClientSecret_migrated(domain.getId(), toRenew.getId()).flatMap(client->applyRegistrationAccessToken_migrated(basePath, client)).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(Client ident) -> RxJava2Adapter.monoToSingle(clientService.update_migrated(ident))).apply(v)));

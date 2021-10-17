@@ -46,12 +46,7 @@ public class RevocationTokenServiceImpl implements RevocationTokenService {
     @Autowired
     private TokenService tokenService;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revoke_migrated(request, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable revoke(RevocationTokenRequest request, Client client) {
- return RxJava2Adapter.monoToCompletable(revoke_migrated(request, client));
-}
+    
 @Override
     public Mono<Void> revoke_migrated(RevocationTokenRequest request, Client client) {
         String token = request.getToken();

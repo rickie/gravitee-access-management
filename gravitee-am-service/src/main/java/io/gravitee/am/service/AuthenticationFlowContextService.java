@@ -28,30 +28,12 @@ import reactor.core.publisher.Mono;
  */
 public interface AuthenticationFlowContextService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadContext_migrated(transactionId, expectedVersion))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<AuthenticationFlowContext> loadContext(final String transactionId, final int expectedVersion) {
-    return RxJava2Adapter.monoToMaybe(loadContext_migrated(transactionId, expectedVersion));
-}
-default Mono<AuthenticationFlowContext> loadContext_migrated(final String transactionId, final int expectedVersion) {
-    return RxJava2Adapter.maybeToMono(loadContext(transactionId, expectedVersion));
-}
+      
+Mono<AuthenticationFlowContext> loadContext_migrated(final String transactionId, final int expectedVersion);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.removeContext_migrated(transactionId, expectedVersion))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<AuthenticationFlowContext> removeContext(final String transactionId, final int expectedVersion) {
-    return RxJava2Adapter.monoToMaybe(removeContext_migrated(transactionId, expectedVersion));
-}
-default Mono<AuthenticationFlowContext> removeContext_migrated(final String transactionId, final int expectedVersion) {
-    return RxJava2Adapter.maybeToMono(removeContext(transactionId, expectedVersion));
-}
+      
+Mono<AuthenticationFlowContext> removeContext_migrated(final String transactionId, final int expectedVersion);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.clearContext_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable clearContext(final String transactionId) {
-    return RxJava2Adapter.monoToCompletable(clearContext_migrated(transactionId));
-}
-default Mono<Void> clearContext_migrated(final String transactionId) {
-    return RxJava2Adapter.completableToMono(clearContext(transactionId));
-}
+      
+Mono<Void> clearContext_migrated(final String transactionId);
 }

@@ -87,12 +87,7 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
     @Autowired
     private UserService userService;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.authenticate_migrated(client, authentication, preAuthenticated))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<User> authenticate(Client client, Authentication authentication, boolean preAuthenticated) {
- return RxJava2Adapter.monoToSingle(authenticate_migrated(client, authentication, preAuthenticated));
-}
+    
 @Override
     public Mono<User> authenticate_migrated(Client client, Authentication authentication, boolean preAuthenticated) {
         logger.debug("Trying to authenticate [{}]", authentication);
@@ -147,12 +142,7 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
                 }).apply(v)))).doOnSuccess(user -> eventManager.publishEvent(AuthenticationEvent.SUCCESS, new AuthenticationDetails(authentication, domain, client, user))).doOnError(throwable -> eventManager.publishEvent(AuthenticationEvent.FAILURE, new AuthenticationDetails(authentication, domain, client, throwable)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(client, username, request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> loadUserByUsername(Client client, String username, Request request) {
- return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(client, username, request));
-}
+    
 @Override
     public Mono<User> loadUserByUsername_migrated(Client client, String username, Request request) {
         logger.debug("Trying to load user [{}]", username);
@@ -200,23 +190,13 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
                 }).apply(e))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadPreAuthenticatedUser_migrated(subject, request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> loadPreAuthenticatedUser(String subject, Request request) {
- return RxJava2Adapter.monoToMaybe(loadPreAuthenticatedUser_migrated(subject, request));
-}
+    
 @Override
     public Mono<User> loadPreAuthenticatedUser_migrated(String subject, Request request) {
         return userAuthenticationService.loadPreAuthenticatedUser_migrated(subject, request);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.connect_migrated(user, afterAuthentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<User> connect(io.gravitee.am.identityprovider.api.User user, boolean afterAuthentication) {
- return RxJava2Adapter.monoToSingle(connect_migrated(user, afterAuthentication));
-}
+    
 @Override
     public Mono<User> connect_migrated(io.gravitee.am.identityprovider.api.User user, boolean afterAuthentication) {
         return userAuthenticationService.connect_migrated(user, afterAuthentication);

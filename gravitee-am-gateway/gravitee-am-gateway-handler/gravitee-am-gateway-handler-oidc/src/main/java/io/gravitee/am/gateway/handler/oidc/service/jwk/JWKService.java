@@ -32,52 +32,16 @@ import reactor.core.publisher.Mono;
  */
 public interface JWKService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getKeys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<JWKSet> getKeys() {
-    return RxJava2Adapter.monoToSingle(getKeys_migrated());
-}
-default Mono<JWKSet> getKeys_migrated() {
-    return RxJava2Adapter.singleToMono(getKeys());
-}
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getKeys_migrated(client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JWKSet> getKeys(Client client) {
-    return RxJava2Adapter.monoToMaybe(getKeys_migrated(client));
-}
-default Mono<JWKSet> getKeys_migrated(Client client) {
-    return RxJava2Adapter.maybeToMono(getKeys(client));
-}
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getDomainPrivateKeys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JWKSet> getDomainPrivateKeys() {
-    return RxJava2Adapter.monoToMaybe(getDomainPrivateKeys_migrated());
-}
-default Mono<JWKSet> getDomainPrivateKeys_migrated() {
-    return RxJava2Adapter.maybeToMono(getDomainPrivateKeys());
-}
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getKeys_migrated(jwksUri))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JWKSet> getKeys(String jwksUri) {
-    return RxJava2Adapter.monoToMaybe(getKeys_migrated(jwksUri));
-}
-default Mono<JWKSet> getKeys_migrated(String jwksUri) {
-    return RxJava2Adapter.maybeToMono(getKeys(jwksUri));
-}
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getKey_migrated(jwkSet, kid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JWK> getKey(JWKSet jwkSet, String kid) {
-    return RxJava2Adapter.monoToMaybe(getKey_migrated(jwkSet, kid));
-}
-default Mono<JWK> getKey_migrated(JWKSet jwkSet, String kid) {
-    return RxJava2Adapter.maybeToMono(getKey(jwkSet, kid));
-}
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.filter_migrated(jwkSet, filter))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JWK> filter(JWKSet jwkSet, Predicate<JWK> filter) {
-    return RxJava2Adapter.monoToMaybe(filter_migrated(jwkSet, filter));
-}
-default Mono<JWK> filter_migrated(JWKSet jwkSet, Predicate<JWK> filter) {
-    return RxJava2Adapter.maybeToMono(filter(jwkSet, filter));
-}
+      
+Mono<JWKSet> getKeys_migrated();
+      
+Mono<JWKSet> getKeys_migrated(Client client);
+      
+Mono<JWKSet> getDomainPrivateKeys_migrated();
+      
+Mono<JWKSet> getKeys_migrated(String jwksUri);
+      
+Mono<JWK> getKey_migrated(JWKSet jwkSet, String kid);
+      
+Mono<JWK> filter_migrated(JWKSet jwkSet, Predicate<JWK> filter);
 }

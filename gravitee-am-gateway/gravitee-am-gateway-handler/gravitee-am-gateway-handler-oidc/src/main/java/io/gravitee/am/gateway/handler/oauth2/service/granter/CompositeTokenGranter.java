@@ -99,12 +99,7 @@ public class CompositeTokenGranter implements TokenGranter, InitializingBean {
 
     public CompositeTokenGranter() { }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.grant_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Token> grant(TokenRequest tokenRequest, Client client) {
- return RxJava2Adapter.monoToSingle(grant_migrated(tokenRequest, client));
-}
+    
 @Override
     public Mono<Token> grant_migrated(TokenRequest tokenRequest, Client client) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(Flux.fromIterable(tokenGranters.values()).filter(tokenGranter -> tokenGranter.handle(tokenRequest.getGrantType(), client)).next().switchIfEmpty(Mono.error(new UnsupportedGrantTypeException("Unsupported grant type: " + tokenRequest.getGrantType()))))

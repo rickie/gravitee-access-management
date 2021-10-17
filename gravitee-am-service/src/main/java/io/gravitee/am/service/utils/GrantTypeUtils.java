@@ -53,11 +53,7 @@ public class GrantTypeUtils {
      * @param application Application with grant_type to validate.
      * @return Single client or error
      */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(GrantTypeUtils.validateGrantTypes_migrated(application))", imports = {"io.gravitee.am.service.utils.GrantTypeUtils", "reactor.adapter.rxjava.RxJava2Adapter"})
-@Deprecated
-public static Single<Application> validateGrantTypes(Application application) {
- return RxJava2Adapter.monoToSingle(validateGrantTypes_migrated(application));
-}
+    
 public static Mono<Application> validateGrantTypes_migrated(Application application) {
         // no application to check, continue
         if (application==null) {

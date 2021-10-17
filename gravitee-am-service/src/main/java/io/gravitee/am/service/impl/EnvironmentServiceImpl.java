@@ -90,12 +90,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
         return environmentRepository.findById_migrated(id).switchIfEmpty(Mono.error(new EnvironmentNotFoundException(id)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Environment> findAll(String organizationId) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
-}
+    
 @Override
     public Flux<Environment> findAll_migrated(String organizationId) {
 
@@ -103,12 +98,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
         return environmentRepository.findAll_migrated(organizationId);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.createDefault_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Environment> createDefault() {
- return RxJava2Adapter.monoToMaybe(createDefault_migrated());
-}
+    
 @Override
     public Mono<Environment> createDefault_migrated() {
 

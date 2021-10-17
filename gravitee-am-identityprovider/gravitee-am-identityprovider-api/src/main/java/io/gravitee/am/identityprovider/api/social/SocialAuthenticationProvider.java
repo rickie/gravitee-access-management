@@ -47,11 +47,7 @@ public interface SocialAuthenticationProvider extends AuthenticationProvider {
      * @param redirectUri
      * @return
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.asyncSignInUrl_migrated(redirectUri, state))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Request> asyncSignInUrl(String redirectUri, String state) {
-    return RxJava2Adapter.monoToMaybe(asyncSignInUrl_migrated(redirectUri, state));
-}default Mono<Request> asyncSignInUrl_migrated(String redirectUri, String state) {
+      default Mono<Request> asyncSignInUrl_migrated(String redirectUri, String state) {
         Request request = signInUrl(redirectUri, state);
         if (request != null) {
             return Mono.just(request);
@@ -66,11 +62,7 @@ default Maybe<Request> asyncSignInUrl(String redirectUri, String state) {
      *
      * @return
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.signOutUrl_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Request> signOutUrl(Authentication authentication) {
-    return RxJava2Adapter.monoToMaybe(signOutUrl_migrated(authentication));
-}default Mono<Request> signOutUrl_migrated(Authentication authentication) {
+      default Mono<Request> signOutUrl_migrated(Authentication authentication) {
         return Mono.empty();
     }
 }

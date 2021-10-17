@@ -64,11 +64,7 @@ public class UserValidator {
         this.usernamePattern = Pattern.compile(usernamePattern);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.validate_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Completable validate(IUser user) {
- return RxJava2Adapter.monoToCompletable(validate_migrated(user));
-}
+    
 public Mono<Void> validate_migrated(IUser user) {
 
         if (!isValid(user.getUsername(), usernamePattern)) {

@@ -53,12 +53,7 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
         return mapper.map(entity, JdbcReporter.class);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Reporter> findAll() {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
+    
 @Override
     public Flux<Reporter> findAll_migrated() {
         LOGGER.debug("findAll()");

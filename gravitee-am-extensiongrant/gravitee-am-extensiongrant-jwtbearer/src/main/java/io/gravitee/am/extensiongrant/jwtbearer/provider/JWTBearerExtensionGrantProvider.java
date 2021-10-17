@@ -72,12 +72,7 @@ public class JWTBearerExtensionGrantProvider implements ExtensionGrantProvider, 
         jwtParser = new DefaultJWTParser(publicKey);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.grant_migrated(tokenRequest))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> grant(TokenRequest tokenRequest) throws InvalidGrantException {
- return RxJava2Adapter.monoToMaybe(grant_migrated(tokenRequest));
-}
+    
 @Override
     public Mono<User> grant_migrated(TokenRequest tokenRequest) throws InvalidGrantException {
         String assertion = tokenRequest.getRequestParameters().get(ASSERTION_QUERY_PARAM);

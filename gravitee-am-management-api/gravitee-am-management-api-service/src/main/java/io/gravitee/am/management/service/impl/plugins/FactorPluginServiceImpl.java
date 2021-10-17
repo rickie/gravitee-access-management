@@ -45,12 +45,7 @@ public class FactorPluginServiceImpl implements FactorPluginService {
     @Autowired
     private FactorPluginManager factorPluginManager;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<FactorPlugin>> findAll() {
- return RxJava2Adapter.monoToSingle(findAll_migrated());
-}
+    
 @Override
     public Mono<List<FactorPlugin>> findAll_migrated() {
         LOGGER.debug("List all factor plugins");
@@ -83,12 +78,7 @@ public class FactorPluginServiceImpl implements FactorPluginService {
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(factorId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<String> getSchema(String factorId) {
- return RxJava2Adapter.monoToMaybe(getSchema_migrated(factorId));
-}
+    
 @Override
     public Mono<String> getSchema_migrated(String factorId) {
         LOGGER.debug("Find authenticator plugin schema by ID: {}", factorId);

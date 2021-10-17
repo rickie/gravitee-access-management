@@ -32,14 +32,7 @@ import reactor.core.publisher.Flux;
 @Repository
 public interface SpringAlertTriggerAlertNotifierRepository extends RxJava2CrudRepository<JdbcAlertTrigger.AlertNotifier, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByAlertTriggerId_migrated(alertTriggerId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<AlertNotifier> findByAlertTriggerId(@Param(value = "alertTriggerId")
-String alertTriggerId) {
-    return RxJava2Adapter.fluxToFlowable(findByAlertTriggerId_migrated(alertTriggerId));
-}
-default Flux<AlertNotifier> findByAlertTriggerId_migrated(@Param(value = "alertTriggerId")
-String alertTriggerId) {
-    return RxJava2Adapter.flowableToFlux(findByAlertTriggerId(alertTriggerId));
-}
+      
+Flux<AlertNotifier> findByAlertTriggerId_migrated(@Param(value = "alertTriggerId")
+String alertTriggerId);
 }

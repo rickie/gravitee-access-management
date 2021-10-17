@@ -87,12 +87,7 @@ return toCreate.setPermissionRequest(permissionRequests).setDomain(domain).setCl
         return repository.findById_migrated(id);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.remove_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<PermissionTicket> remove(String id) {
- return RxJava2Adapter.monoToSingle(remove_migrated(id));
-}
+    
 @Override
     public Mono<PermissionTicket> remove_migrated(String id) {
         return repository.findById_migrated(id).switchIfEmpty(Mono.error(new InvalidPermissionTicketException())).flatMap(y->repository.delete_migrated(y.getId()).then(Mono.just(y)));

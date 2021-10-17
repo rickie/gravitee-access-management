@@ -120,12 +120,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndUsername_migrated(domain, username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> findByDomainAndUsername(String domain, String username) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndUsername_migrated(domain, username));
-}
+    
 @Override
     public Mono<User> findByDomainAndUsername_migrated(String domain, String username) {
         LOGGER.debug("Find user by username and domain: {} {}", username, domain);
@@ -137,12 +132,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndUsernameAndSource_migrated(domain, username, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> findByDomainAndUsernameAndSource(String domain, String username, String source) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndUsernameAndSource_migrated(domain, username, source));
-}
+    
 @Override
     public Mono<User> findByDomainAndUsernameAndSource_migrated(String domain, String username, String source) {
         return findByUsernameAndSource_migrated(ReferenceType.DOMAIN, domain, username, source);
@@ -196,12 +186,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                 }).apply(err))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Long> countByDomain(String domain) {
- return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));
-}
+    
 @Override
     public Mono<Long> countByDomain_migrated(String domain) {
         LOGGER.debug("Count user by domain {}", domain);
@@ -216,12 +201,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByApplication_migrated(domain, application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Long> countByApplication(String domain, String application) {
- return RxJava2Adapter.monoToSingle(countByApplication_migrated(domain, application));
-}
+    
 @Override
     public Mono<Long> countByApplication_migrated(String domain, String application) {
         LOGGER.debug("Count user by application {}", application);
@@ -236,12 +216,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
         }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.statistics_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Map<Object, Object>> statistics(AnalyticsQuery query) {
- return RxJava2Adapter.monoToSingle(statistics_migrated(query));
-}
+    
 @Override
     public Mono<Map<Object,Object>> statistics_migrated(AnalyticsQuery query) {
         LOGGER.debug("Get user collection analytics {}", query);
@@ -256,12 +231,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.upsertFactor_migrated(userId, enrolledFactor, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<User> upsertFactor(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
- return RxJava2Adapter.monoToSingle(upsertFactor_migrated(userId, enrolledFactor, principal));
-}
+    
 @Override
     public Mono<User> upsertFactor_migrated(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
         return findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
@@ -342,12 +312,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                 }).apply(y))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.removeFactor_migrated(userId, factorId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable removeFactor(String userId, String factorId, io.gravitee.am.identityprovider.api.User principal) {
- return RxJava2Adapter.monoToCompletable(removeFactor_migrated(userId, factorId, principal));
-}
+    
 @Override
     public Mono<Void> removeFactor_migrated(String userId, String factorId, io.gravitee.am.identityprovider.api.User principal) {
         return findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)oldUser -> {

@@ -29,14 +29,8 @@ import reactor.core.publisher.Mono;
  */
 public interface BotDetectionPluginService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<BotDetectionPlugin>> findAll() {
-    return RxJava2Adapter.monoToSingle(findAll_migrated());
-}
-default Mono<List<BotDetectionPlugin>> findAll_migrated() {
-    return RxJava2Adapter.singleToMono(findAll());
-}
+      
+Mono<List<BotDetectionPlugin>> findAll_migrated();
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -47,12 +41,6 @@ default Mono<BotDetectionPlugin> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<String> getSchema(String id) {
-    return RxJava2Adapter.monoToMaybe(getSchema_migrated(id));
-}
-default Mono<String> getSchema_migrated(String id) {
-    return RxJava2Adapter.maybeToMono(getSchema(id));
-}
+      
+Mono<String> getSchema_migrated(String id);
 }

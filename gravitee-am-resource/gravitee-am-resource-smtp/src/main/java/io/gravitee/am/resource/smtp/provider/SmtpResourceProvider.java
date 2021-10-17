@@ -96,12 +96,7 @@ public class SmtpResourceProvider implements EmailSenderProvider {
         return javaMailSender;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.sendMessage_migrated(message))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable sendMessage(Email message) {
- return RxJava2Adapter.monoToCompletable(sendMessage_migrated(message));
-}
+    
 @Override
     public Mono<Void> sendMessage_migrated(Email message) {
         executorService.execute(() -> {

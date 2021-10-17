@@ -33,39 +33,15 @@ import reactor.core.publisher.Mono;
  */
 public interface MembershipRepository extends CrudRepository<Membership, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceId, referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Membership> findByReference(String referenceId, ReferenceType referenceType) {
-    return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceId, referenceType));
-}
-default Flux<Membership> findByReference_migrated(String referenceId, ReferenceType referenceType) {
-    return RxJava2Adapter.flowableToFlux(findByReference(referenceId, referenceType));
-}
+      
+Flux<Membership> findByReference_migrated(String referenceId, ReferenceType referenceType);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(memberId, memberType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Membership> findByMember(String memberId, MemberType memberType) {
-    return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId, memberType));
-}
-default Flux<Membership> findByMember_migrated(String memberId, MemberType memberType) {
-    return RxJava2Adapter.flowableToFlux(findByMember(memberId, memberType));
-}
+      
+Flux<Membership> findByMember_migrated(String memberId, MemberType memberType);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Membership> findByCriteria(ReferenceType referenceType, String referenceId, MembershipCriteria criteria) {
-    return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
-}
-default Flux<Membership> findByCriteria_migrated(ReferenceType referenceType, String referenceId, MembershipCriteria criteria) {
-    return RxJava2Adapter.flowableToFlux(findByCriteria(referenceType, referenceId, criteria));
-}
+      
+Flux<Membership> findByCriteria_migrated(ReferenceType referenceType, String referenceId, MembershipCriteria criteria);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByReferenceAndMember_migrated(referenceType, referenceId, memberType, memberId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Membership> findByReferenceAndMember(ReferenceType referenceType, String referenceId, MemberType memberType, String memberId) {
-    return RxJava2Adapter.monoToMaybe(findByReferenceAndMember_migrated(referenceType, referenceId, memberType, memberId));
-}
-default Mono<Membership> findByReferenceAndMember_migrated(ReferenceType referenceType, String referenceId, MemberType memberType, String memberId) {
-    return RxJava2Adapter.maybeToMono(findByReferenceAndMember(referenceType, referenceId, memberType, memberId));
-}
+      
+Mono<Membership> findByReferenceAndMember_migrated(ReferenceType referenceType, String referenceId, MemberType memberType, String memberId);
 }

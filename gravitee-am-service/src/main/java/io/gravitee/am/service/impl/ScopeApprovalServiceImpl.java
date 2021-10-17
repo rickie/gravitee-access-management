@@ -98,7 +98,6 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndUser_migrated(domain, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated
-@Override
     public Flowable<ScopeApproval> findByDomainAndUser(String domain, String user) {
  return RxJava2Adapter.fluxToFlowable(findByDomainAndUser_migrated(domain, user));
 }
@@ -114,7 +113,6 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndUserAndClient_migrated(domain, user, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated
-@Override
     public Flowable<ScopeApproval> findByDomainAndUserAndClient(String domain, String user, String client) {
  return RxJava2Adapter.fluxToFlowable(findByDomainAndUserAndClient_migrated(domain, user, client));
 }
@@ -148,7 +146,6 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeByConsent_migrated(domain, userId, consentId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated
-@Override
     public Completable revokeByConsent(String domain, String userId, String consentId, User principal) {
  return RxJava2Adapter.monoToCompletable(revokeByConsent_migrated(domain, userId, consentId, principal));
 }
@@ -209,5 +206,10 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
                             String.format("An error occurs while trying to revoke scope approvals for domain: %s, user: %s and client: %s", domain, user, clientId), ex)));
                 }));
 
+    }
+
+    @Override
+    public Mono<Void> revokeByConsent_migrated(String domain, String userId, String consentId) {
+        return revokeByConsent_migrated(domain, userId, consentId, null);
     }
 }

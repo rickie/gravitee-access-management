@@ -91,12 +91,7 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
         return this.client;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.authenticate_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    protected Maybe<Token> authenticate(Authentication authentication) {
- return RxJava2Adapter.monoToMaybe(authenticate_migrated(authentication));
-}
+    
 @Override
     protected Mono<Token> authenticate_migrated(Authentication authentication) {
         // prepare body request parameters
@@ -125,12 +120,7 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.profile_migrated(accessToken, authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    protected Maybe<User> profile(Token accessToken, Authentication authentication) {
- return RxJava2Adapter.monoToMaybe(profile_migrated(accessToken, authentication));
-}
+    
 @Override
     protected Mono<User> profile_migrated(Token accessToken, Authentication authentication) {
         return RxJava2Adapter.singleToMono(client.getAbs(configuration.getUserProfileUri())

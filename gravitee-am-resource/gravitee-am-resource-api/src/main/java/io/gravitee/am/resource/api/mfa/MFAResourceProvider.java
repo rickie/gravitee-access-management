@@ -28,20 +28,8 @@ import reactor.core.publisher.Mono;
  * @author GraviteeSource Team
  */
 public interface MFAResourceProvider extends ResourceProvider {
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.send_migrated(target))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable send(MFALink target) {
-    return RxJava2Adapter.monoToCompletable(send_migrated(target));
-}
-default Mono<Void> send_migrated(MFALink target) {
-    return RxJava2Adapter.completableToMono(send(target));
-}
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.verify_migrated(challenge))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable verify(MFAChallenge challenge) {
-    return RxJava2Adapter.monoToCompletable(verify_migrated(challenge));
-}
-default Mono<Void> verify_migrated(MFAChallenge challenge) {
-    return RxJava2Adapter.completableToMono(verify(challenge));
-}
+      
+Mono<Void> send_migrated(MFALink target);
+      
+Mono<Void> verify_migrated(MFAChallenge challenge);
 }

@@ -33,23 +33,11 @@ import reactor.core.publisher.Mono;
  */
 public interface ApplicationRepository extends CrudRepository<Application, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Application> findAll() {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
-default Flux<Application> findAll_migrated() {
-    return RxJava2Adapter.flowableToFlux(findAll());
-}
+      
+Flux<Application> findAll_migrated();
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Page<Application>> findAll(int page, int size) {
-    return RxJava2Adapter.monoToSingle(findAll_migrated(page, size));
-}
-default Mono<Page<Application>> findAll_migrated(int page, int size) {
-    return RxJava2Adapter.singleToMono(findAll(page, size));
-}
+      
+Mono<Page<Application>> findAll_migrated(int page, int size);
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -69,85 +57,31 @@ default Mono<Page<Application>> findByDomain_migrated(String domain, int page, i
     return RxJava2Adapter.singleToMono(findByDomain(domain, page, size));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Page<Application>> search(String domain, String query, int page, int size) {
-    return RxJava2Adapter.monoToSingle(search_migrated(domain, query, page, size));
-}
-default Mono<Page<Application>> search_migrated(String domain, String query, int page, int size) {
-    return RxJava2Adapter.singleToMono(search(domain, query, page, size));
-}
+      
+Mono<Page<Application>> search_migrated(String domain, String query, int page, int size);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCertificate_migrated(certificate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Application> findByCertificate(String certificate) {
-    return RxJava2Adapter.fluxToFlowable(findByCertificate_migrated(certificate));
-}
-default Flux<Application> findByCertificate_migrated(String certificate) {
-    return RxJava2Adapter.flowableToFlux(findByCertificate(certificate));
-}
+      
+Flux<Application> findByCertificate_migrated(String certificate);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdentityProvider_migrated(identityProvider))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Application> findByIdentityProvider(String identityProvider) {
-    return RxJava2Adapter.fluxToFlowable(findByIdentityProvider_migrated(identityProvider));
-}
-default Flux<Application> findByIdentityProvider_migrated(String identityProvider) {
-    return RxJava2Adapter.flowableToFlux(findByIdentityProvider(identityProvider));
-}
+      
+Flux<Application> findByIdentityProvider_migrated(String identityProvider);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByFactor_migrated(factor))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Application> findByFactor(String factor) {
-    return RxJava2Adapter.fluxToFlowable(findByFactor_migrated(factor));
-}
-default Flux<Application> findByFactor_migrated(String factor) {
-    return RxJava2Adapter.flowableToFlux(findByFactor(factor));
-}
+      
+Flux<Application> findByFactor_migrated(String factor);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndExtensionGrant_migrated(domain, extensionGrant))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Application> findByDomainAndExtensionGrant(String domain, String extensionGrant) {
-    return RxJava2Adapter.fluxToFlowable(findByDomainAndExtensionGrant_migrated(domain, extensionGrant));
-}
-default Flux<Application> findByDomainAndExtensionGrant_migrated(String domain, String extensionGrant) {
-    return RxJava2Adapter.flowableToFlux(findByDomainAndExtensionGrant(domain, extensionGrant));
-}
+      
+Flux<Application> findByDomainAndExtensionGrant_migrated(String domain, String extensionGrant);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Application> findByIdIn(List<String> ids) {
-    return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
-}
-default Flux<Application> findByIdIn_migrated(List<String> ids) {
-    return RxJava2Adapter.flowableToFlux(findByIdIn(ids));
-}
+      
+Flux<Application> findByIdIn_migrated(List<String> ids);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.count_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Long> count() {
-    return RxJava2Adapter.monoToSingle(count_migrated());
-}
-default Mono<Long> count_migrated() {
-    return RxJava2Adapter.singleToMono(count());
-}
+      
+Mono<Long> count_migrated();
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Long> countByDomain(String domain) {
-    return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));
-}
-default Mono<Long> countByDomain_migrated(String domain) {
-    return RxJava2Adapter.singleToMono(countByDomain(domain));
-}
+      
+Mono<Long> countByDomain_migrated(String domain);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientId_migrated(domain, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Application> findByDomainAndClientId(String domain, String clientId) {
-    return RxJava2Adapter.monoToMaybe(findByDomainAndClientId_migrated(domain, clientId));
-}
-default Mono<Application> findByDomainAndClientId_migrated(String domain, String clientId) {
-    return RxJava2Adapter.maybeToMono(findByDomainAndClientId(domain, clientId));
-}
+      
+Mono<Application> findByDomainAndClientId_migrated(String domain, String clientId);
 
 }

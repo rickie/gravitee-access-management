@@ -43,23 +43,11 @@ default Mono<ScopeApproval> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndUser_migrated(domain, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<ScopeApproval> findByDomainAndUser(String domain, String user) {
-    return RxJava2Adapter.fluxToFlowable(findByDomainAndUser_migrated(domain, user));
-}
-default Flux<ScopeApproval> findByDomainAndUser_migrated(String domain, String user) {
-    return RxJava2Adapter.flowableToFlux(findByDomainAndUser(domain, user));
-}
+      
+Flux<ScopeApproval> findByDomainAndUser_migrated(String domain, String user);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndUserAndClient_migrated(domain, user, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<ScopeApproval> findByDomainAndUserAndClient(String domain, String user, String client) {
-    return RxJava2Adapter.fluxToFlowable(findByDomainAndUserAndClient_migrated(domain, user, client));
-}
-default Flux<ScopeApproval> findByDomainAndUserAndClient_migrated(String domain, String user, String client) {
-    return RxJava2Adapter.flowableToFlux(findByDomainAndUserAndClient(domain, user, client));
-}
+      
+Flux<ScopeApproval> findByDomainAndUserAndClient_migrated(String domain, String user, String client);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.saveConsent_migrated(domain, client, approvals, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -70,14 +58,8 @@ default Mono<List<ScopeApproval>> saveConsent_migrated(String domain, Client cli
     return RxJava2Adapter.singleToMono(saveConsent(domain, client, approvals, principal));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeByConsent_migrated(domain, userId, consentId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable revokeByConsent(String domain, String userId, String consentId, User principal) {
-    return RxJava2Adapter.monoToCompletable(revokeByConsent_migrated(domain, userId, consentId, principal));
-}
-default Mono<Void> revokeByConsent_migrated(String domain, String userId, String consentId, User principal) {
-    return RxJava2Adapter.completableToMono(revokeByConsent(domain, userId, consentId, principal));
-}
+      
+Mono<Void> revokeByConsent_migrated(String domain, String userId, String consentId, User principal);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeByUser_migrated(domain, user, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -105,13 +87,7 @@ default Single<List<ScopeApproval>> saveConsent(String domain, Client client, Li
         return RxJava2Adapter.singleToMono(saveConsent(domain, client, approvals, null));
     }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeByConsent_migrated(domain, userId, consentId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable revokeByConsent(String domain, String userId, String consentId) {
-    return RxJava2Adapter.monoToCompletable(revokeByConsent_migrated(domain, userId, consentId));
-}default Mono<Void> revokeByConsent_migrated(String domain, String userId, String consentId) {
-        return RxJava2Adapter.completableToMono(revokeByConsent(domain, userId, consentId, null));
-    }
+      Mono<Void> revokeByConsent_migrated(String domain, String userId, String consentId);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeByUser_migrated(domain, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -121,11 +97,7 @@ default Completable revokeByUser(String domain, String userId) {
         return RxJava2Adapter.completableToMono(revokeByUser(domain, userId, null));
     }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeByUserAndClient_migrated(domain, userId, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable revokeByUserAndClient(String domain, String userId, String clientId) {
-    return RxJava2Adapter.monoToCompletable(revokeByUserAndClient_migrated(domain, userId, clientId));
-}default Mono<Void> revokeByUserAndClient_migrated(String domain, String userId, String clientId) {
+      default Mono<Void> revokeByUserAndClient_migrated(String domain, String userId, String clientId) {
         return RxJava2Adapter.completableToMono(revokeByUserAndClient(domain, userId, clientId, null));
     }
 }

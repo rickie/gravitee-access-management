@@ -57,12 +57,7 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
         super.createIndex(eventsCollection, new Document(FIELD_UPDATED_AT, 1));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByTimeFrame_migrated(from, to))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Event> findByTimeFrame(long from, long to) {
- return RxJava2Adapter.fluxToFlowable(findByTimeFrame_migrated(from, to));
-}
+    
 @Override
     public Flux<Event> findByTimeFrame_migrated(long from, long to) {
         List<Bson> filters = new ArrayList<>();

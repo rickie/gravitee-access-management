@@ -59,12 +59,7 @@ public class AbstractTokenGranter implements TokenGranter {
         return this.grantType.equals(grantType);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.grant_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Token> grant(TokenRequest tokenRequest, Client client) {
- return RxJava2Adapter.monoToSingle(grant_migrated(tokenRequest, client));
-}
+    
 @Override
     public Mono<Token> grant_migrated(TokenRequest tokenRequest, Client client) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(parseRequest_migrated(tokenRequest, client).flatMap(e->resolveResourceOwner_migrated(e, client)).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
@@ -77,11 +72,7 @@ public class AbstractTokenGranter implements TokenGranter {
      * @param client OAuth2 client
      * @return Access Token Request or invalid request exception
      */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.parseRequest_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Single<TokenRequest> parseRequest(TokenRequest tokenRequest, Client client) {
- return RxJava2Adapter.monoToSingle(parseRequest_migrated(tokenRequest, client));
-}
+    
 protected Mono<TokenRequest> parseRequest_migrated(TokenRequest tokenRequest, Client client) {
         // Is client allowed to use such grant type ?
         if (client.getAuthorizedGrantTypes() != null && !client.getAuthorizedGrantTypes().isEmpty()
@@ -97,11 +88,7 @@ protected Mono<TokenRequest> parseRequest_migrated(TokenRequest tokenRequest, Cl
      * @param client OAuth2 client
      * @return Resource Owner or empty for protocol flow like client_credentials
      */
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.resolveResourceOwner_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Maybe<User> resolveResourceOwner(TokenRequest tokenRequest, Client client) {
- return RxJava2Adapter.monoToMaybe(resolveResourceOwner_migrated(tokenRequest, client));
-}
+    
 protected Mono<User> resolveResourceOwner_migrated(TokenRequest tokenRequest, Client client) {
         return Mono.empty();
     }
@@ -113,11 +100,7 @@ protected Mono<User> resolveResourceOwner_migrated(TokenRequest tokenRequest, Cl
      * @param endUser Resource Owner (if exists)
      * @return Access Token Request or OAuth 2.0 exception
      */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveRequest_migrated(tokenRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Single<TokenRequest> resolveRequest(TokenRequest tokenRequest, Client client, User endUser) {
- return RxJava2Adapter.monoToSingle(resolveRequest_migrated(tokenRequest, client, endUser));
-}
+    
 protected Mono<TokenRequest> resolveRequest_migrated(TokenRequest tokenRequest, Client client, User endUser) {
         return tokenRequestResolver.resolve_migrated(tokenRequest, client, endUser);
     }

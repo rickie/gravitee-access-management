@@ -33,11 +33,7 @@ import reactor.core.publisher.Mono;
  */
 public class DomainValidator {
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, domainRestrictions))", imports = {"io.gravitee.am.service.validators.DomainValidator", "reactor.adapter.rxjava.RxJava2Adapter"})
-@Deprecated
-public static Completable validate(Domain domain, List<String> domainRestrictions) {
- return RxJava2Adapter.monoToCompletable(validate_migrated(domain, domainRestrictions));
-}
+    
 public static Mono<Void> validate_migrated(Domain domain, List<String> domainRestrictions) {
 
         List<Completable> chain = new ArrayList<>();

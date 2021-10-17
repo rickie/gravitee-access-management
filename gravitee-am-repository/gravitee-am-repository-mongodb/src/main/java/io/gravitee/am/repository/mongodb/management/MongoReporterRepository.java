@@ -51,12 +51,7 @@ public class MongoReporterRepository extends AbstractManagementMongoRepository i
         super.createIndex(reportersCollection, new Document(FIELD_DOMAIN, 1));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Reporter> findAll() {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
+    
 @Override
     public Flux<Reporter> findAll_migrated() {
         return Flux.from(reportersCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));

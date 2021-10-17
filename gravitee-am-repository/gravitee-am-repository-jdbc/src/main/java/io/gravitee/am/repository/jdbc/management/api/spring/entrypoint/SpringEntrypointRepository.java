@@ -45,14 +45,7 @@ String organizationId) {
     return RxJava2Adapter.maybeToMono(findById(id, organizationId));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByOrganization_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcEntrypoint> findAllByOrganization(@Param(value = "org")
-String organizationId) {
-    return RxJava2Adapter.fluxToFlowable(findAllByOrganization_migrated(organizationId));
-}
-default Flux<JdbcEntrypoint> findAllByOrganization_migrated(@Param(value = "org")
-String organizationId) {
-    return RxJava2Adapter.flowableToFlux(findAllByOrganization(organizationId));
-}
+      
+Flux<JdbcEntrypoint> findAllByOrganization_migrated(@Param(value = "org")
+String organizationId);
 }

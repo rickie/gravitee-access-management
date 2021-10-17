@@ -51,12 +51,7 @@ public class MongoServiceResourceRepository extends AbstractManagementMongoRepos
         super.createIndex(resourceCollection,new Document(FIELD_REFERENCE_ID, 1).append(FIELD_REFERENCE_TYPE, 1));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<ServiceResource> findByReference(ReferenceType referenceType, String referenceId) {
- return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceType, referenceId));
-}
+    
 @Override
     public Flux<ServiceResource> findByReference_migrated(ReferenceType referenceType, String referenceId) {
         return Flux.from(resourceCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));

@@ -37,12 +37,6 @@ public interface NewsletterService {
      * Get tag lines
      * @return tag lines
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getTaglines_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<String>> getTaglines() {
-    return RxJava2Adapter.monoToSingle(getTaglines_migrated());
-}
-default Mono<List<String>> getTaglines_migrated() {
-    return RxJava2Adapter.singleToMono(getTaglines());
-}
+      
+Mono<List<String>> getTaglines_migrated();
 }

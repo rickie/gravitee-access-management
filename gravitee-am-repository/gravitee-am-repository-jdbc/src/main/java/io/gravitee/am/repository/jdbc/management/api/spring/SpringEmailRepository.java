@@ -47,63 +47,27 @@ String id) {
     return RxJava2Adapter.maybeToMono(findById(refId, refType, id));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByReference_migrated(refId, refType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcEmail> findAllByReference(@Param(value = "refId")
+      
+Flux<JdbcEmail> findAllByReference_migrated(@Param(value = "refId")
 String refId, @Param(value = "refType")
-String refType) {
-    return RxJava2Adapter.fluxToFlowable(findAllByReference_migrated(refId, refType));
-}
-default Flux<JdbcEmail> findAllByReference_migrated(@Param(value = "refId")
-String refId, @Param(value = "refType")
-String refType) {
-    return RxJava2Adapter.flowableToFlux(findAllByReference(refId, refType));
-}
+String refType);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByReferenceAndClient_migrated(refId, refType, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcEmail> findAllByReferenceAndClient(@Param(value = "refId")
+      
+Flux<JdbcEmail> findAllByReferenceAndClient_migrated(@Param(value = "refId")
 String refId, @Param(value = "refType")
 String refType, @Param(value = "cli")
-String client) {
-    return RxJava2Adapter.fluxToFlowable(findAllByReferenceAndClient_migrated(refId, refType, client));
-}
-default Flux<JdbcEmail> findAllByReferenceAndClient_migrated(@Param(value = "refId")
-String refId, @Param(value = "refType")
-String refType, @Param(value = "cli")
-String client) {
-    return RxJava2Adapter.flowableToFlux(findAllByReferenceAndClient(refId, refType, client));
-}
+String client);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByClientAndTemplate_migrated(refId, refType, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JdbcEmail> findByClientAndTemplate(@Param(value = "refId")
+      
+Mono<JdbcEmail> findByClientAndTemplate_migrated(@Param(value = "refId")
 String refId, @Param(value = "refType")
 String refType, @Param(value = "cli")
 String client, @Param(value = "tpl")
-String template) {
-    return RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(refId, refType, client, template));
-}
-default Mono<JdbcEmail> findByClientAndTemplate_migrated(@Param(value = "refId")
-String refId, @Param(value = "refType")
-String refType, @Param(value = "cli")
-String client, @Param(value = "tpl")
-String template) {
-    return RxJava2Adapter.maybeToMono(findByClientAndTemplate(refId, refType, client, template));
-}
+String template);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByTemplate_migrated(refId, refType, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JdbcEmail> findByTemplate(@Param(value = "refId")
+      
+Mono<JdbcEmail> findByTemplate_migrated(@Param(value = "refId")
 String refId, @Param(value = "refType")
 String refType, @Param(value = "tpl")
-String template) {
-    return RxJava2Adapter.monoToMaybe(findByTemplate_migrated(refId, refType, template));
-}
-default Mono<JdbcEmail> findByTemplate_migrated(@Param(value = "refId")
-String refId, @Param(value = "refType")
-String refType, @Param(value = "tpl")
-String template) {
-    return RxJava2Adapter.maybeToMono(findByTemplate(refId, refType, template));
-}
+String template);
 }

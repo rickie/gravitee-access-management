@@ -32,23 +32,11 @@ import reactor.core.publisher.Mono;
  */
 public interface UserService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.list_migrated(filter, page, size, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<ListResponse<User>> list(Filter filter, int page, int size, String baseUrl) {
-    return RxJava2Adapter.monoToSingle(list_migrated(filter, page, size, baseUrl));
-}
-default Mono<ListResponse<User>> list_migrated(Filter filter, int page, int size, String baseUrl) {
-    return RxJava2Adapter.singleToMono(list(filter, page, size, baseUrl));
-}
+      
+Mono<ListResponse<User>> list_migrated(Filter filter, int page, int size, String baseUrl);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.get_migrated(userId, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<User> get(String userId, String baseUrl) {
-    return RxJava2Adapter.monoToMaybe(get_migrated(userId, baseUrl));
-}
-default Mono<User> get_migrated(String userId, String baseUrl) {
-    return RxJava2Adapter.maybeToMono(get(userId, baseUrl));
-}
+      
+Mono<User> get_migrated(String userId, String baseUrl);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(user, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

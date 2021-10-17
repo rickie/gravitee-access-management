@@ -77,12 +77,7 @@ public class AlertNotifierServiceImpl implements AlertNotifierService {
      * @param notifierId the notifier identifier.
      * @return the alert notifier found or an {@link AlertNotifierNotFoundException} exception if it has not been found.
      */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getById_migrated(referenceType, referenceId, notifierId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<AlertNotifier> getById(ReferenceType referenceType, String referenceId, String notifierId) {
- return RxJava2Adapter.monoToSingle(getById_migrated(referenceType, referenceId, notifierId));
-}
+    
 @Override
     public Mono<AlertNotifier> getById_migrated(ReferenceType referenceType, String referenceId, String notifierId) {
         LOGGER.debug("Find alert notifier by id {}", notifierId);
@@ -97,12 +92,7 @@ public class AlertNotifierServiceImpl implements AlertNotifierService {
      * @param criteria the criteria to match.
      * @return the list of alert notifiers found.
      */
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndCriteria_migrated(domainId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<AlertNotifier> findByDomainAndCriteria(String domainId, AlertNotifierCriteria criteria) {
- return RxJava2Adapter.fluxToFlowable(findByDomainAndCriteria_migrated(domainId, criteria));
-}
+    
 @Override
     public Flux<AlertNotifier> findByDomainAndCriteria_migrated(String domainId, AlertNotifierCriteria criteria) {
         return findByReferenceAndCriteria_migrated(ReferenceType.DOMAIN, domainId, criteria);
@@ -116,12 +106,7 @@ public class AlertNotifierServiceImpl implements AlertNotifierService {
      * @param criteria the criteria to match.
      * @return the list of alert notifiers found.
      */
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReferenceAndCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<AlertNotifier> findByReferenceAndCriteria(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria) {
- return RxJava2Adapter.fluxToFlowable(findByReferenceAndCriteria_migrated(referenceType, referenceId, criteria));
-}
+    
 @Override
     public Flux<AlertNotifier> findByReferenceAndCriteria_migrated(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria) {
         LOGGER.debug("Find alert notifier by {} {} and criteria {}", referenceType, referenceId, criteria);

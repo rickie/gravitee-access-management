@@ -31,14 +31,8 @@ public interface ResourcePluginService {
     String MANIFEST_KEY_CATEGORIES = "categories";
     String EXPAND_ICON = "icon";
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<ResourcePlugin>> findAll(List<String> expand) {
-    return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
-}
-default Mono<List<ResourcePlugin>> findAll_migrated(List<String> expand) {
-    return RxJava2Adapter.singleToMono(findAll(expand));
-}
+      
+Mono<List<ResourcePlugin>> findAll_migrated(List<String> expand);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -49,21 +43,9 @@ default Mono<ResourcePlugin> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<String> getSchema(String id) {
-    return RxJava2Adapter.monoToMaybe(getSchema_migrated(id));
-}
-default Mono<String> getSchema_migrated(String id) {
-    return RxJava2Adapter.maybeToMono(getSchema(id));
-}
+      
+Mono<String> getSchema_migrated(String id);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getIcon_migrated(resourceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<String> getIcon(String resourceId) {
-    return RxJava2Adapter.monoToMaybe(getIcon_migrated(resourceId));
-}
-default Mono<String> getIcon_migrated(String resourceId) {
-    return RxJava2Adapter.maybeToMono(getIcon(resourceId));
-}
+      
+Mono<String> getIcon_migrated(String resourceId);
 }
