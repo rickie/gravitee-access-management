@@ -363,7 +363,7 @@ private Mono<List<Flow>> createOrUpdate0_migrated(ReferenceType referenceType, S
                                         RxJava2Adapter.monoToSingle(create0_migrated(referenceType, referenceId, application, flowToCreateOrUpdate, principal));
                             })
                             .sorted(getFlowComparator())
-                            .toList()).flatMap(persistedFlows->RxJava2Adapter.singleToMono(Observable.fromIterable(flowIdsToDelete).flatMapCompletable((java.lang.String ident) -> RxJava2Adapter.monoToCompletable(delete_migrated(ident))).toSingleDefault(persistedFlows))));
+                            .toList()).flatMap(persistedFlows->RxJava2Adapter.singleToMono(Observable.fromIterable(flowIdsToDelete).flatMapCompletable((String ident) -> RxJava2Adapter.monoToCompletable(delete_migrated(ident))).toSingleDefault(persistedFlows))));
                 }).apply(v))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<List<Flow>>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));

@@ -17,12 +17,13 @@ package io.gravitee.am.repository.jdbc.management.api.spring;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcExtensionGrant;
-
-
-
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -31,23 +32,23 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface SpringExtensionGrantRepository extends RxJava2CrudRepository<JdbcExtensionGrant, String> {
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcExtensionGrant> findByDomain(@org.springframework.data.repository.query.Param(value = "domain")
-java.lang.String domain) {
+default Flowable<JdbcExtensionGrant> findByDomain(@Param(value = "domain")
+String domain) {
     return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcExtensionGrant> findByDomain_migrated(@Param(value = "domain")
+default Flux<JdbcExtensionGrant> findByDomain_migrated(@Param(value = "domain")
 String domain) {
     return RxJava2Adapter.flowableToFlux(findByDomain(domain));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndName_migrated(domain, name))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcExtensionGrant> findByDomainAndName(@org.springframework.data.repository.query.Param(value = "domain")
-java.lang.String domain, @org.springframework.data.repository.query.Param(value = "name")
-java.lang.String name) {
+default Maybe<JdbcExtensionGrant> findByDomainAndName(@Param(value = "domain")
+String domain, @Param(value = "name")
+String name) {
     return RxJava2Adapter.monoToMaybe(findByDomainAndName_migrated(domain, name));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcExtensionGrant> findByDomainAndName_migrated(@Param(value = "domain")
+default Mono<JdbcExtensionGrant> findByDomainAndName_migrated(@Param(value = "domain")
 String domain, @Param(value = "name")
 String name) {
     return RxJava2Adapter.maybeToMono(findByDomainAndName(domain, name));

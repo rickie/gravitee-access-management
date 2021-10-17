@@ -37,6 +37,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.ext.web.client.WebClient;
 import java.util.*;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,8 +150,8 @@ public class LinkedinAuthenticationProvider extends AbstractSocialAuthentication
                     }
 
                     return createUser(authentication.getContext(), httpClientResponse.bodyAsJsonObject());
-                })).flatMap(z->requestEmailAddress_migrated(accessToken).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Optional<java.lang.String> address)->{
-address.ifPresent((java.lang.String value)->{
+                })).flatMap(z->requestEmailAddress_migrated(accessToken).map(RxJavaReactorMigrationUtil.toJdkFunction((Optional<String> address)->{
+address.ifPresent((String value)->{
 ((DefaultUser)z).setEmail(value);
 ((DefaultUser)z).setUsername(value);
 z.getAdditionalInformation().put(StandardClaims.EMAIL, value);

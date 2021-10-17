@@ -17,13 +17,14 @@ package io.gravitee.am.gateway.handler.scim.service;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.scim.filter.Filter;
-
+import io.gravitee.am.gateway.handler.scim.model.ListResponse;
 import io.gravitee.am.gateway.handler.scim.model.PatchOp;
 import io.gravitee.am.gateway.handler.scim.model.User;
-
-
-
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -33,55 +34,55 @@ public interface UserService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.list_migrated(filter, page, size, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.gateway.handler.scim.model.ListResponse<io.gravitee.am.gateway.handler.scim.model.User>> list(io.gravitee.am.common.scim.filter.Filter filter, int page, int size, java.lang.String baseUrl) {
+default Single<ListResponse<User>> list(Filter filter, int page, int size, String baseUrl) {
     return RxJava2Adapter.monoToSingle(list_migrated(filter, page, size, baseUrl));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.scim.model.ListResponse<io.gravitee.am.gateway.handler.scim.model.User>> list_migrated(Filter filter, int page, int size, String baseUrl) {
+default Mono<ListResponse<User>> list_migrated(Filter filter, int page, int size, String baseUrl) {
     return RxJava2Adapter.singleToMono(list(filter, page, size, baseUrl));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.get_migrated(userId, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.gateway.handler.scim.model.User> get(java.lang.String userId, java.lang.String baseUrl) {
+default Maybe<User> get(String userId, String baseUrl) {
     return RxJava2Adapter.monoToMaybe(get_migrated(userId, baseUrl));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.scim.model.User> get_migrated(String userId, String baseUrl) {
+default Mono<User> get_migrated(String userId, String baseUrl) {
     return RxJava2Adapter.maybeToMono(get(userId, baseUrl));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(user, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.gateway.handler.scim.model.User> create(io.gravitee.am.gateway.handler.scim.model.User user, java.lang.String baseUrl) {
+default Single<User> create(User user, String baseUrl) {
     return RxJava2Adapter.monoToSingle(create_migrated(user, baseUrl));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.scim.model.User> create_migrated(User user, String baseUrl) {
+default Mono<User> create_migrated(User user, String baseUrl) {
     return RxJava2Adapter.singleToMono(create(user, baseUrl));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(userId, user, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.gateway.handler.scim.model.User> update(java.lang.String userId, io.gravitee.am.gateway.handler.scim.model.User user, java.lang.String baseUrl) {
+default Single<User> update(String userId, User user, String baseUrl) {
     return RxJava2Adapter.monoToSingle(update_migrated(userId, user, baseUrl));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.scim.model.User> update_migrated(String userId, User user, String baseUrl) {
+default Mono<User> update_migrated(String userId, User user, String baseUrl) {
     return RxJava2Adapter.singleToMono(update(userId, user, baseUrl));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.patch_migrated(userId, patchOp, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.gateway.handler.scim.model.User> patch(java.lang.String userId, io.gravitee.am.gateway.handler.scim.model.PatchOp patchOp, java.lang.String baseUrl) {
+default Single<User> patch(String userId, PatchOp patchOp, String baseUrl) {
     return RxJava2Adapter.monoToSingle(patch_migrated(userId, patchOp, baseUrl));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.scim.model.User> patch_migrated(String userId, PatchOp patchOp, String baseUrl) {
+default Mono<User> patch_migrated(String userId, PatchOp patchOp, String baseUrl) {
     return RxJava2Adapter.singleToMono(patch(userId, patchOp, baseUrl));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable delete(java.lang.String userId) {
+default Completable delete(String userId) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(userId));
 }
-default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String userId) {
+default Mono<Void> delete_migrated(String userId) {
     return RxJava2Adapter.completableToMono(delete(userId));
 }
 }

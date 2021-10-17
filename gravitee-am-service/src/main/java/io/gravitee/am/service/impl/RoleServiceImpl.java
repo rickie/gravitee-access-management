@@ -356,7 +356,7 @@ public class RoleServiceImpl implements RoleService {
                         throw new SystemRoleDeleteException(roleId);
                     }
                     return role;
-                })).flatMap(role->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(roleRepository.delete_migrated(roleId).then(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(eventService.create_migrated(new Event(Type.ROLE, new Payload(role.getId(), role.getReferenceType(), role.getReferenceId(), Action.DELETE)))))))).doOnComplete(()->auditService.report(AuditBuilder.builder(RoleAuditBuilder.class).principal(principal).type(EventType.ROLE_DELETED).role(role)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(RoleAuditBuilder.class).principal(principal).type(EventType.ROLE_DELETED).throwable(throwable))))).then())
+                })).flatMap(role->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(roleRepository.delete_migrated(roleId).then(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(eventService.create_migrated(new Event(Type.ROLE, new Payload(role.getId(), role.getReferenceType(), role.getReferenceId(), Action.DELETE)))))))).doOnComplete(()->auditService.report(AuditBuilder.builder(RoleAuditBuilder.class).principal(principal).type(EventType.ROLE_DELETED).role(role)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((Throwable throwable)->auditService.report(AuditBuilder.builder(RoleAuditBuilder.class).principal(principal).type(EventType.ROLE_DELETED).throwable(throwable))))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));
@@ -380,7 +380,7 @@ public class RoleServiceImpl implements RoleService {
         List<Role> roles = buildSystemRoles();
 
         return RxJava2Adapter.completableToMono(Observable.fromIterable(roles)
-                .flatMapCompletable((io.gravitee.am.model.Role ident) -> RxJava2Adapter.monoToCompletable(upsert_migrated(ident))));
+                .flatMapCompletable((Role ident) -> RxJava2Adapter.monoToCompletable(upsert_migrated(ident))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.createDefaultRoles_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -395,7 +395,7 @@ public class RoleServiceImpl implements RoleService {
         List<Role> roles = buildDefaultRoles(organizationId);
 
         return RxJava2Adapter.completableToMono(Observable.fromIterable(roles)
-                .flatMapCompletable((io.gravitee.am.model.Role ident) -> RxJava2Adapter.monoToCompletable(upsert_migrated(ident))));
+                .flatMapCompletable((Role ident) -> RxJava2Adapter.monoToCompletable(upsert_migrated(ident))));
     }
 
 

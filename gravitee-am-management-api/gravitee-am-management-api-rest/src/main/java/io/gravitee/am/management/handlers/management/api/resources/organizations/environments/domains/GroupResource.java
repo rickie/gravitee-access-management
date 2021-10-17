@@ -18,12 +18,11 @@ package io.gravitee.am.management.handlers.management.api.resources.organization
 
 
 
+import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.model.Acl;
-
 import io.gravitee.am.model.Group;
 import io.gravitee.am.model.ReferenceType;
-
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.DomainService;
 import io.gravitee.am.service.GroupService;
@@ -31,12 +30,8 @@ import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.exception.GroupNotFoundException;
 import io.gravitee.am.service.model.UpdateGroup;
 import io.gravitee.common.http.MediaType;
-
-
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
-
-
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -85,7 +80,7 @@ public class GroupResource extends AbstractResource {
             @PathParam("group") String group,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->groupService.findById_migrated(group)).switchIfEmpty(Mono.error(new GroupNotFoundException(group))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.Group, MaybeSource<io.gravitee.am.model.Group>>toJdkFunction(group1 -> {
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->groupService.findById_migrated(group)).switchIfEmpty(Mono.error(new GroupNotFoundException(group))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Group, MaybeSource<Group>>toJdkFunction(group1 -> {
                             if (group1.getReferenceType() == ReferenceType.DOMAIN
                                     && !group1.getReferenceId().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("Group does not belong to domain");
@@ -111,7 +106,7 @@ public class GroupResource extends AbstractResource {
             @PathParam("group") String group,
             @ApiParam(name = "group", required = true) @Valid @NotNull UpdateGroup updateGroup,
             @Suspended final AsyncResponse response) {
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+        final User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
                         .flatMapSingle(irrelevant -> groupService.update(domain, group, updateGroup, authenticatedUser)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
@@ -131,7 +126,7 @@ public class GroupResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("group") String group,
             @Suspended final AsyncResponse response) {
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+        final User authenticatedUser = getAuthenticatedUser();
 
         RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.DELETE).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(irrelevant->groupService.delete_migrated(ReferenceType.DOMAIN, domain, group, authenticatedUser)).then()))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);

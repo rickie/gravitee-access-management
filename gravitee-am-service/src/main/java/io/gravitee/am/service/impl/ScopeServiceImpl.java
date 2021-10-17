@@ -21,7 +21,9 @@ import io.gravitee.am.common.event.Action;
 import io.gravitee.am.common.event.Type;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.identityprovider.api.User;
+import io.gravitee.am.model.Application;
 import io.gravitee.am.model.ReferenceType;
+import io.gravitee.am.model.Role;
 import io.gravitee.am.model.application.ApplicationOAuthSettings;
 import io.gravitee.am.model.application.ApplicationScopeSettings;
 import io.gravitee.am.model.common.Page;
@@ -36,7 +38,6 @@ import io.gravitee.am.service.model.*;
 import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.ScopeAuditBuilder;
 import io.reactivex.Completable;
-
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -46,6 +47,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.*;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -316,14 +318,14 @@ private Mono<Scope> update_migrated(String domain, Scope toUpdate, Scope oldValu
                         throw new SystemScopeDeleteException(scopeId);
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(scope));
-                }).apply(y)))).flatMap(scope->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(roleService.findByDomain_migrated(scope.getDomain())).flatMapObservable((java.util.Set<io.gravitee.am.model.Role> roles)->Observable.fromIterable(roles.stream().filter((io.gravitee.am.model.Role role)->role.getOauthScopes() != null && role.getOauthScopes().contains(scope.getKey())).collect(Collectors.toList()))).flatMapSingle((io.gravitee.am.model.Role role)->{
+                }).apply(y)))).flatMap(scope->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(roleService.findByDomain_migrated(scope.getDomain())).flatMapObservable((Set<Role> roles)->Observable.fromIterable(roles.stream().filter((Role role)->role.getOauthScopes() != null && role.getOauthScopes().contains(scope.getKey())).collect(Collectors.toList()))).flatMapSingle((Role role)->{
 role.getOauthScopes().remove(scope.getKey());
 UpdateRole updatedRole = new UpdateRole();
 updatedRole.setName(role.getName());
 updatedRole.setDescription(role.getDescription());
 updatedRole.setPermissions(role.getOauthScopes());
 return roleService.update(scope.getDomain(), role.getId(), updatedRole);
-}).toList())).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.findByDomain_migrated(scope.getDomain())).flatMapObservable((java.util.Set<io.gravitee.am.model.Application> applications)->Observable.fromIterable(applications.stream().filter((io.gravitee.am.model.Application application)->{
+}).toList())).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.findByDomain_migrated(scope.getDomain())).flatMapObservable((Set<Application> applications)->Observable.fromIterable(applications.stream().filter((Application application)->{
 if (application.getSettings() == null) {
 return false;
 }
@@ -331,12 +333,12 @@ if (application.getSettings().getOauth() == null) {
 return false;
 }
 ApplicationOAuthSettings oAuthSettings = application.getSettings().getOauth();
-return oAuthSettings.getScopeSettings() != null && !oAuthSettings.getScopeSettings().stream().filter((io.gravitee.am.model.application.ApplicationScopeSettings s)->s.getScope().equals(scope.getKey())).findFirst().isEmpty();
-}).collect(Collectors.toList()))).flatMapSingle((io.gravitee.am.model.Application application)->{
-final List<ApplicationScopeSettings> cleanScopes = application.getSettings().getOauth().getScopeSettings().stream().filter((io.gravitee.am.model.application.ApplicationScopeSettings s)->!s.getScope().equals(scope.getKey())).collect(Collectors.toList());
+return oAuthSettings.getScopeSettings() != null && !oAuthSettings.getScopeSettings().stream().filter((ApplicationScopeSettings s)->s.getScope().equals(scope.getKey())).findFirst().isEmpty();
+}).collect(Collectors.toList()))).flatMapSingle((Application application)->{
+final List<ApplicationScopeSettings> cleanScopes = application.getSettings().getOauth().getScopeSettings().stream().filter((ApplicationScopeSettings s)->!s.getScope().equals(scope.getKey())).collect(Collectors.toList());
 application.getSettings().getOauth().setScopeSettings(cleanScopes);
 return RxJava2Adapter.monoToSingle(applicationService.update_migrated(application));
-}).toList()))).toCompletable()).then(RxJava2Adapter.completableToMono(scopeApprovalRepository.deleteByDomainAndScopeKey(scope.getDomain(), scope.getKey()))).then(scopeRepository.delete_migrated(scopeId)).then(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(eventService.create_migrated(new Event(Type.SCOPE, new Payload(scope.getId(), ReferenceType.DOMAIN, scope.getDomain(), Action.DELETE)))))))).doOnComplete(()->auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_DELETED).scope(scope)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_DELETED).throwable(throwable))))).then())
+}).toList()))).toCompletable()).then(RxJava2Adapter.completableToMono(scopeApprovalRepository.deleteByDomainAndScopeKey(scope.getDomain(), scope.getKey()))).then(scopeRepository.delete_migrated(scopeId)).then(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(eventService.create_migrated(new Event(Type.SCOPE, new Payload(scope.getId(), ReferenceType.DOMAIN, scope.getDomain(), Action.DELETE)))))))).doOnComplete(()->auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_DELETED).scope(scope)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((Throwable throwable)->auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_DELETED).throwable(throwable))))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));

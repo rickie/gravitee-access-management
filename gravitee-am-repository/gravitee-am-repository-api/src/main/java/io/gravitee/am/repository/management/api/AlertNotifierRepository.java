@@ -20,11 +20,11 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.alert.AlertNotifier;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.gravitee.am.repository.management.api.search.AlertNotifierCriteria;
-
-
-
-
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -40,10 +40,10 @@ public interface AlertNotifierRepository extends CrudRepository<AlertNotifier, S
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.alert.AlertNotifier> findById(java.lang.String id) {
+default Maybe<AlertNotifier> findById(String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.alert.AlertNotifier> findById_migrated(String id) {
+default Mono<AlertNotifier> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
@@ -56,10 +56,10 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.alert.AlertNotifier> fi
      */
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.alert.AlertNotifier> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
+default Flowable<AlertNotifier> findAll(ReferenceType referenceType, String referenceId) {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.alert.AlertNotifier> findAll_migrated(ReferenceType referenceType, String referenceId) {
+default Flux<AlertNotifier> findAll_migrated(ReferenceType referenceType, String referenceId) {
     return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
 }
 
@@ -73,10 +73,10 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.alert.AlertNotifier> fi
      */
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.alert.AlertNotifier> findByCriteria(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.repository.management.api.search.AlertNotifierCriteria criteria) {
+default Flowable<AlertNotifier> findByCriteria(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria) {
     return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.alert.AlertNotifier> findByCriteria_migrated(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria) {
+default Flux<AlertNotifier> findByCriteria_migrated(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria) {
     return RxJava2Adapter.flowableToFlux(findByCriteria(referenceType, referenceId, criteria));
 }
 }

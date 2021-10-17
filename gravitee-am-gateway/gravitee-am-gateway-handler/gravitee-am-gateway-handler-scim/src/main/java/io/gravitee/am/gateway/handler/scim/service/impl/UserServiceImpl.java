@@ -325,12 +325,12 @@ public class UserServiceImpl implements UserService {
 @Override
     public Mono<Void> delete_migrated(String userId) {
         LOGGER.debug("Delete user {}", userId);
-        return userRepository.findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(user->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))).flatMap(userProvider->userProvider.delete_migrated(user.getExternalId())).then(userRepository.delete_migrated(userId))).onErrorResumeNext((java.lang.Throwable ex)->{
+        return userRepository.findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(user->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))).flatMap(userProvider->userProvider.delete_migrated(user.getExternalId())).then(userRepository.delete_migrated(userId))).onErrorResumeNext((Throwable ex)->{
 if (ex instanceof UserNotFoundException) {
 return RxJava2Adapter.monoToCompletable(userRepository.delete_migrated(userId));
 }
 return RxJava2Adapter.monoToCompletable(Mono.error(ex));
-}).onErrorResumeNext((java.lang.Throwable ex)->{
+}).onErrorResumeNext((Throwable ex)->{
 if (ex instanceof AbstractManagementException) {
 return RxJava2Adapter.monoToCompletable(Mono.error(ex));
 } else {

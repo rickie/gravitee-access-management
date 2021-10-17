@@ -17,13 +17,14 @@ package io.gravitee.am.repository.jdbc.management.api.spring;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcFlow;
-
-
-
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -34,13 +35,13 @@ public interface SpringFlowRepository extends RxJava2CrudRepository<JdbcFlow, St
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcFlow> findById(@org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String referenceId, @org.springframework.data.repository.query.Param(value = "id")
-java.lang.String id) {
+default Maybe<JdbcFlow> findById(@Param(value = "refType")
+String referenceType, @Param(value = "refId")
+String referenceId, @Param(value = "id")
+String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcFlow> findById_migrated(@Param(value = "refType")
+default Mono<JdbcFlow> findById_migrated(@Param(value = "refType")
 String referenceType, @Param(value = "refId")
 String referenceId, @Param(value = "id")
 String id) {
@@ -49,12 +50,12 @@ String id) {
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcFlow> findAll(@org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String referenceId) {
+default Flowable<JdbcFlow> findAll(@Param(value = "refType")
+String referenceType, @Param(value = "refId")
+String referenceId) {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcFlow> findAll_migrated(@Param(value = "refType")
+default Flux<JdbcFlow> findAll_migrated(@Param(value = "refType")
 String referenceType, @Param(value = "refId")
 String referenceId) {
     return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
@@ -62,13 +63,13 @@ String referenceId) {
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByApplication_migrated(referenceType, referenceId, appId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcFlow> findByApplication(@org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String referenceId, @org.springframework.data.repository.query.Param(value = "appId")
-java.lang.String appId) {
+default Flowable<JdbcFlow> findByApplication(@Param(value = "refType")
+String referenceType, @Param(value = "refId")
+String referenceId, @Param(value = "appId")
+String appId) {
     return RxJava2Adapter.fluxToFlowable(findByApplication_migrated(referenceType, referenceId, appId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcFlow> findByApplication_migrated(@Param(value = "refType")
+default Flux<JdbcFlow> findByApplication_migrated(@Param(value = "refType")
 String referenceType, @Param(value = "refId")
 String referenceId, @Param(value = "appId")
 String appId) {

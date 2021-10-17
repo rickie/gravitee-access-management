@@ -86,7 +86,7 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
                 .matching(from(where("domain").is(domain)))
                 .orderBy(Sort.Order.by("scopes."+databaseDialectHelper.toSql(SqlIdentifier.quoted("key"))))
                 .page(PageRequest.of(page, size))
-                .as(JdbcScope.class).fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId()).flux()))).collectList().flatMap(content->countByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<>(content, page, count))));
+                .as(JdbcScope.class).fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId()).flux()))).collectList().flatMap(content->countByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction((Long count)->new Page<>(content, page, count))));
     }
 
     
@@ -117,7 +117,7 @@ private Mono<Long> countByDomain_migrated(String domain) {
                 .bind("domain", domain)
                 .bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase())
                 .as(JdbcScope.class)
-                .fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId()).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<>(data, page, total))));
+                .fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId()).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((Long total)->new Page<>(data, page, total))));
     }
 
     

@@ -17,12 +17,12 @@ package io.gravitee.am.repository.jdbc.management.api.spring;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcCredential;
-
-
+import io.reactivex.Flowable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -32,13 +32,13 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface SpringCredentialRepository extends RxJava2CrudRepository<JdbcCredential, String> {
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUserId_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcCredential> findByUserId(@org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String referenceId, @org.springframework.data.repository.query.Param(value = "userId")
-java.lang.String userId) {
+default Flowable<JdbcCredential> findByUserId(@Param(value = "refType")
+String referenceType, @Param(value = "refId")
+String referenceId, @Param(value = "userId")
+String userId) {
     return RxJava2Adapter.fluxToFlowable(findByUserId_migrated(referenceType, referenceId, userId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcCredential> findByUserId_migrated(@Param(value = "refType")
+default Flux<JdbcCredential> findByUserId_migrated(@Param(value = "refType")
 String referenceType, @Param(value = "refId")
 String referenceId, @Param(value = "userId")
 String userId) {
@@ -47,13 +47,13 @@ String userId) {
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUsername_migrated(referenceType, referenceId, username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcCredential> findByUsername(@org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String referenceId, @org.springframework.data.repository.query.Param(value = "username")
-java.lang.String username) {
+default Flowable<JdbcCredential> findByUsername(@Param(value = "refType")
+String referenceType, @Param(value = "refId")
+String referenceId, @Param(value = "username")
+String username) {
     return RxJava2Adapter.fluxToFlowable(findByUsername_migrated(referenceType, referenceId, username));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcCredential> findByUsername_migrated(@Param(value = "refType")
+default Flux<JdbcCredential> findByUsername_migrated(@Param(value = "refType")
 String referenceType, @Param(value = "refId")
 String referenceId, @Param(value = "username")
 String username) {
@@ -62,13 +62,13 @@ String username) {
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCredentialId_migrated(referenceType, referenceId, credentialId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcCredential> findByCredentialId(@org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String referenceId, @org.springframework.data.repository.query.Param(value = "credId")
-java.lang.String credentialId) {
+default Flowable<JdbcCredential> findByCredentialId(@Param(value = "refType")
+String referenceType, @Param(value = "refId")
+String referenceId, @Param(value = "credId")
+String credentialId) {
     return RxJava2Adapter.fluxToFlowable(findByCredentialId_migrated(referenceType, referenceId, credentialId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcCredential> findByCredentialId_migrated(@Param(value = "refType")
+default Flux<JdbcCredential> findByCredentialId_migrated(@Param(value = "refType")
 String referenceType, @Param(value = "refId")
 String referenceId, @Param(value = "credId")
 String credentialId) {

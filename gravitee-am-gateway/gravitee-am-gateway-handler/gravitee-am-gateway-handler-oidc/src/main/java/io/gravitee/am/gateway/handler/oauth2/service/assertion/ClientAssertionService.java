@@ -16,10 +16,10 @@
 package io.gravitee.am.gateway.handler.oauth2.service.assertion;
 
 import com.google.errorprone.annotations.InlineMe;
-
-
-
+import io.gravitee.am.model.oidc.Client;
+import io.reactivex.Maybe;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * Client assertion as described for <a href="https://tools.ietf.org/html/rfc7521#section-4.2">oauth2 assertion framework</a>
@@ -32,10 +32,10 @@ public interface ClientAssertionService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.assertClient_migrated(assertionType, assertion, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.oidc.Client> assertClient(java.lang.String assertionType, java.lang.String assertion, java.lang.String basePath) {
+default Maybe<Client> assertClient(String assertionType, String assertion, String basePath) {
     return RxJava2Adapter.monoToMaybe(assertClient_migrated(assertionType, assertion, basePath));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.Client> assertClient_migrated(String assertionType, String assertion, String basePath) {
+default Mono<Client> assertClient_migrated(String assertionType, String assertion, String basePath) {
     return RxJava2Adapter.maybeToMono(assertClient(assertionType, assertion, basePath));
 }
 }

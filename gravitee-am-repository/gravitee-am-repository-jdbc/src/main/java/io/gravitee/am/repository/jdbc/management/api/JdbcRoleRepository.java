@@ -99,7 +99,7 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
                         .and(where("reference_type").is(referenceType.name()))))
                 .orderBy(Sort.Order.asc("name"))
                 .page(PageRequest.of(page, size))
-                .as(JdbcRole.class).all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(role -> RxJava2Adapter.fluxToFlowable(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(role)), role.getId()).flux()))).collectList().flatMap(content->roleRepository.countByReference_migrated(referenceType.name(), referenceId).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<Role>(content, page, count))));
+                .as(JdbcRole.class).all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(role -> RxJava2Adapter.fluxToFlowable(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(role)), role.getId()).flux()))).collectList().flatMap(content->roleRepository.countByReference_migrated(referenceType.name(), referenceId).map(RxJavaReactorMigrationUtil.toJdkFunction((Long count)->new Page<Role>(content, page, count))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -123,7 +123,7 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
                 .bind("refId", referenceId)
                 .bind("refType", referenceType.name())
                 .as(JdbcRole.class)
-                .fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(role -> RxJava2Adapter.fluxToFlowable(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(role)), role.getId()).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("value", wildcardSearch ? wildcardValue : query).bind("refId", referenceId).bind("refType", referenceType.name()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<Role>(data, page, total))));
+                .fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(role -> RxJava2Adapter.fluxToFlowable(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(role)), role.getId()).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("value", wildcardSearch ? wildcardValue : query).bind("refId", referenceId).bind("refType", referenceType.name()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((Long total)->new Page<Role>(data, page, total))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

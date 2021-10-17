@@ -18,10 +18,9 @@ package io.gravitee.am.repository.management.api;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Factor;
 import io.gravitee.am.repository.common.CrudRepository;
-
-
-
+import io.reactivex.Flowable;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -31,19 +30,19 @@ public interface FactorRepository extends CrudRepository<Factor, String> {
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Factor> findAll() {
+default Flowable<Factor> findAll() {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated());
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Factor> findAll_migrated() {
+default Flux<Factor> findAll_migrated() {
     return RxJava2Adapter.flowableToFlux(findAll());
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Factor> findByDomain(java.lang.String domain) {
+default Flowable<Factor> findByDomain(String domain) {
     return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Factor> findByDomain_migrated(String domain) {
+default Flux<Factor> findByDomain_migrated(String domain) {
     return RxJava2Adapter.flowableToFlux(findByDomain(domain));
 }
 

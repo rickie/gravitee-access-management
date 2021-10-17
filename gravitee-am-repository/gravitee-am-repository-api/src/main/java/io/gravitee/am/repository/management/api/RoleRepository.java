@@ -18,14 +18,15 @@ package io.gravitee.am.repository.management.api;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.Role;
-
+import io.gravitee.am.model.common.Page;
 import io.gravitee.am.repository.common.CrudRepository;
-
-
-
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import java.util.List;
-
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -35,64 +36,64 @@ public interface RoleRepository extends CrudRepository<Role, String> {
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Role> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
+default Flowable<Role> findAll(ReferenceType referenceType, String referenceId) {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Role> findAll_migrated(ReferenceType referenceType, String referenceId) {
+default Flux<Role> findAll_migrated(ReferenceType referenceType, String referenceId) {
     return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(referenceType, referenceId, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.model.Role>> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, int page, int size) {
+default Single<Page<Role>> findAll(ReferenceType referenceType, String referenceId, int page, int size) {
     return RxJava2Adapter.monoToSingle(findAll_migrated(referenceType, referenceId, page, size));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee.am.model.Role>> findAll_migrated(ReferenceType referenceType, String referenceId, int page, int size) {
+default Mono<Page<Role>> findAll_migrated(ReferenceType referenceType, String referenceId, int page, int size) {
     return RxJava2Adapter.singleToMono(findAll(referenceType, referenceId, page, size));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.model.Role>> search(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String query, int page, int size) {
+default Single<Page<Role>> search(ReferenceType referenceType, String referenceId, String query, int page, int size) {
     return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, query, page, size));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee.am.model.Role>> search_migrated(ReferenceType referenceType, String referenceId, String query, int page, int size) {
+default Mono<Page<Role>> search_migrated(ReferenceType referenceType, String referenceId, String query, int page, int size) {
     return RxJava2Adapter.singleToMono(search(referenceType, referenceId, query, page, size));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Role> findByIdIn(java.util.List<java.lang.String> ids) {
+default Flowable<Role> findByIdIn(List<String> ids) {
     return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Role> findByIdIn_migrated(List<String> ids) {
+default Flux<Role> findByIdIn_migrated(List<String> ids) {
     return RxJava2Adapter.flowableToFlux(findByIdIn(ids));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, role))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.Role> findById(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String role) {
+default Maybe<Role> findById(ReferenceType referenceType, String referenceId, String role) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, role));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Role> findById_migrated(ReferenceType referenceType, String referenceId, String role) {
+default Mono<Role> findById_migrated(ReferenceType referenceType, String referenceId, String role) {
     return RxJava2Adapter.maybeToMono(findById(referenceType, referenceId, role));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByNameAndAssignableType_migrated(referenceType, referenceId, name, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.Role> findByNameAndAssignableType(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String name, io.gravitee.am.model.ReferenceType assignableType) {
+default Maybe<Role> findByNameAndAssignableType(ReferenceType referenceType, String referenceId, String name, ReferenceType assignableType) {
     return RxJava2Adapter.monoToMaybe(findByNameAndAssignableType_migrated(referenceType, referenceId, name, assignableType));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Role> findByNameAndAssignableType_migrated(ReferenceType referenceType, String referenceId, String name, ReferenceType assignableType) {
+default Mono<Role> findByNameAndAssignableType_migrated(ReferenceType referenceType, String referenceId, String name, ReferenceType assignableType) {
     return RxJava2Adapter.maybeToMono(findByNameAndAssignableType(referenceType, referenceId, name, assignableType));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByNamesAndAssignableType_migrated(referenceType, referenceId, name, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Role> findByNamesAndAssignableType(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.util.List<java.lang.String> name, io.gravitee.am.model.ReferenceType assignableType) {
+default Flowable<Role> findByNamesAndAssignableType(ReferenceType referenceType, String referenceId, List<String> name, ReferenceType assignableType) {
     return RxJava2Adapter.fluxToFlowable(findByNamesAndAssignableType_migrated(referenceType, referenceId, name, assignableType));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Role> findByNamesAndAssignableType_migrated(ReferenceType referenceType, String referenceId, List<String> name, ReferenceType assignableType) {
+default Flux<Role> findByNamesAndAssignableType_migrated(ReferenceType referenceType, String referenceId, List<String> name, ReferenceType assignableType) {
     return RxJava2Adapter.flowableToFlux(findByNamesAndAssignableType(referenceType, referenceId, name, assignableType));
 }
 }

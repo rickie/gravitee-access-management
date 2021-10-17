@@ -56,7 +56,7 @@ public class DomainReporterUpgrader implements Upgrader, Ordered {
         logger.info("Applying domain reporter upgrade");
         RxJava2Adapter.monoToSingle(domainService.findAll_migrated())
                 .flatMapObservable(Observable::fromIterable)
-                .flatMapCompletable((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.monoToCompletable(updateDefaultReporter_migrated(ident)))
+                .flatMapCompletable((Domain ident) -> RxJava2Adapter.monoToCompletable(updateDefaultReporter_migrated(ident)))
                 .subscribe();
         return true;
     }

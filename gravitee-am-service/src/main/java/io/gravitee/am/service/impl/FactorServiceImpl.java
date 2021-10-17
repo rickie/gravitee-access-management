@@ -205,7 +205,7 @@ private Mono<Factor> checkFactorConfiguration_migrated(Factor factor) {
     public Mono<Void> delete_migrated(String domain, String factorId, User principal) {
         LOGGER.debug("Delete factor {}", factorId);
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(factorRepository.findById_migrated(factorId).switchIfEmpty(Mono.error(new FactorNotFoundException(factorId))).flatMap(y->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(applicationService.findByFactor_migrated(factorId)).count()).flatMap((java.lang.Long v)->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long applications)->{
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(factorRepository.findById_migrated(factorId).switchIfEmpty(Mono.error(new FactorNotFoundException(factorId))).flatMap(y->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(applicationService.findByFactor_migrated(factorId)).count()).flatMap((Long v)->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.toJdkFunction((Long applications)->{
 if (applications > 0) {
 throw new FactorWithApplicationsException();
 }

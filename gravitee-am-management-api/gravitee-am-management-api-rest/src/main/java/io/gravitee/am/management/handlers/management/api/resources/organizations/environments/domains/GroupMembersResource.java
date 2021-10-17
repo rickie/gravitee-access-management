@@ -88,7 +88,7 @@ public class GroupMembersResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
 
         checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.READ).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(groupService.findMembers_migrated(ReferenceType.DOMAIN, domain, group, page, Integer.min(size, MAX_MEMBERS_SIZE_PER_PAGE))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Page<io.gravitee.am.model.User>, SingleSource<Page>>toJdkFunction(pagedMembers -> {
+                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(groupService.findMembers_migrated(ReferenceType.DOMAIN, domain, group, page, Integer.min(size, MAX_MEMBERS_SIZE_PER_PAGE))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Page<User>, SingleSource<Page>>toJdkFunction(pagedMembers -> {
                             if (pagedMembers.getData() == null) {
                                 return RxJava2Adapter.monoToSingle(Mono.just(pagedMembers));
                             }

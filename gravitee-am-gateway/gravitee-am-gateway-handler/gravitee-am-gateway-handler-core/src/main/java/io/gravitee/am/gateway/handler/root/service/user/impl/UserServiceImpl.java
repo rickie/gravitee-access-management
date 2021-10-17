@@ -28,6 +28,7 @@ import io.gravitee.am.gateway.handler.common.email.EmailService;
 import io.gravitee.am.gateway.handler.root.service.response.RegistrationResponse;
 import io.gravitee.am.gateway.handler.root.service.response.ResetPasswordResponse;
 import io.gravitee.am.gateway.handler.root.service.user.UserService;
+import io.gravitee.am.gateway.handler.root.service.user.impl.UserServiceImpl.UserAuthentication;
 import io.gravitee.am.gateway.handler.root.service.user.model.ForgotPasswordParameters;
 import io.gravitee.am.gateway.handler.root.service.user.model.UserToken;
 import io.gravitee.am.identityprovider.api.DefaultUser;
@@ -329,7 +330,7 @@ public class UserServiceImpl implements UserService {
                     if (foundUsers.size() == 1 || (foundUsers.size() > 1 && !params.isConfirmIdentityEnabled())) {
                         User user = foundUsers.get(0);
                         // check if user can update its password according to its identity provider type
-                        return RxJava2Adapter.monoToSingle(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserInvalidException("User [ " + user.getUsername() + " ] cannot be updated because its identity provider does not support user provisioning"))).flatMap(a->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.UserProvider, SingleSource<io.gravitee.am.model.User>>toJdkFunction(userProvider -> {
+                        return RxJava2Adapter.monoToSingle(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserInvalidException("User [ " + user.getUsername() + " ] cannot be updated because its identity provider does not support user provisioning"))).flatMap(a->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<UserProvider, SingleSource<io.gravitee.am.model.User>>toJdkFunction(userProvider -> {
                                     // if user registration is not completed and force registration option is disabled throw invalid account exception
                                     if (user.isInactive() && !forceUserRegistration(domain, client)) {
                                         return RxJava2Adapter.monoToSingle(Mono.error(new AccountInactiveException("User [ " + user.getUsername() + " ] needs to complete the activation process")));
@@ -364,7 +365,7 @@ public class UserServiceImpl implements UserService {
                     // email used in priority for backward compatibility
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(client.getIdentities())
                             .flatMapMaybe(authProvider -> {
-                                return RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(authProvider).flatMap(a->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.UserProvider, MaybeSource<Optional<io.gravitee.am.gateway.handler.root.service.user.impl.UserServiceImpl.UserAuthentication>>>toJdkFunction(userProvider -> {
+                                return RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(authProvider).flatMap(a->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<UserProvider, MaybeSource<Optional<UserAuthentication>>>toJdkFunction(userProvider -> {
                                             final String username = params.getUsername();
                                             final Maybe<io.gravitee.am.identityprovider.api.User> findQuery = StringUtils.isEmpty(email) ?
                                                     RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated(username)) : RxJava2Adapter.monoToMaybe(userProvider.findByEmail_migrated(email)) ;
@@ -373,7 +374,7 @@ public class UserServiceImpl implements UserService {
                                         }).apply(a)))).defaultIfEmpty(Optional.empty()));
                             })
                             .takeUntil((Predicate<? super Optional<UserAuthentication>>) Optional::isPresent)
-                            .lastOrError()).flatMap(a->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Optional<io.gravitee.am.gateway.handler.root.service.user.impl.UserServiceImpl.UserAuthentication>, SingleSource<io.gravitee.am.model.User>>toJdkFunction(optional -> {
+                            .lastOrError()).flatMap(a->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Optional<UserAuthentication>, SingleSource<io.gravitee.am.model.User>>toJdkFunction(optional -> {
                                 // be sure to not duplicate an existing user
                                 if (!optional.isPresent()) {
                                     return RxJava2Adapter.monoToSingle(Mono.error(new UserNotFoundException()));

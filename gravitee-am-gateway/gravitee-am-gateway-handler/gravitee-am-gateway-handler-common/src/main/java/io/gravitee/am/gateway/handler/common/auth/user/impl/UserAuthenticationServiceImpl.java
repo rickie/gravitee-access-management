@@ -103,7 +103,7 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 @Override
     public Mono<User> loadPreAuthenticatedUser_migrated(String subject, Request request) {
         // find user by its technical id
-        return userService.findById_migrated(subject).switchIfEmpty(Mono.error(new UserNotFoundException(subject))).flatMap(z->identityProviderManager.get_migrated(z.getSource()).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction((io.gravitee.am.identityprovider.api.AuthenticationProvider authenticationProvider)->{
+        return userService.findById_migrated(subject).switchIfEmpty(Mono.error(new UserNotFoundException(subject))).flatMap(z->identityProviderManager.get_migrated(z.getSource()).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction((AuthenticationProvider authenticationProvider)->{
 SimpleAuthenticationContext authenticationContext = new SimpleAuthenticationContext(request);
 final Authentication authentication = new EndUserAuthentication(z, null, authenticationContext);
 return RxJava2Adapter.monoToMaybe(authenticationProvider.loadPreAuthenticatedUser_migrated(authentication));

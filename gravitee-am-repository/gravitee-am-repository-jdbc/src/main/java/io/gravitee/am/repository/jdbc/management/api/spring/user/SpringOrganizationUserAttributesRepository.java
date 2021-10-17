@@ -17,12 +17,13 @@ package io.gravitee.am.repository.jdbc.management.api.spring.user;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser;
-
-
+import io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser.Attribute;
+import io.reactivex.Flowable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -32,11 +33,11 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface SpringOrganizationUserAttributesRepository extends RxJava2CrudRepository<JdbcOrganizationUser.Attribute, String> {
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUserId_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser.Attribute> findByUserId(@org.springframework.data.repository.query.Param(value = "user")
-java.lang.String userId) {
+default Flowable<Attribute> findByUserId(@Param(value = "user")
+String userId) {
     return RxJava2Adapter.fluxToFlowable(findByUserId_migrated(userId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser.Attribute> findByUserId_migrated(@Param(value = "user")
+default Flux<Attribute> findByUserId_migrated(@Param(value = "user")
 String userId) {
     return RxJava2Adapter.flowableToFlux(findByUserId(userId));
 }

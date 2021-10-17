@@ -24,6 +24,7 @@ import io.gravitee.am.gateway.handler.common.auth.idp.IdentityProviderManager;
 import io.gravitee.am.gateway.handler.common.auth.user.EndUserAuthentication;
 import io.gravitee.am.gateway.handler.common.auth.user.UserAuthenticationManager;
 import io.gravitee.am.gateway.handler.common.auth.user.UserAuthenticationService;
+import io.gravitee.am.gateway.handler.common.auth.user.impl.UserAuthenticationManagerImpl.UserAuthentication;
 import io.gravitee.am.gateway.handler.common.user.UserService;
 import io.gravitee.am.identityprovider.api.Authentication;
 import io.gravitee.am.identityprovider.api.AuthenticationProvider;
@@ -117,7 +118,7 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
         return RxJava2Adapter.singleToMono(Observable.fromIterable(identities)
                 .flatMapMaybe(authProvider -> RxJava2Adapter.monoToMaybe(authenticate0_migrated(client, authentication, authProvider, preAuthenticated)))
                 .takeUntil(userAuthentication -> userAuthentication.getUser() != null || userAuthentication.getLastException() instanceof AccountLockedException)
-                .lastOrError()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.gateway.handler.common.auth.user.impl.UserAuthenticationManagerImpl.UserAuthentication, SingleSource<io.gravitee.am.model.User>>toJdkFunction(userAuthentication -> {
+                .lastOrError()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<UserAuthentication, SingleSource<io.gravitee.am.model.User>>toJdkFunction(userAuthentication -> {
                     io.gravitee.am.identityprovider.api.User user = userAuthentication.getUser();
                     if (user == null) {
                         Throwable lastException = userAuthentication.getLastException();

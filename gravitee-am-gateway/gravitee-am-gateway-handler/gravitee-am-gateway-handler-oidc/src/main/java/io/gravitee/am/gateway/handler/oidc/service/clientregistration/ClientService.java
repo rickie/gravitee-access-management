@@ -19,9 +19,9 @@ import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.service.ApplicationService;
-
-
-
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
 
@@ -38,52 +38,52 @@ public interface ClientService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.oidc.Client> findById(java.lang.String id) {
+default Maybe<Client> findById(String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.Client> findById_migrated(String id) {
+default Mono<Client> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.oidc.Client> create(io.gravitee.am.model.oidc.Client client) {
+default Single<Client> create(Client client) {
     return RxJava2Adapter.monoToSingle(create_migrated(client));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.Client> create_migrated(Client client) {
+default Mono<Client> create_migrated(Client client) {
     return RxJava2Adapter.singleToMono(create(client));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.renewClientSecret_migrated(domain, id, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.oidc.Client> renewClientSecret(java.lang.String domain, java.lang.String id, io.gravitee.am.identityprovider.api.User principal) {
+default Single<Client> renewClientSecret(String domain, String id, User principal) {
     return RxJava2Adapter.monoToSingle(renewClientSecret_migrated(domain, id, principal));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.Client> renewClientSecret_migrated(String domain, String id, User principal) {
+default Mono<Client> renewClientSecret_migrated(String domain, String id, User principal) {
     return RxJava2Adapter.singleToMono(renewClientSecret(domain, id, principal));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(clientId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable delete(java.lang.String clientId, io.gravitee.am.identityprovider.api.User principal) {
+default Completable delete(String clientId, User principal) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(clientId, principal));
 }
-default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String clientId, User principal) {
+default Mono<Void> delete_migrated(String clientId, User principal) {
     return RxJava2Adapter.completableToMono(delete(clientId, principal));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.oidc.Client> update(io.gravitee.am.model.oidc.Client client) {
+default Single<Client> update(Client client) {
     return RxJava2Adapter.monoToSingle(update_migrated(client));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.Client> update_migrated(Client client) {
+default Mono<Client> update_migrated(Client client) {
     return RxJava2Adapter.singleToMono(update(client));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.renewClientSecret_migrated(domain, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.oidc.Client> renewClientSecret(java.lang.String domain, java.lang.String id) {
+default Single<Client> renewClientSecret(String domain, String id) {
     return RxJava2Adapter.monoToSingle(renewClientSecret_migrated(domain, id));
 }default Mono<Client> renewClientSecret_migrated(String domain, String id) {
         return RxJava2Adapter.singleToMono(renewClientSecret(domain, id, null));
@@ -91,7 +91,7 @@ default io.reactivex.Single<io.gravitee.am.model.oidc.Client> renewClientSecret(
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable delete(java.lang.String clientId) {
+default Completable delete(String clientId) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(clientId));
 }default Mono<Void> delete_migrated(String clientId) {
         return RxJava2Adapter.completableToMono(delete(clientId, null));

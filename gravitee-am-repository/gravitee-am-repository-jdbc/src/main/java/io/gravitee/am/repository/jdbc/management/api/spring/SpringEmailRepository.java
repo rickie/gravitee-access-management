@@ -17,13 +17,14 @@ package io.gravitee.am.repository.jdbc.management.api.spring;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcEmail;
-
-
-
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -33,13 +34,13 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface SpringEmailRepository extends RxJava2CrudRepository<JdbcEmail, String> {
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(refId, refType, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcEmail> findById(@org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String refId, @org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String refType, @org.springframework.data.repository.query.Param(value = "id")
-java.lang.String id) {
+default Maybe<JdbcEmail> findById(@Param(value = "refId")
+String refId, @Param(value = "refType")
+String refType, @Param(value = "id")
+String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(refId, refType, id));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcEmail> findById_migrated(@Param(value = "refId")
+default Mono<JdbcEmail> findById_migrated(@Param(value = "refId")
 String refId, @Param(value = "refType")
 String refType, @Param(value = "id")
 String id) {
@@ -48,12 +49,12 @@ String id) {
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByReference_migrated(refId, refType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcEmail> findAllByReference(@org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String refId, @org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String refType) {
+default Flowable<JdbcEmail> findAllByReference(@Param(value = "refId")
+String refId, @Param(value = "refType")
+String refType) {
     return RxJava2Adapter.fluxToFlowable(findAllByReference_migrated(refId, refType));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcEmail> findAllByReference_migrated(@Param(value = "refId")
+default Flux<JdbcEmail> findAllByReference_migrated(@Param(value = "refId")
 String refId, @Param(value = "refType")
 String refType) {
     return RxJava2Adapter.flowableToFlux(findAllByReference(refId, refType));
@@ -61,13 +62,13 @@ String refType) {
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByReferenceAndClient_migrated(refId, refType, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcEmail> findAllByReferenceAndClient(@org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String refId, @org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String refType, @org.springframework.data.repository.query.Param(value = "cli")
-java.lang.String client) {
+default Flowable<JdbcEmail> findAllByReferenceAndClient(@Param(value = "refId")
+String refId, @Param(value = "refType")
+String refType, @Param(value = "cli")
+String client) {
     return RxJava2Adapter.fluxToFlowable(findAllByReferenceAndClient_migrated(refId, refType, client));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcEmail> findAllByReferenceAndClient_migrated(@Param(value = "refId")
+default Flux<JdbcEmail> findAllByReferenceAndClient_migrated(@Param(value = "refId")
 String refId, @Param(value = "refType")
 String refType, @Param(value = "cli")
 String client) {
@@ -76,14 +77,14 @@ String client) {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByClientAndTemplate_migrated(refId, refType, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcEmail> findByClientAndTemplate(@org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String refId, @org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String refType, @org.springframework.data.repository.query.Param(value = "cli")
-java.lang.String client, @org.springframework.data.repository.query.Param(value = "tpl")
-java.lang.String template) {
+default Maybe<JdbcEmail> findByClientAndTemplate(@Param(value = "refId")
+String refId, @Param(value = "refType")
+String refType, @Param(value = "cli")
+String client, @Param(value = "tpl")
+String template) {
     return RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(refId, refType, client, template));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcEmail> findByClientAndTemplate_migrated(@Param(value = "refId")
+default Mono<JdbcEmail> findByClientAndTemplate_migrated(@Param(value = "refId")
 String refId, @Param(value = "refType")
 String refType, @Param(value = "cli")
 String client, @Param(value = "tpl")
@@ -93,13 +94,13 @@ String template) {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByTemplate_migrated(refId, refType, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcEmail> findByTemplate(@org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String refId, @org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String refType, @org.springframework.data.repository.query.Param(value = "tpl")
-java.lang.String template) {
+default Maybe<JdbcEmail> findByTemplate(@Param(value = "refId")
+String refId, @Param(value = "refType")
+String refType, @Param(value = "tpl")
+String template) {
     return RxJava2Adapter.monoToMaybe(findByTemplate_migrated(refId, refType, template));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcEmail> findByTemplate_migrated(@Param(value = "refId")
+default Mono<JdbcEmail> findByTemplate_migrated(@Param(value = "refId")
 String refId, @Param(value = "refType")
 String refType, @Param(value = "tpl")
 String template) {

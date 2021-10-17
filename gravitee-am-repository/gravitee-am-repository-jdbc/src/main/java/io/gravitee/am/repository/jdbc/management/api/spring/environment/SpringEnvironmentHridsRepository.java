@@ -17,11 +17,12 @@ package io.gravitee.am.repository.jdbc.management.api.spring.environment;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment;
-
-
+import io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment.Hrid;
+import io.reactivex.Flowable;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -31,10 +32,10 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface SpringEnvironmentHridsRepository extends RxJava2CrudRepository<JdbcEnvironment.Hrid, String> {
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByEnvironmentId_migrated(environmentId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment.Hrid> findAllByEnvironmentId(java.lang.String environmentId) {
+default Flowable<Hrid> findAllByEnvironmentId(String environmentId) {
     return RxJava2Adapter.fluxToFlowable(findAllByEnvironmentId_migrated(environmentId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment.Hrid> findAllByEnvironmentId_migrated(String environmentId) {
+default Flux<Hrid> findAllByEnvironmentId_migrated(String environmentId) {
     return RxJava2Adapter.flowableToFlux(findAllByEnvironmentId(environmentId));
 }
 }

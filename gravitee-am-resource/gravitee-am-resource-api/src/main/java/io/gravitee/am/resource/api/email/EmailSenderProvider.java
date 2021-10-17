@@ -18,8 +18,9 @@ package io.gravitee.am.resource.api.email;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.email.Email;
 import io.gravitee.am.resource.api.ResourceProvider;
-
+import io.reactivex.Completable;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -28,10 +29,10 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface EmailSenderProvider extends ResourceProvider {
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.sendMessage_migrated(message))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable sendMessage(io.gravitee.am.common.email.Email message) {
+default Completable sendMessage(Email message) {
     return RxJava2Adapter.monoToCompletable(sendMessage_migrated(message));
 }
-default reactor.core.publisher.Mono<java.lang.Void> sendMessage_migrated(Email message) {
+default Mono<Void> sendMessage_migrated(Email message) {
     return RxJava2Adapter.completableToMono(sendMessage(message));
 }
 }

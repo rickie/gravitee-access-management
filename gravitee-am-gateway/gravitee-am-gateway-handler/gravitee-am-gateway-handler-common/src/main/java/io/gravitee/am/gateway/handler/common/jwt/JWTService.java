@@ -19,8 +19,9 @@ import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.certificate.CertificateProvider;
 import io.gravitee.am.model.oidc.Client;
-
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 
 /**
@@ -38,10 +39,10 @@ public interface JWTService {
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encode_migrated(jwt, certificateProvider))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.lang.String> encode(io.gravitee.am.common.jwt.JWT jwt, io.gravitee.am.gateway.certificate.CertificateProvider certificateProvider) {
+default Single<String> encode(JWT jwt, CertificateProvider certificateProvider) {
     return RxJava2Adapter.monoToSingle(encode_migrated(jwt, certificateProvider));
 }
-default reactor.core.publisher.Mono<java.lang.String> encode_migrated(JWT jwt, CertificateProvider certificateProvider) {
+default Mono<String> encode_migrated(JWT jwt, CertificateProvider certificateProvider) {
     return RxJava2Adapter.singleToMono(encode(jwt, certificateProvider));
 }
 
@@ -53,10 +54,10 @@ default reactor.core.publisher.Mono<java.lang.String> encode_migrated(JWT jwt, C
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encode_migrated(jwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.lang.String> encode(io.gravitee.am.common.jwt.JWT jwt, io.gravitee.am.model.oidc.Client client) {
+default Single<String> encode(JWT jwt, Client client) {
     return RxJava2Adapter.monoToSingle(encode_migrated(jwt, client));
 }
-default reactor.core.publisher.Mono<java.lang.String> encode_migrated(JWT jwt, Client client) {
+default Mono<String> encode_migrated(JWT jwt, Client client) {
     return RxJava2Adapter.singleToMono(encode(jwt, client));
 }
 
@@ -68,10 +69,10 @@ default reactor.core.publisher.Mono<java.lang.String> encode_migrated(JWT jwt, C
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encodeUserinfo_migrated(jwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.lang.String> encodeUserinfo(io.gravitee.am.common.jwt.JWT jwt, io.gravitee.am.model.oidc.Client client) {
+default Single<String> encodeUserinfo(JWT jwt, Client client) {
     return RxJava2Adapter.monoToSingle(encodeUserinfo_migrated(jwt, client));
 }
-default reactor.core.publisher.Mono<java.lang.String> encodeUserinfo_migrated(JWT jwt, Client client) {
+default Mono<String> encodeUserinfo_migrated(JWT jwt, Client client) {
     return RxJava2Adapter.singleToMono(encodeUserinfo(jwt, client));
 }
 
@@ -83,10 +84,10 @@ default reactor.core.publisher.Mono<java.lang.String> encodeUserinfo_migrated(JW
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encodeAuthorization_migrated(jwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.lang.String> encodeAuthorization(io.gravitee.am.common.jwt.JWT jwt, io.gravitee.am.model.oidc.Client client) {
+default Single<String> encodeAuthorization(JWT jwt, Client client) {
     return RxJava2Adapter.monoToSingle(encodeAuthorization_migrated(jwt, client));
 }
-default reactor.core.publisher.Mono<java.lang.String> encodeAuthorization_migrated(JWT jwt, Client client) {
+default Mono<String> encodeAuthorization_migrated(JWT jwt, Client client) {
     return RxJava2Adapter.singleToMono(encodeAuthorization(jwt, client));
 }
 
@@ -98,10 +99,10 @@ default reactor.core.publisher.Mono<java.lang.String> encodeAuthorization_migrat
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.decodeAndVerify_migrated(jwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.common.jwt.JWT> decodeAndVerify(java.lang.String jwt, io.gravitee.am.model.oidc.Client client) {
+default Single<JWT> decodeAndVerify(String jwt, Client client) {
     return RxJava2Adapter.monoToSingle(decodeAndVerify_migrated(jwt, client));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.common.jwt.JWT> decodeAndVerify_migrated(String jwt, Client client) {
+default Mono<JWT> decodeAndVerify_migrated(String jwt, Client client) {
     return RxJava2Adapter.singleToMono(decodeAndVerify(jwt, client));
 }
 
@@ -113,10 +114,10 @@ default reactor.core.publisher.Mono<io.gravitee.am.common.jwt.JWT> decodeAndVeri
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.decodeAndVerify_migrated(jwt, certificateProvider))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.common.jwt.JWT> decodeAndVerify(java.lang.String jwt, io.gravitee.am.gateway.certificate.CertificateProvider certificateProvider) {
+default Single<JWT> decodeAndVerify(String jwt, CertificateProvider certificateProvider) {
     return RxJava2Adapter.monoToSingle(decodeAndVerify_migrated(jwt, certificateProvider));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.common.jwt.JWT> decodeAndVerify_migrated(String jwt, CertificateProvider certificateProvider) {
+default Mono<JWT> decodeAndVerify_migrated(String jwt, CertificateProvider certificateProvider) {
     return RxJava2Adapter.singleToMono(decodeAndVerify(jwt, certificateProvider));
 }
 
@@ -127,10 +128,10 @@ default reactor.core.publisher.Mono<io.gravitee.am.common.jwt.JWT> decodeAndVeri
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.decode_migrated(jwt))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.common.jwt.JWT> decode(java.lang.String jwt) {
+default Single<JWT> decode(String jwt) {
     return RxJava2Adapter.monoToSingle(decode_migrated(jwt));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.common.jwt.JWT> decode_migrated(String jwt) {
+default Mono<JWT> decode_migrated(String jwt) {
     return RxJava2Adapter.singleToMono(decode(jwt));
 }
 }

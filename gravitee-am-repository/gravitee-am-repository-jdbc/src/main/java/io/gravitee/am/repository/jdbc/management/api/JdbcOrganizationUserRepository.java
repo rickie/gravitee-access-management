@@ -122,7 +122,7 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
                 .orderBy(Sort.Order.asc("id"))
                 .page(PageRequest.of(page, size))
                 .as(JdbcOrganizationUser.class).all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
-                .flatMap(user -> completeUser_migrated(user).flux(), CONCURRENT_FLATMAP)).collectList().flatMap(content->userRepository.countByReference_migrated(referenceType.name(), referenceId).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<User>(content, page, count))));
+                .flatMap(user -> completeUser_migrated(user).flux(), CONCURRENT_FLATMAP)).collectList().flatMap(content->userRepository.countByReference_migrated(referenceType.name(), referenceId).map(RxJavaReactorMigrationUtil.toJdkFunction((Long count)->new Page<User>(content, page, count))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -147,7 +147,7 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
                 .bind("refType", referenceType.name())
                 .as(JdbcOrganizationUser.class)
                 .fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
-                .flatMap(app -> completeUser_migrated(app).flux(), CONCURRENT_FLATMAP)).collectList().flatMap(data->dbClient.execute(count).bind("value", wildcardSearch ? wildcardValue : query).bind("refId", referenceId).bind("refType", referenceType.name()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<User>(data, page, total))));
+                .flatMap(app -> completeUser_migrated(app).flux(), CONCURRENT_FLATMAP)).collectList().flatMap(data->dbClient.execute(count).bind("value", wildcardSearch ? wildcardValue : query).bind("refId", referenceId).bind("refType", referenceType.name()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((Long total)->new Page<User>(data, page, total))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -181,7 +181,7 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
         }
         Mono<Long> userCount = executeCount.as(Long.class).fetch().one();
 
-        return userFlux.map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(user -> RxJava2Adapter.fluxToFlowable(completeUser_migrated(user).flux()))).collectList().flatMap(list->userCount.map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<User>(list, page, total))));
+        return userFlux.map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(user -> RxJava2Adapter.fluxToFlowable(completeUser_migrated(user).flux()))).collectList().flatMap(list->userCount.map(RxJavaReactorMigrationUtil.toJdkFunction((Long total)->new Page<User>(list, page, total))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsernameAndSource_migrated(referenceType, referenceId, username, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -444,16 +444,16 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
 
     
 private Mono<User> completeUser_migrated(User userToComplete) {
-        return Mono.just(userToComplete).flatMap(user->roleRepository.findByUserId_migrated(user.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcOrganizationUser.Role::getRole)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> roles)->{
+        return Mono.just(userToComplete).flatMap(user->roleRepository.findByUserId_migrated(user.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcOrganizationUser.Role::getRole)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((List<String> roles)->{
 user.setRoles(roles);
 return user;
-}))).flatMap(user->entitlementRepository.findByUserId_migrated(user.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcOrganizationUser.Entitlements::getEntitlement)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> entitlements)->{
+}))).flatMap(user->entitlementRepository.findByUserId_migrated(user.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcOrganizationUser.Entitlements::getEntitlement)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((List<String> entitlements)->{
 user.setEntitlements(entitlements);
 return user;
-}))).flatMap(user->addressesRepository.findByUserId_migrated(user.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser.Address jdbcAddr)->mapper.map(jdbcAddr, Address.class))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.scim.Address> addresses)->{
+}))).flatMap(user->addressesRepository.findByUserId_migrated(user.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser.Address jdbcAddr)->mapper.map(jdbcAddr, Address.class))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((List<io.gravitee.am.model.scim.Address> addresses)->{
 user.setAddresses(addresses);
 return user;
-}))).flatMap(user->attributesRepository.findByUserId_migrated(user.getId()).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser.Attribute> attributes)->{
+}))).flatMap(user->attributesRepository.findByUserId_migrated(user.getId()).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((List<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser.Attribute> attributes)->{
 Map<String, List<Attribute>> map = attributes.stream().collect(StreamUtils.toMultiMap(JdbcOrganizationUser.Attribute::getUserField, (io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser.Attribute attr)->mapper.map(attr, Attribute.class)));
 if (map.containsKey(ATTRIBUTE_USER_FIELD_EMAIL)) {
 user.setEmails(map.get(ATTRIBUTE_USER_FIELD_EMAIL));

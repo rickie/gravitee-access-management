@@ -18,10 +18,12 @@ package io.gravitee.am.repository.management.api;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Organization;
 import io.gravitee.am.repository.common.CrudRepository;
-
-
+import io.reactivex.Flowable;
+import io.reactivex.Single;
 import java.util.List;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -31,19 +33,19 @@ public interface OrganizationRepository extends CrudRepository<Organization, Str
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.count_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.lang.Long> count() {
+default Single<Long> count() {
     return RxJava2Adapter.monoToSingle(count_migrated());
 }
-default reactor.core.publisher.Mono<java.lang.Long> count_migrated() {
+default Mono<Long> count_migrated() {
     return RxJava2Adapter.singleToMono(count());
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByHrids_migrated(hrids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Organization> findByHrids(java.util.List<java.lang.String> hrids) {
+default Flowable<Organization> findByHrids(List<String> hrids) {
     return RxJava2Adapter.fluxToFlowable(findByHrids_migrated(hrids));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Organization> findByHrids_migrated(List<String> hrids) {
+default Flux<Organization> findByHrids_migrated(List<String> hrids) {
     return RxJava2Adapter.flowableToFlux(findByHrids(hrids));
 }
 }

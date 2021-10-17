@@ -17,10 +17,11 @@ package io.gravitee.am.service;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Application;
-
-
-
+import io.gravitee.am.service.model.TotalToken;
+import io.reactivex.Completable;
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -30,37 +31,37 @@ public interface TokenService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findTotalTokensByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.service.model.TotalToken> findTotalTokensByDomain(java.lang.String domain) {
+default Single<TotalToken> findTotalTokensByDomain(String domain) {
     return RxJava2Adapter.monoToSingle(findTotalTokensByDomain_migrated(domain));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.service.model.TotalToken> findTotalTokensByDomain_migrated(String domain) {
+default Mono<TotalToken> findTotalTokensByDomain_migrated(String domain) {
     return RxJava2Adapter.singleToMono(findTotalTokensByDomain(domain));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findTotalTokensByApplication_migrated(application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.service.model.TotalToken> findTotalTokensByApplication(io.gravitee.am.model.Application application) {
+default Single<TotalToken> findTotalTokensByApplication(Application application) {
     return RxJava2Adapter.monoToSingle(findTotalTokensByApplication_migrated(application));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.service.model.TotalToken> findTotalTokensByApplication_migrated(Application application) {
+default Mono<TotalToken> findTotalTokensByApplication_migrated(Application application) {
     return RxJava2Adapter.singleToMono(findTotalTokensByApplication(application));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findTotalTokens_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.service.model.TotalToken> findTotalTokens() {
+default Single<TotalToken> findTotalTokens() {
     return RxJava2Adapter.monoToSingle(findTotalTokens_migrated());
 }
-default reactor.core.publisher.Mono<io.gravitee.am.service.model.TotalToken> findTotalTokens_migrated() {
+default Mono<TotalToken> findTotalTokens_migrated() {
     return RxJava2Adapter.singleToMono(findTotalTokens());
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable deleteByUserId(java.lang.String userId) {
+default Completable deleteByUserId(String userId) {
     return RxJava2Adapter.monoToCompletable(deleteByUserId_migrated(userId));
 }
-default reactor.core.publisher.Mono<java.lang.Void> deleteByUserId_migrated(String userId) {
+default Mono<Void> deleteByUserId_migrated(String userId) {
     return RxJava2Adapter.completableToMono(deleteByUserId(userId));
 }
 }

@@ -17,11 +17,12 @@ package io.gravitee.am.repository.jdbc.management.api.spring.organization;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganization;
-
-
+import io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganization.Hrid;
+import io.reactivex.Flowable;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -31,10 +32,10 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface SpringOrganizationHridsRepository extends RxJava2CrudRepository<JdbcOrganization.Hrid, String> {
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByOrganizationId_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganization.Hrid> findAllByOrganizationId(java.lang.String organizationId) {
+default Flowable<Hrid> findAllByOrganizationId(String organizationId) {
     return RxJava2Adapter.fluxToFlowable(findAllByOrganizationId_migrated(organizationId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganization.Hrid> findAllByOrganizationId_migrated(String organizationId) {
+default Flux<Hrid> findAllByOrganizationId_migrated(String organizationId) {
     return RxJava2Adapter.flowableToFlux(findAllByOrganizationId(organizationId));
 }
 }

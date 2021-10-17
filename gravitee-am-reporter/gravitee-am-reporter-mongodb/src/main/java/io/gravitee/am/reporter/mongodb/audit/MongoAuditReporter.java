@@ -178,7 +178,7 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
         disposable = RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(bulkProcessor.buffer(
                 configuration.getFlushInterval(),
                 TimeUnit.SECONDS,
-                configuration.getBulkActions())).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.reporter.api.audit.model.Audit> ident) -> RxJava2Adapter.fluxToFlowable(bulk_migrated(ident)))))
+                configuration.getBulkActions())).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((List<Audit> ident) -> RxJava2Adapter.fluxToFlowable(bulk_migrated(ident)))))
                 .doOnError(throwable -> logger.error("An error occurs while indexing data into MongoDB", throwable))).subscribe();
     }
 

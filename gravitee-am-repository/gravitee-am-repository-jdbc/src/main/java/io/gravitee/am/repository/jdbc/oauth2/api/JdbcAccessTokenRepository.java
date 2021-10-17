@@ -96,7 +96,7 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
 @Override
     public Mono<Void> delete_migrated(String token) {
         LOGGER.debug("delete({})", token);
-        return RxJava2Adapter.completableToMono(Completable.fromMaybe(RxJava2Adapter.monoToMaybe(findByToken_migrated(token).flatMap(z->dbClient.delete().from(JdbcAccessToken.class).matching(from(where("token").is(token))).fetch().rowsUpdated().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Integer i)->z))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete AccessToken", error))))));
+        return RxJava2Adapter.completableToMono(Completable.fromMaybe(RxJava2Adapter.monoToMaybe(findByToken_migrated(token).flatMap(z->dbClient.delete().from(JdbcAccessToken.class).matching(from(where("token").is(token))).fetch().rowsUpdated().map(RxJavaReactorMigrationUtil.toJdkFunction((Integer i)->z))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete AccessToken", error))))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.bulkWrite_migrated(accessTokens))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

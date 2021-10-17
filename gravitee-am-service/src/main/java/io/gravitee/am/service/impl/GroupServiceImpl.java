@@ -271,7 +271,7 @@ public class GroupServiceImpl implements GroupService {
                         group.setUpdatedAt(group.getCreatedAt());
                         return group;
                     }
-                })).flatMap(this::setMembers_migrated).flatMap(groupRepository::create_migrated).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.Group, SingleSource<io.gravitee.am.model.Group>>toJdkFunction(group -> {
+                })).flatMap(this::setMembers_migrated).flatMap(groupRepository::create_migrated).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Group, SingleSource<Group>>toJdkFunction(group -> {
                     Event event = new Event(Type.GROUP, new Payload(group.getId(), group.getReferenceType(), group.getReferenceId(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(group)));
                 }).apply(v)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Group>>toJdkFunction(ex -> {
@@ -306,7 +306,7 @@ public class GroupServiceImpl implements GroupService {
     public Mono<Group> update_migrated(ReferenceType referenceType, String referenceId, String id, UpdateGroup updateGroup, io.gravitee.am.identityprovider.api.User principal) {
         LOGGER.debug("Update a group {} for {} {}", id, referenceType, referenceId);
 
-        return findById_migrated(referenceType, referenceId, id).flatMap(e->groupRepository.findByName_migrated(referenceType, referenceId, updateGroup.getName()).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Optional<io.gravitee.am.model.Group> optionalGroup)->{
+        return findById_migrated(referenceType, referenceId, id).flatMap(e->groupRepository.findByName_migrated(referenceType, referenceId, updateGroup.getName()).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).map(RxJavaReactorMigrationUtil.toJdkFunction((Optional<Group> optionalGroup)->{
 if (optionalGroup.isPresent() && !optionalGroup.get().getId().equals(id)) {
 throw new GroupAlreadyExistsException(updateGroup.getName());
 }
@@ -319,7 +319,7 @@ return e;
                     groupToUpdate.setUpdatedAt(new Date());
 
                     // set members and update
-                    return RxJava2Adapter.monoToSingle(setMembers_migrated(groupToUpdate).flatMap(groupRepository::update_migrated).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.Group, SingleSource<io.gravitee.am.model.Group>>toJdkFunction(group -> {
+                    return RxJava2Adapter.monoToSingle(setMembers_migrated(groupToUpdate).flatMap(groupRepository::update_migrated).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Group, SingleSource<Group>>toJdkFunction(group -> {
                                 Event event = new Event(Type.GROUP, new Payload(group.getId(), group.getReferenceType(), group.getReferenceId(), Action.UPDATE));
                                 return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(group)));
                             }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(group -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_UPDATED).oldValue(oldGroup).group(group)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_UPDATED).throwable(throwable)))));
@@ -356,7 +356,7 @@ return e;
     public Mono<Void> delete_migrated(ReferenceType referenceType, String referenceId, String groupId, io.gravitee.am.identityprovider.api.User principal) {
         LOGGER.debug("Delete group {}", groupId);
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(findById_migrated(referenceType, referenceId, groupId).flatMap(group->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(groupRepository.delete_migrated(groupId).then(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(eventService.create_migrated(new Event(Type.DOMAIN, new Payload(group.getId(), group.getReferenceType(), group.getReferenceId(), Action.DELETE)))))))).doOnComplete(()->auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_DELETED).group(group)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_DELETED).throwable(throwable))))).then())
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(findById_migrated(referenceType, referenceId, groupId).flatMap(group->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(groupRepository.delete_migrated(groupId).then(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(eventService.create_migrated(new Event(Type.DOMAIN, new Payload(group.getId(), group.getReferenceType(), group.getReferenceId(), Action.DELETE)))))))).doOnComplete(()->auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_DELETED).group(group)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((Throwable throwable)->auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_DELETED).throwable(throwable))))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));

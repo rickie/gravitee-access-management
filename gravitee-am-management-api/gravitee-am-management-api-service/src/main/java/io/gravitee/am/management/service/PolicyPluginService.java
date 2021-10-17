@@ -16,11 +16,12 @@
 package io.gravitee.am.management.service;
 
 import com.google.errorprone.annotations.InlineMe;
-
-
-
+import io.gravitee.am.service.model.plugin.PolicyPlugin;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import java.util.List;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -30,55 +31,55 @@ public interface PolicyPluginService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.util.List<io.gravitee.am.service.model.plugin.PolicyPlugin>> findAll() {
+default Single<List<PolicyPlugin>> findAll() {
     return RxJava2Adapter.monoToSingle(findAll_migrated());
 }
-default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.service.model.plugin.PolicyPlugin>> findAll_migrated() {
+default Mono<List<PolicyPlugin>> findAll_migrated() {
     return RxJava2Adapter.singleToMono(findAll());
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.util.List<io.gravitee.am.service.model.plugin.PolicyPlugin>> findAll(java.util.List<java.lang.String> expand) {
+default Single<List<PolicyPlugin>> findAll(List<String> expand) {
     return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
 }
-default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.service.model.plugin.PolicyPlugin>> findAll_migrated(List<String> expand) {
+default Mono<List<PolicyPlugin>> findAll_migrated(List<String> expand) {
     return RxJava2Adapter.singleToMono(findAll(expand));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.service.model.plugin.PolicyPlugin> findById(java.lang.String policyId) {
+default Maybe<PolicyPlugin> findById(String policyId) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(policyId));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.service.model.plugin.PolicyPlugin> findById_migrated(String policyId) {
+default Mono<PolicyPlugin> findById_migrated(String policyId) {
     return RxJava2Adapter.maybeToMono(findById(policyId));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<java.lang.String> getSchema(java.lang.String policyId) {
+default Maybe<String> getSchema(String policyId) {
     return RxJava2Adapter.monoToMaybe(getSchema_migrated(policyId));
 }
-default reactor.core.publisher.Mono<java.lang.String> getSchema_migrated(String policyId) {
+default Mono<String> getSchema_migrated(String policyId) {
     return RxJava2Adapter.maybeToMono(getSchema(policyId));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getIcon_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<java.lang.String> getIcon(java.lang.String policyId) {
+default Maybe<String> getIcon(String policyId) {
     return RxJava2Adapter.monoToMaybe(getIcon_migrated(policyId));
 }
-default reactor.core.publisher.Mono<java.lang.String> getIcon_migrated(String policyId) {
+default Mono<String> getIcon_migrated(String policyId) {
     return RxJava2Adapter.maybeToMono(getIcon(policyId));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getDocumentation_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<java.lang.String> getDocumentation(java.lang.String policyId) {
+default Maybe<String> getDocumentation(String policyId) {
     return RxJava2Adapter.monoToMaybe(getDocumentation_migrated(policyId));
 }
-default reactor.core.publisher.Mono<java.lang.String> getDocumentation_migrated(String policyId) {
+default Mono<String> getDocumentation_migrated(String policyId) {
     return RxJava2Adapter.maybeToMono(getDocumentation(policyId));
 }
 }

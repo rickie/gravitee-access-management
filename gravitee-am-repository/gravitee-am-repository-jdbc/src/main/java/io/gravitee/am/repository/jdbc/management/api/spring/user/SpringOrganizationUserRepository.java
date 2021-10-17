@@ -17,15 +17,16 @@ package io.gravitee.am.repository.jdbc.management.api.spring.user;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser;
-
-
-
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import java.util.List;
-
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -36,12 +37,12 @@ public interface SpringOrganizationUserRepository extends RxJava2CrudRepository<
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByReference_migrated(refType, refId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.lang.Long> countByReference(@org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String refId) {
+default Single<Long> countByReference(@Param(value = "refType")
+String refType, @Param(value = "refId")
+String refId) {
     return RxJava2Adapter.monoToSingle(countByReference_migrated(refType, refId));
 }
-default reactor.core.publisher.Mono<java.lang.Long> countByReference_migrated(@Param(value = "refType")
+default Mono<Long> countByReference_migrated(@Param(value = "refType")
 String refType, @Param(value = "refId")
 String refId) {
     return RxJava2Adapter.singleToMono(countByReference(refType, refId));
@@ -49,13 +50,13 @@ String refId) {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(refType, refId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser> findById(@org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String refId, @org.springframework.data.repository.query.Param(value = "id")
-java.lang.String id) {
+default Maybe<JdbcOrganizationUser> findById(@Param(value = "refType")
+String refType, @Param(value = "refId")
+String refId, @Param(value = "id")
+String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(refType, refId, id));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser> findById_migrated(@Param(value = "refType")
+default Mono<JdbcOrganizationUser> findById_migrated(@Param(value = "refType")
 String refType, @Param(value = "refId")
 String refId, @Param(value = "id")
 String id) {
@@ -64,14 +65,14 @@ String id) {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByExternalIdAndSource_migrated(refType, refId, externalId, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser> findByExternalIdAndSource(@org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String refId, @org.springframework.data.repository.query.Param(value = "id")
-java.lang.String externalId, @org.springframework.data.repository.query.Param(value = "src")
-java.lang.String source) {
+default Maybe<JdbcOrganizationUser> findByExternalIdAndSource(@Param(value = "refType")
+String refType, @Param(value = "refId")
+String refId, @Param(value = "id")
+String externalId, @Param(value = "src")
+String source) {
     return RxJava2Adapter.monoToMaybe(findByExternalIdAndSource_migrated(refType, refId, externalId, source));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser> findByExternalIdAndSource_migrated(@Param(value = "refType")
+default Mono<JdbcOrganizationUser> findByExternalIdAndSource_migrated(@Param(value = "refType")
 String refType, @Param(value = "refId")
 String refId, @Param(value = "id")
 String externalId, @Param(value = "src")
@@ -81,14 +82,14 @@ String source) {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsernameAndSource_migrated(refType, refId, username, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser> findByUsernameAndSource(@org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String refId, @org.springframework.data.repository.query.Param(value = "name")
-java.lang.String username, @org.springframework.data.repository.query.Param(value = "src")
-java.lang.String source) {
+default Maybe<JdbcOrganizationUser> findByUsernameAndSource(@Param(value = "refType")
+String refType, @Param(value = "refId")
+String refId, @Param(value = "name")
+String username, @Param(value = "src")
+String source) {
     return RxJava2Adapter.monoToMaybe(findByUsernameAndSource_migrated(refType, refId, username, source));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser> findByUsernameAndSource_migrated(@Param(value = "refType")
+default Mono<JdbcOrganizationUser> findByUsernameAndSource_migrated(@Param(value = "refType")
 String refType, @Param(value = "refId")
 String refId, @Param(value = "name")
 String username, @Param(value = "src")
@@ -98,23 +99,23 @@ String source) {
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser> findByIdIn(@org.springframework.data.repository.query.Param(value = "ids")
-java.util.List<java.lang.String> ids) {
+default Flowable<JdbcOrganizationUser> findByIdIn(@Param(value = "ids")
+List<String> ids) {
     return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser> findByIdIn_migrated(@Param(value = "ids")
+default Flux<JdbcOrganizationUser> findByIdIn_migrated(@Param(value = "ids")
 List<String> ids) {
     return RxJava2Adapter.flowableToFlux(findByIdIn(ids));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(refType, refId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser> findByReference(@org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String refId) {
+default Flowable<JdbcOrganizationUser> findByReference(@Param(value = "refType")
+String refType, @Param(value = "refId")
+String refId) {
     return RxJava2Adapter.fluxToFlowable(findByReference_migrated(refType, refId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser> findByReference_migrated(@Param(value = "refType")
+default Flux<JdbcOrganizationUser> findByReference_migrated(@Param(value = "refType")
 String refType, @Param(value = "refId")
 String refId) {
     return RxJava2Adapter.flowableToFlux(findByReference(refType, refId));

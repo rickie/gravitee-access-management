@@ -17,9 +17,9 @@ package io.gravitee.am.repository.oauth2.api;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest;
-
-
-
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
 
@@ -31,34 +31,34 @@ public interface PushedAuthorizationRequestRepository {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest> findById(java.lang.String id) {
+default Maybe<PushedAuthorizationRequest> findById(String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest> findById_migrated(String id) {
+default Mono<PushedAuthorizationRequest> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(par))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest> create(io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest par) {
+default Single<PushedAuthorizationRequest> create(PushedAuthorizationRequest par) {
     return RxJava2Adapter.monoToSingle(create_migrated(par));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest> create_migrated(PushedAuthorizationRequest par) {
+default Mono<PushedAuthorizationRequest> create_migrated(PushedAuthorizationRequest par) {
     return RxJava2Adapter.singleToMono(create(par));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable delete(java.lang.String id) {
+default Completable delete(String id) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(id));
 }
-default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String id) {
+default Mono<Void> delete_migrated(String id) {
     return RxJava2Adapter.completableToMono(delete(id));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable purgeExpiredData() {
+default Completable purgeExpiredData() {
     return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
 }default Mono<Void> purgeExpiredData_migrated() {
         return Mono.empty();

@@ -87,7 +87,7 @@ public class UserConsentResource extends AbstractResource {
             @PathParam("consent") String consent,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->scopeApprovalService.findById_migrated(consent)).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consent))).flatMap(y->getClient_migrated(y.getDomain(), y.getClientId()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.management.handlers.management.api.model.ApplicationEntity clientEntity)->{
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->scopeApprovalService.findById_migrated(consent)).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consent))).flatMap(y->getClient_migrated(y.getDomain(), y.getClientId()).map(RxJavaReactorMigrationUtil.toJdkFunction((ApplicationEntity clientEntity)->{
 ScopeApprovalEntity scopeApprovalEntity = new ScopeApprovalEntity(y);
 scopeApprovalEntity.setClientEntity(clientEntity);
 return scopeApprovalEntity;

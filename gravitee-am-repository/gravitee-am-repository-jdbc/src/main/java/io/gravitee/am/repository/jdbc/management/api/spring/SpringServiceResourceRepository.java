@@ -17,12 +17,12 @@ package io.gravitee.am.repository.jdbc.management.api.spring;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcServiceResource;
-
-
+import io.reactivex.Flowable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -32,12 +32,12 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface SpringServiceResourceRepository extends RxJava2CrudRepository<JdbcServiceResource, String> {
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcServiceResource> findByReference(@org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String referenceId) {
+default Flowable<JdbcServiceResource> findByReference(@Param(value = "refType")
+String referenceType, @Param(value = "refId")
+String referenceId) {
     return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceType, referenceId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcServiceResource> findByReference_migrated(@Param(value = "refType")
+default Flux<JdbcServiceResource> findByReference_migrated(@Param(value = "refType")
 String referenceType, @Param(value = "refId")
 String referenceId) {
     return RxJava2Adapter.flowableToFlux(findByReference(referenceType, referenceId));

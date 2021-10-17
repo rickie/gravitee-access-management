@@ -157,7 +157,7 @@ private Mono<Map<String,Object>> selectUserByEmail_migrated(String email) {
         ((DefaultUser)user).setId(user.getId() != null ? user.getId() : RandomString.generate());
 
        return RxJava2Adapter.singleToMono(Single.fromPublisher(connectionPool.create())).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Connection, Single<User>>)cnx -> {
-                    return RxJava2Adapter.monoToSingle(selectUserByUsername_migrated(cnx, user.getUsername()).hasElement().flatMap(x->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(isEmpty -> {
+                    return RxJava2Adapter.monoToSingle(selectUserByUsername_migrated(cnx, user.getUsername()).hasElement().flatMap(x->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<User>>toJdkFunction(isEmpty -> {
                                 if (!isEmpty) {
                                     return RxJava2Adapter.monoToSingle(Mono.error(new UserAlreadyExistsException(user.getUsername())));
                                 } else {

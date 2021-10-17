@@ -151,7 +151,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
 }
 @Override
     public Mono<Client> patch_migrated(Client toPatch, DynamicClientRegistrationRequest request, String basePath) {
-        return this.validateClientPatchRequest_migrated(request).map(RxJavaReactorMigrationUtil.toJdkFunction(req -> req.patch(toPatch))).flatMap(app->this.applyRegistrationAccessToken_migrated(basePath, app)).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(clientService.update_migrated(ident))).apply(v)));
+        return this.validateClientPatchRequest_migrated(request).map(RxJavaReactorMigrationUtil.toJdkFunction(req -> req.patch(toPatch))).flatMap(app->this.applyRegistrationAccessToken_migrated(basePath, app)).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(Client ident) -> RxJava2Adapter.monoToSingle(clientService.update_migrated(ident))).apply(v)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(toUpdate, request, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -162,7 +162,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
 }
 @Override
     public Mono<Client> update_migrated(Client toUpdate, DynamicClientRegistrationRequest request, String basePath) {
-        return this.validateClientRegistrationRequest_migrated(request).map(RxJavaReactorMigrationUtil.toJdkFunction(req -> req.patch(toUpdate))).flatMap(app->this.applyRegistrationAccessToken_migrated(basePath, app)).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(clientService.update_migrated(ident))).apply(v)));
+        return this.validateClientRegistrationRequest_migrated(request).map(RxJavaReactorMigrationUtil.toJdkFunction(req -> req.patch(toUpdate))).flatMap(app->this.applyRegistrationAccessToken_migrated(basePath, app)).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(Client ident) -> RxJava2Adapter.monoToSingle(clientService.update_migrated(ident))).apply(v)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.delete_migrated(toDelete))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -184,7 +184,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
 }
 @Override
     public Mono<Client> renewSecret_migrated(Client toRenew, String basePath) {
-        return clientService.renewClientSecret_migrated(domain.getId(), toRenew.getId()).flatMap(client->applyRegistrationAccessToken_migrated(basePath, client)).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(clientService.update_migrated(ident))).apply(v)));
+        return clientService.renewClientSecret_migrated(domain.getId(), toRenew.getId()).flatMap(client->applyRegistrationAccessToken_migrated(basePath, client)).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(Client ident) -> RxJava2Adapter.monoToSingle(clientService.update_migrated(ident))).apply(v)));
     }
 
     
@@ -194,7 +194,7 @@ private Mono<Client> createClientFromRequest_migrated(DynamicClientRegistrationR
         client.setClientName(ClientServiceImpl.DEFAULT_CLIENT_NAME);
         client.setDomain(domain.getId());
 
-        return this.validateClientRegistrationRequest_migrated(request).map(RxJavaReactorMigrationUtil.toJdkFunction(req -> req.patch(client))).flatMap(this::applyDefaultIdentityProvider_migrated).flatMap(this::applyDefaultCertificateProvider_migrated).flatMap(this::applyAccessTokenValidity_migrated).flatMap(app->this.applyRegistrationAccessToken_migrated(basePath, app)).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(clientService.create_migrated(ident))).apply(v)));
+        return this.validateClientRegistrationRequest_migrated(request).map(RxJavaReactorMigrationUtil.toJdkFunction(req -> req.patch(client))).flatMap(this::applyDefaultIdentityProvider_migrated).flatMap(this::applyDefaultCertificateProvider_migrated).flatMap(this::applyAccessTokenValidity_migrated).flatMap(app->this.applyRegistrationAccessToken_migrated(basePath, app)).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(Client ident) -> RxJava2Adapter.monoToSingle(clientService.create_migrated(ident))).apply(v)));
     }
 
     
@@ -302,7 +302,7 @@ private Mono<DynamicClientRegistrationRequest> validateClientRegistrationRequest
             return Mono.error(new InvalidClientMetadataException());
         }
 
-        return this.validateRedirectUri_migrated(request, isPatch).flatMap(this::validateScopes_migrated).flatMap(this::validateGrantType_migrated).flatMap(this::validateResponseType_migrated).flatMap(this::validateSubjectType_migrated).flatMap(this::validateRequestUri_migrated).flatMap(this::validateSectorIdentifierUri_migrated).flatMap(this::validateJKWs_migrated).flatMap(this::validateUserinfoSigningAlgorithm_migrated).flatMap(this::validateUserinfoEncryptionAlgorithm_migrated).flatMap(this::validateIdTokenSigningAlgorithm_migrated).flatMap(this::validateIdTokenEncryptionAlgorithm_migrated).flatMap(this::validateTlsClientAuth_migrated).flatMap(this::validateSelfSignedClientAuth_migrated).flatMap(this::validateAuthorizationSigningAlgorithm_migrated).flatMap(this::validateAuthorizationEncryptionAlgorithm_migrated).flatMap(this::validateRequestObjectSigningAlgorithm_migrated).flatMap(this::validateRequestObjectEncryptionAlgorithm_migrated).flatMap(v->RxJava2Adapter.singleToMono((Single<DynamicClientRegistrationRequest>)RxJavaReactorMigrationUtil.toJdkFunction((Function<DynamicClientRegistrationRequest, Single<DynamicClientRegistrationRequest>>)(io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(enforceWithSoftwareStatement_migrated(ident))).apply(v)));
+        return this.validateRedirectUri_migrated(request, isPatch).flatMap(this::validateScopes_migrated).flatMap(this::validateGrantType_migrated).flatMap(this::validateResponseType_migrated).flatMap(this::validateSubjectType_migrated).flatMap(this::validateRequestUri_migrated).flatMap(this::validateSectorIdentifierUri_migrated).flatMap(this::validateJKWs_migrated).flatMap(this::validateUserinfoSigningAlgorithm_migrated).flatMap(this::validateUserinfoEncryptionAlgorithm_migrated).flatMap(this::validateIdTokenSigningAlgorithm_migrated).flatMap(this::validateIdTokenEncryptionAlgorithm_migrated).flatMap(this::validateTlsClientAuth_migrated).flatMap(this::validateSelfSignedClientAuth_migrated).flatMap(this::validateAuthorizationSigningAlgorithm_migrated).flatMap(this::validateAuthorizationEncryptionAlgorithm_migrated).flatMap(this::validateRequestObjectSigningAlgorithm_migrated).flatMap(this::validateRequestObjectEncryptionAlgorithm_migrated).flatMap(v->RxJava2Adapter.singleToMono((Single<DynamicClientRegistrationRequest>)RxJavaReactorMigrationUtil.toJdkFunction((Function<DynamicClientRegistrationRequest, Single<DynamicClientRegistrationRequest>>)(DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(enforceWithSoftwareStatement_migrated(ident))).apply(v)));
     }
 
     
@@ -591,7 +591,7 @@ private Mono<DynamicClientRegistrationRequest> validateSectorIdentifierUri_migra
                     .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(HttpResponse::bodyAsString)).map(RxJavaReactorMigrationUtil.toJdkFunction(JsonArray::new)))
                     .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unable to parse sector_identifier_uri : "+ uri.toString()))))).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(Flowable::fromIterable)))
                     .cast(String.class)
-                    .collect(HashSet::new,HashSet::add)).flatMap(allowedRedirectUris->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable.fromIterable(request.getRedirectUris().get()), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate((java.lang.String redirectUri)->!allowedRedirectUris.contains(redirectUri)))).collect(ArrayList<String>::new, ArrayList::add)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ArrayList<String>, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((java.util.ArrayList<java.lang.String> missing)->{
+                    .collect(HashSet::new,HashSet::add)).flatMap(allowedRedirectUris->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable.fromIterable(request.getRedirectUris().get()), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate((String redirectUri)->!allowedRedirectUris.contains(redirectUri)))).collect(ArrayList<String>::new, ArrayList::add)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ArrayList<String>, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((ArrayList<String> missing)->{
 if (!missing.isEmpty()) {
 return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRedirectUriException("redirect uris are not allowed according to sector_identifier_uri: " + String.join(" ", missing))));
 } else {

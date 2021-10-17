@@ -226,7 +226,7 @@ public class ReporterServiceImpl implements ReporterService {
                     reporterToUpdate.setConfiguration(updateReporter.getConfiguration());
                     reporterToUpdate.setUpdatedAt(new Date());
 
-                    return RxJava2Adapter.monoToSingle(checkReporterConfiguration_migrated(reporterToUpdate).flatMap(ignore->reporterRepository.update_migrated(reporterToUpdate).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Reporter, SingleSource<Reporter>>toJdkFunction((io.gravitee.am.model.Reporter reporter1)->{
+                    return RxJava2Adapter.monoToSingle(checkReporterConfiguration_migrated(reporterToUpdate).flatMap(ignore->reporterRepository.update_migrated(reporterToUpdate).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Reporter, SingleSource<Reporter>>toJdkFunction((Reporter reporter1)->{
 if (!ADMIN_DOMAIN.equals(domain)) {
 Event event = new Event(Type.REPORTER, new Payload(reporter1.getId(), ReferenceType.DOMAIN, reporter1.getDomain(), Action.UPDATE));
 return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(reporter1)));

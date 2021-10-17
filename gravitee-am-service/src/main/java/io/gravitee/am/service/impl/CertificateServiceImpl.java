@@ -357,7 +357,7 @@ public class CertificateServiceImpl implements CertificateService {
 @Override
     public Mono<Void> delete_migrated(String certificateId, User principal) {
         LOGGER.debug("Delete certificate {}", certificateId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(certificateRepository.findById_migrated(certificateId).switchIfEmpty(Mono.error(new CertificateNotFoundException(certificateId))).flatMap(y->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(applicationService.findByCertificate_migrated(certificateId)).count()).flatMap((java.lang.Long v)->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long applications)->{
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(certificateRepository.findById_migrated(certificateId).switchIfEmpty(Mono.error(new CertificateNotFoundException(certificateId))).flatMap(y->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(applicationService.findByCertificate_migrated(certificateId)).count()).flatMap((Long v)->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.toJdkFunction((Long applications)->{
 if (applications > 0) {
 throw new CertificateWithApplicationsException();
 }

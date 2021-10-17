@@ -16,14 +16,13 @@
 package io.gravitee.am.repository.jdbc.management.api.spring;
 
 import com.google.errorprone.annotations.InlineMe;
-
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcInstallation;
-
-
+import io.reactivex.Maybe;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -34,11 +33,11 @@ public interface SpringInstallationRepository extends RxJava2CrudRepository<Jdbc
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcInstallation> findById(@org.springframework.data.repository.query.Param(value = "id")
-java.lang.String id) {
+default Maybe<JdbcInstallation> findById(@Param(value = "id")
+String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcInstallation> findById_migrated(@Param(value = "id")
+default Mono<JdbcInstallation> findById_migrated(@Param(value = "id")
 String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }

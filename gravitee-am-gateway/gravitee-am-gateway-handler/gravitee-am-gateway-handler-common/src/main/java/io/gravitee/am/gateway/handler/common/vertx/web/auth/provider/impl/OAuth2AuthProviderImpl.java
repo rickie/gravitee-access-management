@@ -20,14 +20,11 @@ import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.oauth2.IntrospectionTokenService;
 import io.gravitee.am.gateway.handler.common.vertx.web.auth.handler.OAuth2AuthResponse;
 import io.gravitee.am.gateway.handler.common.vertx.web.auth.provider.OAuth2AuthProvider;
-
-
-
+import io.gravitee.am.model.oidc.Client;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -44,6 +41,6 @@ public class OAuth2AuthProviderImpl implements OAuth2AuthProvider {
 
     @Override
     public void decodeToken(String token, boolean offlineVerification, Handler<AsyncResult<OAuth2AuthResponse>> handler) {
-        introspectionTokenService.introspect_migrated(token, offlineVerification).flatMap(e->clientSyncService.findByDomainAndClientId_migrated(e.getDomain(), e.getAud()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.oidc.Client client)->new OAuth2AuthResponse(e, client)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(accessToken -> handler.handle(Future.succeededFuture(accessToken))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
+        introspectionTokenService.introspect_migrated(token, offlineVerification).flatMap(e->clientSyncService.findByDomainAndClientId_migrated(e.getDomain(), e.getAud()).map(RxJavaReactorMigrationUtil.toJdkFunction((Client client)->new OAuth2AuthResponse(e, client)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(accessToken -> handler.handle(Future.succeededFuture(accessToken))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
     }
 }

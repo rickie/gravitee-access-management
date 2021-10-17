@@ -150,7 +150,7 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
 
         final String request = par.getParameters().getFirst(io.gravitee.am.common.oidc.Parameters.REQUEST);
         if (request != null) {
-            registrationValidation = RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(registrationValidation).then(Mono.defer(()->readRequestObject_migrated(client, request).map(RxJavaReactorMigrationUtil.toJdkFunction((com.nimbusds.jwt.JWT jwt)->checkRedirectUriParameter(jwt, client))))).then());
+            registrationValidation = RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(registrationValidation).then(Mono.defer(()->readRequestObject_migrated(client, request).map(RxJavaReactorMigrationUtil.toJdkFunction((JWT jwt)->checkRedirectUriParameter(jwt, client))))).then());
         } else {
             RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(registrationValidation).then(Mono.fromRunnable(RxJavaReactorMigrationUtil.toRunnable(() -> checkRedirectUriParameter(par, client)))));
         }

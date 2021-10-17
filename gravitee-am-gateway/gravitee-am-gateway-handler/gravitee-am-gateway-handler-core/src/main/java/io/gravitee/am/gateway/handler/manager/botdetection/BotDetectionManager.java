@@ -20,9 +20,10 @@ import io.gravitee.am.botdetection.api.BotDetectionContext;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.service.Service;
-
+import io.reactivex.Single;
 import java.util.Map;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -34,10 +35,10 @@ public interface BotDetectionManager extends Service {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validate_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.lang.Boolean> validate(io.gravitee.am.botdetection.api.BotDetectionContext context) {
+default Single<Boolean> validate(BotDetectionContext context) {
     return RxJava2Adapter.monoToSingle(validate_migrated(context));
 }
-default reactor.core.publisher.Mono<java.lang.Boolean> validate_migrated(BotDetectionContext context) {
+default Mono<Boolean> validate_migrated(BotDetectionContext context) {
     return RxJava2Adapter.singleToMono(validate(context));
 }
 }

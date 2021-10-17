@@ -17,10 +17,11 @@ package io.gravitee.am.gateway.handler.oauth2.service.scope;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.oauth2.Scope;
-
+import io.reactivex.Single;
 import java.util.List;
-
+import java.util.Set;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -30,10 +31,10 @@ public interface ScopeService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.util.Set<io.gravitee.am.model.oauth2.Scope>> getAll() {
+default Single<Set<Scope>> getAll() {
     return RxJava2Adapter.monoToSingle(getAll_migrated());
 }
-default reactor.core.publisher.Mono<java.util.Set<io.gravitee.am.model.oauth2.Scope>> getAll_migrated() {
+default Mono<Set<Scope>> getAll_migrated() {
     return RxJava2Adapter.singleToMono(getAll());
 }
 

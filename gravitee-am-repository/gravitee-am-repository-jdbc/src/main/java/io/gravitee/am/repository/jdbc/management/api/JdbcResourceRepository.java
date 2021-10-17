@@ -87,7 +87,7 @@ private Mono<Page<Resource>> findResourcePage_migrated(String domain, int page, 
                 .orderBy(Sort.Order.asc("id"))
                 .page(PageRequest.of(page, size))
                 .as(JdbcResource.class).all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
-                .flatMap(res -> completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(res)), res.getId()).flux(), MAX_CONCURRENCY)).collectList().flatMap(content->resourceRepository.countByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<Resource>(content, page, count))));
+                .flatMap(res -> completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(res)), res.getId()).flux(), MAX_CONCURRENCY)).collectList().flatMap(content->resourceRepository.countByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction((Long count)->new Page<Resource>(content, page, count))));
     }
 
     

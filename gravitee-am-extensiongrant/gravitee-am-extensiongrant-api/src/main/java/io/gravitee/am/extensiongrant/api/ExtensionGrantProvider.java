@@ -16,10 +16,11 @@
 package io.gravitee.am.extensiongrant.api;
 
 import com.google.errorprone.annotations.InlineMe;
-
+import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.repository.oauth2.model.request.TokenRequest;
-
+import io.reactivex.Maybe;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -34,10 +35,10 @@ public interface ExtensionGrantProvider {
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.grant_migrated(tokenRequest))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.User> grant(io.gravitee.am.repository.oauth2.model.request.TokenRequest tokenRequest) {
+default Maybe<User> grant(TokenRequest tokenRequest) {
     return RxJava2Adapter.monoToMaybe(grant_migrated(tokenRequest));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.User> grant_migrated(TokenRequest tokenRequest) {
+default Mono<User> grant_migrated(TokenRequest tokenRequest) {
     return RxJava2Adapter.maybeToMono(grant(tokenRequest));
 }
 }

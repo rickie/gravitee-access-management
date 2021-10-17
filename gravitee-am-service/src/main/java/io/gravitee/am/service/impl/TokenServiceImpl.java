@@ -68,7 +68,7 @@ public class TokenServiceImpl implements TokenService {
         LOGGER.debug("Find total tokens by domain: {}", domain);
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.findByDomain_migrated(domain))
                 .flatMapObservable(Observable::fromIterable)
-                .flatMapSingle((io.gravitee.am.model.Application ident) -> RxJava2Adapter.monoToSingle(countByClientId_migrated(ident)))
+                .flatMapSingle((Application ident) -> RxJava2Adapter.monoToSingle(countByClientId_migrated(ident)))
                 .toList()).flatMap(v->RxJava2Adapter.singleToMono((Single<TotalToken>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Long>, Single<TotalToken>>)totalAccessTokens -> {
                     TotalToken totalToken = new TotalToken();
                     totalToken.setTotalAccessTokens(totalAccessTokens.stream().mapToLong(Long::longValue).sum());
@@ -111,7 +111,7 @@ public class TokenServiceImpl implements TokenService {
         LOGGER.debug("Find total tokens");
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.findAll_migrated())
                 .flatMapObservable(Observable::fromIterable)
-                .flatMapSingle((io.gravitee.am.model.Application ident) -> RxJava2Adapter.monoToSingle(countByClientId_migrated(ident)))
+                .flatMapSingle((Application ident) -> RxJava2Adapter.monoToSingle(countByClientId_migrated(ident)))
                 .toList()).flatMap(v->RxJava2Adapter.singleToMono((Single<TotalToken>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Long>, Single<TotalToken>>)totalAccessTokens -> {
                     TotalToken totalToken = new TotalToken();
                     totalToken.setTotalAccessTokens(totalAccessTokens.stream().mapToLong(Long::longValue).sum());

@@ -17,11 +17,12 @@ package io.gravitee.am.repository.jdbc.management.api.spring.domain;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcDomain;
-
-
+import io.gravitee.am.repository.jdbc.management.api.model.JdbcDomain.Vhost;
+import io.reactivex.Flowable;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -31,10 +32,10 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface SpringDomainVHostsRepository extends RxJava2CrudRepository<JdbcDomain.Vhost, String> {
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByDomainId_migrated(domainId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcDomain.Vhost> findAllByDomainId(java.lang.String domainId) {
+default Flowable<Vhost> findAllByDomainId(String domainId) {
     return RxJava2Adapter.fluxToFlowable(findAllByDomainId_migrated(domainId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcDomain.Vhost> findAllByDomainId_migrated(String domainId) {
+default Flux<Vhost> findAllByDomainId_migrated(String domainId) {
     return RxJava2Adapter.flowableToFlux(findAllByDomainId(domainId));
 }
 }

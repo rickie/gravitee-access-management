@@ -16,10 +16,11 @@
 package io.gravitee.am.repository.common;
 
 import com.google.errorprone.annotations.InlineMe;
-
-
-
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -29,37 +30,37 @@ public interface CrudRepository<T, ID> {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<T> findById(ID id) {
+default Maybe<T> findById(ID id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
-default reactor.core.publisher.Mono<T> findById_migrated(ID id) {
+default Mono<T> findById_migrated(ID id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<T> create(T item) {
+default Single<T> create(T item) {
     return RxJava2Adapter.monoToSingle(create_migrated(item));
 }
-default reactor.core.publisher.Mono<T> create_migrated(T item) {
+default Mono<T> create_migrated(T item) {
     return RxJava2Adapter.singleToMono(create(item));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<T> update(T item) {
+default Single<T> update(T item) {
     return RxJava2Adapter.monoToSingle(update_migrated(item));
 }
-default reactor.core.publisher.Mono<T> update_migrated(T item) {
+default Mono<T> update_migrated(T item) {
     return RxJava2Adapter.singleToMono(update(item));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable delete(ID id) {
+default Completable delete(ID id) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(id));
 }
-default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(ID id) {
+default Mono<Void> delete_migrated(ID id) {
     return RxJava2Adapter.completableToMono(delete(id));
 }
 }

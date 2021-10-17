@@ -100,7 +100,7 @@ public class InstallationServiceImpl implements InstallationService {
 }
 @Override
     public Mono<Installation> addAdditionalInformation_migrated(Map<String, String> additionalInformation) {
-        return getOrInitialize_migrated().doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installation -> installation.getAdditionalInformation().putAll(additionalInformation))).flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)(io.gravitee.am.model.Installation ident) -> RxJava2Adapter.monoToSingle(updateInternal_migrated(ident))).apply(v)));
+        return getOrInitialize_migrated().doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installation -> installation.getAdditionalInformation().putAll(additionalInformation))).flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)(Installation ident) -> RxJava2Adapter.monoToSingle(updateInternal_migrated(ident))).apply(v)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")

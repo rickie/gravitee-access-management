@@ -17,13 +17,13 @@ package io.gravitee.am.repository.jdbc.oauth2.api.spring;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcRefreshToken;
-
+import io.reactivex.Maybe;
 import java.time.LocalDateTime;
-
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -33,12 +33,12 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface SpringRefreshTokenRepository extends RxJava2CrudRepository<JdbcRefreshToken, String> {
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByToken_migrated(token, now))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcRefreshToken> findByToken(@org.springframework.data.repository.query.Param(value = "token")
-java.lang.String token, @org.springframework.data.repository.query.Param(value = "now")
-java.time.LocalDateTime now) {
+default Maybe<JdbcRefreshToken> findByToken(@Param(value = "token")
+String token, @Param(value = "now")
+LocalDateTime now) {
     return RxJava2Adapter.monoToMaybe(findByToken_migrated(token, now));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcRefreshToken> findByToken_migrated(@Param(value = "token")
+default Mono<JdbcRefreshToken> findByToken_migrated(@Param(value = "token")
 String token, @Param(value = "now")
 LocalDateTime now) {
     return RxJava2Adapter.maybeToMono(findByToken(token, now));

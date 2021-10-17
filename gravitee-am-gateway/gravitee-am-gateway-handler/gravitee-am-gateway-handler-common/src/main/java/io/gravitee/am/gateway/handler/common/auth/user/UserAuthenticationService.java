@@ -21,9 +21,9 @@ import io.gravitee.am.model.account.AccountSettings;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.repository.management.api.search.LoginAttemptCriteria;
 import io.gravitee.gateway.api.Request;
-
-
-
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
 
@@ -42,10 +42,10 @@ public interface UserAuthenticationService {
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.connect_migrated(principal, afterAuthentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.User> connect(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
+default Single<io.gravitee.am.model.User> connect(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
     return RxJava2Adapter.monoToSingle(connect_migrated(principal, afterAuthentication));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.User> connect_migrated(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
+default Mono<io.gravitee.am.model.User> connect_migrated(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
     return RxJava2Adapter.singleToMono(connect(principal, afterAuthentication));
 }
 
@@ -59,10 +59,10 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> connect_migrated(
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadPreAuthenticatedUser_migrated(subject, request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.User> loadPreAuthenticatedUser(java.lang.String subject, io.gravitee.gateway.api.Request request) {
+default Maybe<io.gravitee.am.model.User> loadPreAuthenticatedUser(String subject, Request request) {
     return RxJava2Adapter.monoToMaybe(loadPreAuthenticatedUser_migrated(subject, request));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.User> loadPreAuthenticatedUser_migrated(String subject, Request request) {
+default Mono<io.gravitee.am.model.User> loadPreAuthenticatedUser_migrated(String subject, Request request) {
     return RxJava2Adapter.maybeToMono(loadPreAuthenticatedUser(subject, request));
 }
 
@@ -75,10 +75,10 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> loadPreAuthentica
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadPreAuthenticatedUser_migrated(principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.User> loadPreAuthenticatedUser(io.gravitee.am.identityprovider.api.User principal) {
+default Maybe<io.gravitee.am.model.User> loadPreAuthenticatedUser(io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToMaybe(loadPreAuthenticatedUser_migrated(principal));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.User> loadPreAuthenticatedUser_migrated(io.gravitee.am.identityprovider.api.User principal) {
+default Mono<io.gravitee.am.model.User> loadPreAuthenticatedUser_migrated(io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.maybeToMono(loadPreAuthenticatedUser(principal));
 }
 
@@ -93,16 +93,16 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> loadPreAuthentica
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.lockAccount_migrated(criteria, accountSettings, client, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable lockAccount(io.gravitee.am.repository.management.api.search.LoginAttemptCriteria criteria, io.gravitee.am.model.account.AccountSettings accountSettings, io.gravitee.am.model.oidc.Client client, io.gravitee.am.model.User user) {
+default Completable lockAccount(LoginAttemptCriteria criteria, AccountSettings accountSettings, Client client, io.gravitee.am.model.User user) {
     return RxJava2Adapter.monoToCompletable(lockAccount_migrated(criteria, accountSettings, client, user));
 }
-default reactor.core.publisher.Mono<java.lang.Void> lockAccount_migrated(LoginAttemptCriteria criteria, AccountSettings accountSettings, Client client, User user) {
+default Mono<Void> lockAccount_migrated(LoginAttemptCriteria criteria, AccountSettings accountSettings, Client client, User user) {
     return RxJava2Adapter.completableToMono(lockAccount(criteria, accountSettings, client, user));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.connect_migrated(principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.User> connect(io.gravitee.am.identityprovider.api.User principal) {
+default Single<io.gravitee.am.model.User> connect(io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(connect_migrated(principal));
 }default Mono<User> connect_migrated(io.gravitee.am.identityprovider.api.User principal) {
         return RxJava2Adapter.singleToMono(connect(principal, true));

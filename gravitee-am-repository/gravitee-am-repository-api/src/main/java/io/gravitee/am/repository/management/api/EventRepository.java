@@ -18,10 +18,9 @@ package io.gravitee.am.repository.management.api;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.repository.common.CrudRepository;
-
-
-
+import io.reactivex.Flowable;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -31,10 +30,10 @@ public interface EventRepository extends CrudRepository<Event, String> {
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByTimeFrame_migrated(from, to))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.common.event.Event> findByTimeFrame(long from, long to) {
+default Flowable<Event> findByTimeFrame(long from, long to) {
     return RxJava2Adapter.fluxToFlowable(findByTimeFrame_migrated(from, to));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.common.event.Event> findByTimeFrame_migrated(long from, long to) {
+default Flux<Event> findByTimeFrame_migrated(long from, long to) {
     return RxJava2Adapter.flowableToFlux(findByTimeFrame(from, to));
 }
 

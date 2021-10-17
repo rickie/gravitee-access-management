@@ -197,7 +197,7 @@ public class EntrypointServiceImpl implements EntrypointService {
 
         LOGGER.debug("Delete entrypoint by id {} and organizationId {}", id, organizationId);
 
-        return findById_migrated(id, organizationId).flatMap(entrypoint->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(entrypointRepository.delete_migrated(id)).doOnComplete(()->auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_DELETED).entrypoint(entrypoint)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_DELETED).throwable(throwable))))).then();
+        return findById_migrated(id, organizationId).flatMap(entrypoint->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(entrypointRepository.delete_migrated(id)).doOnComplete(()->auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_DELETED).entrypoint(entrypoint)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((Throwable throwable)->auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_DELETED).throwable(throwable))))).then();
     }
 
     

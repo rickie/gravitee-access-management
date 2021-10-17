@@ -17,13 +17,14 @@ package io.gravitee.am.repository.jdbc.oauth2.api.spring;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval;
-
-
-
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -34,13 +35,13 @@ public interface SpringScopeApprovalRepository extends RxJava2CrudRepository<Jdb
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndUserAndClient_migrated(domain, user, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval> findByDomainAndUserAndClient(@org.springframework.data.repository.query.Param(value = "domain")
-java.lang.String domain, @org.springframework.data.repository.query.Param(value = "user")
-java.lang.String user, @org.springframework.data.repository.query.Param(value = "client")
-java.lang.String client) {
+default Flowable<JdbcScopeApproval> findByDomainAndUserAndClient(@Param(value = "domain")
+String domain, @Param(value = "user")
+String user, @Param(value = "client")
+String client) {
     return RxJava2Adapter.fluxToFlowable(findByDomainAndUserAndClient_migrated(domain, user, client));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval> findByDomainAndUserAndClient_migrated(@Param(value = "domain")
+default Flux<JdbcScopeApproval> findByDomainAndUserAndClient_migrated(@Param(value = "domain")
 String domain, @Param(value = "user")
 String user, @Param(value = "client")
 String client) {
@@ -49,12 +50,12 @@ String client) {
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndUser_migrated(domain, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval> findByDomainAndUser(@org.springframework.data.repository.query.Param(value = "domain")
-java.lang.String domain, @org.springframework.data.repository.query.Param(value = "user")
-java.lang.String user) {
+default Flowable<JdbcScopeApproval> findByDomainAndUser(@Param(value = "domain")
+String domain, @Param(value = "user")
+String user) {
     return RxJava2Adapter.fluxToFlowable(findByDomainAndUser_migrated(domain, user));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval> findByDomainAndUser_migrated(@Param(value = "domain")
+default Flux<JdbcScopeApproval> findByDomainAndUser_migrated(@Param(value = "domain")
 String domain, @Param(value = "user")
 String user) {
     return RxJava2Adapter.flowableToFlux(findByDomainAndUser(domain, user));
@@ -62,14 +63,14 @@ String user) {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndUserAndClientAndScope_migrated(domain, user, client, scope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval> findByDomainAndUserAndClientAndScope(@org.springframework.data.repository.query.Param(value = "domain")
-java.lang.String domain, @org.springframework.data.repository.query.Param(value = "user")
-java.lang.String user, @org.springframework.data.repository.query.Param(value = "client")
-java.lang.String client, @org.springframework.data.repository.query.Param(value = "scope")
-java.lang.String scope) {
+default Maybe<JdbcScopeApproval> findByDomainAndUserAndClientAndScope(@Param(value = "domain")
+String domain, @Param(value = "user")
+String user, @Param(value = "client")
+String client, @Param(value = "scope")
+String scope) {
     return RxJava2Adapter.monoToMaybe(findByDomainAndUserAndClientAndScope_migrated(domain, user, client, scope));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval> findByDomainAndUserAndClientAndScope_migrated(@Param(value = "domain")
+default Mono<JdbcScopeApproval> findByDomainAndUserAndClientAndScope_migrated(@Param(value = "domain")
 String domain, @Param(value = "user")
 String user, @Param(value = "client")
 String client, @Param(value = "scope")

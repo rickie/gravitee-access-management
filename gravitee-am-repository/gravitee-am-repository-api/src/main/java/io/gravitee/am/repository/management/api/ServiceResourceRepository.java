@@ -19,8 +19,9 @@ import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.resource.ServiceResource;
 import io.gravitee.am.repository.common.CrudRepository;
-
+import io.reactivex.Flowable;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -30,10 +31,10 @@ public interface ServiceResourceRepository extends CrudRepository<ServiceResourc
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.resource.ServiceResource> findByReference(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
+default Flowable<ServiceResource> findByReference(ReferenceType referenceType, String referenceId) {
     return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceType, referenceId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.resource.ServiceResource> findByReference_migrated(ReferenceType referenceType, String referenceId) {
+default Flux<ServiceResource> findByReference_migrated(ReferenceType referenceType, String referenceId) {
     return RxJava2Adapter.flowableToFlux(findByReference(referenceType, referenceId));
 }
 
