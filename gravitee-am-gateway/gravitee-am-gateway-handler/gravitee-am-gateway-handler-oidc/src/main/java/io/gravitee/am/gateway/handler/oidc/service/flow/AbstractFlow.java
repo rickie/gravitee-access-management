@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Objects;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 

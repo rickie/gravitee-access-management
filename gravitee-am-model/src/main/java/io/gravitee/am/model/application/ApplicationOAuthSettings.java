@@ -18,7 +18,7 @@ package io.gravitee.am.model.application;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.TokenClaim;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -102,7 +102,7 @@ public class ApplicationOAuthSettings {
      * Client's JSON Web Key Set [JWK] document, passed by value.
      * The semantics of the jwks parameter are the same as the jwks_uri parameter, other than that the JWK Set is passed by value, rather than by reference.
      */
-    private JWKSet jwks;
+    private Keys jwks;
     /**
      * URL using the https scheme to be used in calculating Pseudonymous Identifiers by the OP.
      */
@@ -470,11 +470,11 @@ public class ApplicationOAuthSettings {
         this.jwksUri = jwksUri;
     }
 
-    public JWKSet getJwks() {
+    public Keys getJwks() {
         return jwks;
     }
 
-    public void setJwks(JWKSet jwks) {
+    public void setJwks(Keys jwks) {
         this.jwks = jwks;
     }
 

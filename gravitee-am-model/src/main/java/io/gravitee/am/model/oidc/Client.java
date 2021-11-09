@@ -70,7 +70,7 @@ public class Client implements Cloneable, Resource, PasswordSettingsAware {
 
     private String jwksUri;
 
-    private JWKSet jwks;
+    private Keys jwks;
 
     private String sectorIdentifierUri;
 
@@ -389,11 +389,11 @@ public class Client implements Cloneable, Resource, PasswordSettingsAware {
         this.jwksUri = jwksUri;
     }
 
-    public JWKSet getJwks() {
+    public Keys getJwks() {
         return jwks;
     }
 
-    public void setJwks(JWKSet jwks) {
+    public void setJwks(Keys jwks) {
         this.jwks = jwks;
     }
 

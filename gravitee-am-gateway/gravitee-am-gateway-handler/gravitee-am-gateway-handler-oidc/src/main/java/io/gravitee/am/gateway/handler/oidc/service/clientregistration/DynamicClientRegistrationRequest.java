@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.gravitee.am.gateway.handler.oidc.service.jwk.converter.JWKSetDeserializer;
 import io.gravitee.am.model.application.ApplicationScopeSettings;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import io.gravitee.am.service.utils.SetterUtils;
 
 import java.util.ArrayList;
@@ -79,7 +79,7 @@ public class DynamicClientRegistrationRequest {
 
     @JsonProperty("jwks")
     @JsonDeserialize(converter = JWKSetDeserializer.class)
-    private Optional<JWKSet> jwks;
+    private Optional<Keys> jwks;
 
     @JsonProperty("sector_identifier_uri")
     private Optional<String> sectorIdentifierUri;
@@ -290,11 +290,11 @@ public class DynamicClientRegistrationRequest {
         this.jwksUri = jwksUri;
     }
 
-    public Optional<JWKSet> getJwks() {
+    public Optional<Keys> getJwks() {
         return jwks;
     }
 
-    public void setJwks(Optional<JWKSet> jwks) {
+    public void setJwks(Optional<Keys> jwks) {
         this.jwks = jwks;
     }
 

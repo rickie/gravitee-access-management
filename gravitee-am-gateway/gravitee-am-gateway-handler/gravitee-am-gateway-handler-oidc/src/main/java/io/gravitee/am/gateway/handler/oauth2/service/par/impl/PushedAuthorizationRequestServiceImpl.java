@@ -36,7 +36,7 @@ import io.gravitee.am.gateway.handler.oidc.service.jws.JWSService;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import io.gravitee.am.repository.oauth2.api.PushedAuthorizationRequestRepository;
 import io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest;
 import io.reactivex.*;
@@ -209,9 +209,9 @@ private Mono<JWT> readRequestObject_migrated(Client client, String request) {
 
     
 private Mono<JWT> validateSignature_migrated(SignedJWT jwt, Client client) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client).switchIfEmpty(Mono.error(new InvalidRequestObjectException())).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWKSet, MaybeSource<JWK>>toJdkFunction(new Function<JWKSet, MaybeSource<JWK>>() {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client).switchIfEmpty(Mono.error(new InvalidRequestObjectException())).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Keys, MaybeSource<JWK>>toJdkFunction(new Function<Keys, MaybeSource<JWK>>() {
                     @Override
-                    public MaybeSource<JWK> apply(JWKSet jwkSet) throws Exception {
+                    public MaybeSource<JWK> apply(Keys jwkSet) throws Exception {
                         return RxJava2Adapter.monoToMaybe(jwkService.getKey_migrated(jwkSet, jwt.getHeader().getKeyID()));
                     }
                 }).apply(v)))).switchIfEmpty(Mono.error(new InvalidRequestObjectException("Invalid key ID"))))

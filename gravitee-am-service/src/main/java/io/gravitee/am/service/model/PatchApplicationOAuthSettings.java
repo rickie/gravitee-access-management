@@ -18,7 +18,7 @@ package io.gravitee.am.service.model;
 import io.gravitee.am.model.TokenClaim;
 import io.gravitee.am.model.application.ApplicationOAuthSettings;
 import io.gravitee.am.model.application.ApplicationScopeSettings;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import io.gravitee.am.service.utils.SetterUtils;
 
 import java.util.Date;
@@ -42,7 +42,7 @@ public class PatchApplicationOAuthSettings {
     private Optional<String> policyUri;
     private Optional<String> tosUri;
     private Optional<String> jwksUri;
-    private Optional<JWKSet> jwks;
+    private Optional<Keys> jwks;
     private Optional<String> sectorIdentifierUri;
     private Optional<String> subjectType;
     private Optional<String> idTokenSignedResponseAlg;
@@ -176,11 +176,11 @@ public class PatchApplicationOAuthSettings {
         this.jwksUri = jwksUri;
     }
 
-    public Optional<JWKSet> getJwks() {
+    public Optional<Keys> getJwks() {
         return jwks;
     }
 
-    public void setJwks(Optional<JWKSet> jwks) {
+    public void setJwks(Optional<Keys> jwks) {
         this.jwks = jwks;
     }
 

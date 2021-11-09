@@ -41,7 +41,7 @@ import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.jose.RSAKey;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 
 import io.reactivex.observers.TestObserver;
 import java.nio.charset.StandardCharsets;
@@ -407,7 +407,7 @@ public class ClientAssertionServiceTest {
         key.setKid(KID);
         key.setE(Base64.getUrlEncoder().encodeToString(publicKey.getPublicExponent().toByteArray()));
         key.setN(Base64.getUrlEncoder().encodeToString(publicKey.getModulus().toByteArray()));
-        JWKSet jwkSet = new JWKSet();
+        Keys jwkSet = new Keys();
         jwkSet.setKeys(Arrays.asList(key));
 
         Client client = new Client();
@@ -526,7 +526,7 @@ public class ClientAssertionServiceTest {
         key.setKid(KID);
         key.setE(Base64.getUrlEncoder().encodeToString(publicKey.getPublicExponent().toByteArray()));
         key.setN(Base64.getUrlEncoder().encodeToString(publicKey.getModulus().toByteArray()));
-        JWKSet jwkSet = new JWKSet();
+        Keys jwkSet = new Keys();
         jwkSet.setKeys(Arrays.asList(key));
 
         Client client = new Client();
@@ -586,7 +586,7 @@ public class ClientAssertionServiceTest {
     }
 
     private Client generateClient(JWK jwk) {
-        JWKSet jwks = new JWKSet();
+        Keys jwks = new Keys();
         jwks.setKeys(Arrays.asList(jwk));
         Client client = new Client();
         client.setClientId(CLIENT_ID);

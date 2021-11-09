@@ -40,7 +40,7 @@ import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.IdentityProvider;
 import io.gravitee.am.model.application.ApplicationScopeSettings;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import io.gravitee.am.model.oidc.OIDCSettings;
 import io.gravitee.am.service.CertificateService;
 import io.gravitee.am.service.EmailTemplateService;
@@ -567,7 +567,7 @@ public class DynamicClientRegistrationServiceTest {
     public void create_validSelfSignedClient() {
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
-        request.setJwks(Optional.of(new JWKSet()));
+        request.setJwks(Optional.of(new Keys()));
         request.setTokenEndpointAuthMethod(Optional.of(ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH));
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
@@ -674,7 +674,7 @@ public class DynamicClientRegistrationServiceTest {
     public void create_validateJWKsDuplicatedSource() {
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
-        request.setJwks(Optional.of(new JWKSet()));
+        request.setJwks(Optional.of(new Keys()));
         request.setJwksUri(Optional.of("something"));
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
@@ -703,7 +703,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setJwksUri(Optional.of("something"));
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new Keys()));
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
@@ -774,7 +774,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.of(Arrays.asList("https://graviee.io/callback")));
         request.setJwksUri(Optional.of("something"));
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new Keys()));
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.patch_migrated(new Client(), request, BASE_PATH)).test();
         testObserver.assertNoErrors();
@@ -852,7 +852,7 @@ public class DynamicClientRegistrationServiceTest {
         template.setClientSecret("shouldBeRemoved");
         template.setRedirectUris(Arrays.asList("shouldBeRemoved"));
         template.setSectorIdentifierUri("shouldBeRemoved");
-        template.setJwks(new JWKSet());
+        template.setJwks(new Keys());
 
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setSoftwareId(Optional.of("123"));
@@ -877,7 +877,7 @@ public class DynamicClientRegistrationServiceTest {
         template.setClientSecret("shouldBeRemoved");
         template.setRedirectUris(Arrays.asList("shouldBeRemoved"));
         template.setSectorIdentifierUri("shouldBeRemoved");
-        template.setJwks(new JWKSet());
+        template.setJwks(new Keys());
         template.setTemplate(true);
 
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
@@ -1073,7 +1073,7 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new Keys()));
         when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(false);
 
@@ -1097,7 +1097,7 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new Keys()));
         when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
@@ -1114,7 +1114,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRequireParRequest(Optional.of(false));
         request.setRequestObjectEncryptionAlg(Optional.of(JWEAlgorithm.RSA_OAEP.getName()));
         request.setRequestObjectEncryptionEnc(Optional.of(EncryptionMethod.A256GCM.getName()));
-        final JWKSet jwkSet = new JWKSet();
+        final Keys jwkSet = new Keys();
         jwkSet.setKeys(Arrays.asList(new io.gravitee.am.model.jose.RSAKey()));
         request.setJwks(Optional.of(jwkSet));
 
@@ -1124,7 +1124,7 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new Keys()));
         when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
@@ -1148,7 +1148,7 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new Keys()));
         when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
@@ -1173,7 +1173,7 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new Keys()));
         when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
@@ -1200,7 +1200,7 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new Keys()));
         when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
@@ -1227,7 +1227,7 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new Keys()));
         when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
@@ -1260,7 +1260,7 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new Keys()));
         when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
@@ -1296,7 +1296,7 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new Keys()));
         when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 

@@ -19,17 +19,17 @@ package io.gravitee.am.management.service.impl.commands;
 
 
 
-import io.gravitee.am.model.ReferenceType;
-import io.gravitee.am.model.Role;
 
 
-import io.gravitee.am.model.permissions.DefaultRole;
-import io.gravitee.am.model.permissions.SystemRole;
+
+
+
+
 import io.gravitee.am.service.MembershipService;
 import io.gravitee.am.service.OrganizationUserService;
 import io.gravitee.am.service.RoleService;
 
-import io.gravitee.am.service.exception.InvalidRoleException;
+
 import io.gravitee.cockpit.api.command.Command;
 import io.gravitee.cockpit.api.command.CommandHandler;
 
@@ -41,7 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import reactor.core.publisher.Mono;
+
 
 
 /**

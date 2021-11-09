@@ -52,14 +52,18 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
 
   @Lazy @Autowired private RefreshTokenRepository refreshTokenRepository;
 
-  @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(authorizationRequest, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
+  @InlineMe(
+      replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(authorizationRequest, user))",
+      imports = "reactor.adapter.rxjava.RxJava2Adapter")
+  @Deprecated
+  @Override
   public Single<AuthorizationCode> create(AuthorizationRequest authorizationRequest, User user) {
- return RxJava2Adapter.monoToSingle(create_migrated(authorizationRequest, user));
-}
-@Override
-  public Mono<AuthorizationCode> create_migrated(AuthorizationRequest authorizationRequest, User user) {
+    return RxJava2Adapter.monoToSingle(create_migrated(authorizationRequest, user));
+  }
+
+  @Override
+  public Mono<AuthorizationCode> create_migrated(
+      AuthorizationRequest authorizationRequest, User user) {
     AuthorizationCode authorizationCode = new AuthorizationCode();
     authorizationCode.setId(RandomString.generate());
     authorizationCode.setTransactionId(authorizationRequest.transactionId());
@@ -75,45 +79,61 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
     return authorizationCodeRepository.create_migrated(authorizationCode);
   }
 
-  
-@Override
+  @Override
   public Mono<AuthorizationCode> remove_migrated(String code, Client client) {
-    return authorizationCodeRepository.findByCode_migrated(code).switchIfEmpty(handleInvalidCode_migrated(code)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthorizationCode, MaybeSource<AuthorizationCode>>toJdkFunction(authorizationCode -> {
-                          if (!authorizationCode.getClientId().equals(client.getClientId())) {
-                            return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidGrantException(
-                                    "The authorization code "
-                                        + code
-                                        + " does not belong to the client "
-                                        + client.getClientId()
-                                        + ".")));
-                          }
-                          return RxJava2Adapter.monoToMaybe(Mono.just(authorizationCode));
-                        }).apply(v))))
-            .flatMap(
-                z ->
-                    authorizationCodeRepository.delete_migrated(z.getId()));
+    return authorizationCodeRepository
+        .findByCode_migrated(code)
+        .switchIfEmpty(handleInvalidCode_migrated(code))
+        .flatMap(
+            v ->
+                RxJava2Adapter.maybeToMono(
+                    Maybe.wrap(
+                        RxJavaReactorMigrationUtil
+                            .<AuthorizationCode, MaybeSource<AuthorizationCode>>toJdkFunction(
+                                authorizationCode -> {
+                                  if (!authorizationCode
+                                      .getClientId()
+                                      .equals(client.getClientId())) {
+                                    return RxJava2Adapter.monoToMaybe(
+                                        Mono.error(
+                                            new InvalidGrantException(
+                                                "The authorization code "
+                                                    + code
+                                                    + " does not belong to the client "
+                                                    + client.getClientId()
+                                                    + ".")));
+                                  }
+                                  return RxJava2Adapter.monoToMaybe(Mono.just(authorizationCode));
+                                })
+                            .apply(v))))
+        .flatMap(z -> authorizationCodeRepository.delete_migrated(z.getId()));
   }
 
-  
-private Mono<AuthorizationCode> handleInvalidCode_migrated(String code) {
+  private Mono<AuthorizationCode> handleInvalidCode_migrated(String code) {
     // The client MUST NOT use the authorization code more than once.
     // If an authorization code is used more than once, the authorization server MUST deny the
     // request and SHOULD
     // revoke (when possible) all tokens previously issued based on that authorization code.
     // https://tools.ietf.org/html/rfc6749#section-4.1.2
     return RxJava2Adapter.completableToMono(
-                RxJava2Adapter.fluxToObservable(accessTokenRepository.findByAuthorizationCode_migrated(code))
-                    .flatMapCompletable(
-                        accessToken -> {
-                          Completable deleteAccessTokenAction =
-                              RxJava2Adapter.monoToCompletable(accessTokenRepository.delete_migrated(accessToken.getToken()));
-                          if (accessToken.getRefreshToken() != null) {
-                            RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(deleteAccessTokenAction).then(refreshTokenRepository.delete_migrated(accessToken.getRefreshToken())));
-                          }
-                          return deleteAccessTokenAction;
-                        }))
-            .then(
-                Mono.error(new InvalidGrantException(
-                                "The authorization code " + code + " is invalid.")));
+            RxJava2Adapter.fluxToObservable(
+                    accessTokenRepository.findByAuthorizationCode_migrated(code))
+                .flatMapCompletable(
+                    accessToken -> {
+                      Completable deleteAccessTokenAction =
+                          RxJava2Adapter.monoToCompletable(
+                              accessTokenRepository.delete_migrated(accessToken.getToken()));
+                      if (accessToken.getRefreshToken() != null) {
+                        RxJava2Adapter.monoToCompletable(
+                            RxJava2Adapter.completableToMono(deleteAccessTokenAction)
+                                .then(
+                                    refreshTokenRepository.delete_migrated(
+                                        accessToken.getRefreshToken())));
+                      }
+                      return deleteAccessTokenAction;
+                    }))
+        .then(
+            Mono.error(
+                new InvalidGrantException("The authorization code " + code + " is invalid.")));
   }
 }

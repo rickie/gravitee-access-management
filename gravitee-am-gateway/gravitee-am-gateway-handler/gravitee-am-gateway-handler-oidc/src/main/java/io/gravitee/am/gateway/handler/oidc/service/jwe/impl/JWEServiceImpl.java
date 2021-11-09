@@ -38,7 +38,7 @@ import io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.jose.*;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
 
 
@@ -200,7 +200,7 @@ public class JWEServiceImpl implements JWEService {
 
     
 private Mono<JWT> decrypt_migrated(JWEObject jwe, Client client, Predicate<JWK> filter, JWEDecrypterFunction<JWK, JWEDecrypter> function) {
-        final Maybe<JWKSet> jwks = client != null ? RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client)) : RxJava2Adapter.monoToMaybe(jwkService.getDomainPrivateKeys_migrated());
+        final Maybe<Keys> jwks = client != null ? RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client)) : RxJava2Adapter.monoToMaybe(jwkService.getDomainPrivateKeys_migrated());
         return RxJava2Adapter.flowableToFlux(jwks
                 .flatMapPublisher(jwkset -> Flux.fromIterable(jwkset.getKeys()))).filter(filter::test).filter(jwk -> jwk.getUse() == null || jwk.getUse().equals(KeyUse.ENCRYPTION.getValue())).filter(jwk -> jwe.getHeader().getKeyID() == null || jwe.getHeader().getKeyID().equals(jwk.getKid())).map(RxJavaReactorMigrationUtil.toJdkFunction(function::apply)).map(RxJavaReactorMigrationUtil.toJdkFunction(decrypter -> {
                     try {

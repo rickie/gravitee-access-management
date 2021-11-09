@@ -18,7 +18,7 @@ package io.gravitee.am.gateway.handler.oidc.service.jwk;
 
 import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 
 
 import java.util.function.Predicate;
@@ -33,15 +33,15 @@ import reactor.core.publisher.Mono;
 public interface JWKService {
 
       
-Mono<JWKSet> getKeys_migrated();
+Mono<Keys> getKeys_migrated();
       
-Mono<JWKSet> getKeys_migrated(Client client);
+Mono<Keys> getKeys_migrated(Client client);
       
-Mono<JWKSet> getDomainPrivateKeys_migrated();
+Mono<Keys> getDomainPrivateKeys_migrated();
       
-Mono<JWKSet> getKeys_migrated(String jwksUri);
+Mono<Keys> getKeys_migrated(String jwksUri);
       
-Mono<JWK> getKey_migrated(JWKSet jwkSet, String kid);
+Mono<JWK> getKey_migrated(Keys jwkSet, String kid);
       
-Mono<JWK> filter_migrated(JWKSet jwkSet, Predicate<JWK> filter);
+Mono<JWK> filter_migrated(Keys jwkSet, Predicate<JWK> filter);
 }

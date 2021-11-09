@@ -63,6 +63,7 @@
         <module>gravitee-am-resource</module>
         <module>gravitee-am-botdetection</module>
         <module>gravitee-am-fapi-resource-api</module>
+        <module>gravitee-am-demo-migration</module>
     </modules>
 
     <properties>
@@ -499,32 +500,42 @@
                             <!-- -XepAllDisabledChecksAsWarnings-->
                             <!-- -XepDisableWarningsInGeneratedCode-->
                             -XepDisableAllChecks
+                            
+                            <!-- Exclude some non-related Refaster rules -->
+                            -XepOpt:Refaster:NamePattern=(?!TestNG)(?!Optional)(?!AssertJ)(?!Assorted)(?!Stream)(?!RxJava2Adapter)(?!Reactor)(?!Web)(?!String)(?!Stream)(?!Immutable)(?!Int)(?!Mockito)(?!Collection)(?!Comparator)(?!Time).*
 
-                            <!-- Cleanup normally. -->
+                            <!-- Out-of-the-box cleanup -->
                             -Xep:InvalidThrows:ERROR
                             -Xep:UnusedMethod:ERROR
                             -Xep:UnnecessarilyFullyQualified:ERROR
                             -Xep:RemoveUnusedImports:ERROR
 
-                            <!-- Don't start migration just yet -->
-                            -Xep:InlineMeInliner:ERROR
-                            -Xep:InlineMeSuggester:OFF
-                            -Xep:InlineMockitoStatements:ERROR
-                            -Xep:AddDefaultMethod:OFF
-
-                            <!-- Turn these on once. -->
-                            -Xep:MethodReferenceUsage:ERROR
-                            -Xep:RemoveOldMethods:OFF
-                            -Xep:UnwrapExpressions:ERROR
-
+                            <!-- Turn on Refaster -->
                             -Xep:Refaster:ERROR
-                            -XepOpt:Refaster:NamePattern=(?!TestNG)(?!Optional)(?!AssertJ)(?!Assorted)(?!Stream)(?!RxJava2Adapter)(?!Reactor)(?!Web)(?!String)(?!Stream)(?!Immutable)(?!Int)(?!Mockito)(?!Collection)(?!Comparator)(?!Time).*
-                            <!-- (?!RxJava) -->
 
+                            <!-- Our Error Prone extensions for the migration -->
+                            <!-- Step 1: Introduce new method with updated return type -->
+                            -Xep:AddDefaultMethod:OFF
+                            <!-- Step 2: Add @InlineMe to @Deprecated methods -->
+                            -Xep:InlineMeSuggester:OFF
+                            <!-- Step 3: Migrate call sites based on the @InlineMe -->
+                            -Xep:InlineMeInliner:OFF
+                            <!-- Step 4: Remove unused methods. Run only at the end. -->
+                            -Xep:UnusedMethod:OFF
+
+                            <!-- Other extensions we created but are
+                                not used in this demo -->
+                            -Xep:InlineMockitoStatements:OFF
+                            -Xep:MethodReferenceUsage:OFF
+                            -Xep:RemoveOldMethods:OFF
+                            -Xep:UnwrapExpressions:OFF
+
+                            <!-- BugPattern to count occurrences -->
                             -Xep:CountMethods:OFF
-                            -XepOpt:Directory=after_p2_run_12
+                            -XepOpt:Directory=patch_12
 
-                            <!-- Turning off rules with way too many changes: -->
+
+                            <!-- Turning off out-of-the-box rules with way too many changes: -->
                             -Xep:AndroidJdkLibsChecker:OFF
                             -Xep:BadImport:OFF
                             -Xep:MemberName:OFF
@@ -554,9 +565,9 @@
                             -Xep:MissingOverride:OFF
                             -Xep:ReturnMissingNullable:OFF
 
-                            -XepDisableAllChecks
-                            -Xep:CountMethods:ERROR
-                            -XepOpt:Directory=p3_run_2
+                            <!--                            -XepDisableAllChecks-->
+                            <!--                            -Xep:CountMethods:ERROR-->
+                            <!--                            -XepOpt:Directory=p3_run_2-->
 
                             <!-- Error Prone args for patch checks -->
                             ${error-prone.args}

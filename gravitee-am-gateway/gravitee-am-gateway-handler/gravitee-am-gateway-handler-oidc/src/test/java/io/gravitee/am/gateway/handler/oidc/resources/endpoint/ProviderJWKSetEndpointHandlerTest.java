@@ -22,7 +22,7 @@ import io.gravitee.am.gateway.handler.oauth2.resources.handler.ExceptionHandler;
 import io.gravitee.am.gateway.handler.oidc.service.jwk.JWKService;
 import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.jose.RSAKey;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import io.gravitee.common.http.HttpStatusCode;
 
 import io.vertx.core.http.HttpMethod;
@@ -63,7 +63,7 @@ public class ProviderJWKSetEndpointHandlerTest extends RxWebTestBase {
         jwk.setKty("RSA");
         jwk.setKid("my-test-key");
 
-        JWKSet jwkSet = new JWKSet();
+        Keys jwkSet = new Keys();
         jwkSet.setKeys(Collections.singletonList(jwk));
 
         when(jwkService.getKeys_migrated()).thenReturn(Mono.just(jwkSet));

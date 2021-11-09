@@ -29,7 +29,7 @@ import io.gravitee.am.model.jose.OCTKey;
 import io.gravitee.am.model.jose.OKPKey;
 import io.gravitee.am.model.jose.RSAKey;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
 
 
@@ -61,7 +61,7 @@ import reactor.core.publisher.Mono;
 public class JWKServiceTest {
 
     private static final String JWKS_URI = "http://client/jwk/uri";
-    private static JWKSet JWK_SET;
+    private static Keys JWK_SET;
 
     @InjectMocks
     private JWKService jwkService = new JWKServiceImpl();
@@ -128,7 +128,7 @@ public class JWKServiceTest {
         octSig.setKid("octSig");
         octSig.setUse("sig");
 
-        JWK_SET = new JWKSet();
+        JWK_SET = new Keys();
         JWK_SET.setKeys(Arrays.asList(rsaEnc, rsaSig, ecEnc, ecSig, oct128, oct192, oct256, oct384, oct512, octSig));
     }
 
@@ -189,14 +189,14 @@ public class JWKServiceTest {
 
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(jwkSet -> ((JWKSet)jwkSet).getKeys().get(0).getKid().equals("KID"));
+        testObserver.assertValue(jwkSet -> ((Keys)jwkSet).getKeys().get(0).getKid().equals("KID"));
     }
 
     @Test
     public void testGetKey_noKid() {
 
         JWK jwk = Mockito.mock(JWK.class);
-        JWKSet jwkSet = new JWKSet();
+        Keys jwkSet = new Keys();
         jwkSet.setKeys(Arrays.asList(jwk));
 
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.getKey_migrated(jwkSet, null)).test();
@@ -210,7 +210,7 @@ public class JWKServiceTest {
     public void testGetKey_noKFound() {
 
         JWK jwk = Mockito.mock(JWK.class);
-        JWKSet jwkSet = new JWKSet();
+        Keys jwkSet = new Keys();
         jwkSet.setKeys(Arrays.asList(jwk));
 
         when(jwk.getKid()).thenReturn("notTheExpectedOne");
@@ -226,7 +226,7 @@ public class JWKServiceTest {
     public void testGetKey_ok() {
 
         JWK jwk = Mockito.mock(JWK.class);
-        JWKSet jwkSet = new JWKSet();
+        Keys jwkSet = new Keys();
         jwkSet.setKeys(Arrays.asList(jwk));
 
         when(jwk.getKid()).thenReturn("expectedKid");
@@ -249,7 +249,7 @@ public class JWKServiceTest {
     @Test
     public void testGetClientKeys_fromJksProperty() {
         JWK jwk = Mockito.mock(JWK.class);
-        JWKSet jwkSet = new JWKSet();
+        Keys jwkSet = new Keys();
         jwkSet.setKeys(Arrays.asList(jwk));
         Client client = new Client();
         client.setJwks(jwkSet);
@@ -277,20 +277,20 @@ public class JWKServiceTest {
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(jwkSet -> ((JWKSet)jwkSet).getKeys().get(0).getKid().equals("KID"));
+        testObserver.assertValue(jwkSet -> ((Keys)jwkSet).getKeys().get(0).getKid().equals("KID"));
     }
 
     @Test
     public void testFilter_nullOrEmpty() {
-        JWKSet jwkSet = null;
+        Keys jwkSet = null;
         testFilter_expectEmptyResult(jwkSet);
-        jwkSet = new JWKSet();
+        jwkSet = new Keys();
         testFilter_expectEmptyResult(jwkSet);
         jwkSet.setKeys(Arrays.asList());
         testFilter_expectEmptyResult(jwkSet);
     }
 
-    private void testFilter_expectEmptyResult(JWKSet jwkSet) {
+    private void testFilter_expectEmptyResult(Keys jwkSet) {
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(jwkSet, null)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
@@ -354,7 +354,7 @@ public class JWKServiceTest {
         octSig.setKid("octSig");
         octSig.setUse("sig");
 
-        JWKSet jwkSet = new JWKSet();
+        Keys jwkSet = new Keys();
         jwkSet.setKeys(Arrays.asList(oct192, oct256, octSig));
 
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(jwkSet, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A128KW))).test();
@@ -400,7 +400,7 @@ public class JWKServiceTest {
         octSig.setKid("octSig");
         octSig.setUse("sig");
 
-        JWKSet jwkSet = new JWKSet();
+        Keys jwkSet = new Keys();
         jwkSet.setKeys(Arrays.asList(oct128, oct256, octSig));
 
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(jwkSet, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A192KW))).test();
@@ -446,7 +446,7 @@ public class JWKServiceTest {
         octSig.setKid("octSig");
         octSig.setUse("sig");
 
-        JWKSet jwkSet = new JWKSet();
+        Keys jwkSet = new Keys();
         jwkSet.setKeys(Arrays.asList(oct128, oct192, octSig));
 
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(jwkSet, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A256KW))).test();
@@ -513,7 +513,7 @@ public class JWKServiceTest {
         okpSig.setKid("okpSig");
         okpSig.setCrv("Ed25519");
 
-        JWKSet okpSet = new JWKSet();
+        Keys okpSet = new Keys();
         okpSet.setKeys(Arrays.asList(okpEnc,okpSig));
 
 
@@ -537,7 +537,7 @@ public class JWKServiceTest {
         rsaSig.setKid("rsaSig");
         rsaSig.setUse("sig");
 
-        JWKSet rsaSet = new JWKSet();
+        Keys rsaSet = new Keys();
         rsaSet.setKeys(Arrays.asList(rsaEnc, rsaSig));
 
 
@@ -554,7 +554,7 @@ public class JWKServiceTest {
         okpSig.setKid("okpSig");
         okpSig.setCrv("Ed25519");
 
-        JWKSet okpSet = new JWKSet();
+        Keys okpSet = new Keys();
         okpSet.setKeys(Arrays.asList(okpSig));
 
 
@@ -575,7 +575,7 @@ public class JWKServiceTest {
 
         when(certificateManager.providers()).thenReturn(Collections.singletonList(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
 
-        TestObserver<JWKSet> testObserver = RxJava2Adapter.monoToSingle(jwkService.getKeys_migrated()).test();
+        TestObserver<Keys> testObserver = RxJava2Adapter.monoToSingle(jwkService.getKeys_migrated()).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -586,7 +586,7 @@ public class JWKServiceTest {
     public void shouldGetJWKSet_noCertificateProvider() {
         when(certificateManager.providers()).thenReturn(Collections.emptySet());
 
-        TestObserver<JWKSet> testObserver = RxJava2Adapter.monoToSingle(jwkService.getKeys_migrated()).test();
+        TestObserver<Keys> testObserver = RxJava2Adapter.monoToSingle(jwkService.getKeys_migrated()).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -611,7 +611,7 @@ public class JWKServiceTest {
 
         when(certificateManager.providers()).thenReturn(certificateProviders);
 
-        TestObserver<JWKSet> testObserver = RxJava2Adapter.monoToSingle(jwkService.getKeys_migrated()).test();
+        TestObserver<Keys> testObserver = RxJava2Adapter.monoToSingle(jwkService.getKeys_migrated()).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();

@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.util.StdConverter;
 import io.gravitee.am.model.jose.JWK;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +33,13 @@ import java.util.stream.Collectors;
  * @author Alexandre FARIA (contact at alexandrefaria.net)
  * @author GraviteeSource Team
  */
-public class JWKSetDeserializer extends StdConverter<ObjectNode, Optional<JWKSet>> {
+public class JWKSetDeserializer extends StdConverter<ObjectNode, Optional<Keys>> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(JWKSetDeserializer.class);
     public final static String PARSE_ERROR_MESSAGE = "Unable to parse jwks content: ";
 
     @Override
-    public Optional<JWKSet> convert(ObjectNode node) {
+    public Optional<Keys> convert(ObjectNode node) {
         if (node == null) {
             return null;
         }
@@ -55,7 +55,7 @@ public class JWKSetDeserializer extends StdConverter<ObjectNode, Optional<JWKSet
         return convert(node.toString());
     }
 
-    public Optional<JWKSet> convert(String jwkSetAsString) {
+    public Optional<Keys> convert(String jwkSetAsString) {
         try {
             com.nimbusds.jose.jwk.JWKSet jwkSet = com.nimbusds.jose.jwk.JWKSet.parse(jwkSetAsString);
             List<JWK> jwkList = jwkSet.getKeys()
@@ -63,7 +63,7 @@ public class JWKSetDeserializer extends StdConverter<ObjectNode, Optional<JWKSet
                     .map(JWKConverter::convert)
                     .collect(Collectors.toList());
 
-            JWKSet result = new JWKSet();
+            Keys result = new Keys();
             result.setKeys(jwkList);
             return Optional.of(result);
         } catch (ParseException ex) {

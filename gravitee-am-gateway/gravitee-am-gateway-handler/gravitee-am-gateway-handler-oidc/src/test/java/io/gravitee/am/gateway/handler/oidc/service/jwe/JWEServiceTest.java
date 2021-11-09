@@ -27,7 +27,7 @@ import io.gravitee.am.model.jose.OCTKey;
 import io.gravitee.am.model.jose.OKPKey;
 import io.gravitee.am.model.jose.RSAKey;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
 
 import io.reactivex.observers.TestObserver;
@@ -119,7 +119,7 @@ public class JWEServiceTest {
         Client client = new Client();
         client.setIdTokenEncryptedResponseAlg(alg);
 
-        when(jwkService.getKeys_migrated(client)).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKeys_migrated(client)).thenReturn(Mono.just(new Keys()));
         when(jwkService.filter_migrated(any(),any())).thenReturn(Mono.empty());
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(jweService.encryptIdToken_migrated("JWT", client)).test();
@@ -166,7 +166,7 @@ public class JWEServiceTest {
         Client client = new Client();
         client.setIdTokenEncryptedResponseAlg(alg);
 
-        when(jwkService.getKeys_migrated(client)).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKeys_migrated(client)).thenReturn(Mono.just(new Keys()));
         when(jwkService.filter_migrated(any(),any())).thenReturn(Mono.just(jwk));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(jweService.encryptIdToken_migrated("JWT", client)).test();

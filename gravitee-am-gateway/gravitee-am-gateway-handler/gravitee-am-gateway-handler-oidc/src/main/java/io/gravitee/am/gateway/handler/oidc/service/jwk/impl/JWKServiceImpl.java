@@ -22,7 +22,7 @@ import io.gravitee.am.gateway.handler.oidc.service.jwk.JWKService;
 import io.gravitee.am.gateway.handler.oidc.service.jwk.converter.JWKSetDeserializer;
 import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
 
 import io.reactivex.Maybe;
@@ -57,9 +57,9 @@ public class JWKServiceImpl implements JWKService {
 
     
 @Override
-    public Mono<JWKSet> getKeys_migrated() {
+    public Mono<Keys> getKeys_migrated() {
         return Flux.fromIterable(certificateManager.providers()).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(certificateProvider -> RxJava2Adapter.fluxToFlowable(certificateProvider.getProvider().keys_migrated()))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
-                    JWKSet jwkSet = new JWKSet();
+                    Keys jwkSet = new Keys();
                     jwkSet.setKeys(keys);
                     return jwkSet;
                 }));
@@ -67,7 +67,7 @@ public class JWKServiceImpl implements JWKService {
 
     
 @Override
-    public Mono<JWKSet> getKeys_migrated(Client client) {
+    public Mono<Keys> getKeys_migrated(Client client) {
         if(client.getJwks()!=null) {
             return Mono.just(client.getJwks());
         }
@@ -79,9 +79,9 @@ public class JWKServiceImpl implements JWKService {
 
     
 @Override
-    public Mono<JWKSet> getDomainPrivateKeys_migrated() {
+    public Mono<Keys> getDomainPrivateKeys_migrated() {
         return Flux.fromIterable(certificateManager.providers()).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(provider -> RxJava2Adapter.fluxToFlowable(provider.getProvider().privateKey_migrated()))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
-                    JWKSet jwkSet = new JWKSet();
+                    Keys jwkSet = new Keys();
                     jwkSet.setKeys(keys);
                     return jwkSet;
                 }));
@@ -89,10 +89,10 @@ public class JWKServiceImpl implements JWKService {
 
     
 @Override
-    public Mono<JWKSet> getKeys_migrated(String jwksUri) {
+    public Mono<Keys> getKeys_migrated(String jwksUri) {
         try{
             return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.getAbs(UriBuilder.fromHttpUrl(jwksUri).build().toString())
-                    .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(HttpResponse::bodyAsString)).map(RxJavaReactorMigrationUtil.toJdkFunction(new JWKSetDeserializer()::convert)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<JWKSet>, MaybeSource<JWKSet>>)jwkSet -> {
+                    .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(HttpResponse::bodyAsString)).map(RxJavaReactorMigrationUtil.toJdkFunction(new JWKSetDeserializer()::convert)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<Keys>, MaybeSource<Keys>>) jwkSet -> {
                         if(jwkSet!=null && jwkSet.isPresent()) {
                             return RxJava2Adapter.monoToMaybe(Mono.just(jwkSet.get()));
                         }
@@ -110,7 +110,7 @@ public class JWKServiceImpl implements JWKService {
 
     
 @Override
-    public Mono<JWK> getKey_migrated(JWKSet jwkSet, String kid) {
+    public Mono<JWK> getKey_migrated(Keys jwkSet, String kid) {
 
         if(jwkSet==null || jwkSet.getKeys().isEmpty() || kid==null || kid.trim().isEmpty()) {
             return Mono.empty();
@@ -128,7 +128,7 @@ public class JWKServiceImpl implements JWKService {
 
     
 @Override
-    public Mono<JWK> filter_migrated(JWKSet jwkSet, Predicate<JWK> filter) {
+    public Mono<JWK> filter_migrated(Keys jwkSet, Predicate<JWK> filter) {
         if(jwkSet==null || jwkSet.getKeys()==null || jwkSet.getKeys().isEmpty()) {
             return Mono.empty();
         }

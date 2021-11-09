@@ -31,9 +31,8 @@ import io.gravitee.am.model.application.*;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.jose.*;
 import io.gravitee.am.model.login.LoginSettings;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import io.gravitee.am.repository.management.api.ApplicationRepository;
-import io.gravitee.am.repository.mongodb.management.MongoApplicationRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.*;
 import io.reactivex.*;
 
@@ -549,12 +548,12 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         return mongoTokenClaim;
     }
 
-    private static JWKSet convert(List<JWKMongo> jwksMongo) {
+    private static Keys convert(List<JWKMongo> jwksMongo) {
         if (jwksMongo == null) {
             return null;
         }
 
-        JWKSet jwkSet = new JWKSet();
+        Keys jwkSet = new Keys();
 
         List<JWK> jwkList = jwksMongo.stream()
                 .map(MongoApplicationRepository::convert)
@@ -642,7 +641,7 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         return key;
     }
 
-    private static List<JWKMongo> convert(JWKSet jwkSet) {
+    private static List<JWKMongo> convert(Keys jwkSet) {
         if (jwkSet == null) {
             return null;
         }

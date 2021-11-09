@@ -17,7 +17,7 @@ package io.gravitee.am.gateway.handler.oidc.service.jwk.converter;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
 
 import io.vertx.core.json.jackson.DatabindCodec;
@@ -62,7 +62,7 @@ public class JWKSetDeserializerTest {
     @Test
     public void test_Empty() {
         ObjectNode node = DatabindCodec.mapper().createObjectNode().set("keys",null);
-        Optional<JWKSet> result = new JWKSetDeserializer().convert(node);
+        Optional<Keys> result = new JWKSetDeserializer().convert(node);
 
         assertFalse("Was expecting an empty result",result.isPresent());
     }
@@ -70,7 +70,7 @@ public class JWKSetDeserializerTest {
     @Test
     public void test_emptyString() {
         ObjectNode node = DatabindCodec.mapper().createObjectNode().put("keys","");
-        Optional<JWKSet> result = new JWKSetDeserializer().convert(node);
+        Optional<Keys> result = new JWKSetDeserializer().convert(node);
 
         assertFalse("Was expecting an empty result",result.isPresent());
     }
@@ -146,7 +146,7 @@ public class JWKSetDeserializerTest {
         ObjectNode root = DatabindCodec.mapper().createObjectNode();
         root.set("keys",arrayNode);
 
-        Optional<JWKSet> result = new JWKSetDeserializer().convert(root);
+        Optional<Keys> result = new JWKSetDeserializer().convert(root);
 
         assertTrue("Was expecting a result",result.isPresent());
     }

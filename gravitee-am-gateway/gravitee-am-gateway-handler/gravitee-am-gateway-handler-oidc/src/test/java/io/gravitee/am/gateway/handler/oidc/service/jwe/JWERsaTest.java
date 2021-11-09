@@ -29,7 +29,7 @@ import io.gravitee.am.gateway.handler.oidc.service.jwk.JWKService;
 import io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils;
 import io.gravitee.am.model.jose.RSAKey;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 
 import io.reactivex.observers.TestObserver;
 import java.security.KeyPair;
@@ -115,7 +115,7 @@ public class JWERsaTest {
             client.setIdTokenEncryptedResponseAlg(this.alg);
             client.setIdTokenEncryptedResponseEnc(this.enc);
 
-            when(jwkService.getKeys_migrated(client)).thenReturn(Mono.just(new JWKSet()));
+            when(jwkService.getKeys_migrated(client)).thenReturn(Mono.just(new Keys()));
             when(jwkService.filter_migrated(any(),any())).thenReturn(Mono.just(key));
 
             TestObserver testObserver = RxJava2Adapter.monoToSingle(jweService.encryptIdToken_migrated("JWT", client)).test();
@@ -153,7 +153,7 @@ public class JWERsaTest {
             client.setUserinfoEncryptedResponseAlg(this.alg);
             client.setUserinfoEncryptedResponseEnc(this.enc);
 
-            when(jwkService.getKeys_migrated(client)).thenReturn(Mono.just(new JWKSet()));
+            when(jwkService.getKeys_migrated(client)).thenReturn(Mono.just(new Keys()));
             when(jwkService.filter_migrated(any(),any())).thenReturn(Mono.just(key));
 
             TestObserver testObserver = RxJava2Adapter.monoToSingle(jweService.encryptUserinfo_migrated("JWT", client)).test();

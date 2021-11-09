@@ -16,7 +16,7 @@
 package io.gravitee.am.model;
 
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -42,7 +42,7 @@ public class ClientTest {
         Client from = new Client();
         from.setClientName("original");
         from.setRedirectUris(Stream.of("http://host/callback","http://host/login").collect(Collectors.toList()));
-        from.setJwks(new JWKSet());
+        from.setJwks(new Keys());
 
         Client to = from.clone();
         //client name

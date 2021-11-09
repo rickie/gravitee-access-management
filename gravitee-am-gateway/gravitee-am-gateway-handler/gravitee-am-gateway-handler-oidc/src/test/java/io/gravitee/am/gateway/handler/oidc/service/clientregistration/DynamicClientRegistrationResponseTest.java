@@ -20,7 +20,7 @@ import io.gravitee.am.model.jose.ECKey;
 import io.gravitee.am.model.jose.OCTKey;
 import io.gravitee.am.model.jose.OKPKey;
 import io.gravitee.am.model.jose.RSAKey;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -61,7 +61,7 @@ public class DynamicClientRegistrationResponseTest {
         octKey.setKid("kidOCT");
         octKey.setK("FdFYFzERwC2uCBB46pZQi4GG85LujR8obt-KWRBICVQ");
 
-        JWKSet jwkSet = new JWKSet();
+        Keys jwkSet = new Keys();
         jwkSet.setKeys(Arrays.asList(rsaKey,ecKey,okpKey,octKey));
 
         Client client = new Client();

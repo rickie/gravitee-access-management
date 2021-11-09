@@ -37,7 +37,7 @@ import io.gravitee.am.gateway.handler.oidc.service.jws.JWSService;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import io.gravitee.am.repository.oauth2.api.PushedAuthorizationRequestRepository;
 import io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest;
 import io.gravitee.common.util.LinkedMultiValueMap;
@@ -320,7 +320,7 @@ public class PushedAuthorizationRequestServiceTest {
         final JWSHeader jwsHeaders = new JWSHeader.Builder(JWSAlgorithm.RS256).build();
         when(signedJwt.getHeader()).thenReturn(jwsHeaders);
 
-        when(jwkService.getKeys_migrated(any(Client.class))).thenReturn(Mono.just(mock(JWKSet.class)));
+        when(jwkService.getKeys_migrated(any(Client.class))).thenReturn(Mono.just(mock(Keys.class)));
         when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(mock(JWK.class)));
         when( jwsService.isValidSignature(any(), any())).thenReturn(true);
 

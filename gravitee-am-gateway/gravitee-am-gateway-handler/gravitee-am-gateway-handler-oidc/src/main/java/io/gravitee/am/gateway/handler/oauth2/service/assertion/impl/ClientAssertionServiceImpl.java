@@ -39,7 +39,7 @@ import io.gravitee.am.gateway.handler.oidc.service.jws.JWSService;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.functions.Function;
@@ -228,7 +228,7 @@ private Mono<Client> validateSignatureWithHMAC_migrated(JWT jwt) {
     }
 
     
-private Mono<JWKSet> getClientJwkSet_migrated(Client client) {
+private Mono<Keys> getClientJwkSet_migrated(Client client) {
         if(client.getJwksUri()!=null && !client.getJwksUri().trim().isEmpty()) {
             return jwkService.getKeys_migrated(client.getJwksUri());
         }

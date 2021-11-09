@@ -20,7 +20,7 @@ import io.gravitee.am.model.jose.KeyType;
 import io.gravitee.am.model.jose.OCTKey;
 import io.gravitee.am.model.jose.OKPKey;
 import io.gravitee.am.model.jose.RSAKey;
-import io.gravitee.am.model.oidc.JWKSet;
+import io.gravitee.am.model.oidc.Keys;
 
 import java.util.stream.Collectors;
 
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 public class JWKConverter {
 
-    public static io.gravitee.am.gateway.handler.oidc.model.jwk.JWKSet convert(JWKSet jwkSet) {
+    public static io.gravitee.am.gateway.handler.oidc.model.jwk.JWKSet convert(Keys jwkSet) {
         if(jwkSet==null) {
             return null;
         }
