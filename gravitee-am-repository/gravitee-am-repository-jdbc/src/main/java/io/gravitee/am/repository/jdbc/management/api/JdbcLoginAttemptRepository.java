@@ -1,19 +1,23 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.management.api;
+
+import static org.springframework.data.relational.core.query.Criteria.where;
+
+import static reactor.adapter.rxjava.RxJava2Adapter.*;
+
+import static java.time.ZoneOffset.UTC;
 
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.LoginAttempt;
@@ -26,6 +30,7 @@ import io.gravitee.am.repository.management.api.search.LoginAttemptCriteria;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -35,19 +40,15 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 
-import static java.time.ZoneOffset.UTC;
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static reactor.adapter.rxjava.RxJava2Adapter.*;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Repository
-public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implements LoginAttemptRepository {
+public class JdbcLoginAttemptRepository extends AbstractJdbcRepository
+        implements LoginAttemptRepository {
 
-    @Autowired
-    protected SpringLoginAttemptRepository loginAttemptRepository;
+    @Autowired protected SpringLoginAttemptRepository loginAttemptRepository;
 
     protected LoginAttempt toEntity(JdbcLoginAttempt entity) {
         return mapper.map(entity, LoginAttempt.class);
@@ -63,11 +64,18 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
 
         Criteria whereClause = buildWhereClause(criteria);
 
-        whereClause = whereClause.and(
-                where("expire_at").greaterThan(LocalDateTime.now(UTC))
-                .or(where("expire_at").isNull()));
+        whereClause =
+                whereClause.and(
+                        where("expire_at")
+                                .greaterThan(LocalDateTime.now(UTC))
+                                .or(where("expire_at").isNull()));
 
-        return monoToMaybe(template.select(Query.query(whereClause).with(PageRequest.of(0,1, Sort.by("id"))), JdbcLoginAttempt.class).singleOrEmpty())
+        return monoToMaybe(
+                        template.select(
+                                        Query.query(whereClause)
+                                                .with(PageRequest.of(0, 1, Sort.by("id"))),
+                                        JdbcLoginAttempt.class)
+                                .singleOrEmpty())
                 .map(this::toEntity);
     }
 
@@ -83,7 +91,8 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
         }
         // idp
         if (criteria.identityProvider() != null && !criteria.identityProvider().isEmpty()) {
-            whereClause = whereClause.and(where("identity_provider").is(criteria.identityProvider()));
+            whereClause =
+                    whereClause.and(where("identity_provider").is(criteria.identityProvider()));
         }
         // username
         if (criteria.username() != null && !criteria.username().isEmpty()) {
@@ -99,17 +108,22 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
         Criteria whereClause = buildWhereClause(criteria);
 
         if (!whereClause.isEmpty()) {
-            return monoToCompletable(template.delete(JdbcLoginAttempt.class).matching(Query.query(whereClause)).all());
+            return monoToCompletable(
+                    template.delete(JdbcLoginAttempt.class)
+                            .matching(Query.query(whereClause))
+                            .all());
         }
 
-        throw new RepositoryIllegalQueryException("Unable to delete from LoginAttempt without criteria");
+        throw new RepositoryIllegalQueryException(
+                "Unable to delete from LoginAttempt without criteria");
     }
 
     @Override
     public Maybe<LoginAttempt> findById(String id) {
         LOGGER.debug("findById({})", id);
         LocalDateTime now = LocalDateTime.now(UTC);
-        return loginAttemptRepository.findById(id)
+        return loginAttemptRepository
+                .findById(id)
                 .filter(bean -> bean.getExpireAt() == null || bean.getExpireAt().isAfter(now))
                 .map(this::toEntity);
     }
@@ -124,8 +138,7 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
     @Override
     public Single<LoginAttempt> update(LoginAttempt item) {
         LOGGER.debug("update loginAttempt with id '{}'", item.getId());
-        return loginAttemptRepository.save(toJdbcEntity(item))
-                .map(this::toEntity);
+        return loginAttemptRepository.save(toJdbcEntity(item)).map(this::toEntity);
     }
 
     @Override
@@ -137,6 +150,9 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
     public Completable purgeExpiredData() {
         LOGGER.debug("purgeExpiredData()");
         LocalDateTime now = LocalDateTime.now(UTC);
-        return monoToCompletable(template.delete(JdbcLoginAttempt.class).matching(Query.query(where("expire_at").lessThan(now))).all());
+        return monoToCompletable(
+                template.delete(JdbcLoginAttempt.class)
+                        .matching(Query.query(where("expire_at").lessThan(now)))
+                        .all());
     }
 }

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.model.oauth2;
@@ -27,39 +25,27 @@ import java.util.Objects;
  */
 public class Scope {
 
-    /**
-     * Technical identifier
-     */
+    /** Technical identifier */
     private String id;
 
-    /**
-     * Common identifier used during OAuth flow
-     */
+    /** Common identifier used during OAuth flow */
     private String key;
 
     private String name;
 
     private String description;
 
-    /**
-     * A URI for a graphic icon representing the scope
-     */
+    /** A URI for a graphic icon representing the scope */
     private String iconUri;
 
-    /**
-     * Security domain associated to the scope
-     */
+    /** Security domain associated to the scope */
     private String domain;
 
-    /**
-     * Domain creation date
-     */
+    /** Domain creation date */
     @ApiModelProperty(dataType = "java.lang.Long")
     private Date createdAt;
 
-    /**
-     * Domain last updated date
-     */
+    /** Domain last updated date */
     @ApiModelProperty(dataType = "java.lang.Long")
     private Date updatedAt;
 
@@ -67,17 +53,14 @@ public class Scope {
 
     private List<String> claims;
 
-    /**
-     * Expiration time for user consent (in seconds)
-     */
+    /** Expiration time for user consent (in seconds) */
     private Integer expiresIn;
 
     private boolean discovery;
 
     private boolean parameterized;
 
-    public Scope() {
-    }
+    public Scope() {}
 
     public Scope(String key) {
         this.key = key;

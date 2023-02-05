@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.service.request;
+
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidScopeException;
 import io.gravitee.am.gateway.handler.oauth2.service.scope.ScopeManager;
@@ -22,6 +23,7 @@ import io.gravitee.am.model.User;
 import io.gravitee.am.model.application.ApplicationScopeSettings;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,9 +32,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.*;
 
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -40,10 +39,10 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizationRequestResolverTest {
 
-    private final AuthorizationRequestResolver authorizationRequestResolver = new AuthorizationRequestResolver();
+    private final AuthorizationRequestResolver authorizationRequestResolver =
+            new AuthorizationRequestResolver();
 
-    @Mock
-    private ScopeManager scopeManager;
+    @Mock private ScopeManager scopeManager;
 
     @Before
     public void init() {
@@ -60,7 +59,8 @@ public class AuthorizationRequestResolverTest {
         authorizationRequest.setRedirectUri(redirectUri);
         Client client = new Client();
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
+        TestObserver<AuthorizationRequest> testObserver =
+                authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidScopeException.class);
     }
@@ -72,7 +72,8 @@ public class AuthorizationRequestResolverTest {
         authorizationRequest.setRedirectUri(redirectUri);
         Client client = new Client();
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
+        TestObserver<AuthorizationRequest> testObserver =
+                authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
     }
@@ -89,7 +90,8 @@ public class AuthorizationRequestResolverTest {
         setting.setDefaultScope(true);
         client.setScopeSettings(List.of(setting));
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
+        TestObserver<AuthorizationRequest> testObserver =
+                authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
     }
@@ -106,7 +108,8 @@ public class AuthorizationRequestResolverTest {
         setting.setDefaultScope(true);
         client.setScopeSettings(Collections.singletonList(setting));
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
+        TestObserver<AuthorizationRequest> testObserver =
+                authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(request -> request.getScopes().iterator().next().equals(scope));
@@ -124,11 +127,11 @@ public class AuthorizationRequestResolverTest {
         setting.setScope("write");
         client.setScopeSettings(Collections.singletonList(setting));
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
+        TestObserver<AuthorizationRequest> testObserver =
+                authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidScopeException.class);
     }
-
 
     @Test
     public void shouldResolveAuthorizationRequest_ParameterizedScope() {
@@ -142,10 +145,12 @@ public class AuthorizationRequestResolverTest {
         ApplicationScopeSettings setting = new ApplicationScopeSettings(scope);
         client.setScopeSettings(Collections.singletonList(setting));
         when(scopeManager.isParameterizedScope(scope)).thenReturn(true);
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
+        TestObserver<AuthorizationRequest> testObserver =
+                authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        testObserver.assertValue(request -> request.getScopes().iterator().next().equals(parameterizedScope));
+        testObserver.assertValue(
+                request -> request.getScopes().iterator().next().equals(parameterizedScope));
     }
 
     @Test
@@ -165,7 +170,8 @@ public class AuthorizationRequestResolverTest {
         role.setOauthScopes(Collections.singletonList("user"));
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, user).test();
+        TestObserver<AuthorizationRequest> testObserver =
+                authorizationRequestResolver.resolve(authorizationRequest, client, user).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidScopeException.class);
     }
@@ -194,20 +200,26 @@ public class AuthorizationRequestResolverTest {
         role.setOauthScopes(userScopes);
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, user).test();
+        TestObserver<AuthorizationRequest> testObserver =
+                authorizationRequestResolver.resolve(authorizationRequest, client, user).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        // Request should have been enhanced with all of user's permissions, even though none of them has been requested
+        // Request should have been enhanced with all of user's permissions, even though none of
+        // them has been requested
         List<String> expectedScopes = new ArrayList<>();
         expectedScopes.add(scope);
         expectedScopes.addAll(userScopes);
-        testObserver.assertValue(request -> request.getScopes().containsAll(expectedScopes) && request.getScopes().contains(scope) && request.getScopes().size() == 4);
+        testObserver.assertValue(
+                request ->
+                        request.getScopes().containsAll(expectedScopes)
+                                && request.getScopes().contains(scope)
+                                && request.getScopes().size() == 4);
     }
 
     @Test
     public void shouldResolveAuthorizationRequest_userPermissionsRequestedAny() {
-    	final String scope = "read";
+        final String scope = "read";
         final List<String> userScopes = Arrays.asList("user1", "user2", "user3");
         final String redirectUri = "http://localhost:8080/callback";
 
@@ -229,13 +241,19 @@ public class AuthorizationRequestResolverTest {
         role.setOauthScopes(userScopes);
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, user).test();
+        TestObserver<AuthorizationRequest> testObserver =
+                authorizationRequestResolver.resolve(authorizationRequest, client, user).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        // Request should have been enhanced with all of user's permissions, even though only one has been requested
+        // Request should have been enhanced with all of user's permissions, even though only one
+        // has been requested
         List<String> expectedScopes = new ArrayList<>(authScopes);
-        testObserver.assertValue(request -> request.getScopes().containsAll(expectedScopes) && request.getScopes().contains(scope) && request.getScopes().size() == 2);
+        testObserver.assertValue(
+                request ->
+                        request.getScopes().containsAll(expectedScopes)
+                                && request.getScopes().contains(scope)
+                                && request.getScopes().size() == 2);
     }
 
     @Test
@@ -263,18 +281,24 @@ public class AuthorizationRequestResolverTest {
         user.setRolesPermissions(Collections.singleton(role));
 
         when(scopeManager.alwaysProvideEnhancedScopes()).thenReturn(true);
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, user).test();
+        TestObserver<AuthorizationRequest> testObserver =
+                authorizationRequestResolver.resolve(authorizationRequest, client, user).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        // Request should have been enhanced with all of user's permissions, even though only one has been requested
+        // Request should have been enhanced with all of user's permissions, even though only one
+        // has been requested
         List<String> expectedScopes = new ArrayList<>(authScopes);
-        testObserver.assertValue(request -> request.getScopes().containsAll(expectedScopes) && request.getScopes().contains(scope) && request.getScopes().size() == 4);
+        testObserver.assertValue(
+                request ->
+                        request.getScopes().containsAll(expectedScopes)
+                                && request.getScopes().contains(scope)
+                                && request.getScopes().size() == 4);
     }
 
     @Test
     public void shouldResolveAuthorizationRequest_userPermissionsRequestedNone() {
-    	final String scope = "read";
+        final String scope = "read";
         final List<String> userScopes = Arrays.asList("user1", "user2", "user3");
         final String redirectUri = "http://localhost:8080/callback";
 
@@ -294,20 +318,26 @@ public class AuthorizationRequestResolverTest {
         role.setOauthScopes(userScopes);
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, user).test();
+        TestObserver<AuthorizationRequest> testObserver =
+                authorizationRequestResolver.resolve(authorizationRequest, client, user).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
         List<String> expectedScopes = new ArrayList<>();
         expectedScopes.add(scope);
 
-        // Request should have been enhanced with all of user's permissions, even though none of them has been requested
-        testObserver.assertValue(request -> request.getScopes().containsAll(expectedScopes) && request.getScopes().contains(scope) && request.getScopes().size() == 1);
+        // Request should have been enhanced with all of user's permissions, even though none of
+        // them has been requested
+        testObserver.assertValue(
+                request ->
+                        request.getScopes().containsAll(expectedScopes)
+                                && request.getScopes().contains(scope)
+                                && request.getScopes().size() == 1);
     }
 
     @Test
     public void shouldResolveAuthorizationRequest_userPermissionsRequestedNone_legacyMode() {
-    	final String scope = "read";
+        final String scope = "read";
         final List<String> userScopes = Arrays.asList("user1", "user2", "user3");
         final String redirectUri = "http://localhost:8080/callback";
 
@@ -328,14 +358,20 @@ public class AuthorizationRequestResolverTest {
         user.setRolesPermissions(Collections.singleton(role));
 
         when(scopeManager.alwaysProvideEnhancedScopes()).thenReturn(true);
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, user).test();
+        TestObserver<AuthorizationRequest> testObserver =
+                authorizationRequestResolver.resolve(authorizationRequest, client, user).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
         List<String> expectedScopes = new ArrayList<>();
         expectedScopes.add(scope);
 
-        // Request should have been enhanced with all of user's permissions, even though none of them has been requested
-        testObserver.assertValue(request -> request.getScopes().containsAll(expectedScopes) && request.getScopes().contains(scope) && request.getScopes().size() == 4);
+        // Request should have been enhanced with all of user's permissions, even though none of
+        // them has been requested
+        testObserver.assertValue(
+                request ->
+                        request.getScopes().containsAll(expectedScopes)
+                                && request.getScopes().contains(scope)
+                                && request.getScopes().size() == 4);
     }
 }

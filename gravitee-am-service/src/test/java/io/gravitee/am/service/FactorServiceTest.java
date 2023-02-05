@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.common.factor.FactorType;
 import io.gravitee.am.identityprovider.api.User;
@@ -36,18 +37,13 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-import java.util.List;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -56,25 +52,19 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class FactorServiceTest {
 
-    @InjectMocks
-    private FactorService factorService = new FactorServiceImpl();
+    @InjectMocks private FactorService factorService = new FactorServiceImpl();
 
-    @Mock
-    private EventService eventService;
+    @Mock private EventService eventService;
 
-    @Mock
-    private ApplicationService applicationService;
+    @Mock private ApplicationService applicationService;
 
-    @Mock
-    private FactorRepository factorRepository;
+    @Mock private FactorRepository factorRepository;
 
-    @Mock
-    private AuditService auditService;
+    @Mock private AuditService auditService;
 
-    @Mock
-    private UserService userService;
+    @Mock private UserService userService;
 
-    private final static String DOMAIN = "domain1";
+    private static final String DOMAIN = "domain1";
 
     @Test
     public void shouldFindById() {
@@ -98,7 +88,8 @@ public class FactorServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(factorRepository.findById("my-factor")).thenReturn(Maybe.error(TechnicalException::new));
+        when(factorRepository.findById("my-factor"))
+                .thenReturn(Maybe.error(TechnicalException::new));
         TestObserver testObserver = new TestObserver();
         factorService.findById("my-factor").subscribe(testObserver);
 
@@ -119,7 +110,8 @@ public class FactorServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(factorRepository.findByDomain(DOMAIN)).thenReturn(Flowable.error(TechnicalException::new));
+        when(factorRepository.findByDomain(DOMAIN))
+                .thenReturn(Flowable.error(TechnicalException::new));
 
         TestSubscriber testSubscriber = factorService.findByDomain(DOMAIN).test();
 
@@ -198,7 +190,8 @@ public class FactorServiceTest {
     public void shouldCreate2_technicalException() {
         NewFactor newFactor = Mockito.mock(NewFactor.class);
         when(newFactor.getFactorType()).thenReturn(FactorType.OTP.getType());
-        when(factorRepository.create(any(Factor.class))).thenReturn(Single.error(TechnicalException::new));
+        when(factorRepository.create(any(Factor.class)))
+                .thenReturn(Single.error(TechnicalException::new));
 
         TestObserver<Factor> testObserver = new TestObserver<>();
         factorService.create(DOMAIN, newFactor).subscribe(testObserver);
@@ -230,7 +223,8 @@ public class FactorServiceTest {
     @Test
     public void shouldUpdate_technicalException() {
         UpdateFactor updateFactor = Mockito.mock(UpdateFactor.class);
-        when(factorRepository.findById("my-factor")).thenReturn(Maybe.error(TechnicalException::new));
+        when(factorRepository.findById("my-factor"))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
         TestObserver testObserver = factorService.update(DOMAIN, "my-factor", updateFactor).test();
         testObserver.assertError(TechnicalManagementException.class);
@@ -245,7 +239,8 @@ public class FactorServiceTest {
         UpdateFactor updateFactor = Mockito.mock(UpdateFactor.class);
         when(updateFactor.getName()).thenReturn("my-factor");
         when(factorRepository.findById("my-factor")).thenReturn(Maybe.just(new Factor()));
-        when(factorRepository.update(any(Factor.class))).thenReturn(Single.error(TechnicalException::new));
+        when(factorRepository.update(any(Factor.class)))
+                .thenReturn(Single.error(TechnicalException::new));
 
         TestObserver testObserver = factorService.update(DOMAIN, "my-factor", updateFactor).test();
         testObserver.assertError(TechnicalManagementException.class);
@@ -273,7 +268,8 @@ public class FactorServiceTest {
         Factor factor = new Factor();
         factor.setId("factor-id");
         when(factorRepository.findById(factor.getId())).thenReturn(Maybe.just(factor));
-        when(applicationService.findByFactor(factor.getId())).thenReturn(Flowable.just(new Application()));
+        when(applicationService.findByFactor(factor.getId()))
+                .thenReturn(Flowable.just(new Application()));
 
         TestObserver testObserver = factorService.delete(DOMAIN, factor.getId()).test();
 
@@ -285,7 +281,8 @@ public class FactorServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(factorRepository.findById("my-factor")).thenReturn(Maybe.error(TechnicalException::new));
+        when(factorRepository.findById("my-factor"))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
         TestObserver testObserver = factorService.delete(DOMAIN, "my-factor").test();
 
@@ -316,7 +313,8 @@ public class FactorServiceTest {
         final io.gravitee.am.model.User user = new io.gravitee.am.model.User();
         user.setId("anyId");
         final EnrolledFactor enrolledFactor = new EnrolledFactor();
-        when(userService.upsertFactor(anyString(), any(EnrolledFactor.class), any(User.class))).thenReturn(Single.just(new io.gravitee.am.model.User()));
+        when(userService.upsertFactor(anyString(), any(EnrolledFactor.class), any(User.class)))
+                .thenReturn(Single.just(new io.gravitee.am.model.User()));
 
         TestObserver testObserver = factorService.enrollFactor(user, enrolledFactor).test();
         testObserver.awaitTerminalEvent();
@@ -324,6 +322,6 @@ public class FactorServiceTest {
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(userService, times(1)).upsertFactor(any(),any(),any());
+        verify(userService, times(1)).upsertFactor(any(), any(), any());
     }
 }

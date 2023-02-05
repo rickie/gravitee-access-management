@@ -1,21 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.root;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.gravitee.am.common.event.EventManager;
 import io.gravitee.am.common.policy.ExtensionPoint;
 import io.gravitee.am.gateway.handler.api.ProtocolProvider;
@@ -133,6 +132,7 @@ import io.vertx.reactivex.ext.web.handler.BodyHandler;
 import io.vertx.reactivex.ext.web.handler.CSRFHandler;
 import io.vertx.reactivex.ext.web.handler.StaticHandler;
 import io.vertx.reactivex.ext.web.templ.thymeleaf.ThymeleafTemplateEngine;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
@@ -157,7 +157,8 @@ public class RootProvider extends AbstractService<ProtocolProvider> implements P
     public static final String PATH_CONFIRM_REGISTRATION = "/confirmRegistration";
     public static final String PATH_RESET_PASSWORD = "/resetPassword";
     public static final String PATH_WEBAUTHN_REGISTER = "/webauthn/register";
-    public static final String PATH_WEBAUTHN_REGISTER_CREDENTIALS = "/webauthn/register/credentials";
+    public static final String PATH_WEBAUTHN_REGISTER_CREDENTIALS =
+            "/webauthn/register/credentials";
     public static final String PATH_WEBAUTHN_RESPONSE = "/webauthn/response";
     public static final String PATH_WEBAUTHN_LOGIN = "/webauthn/login";
     public static final String PATH_WEBAUTHN_LOGIN_CREDENTIALS = "/webauthn/login/credentials";
@@ -165,131 +166,91 @@ public class RootProvider extends AbstractService<ProtocolProvider> implements P
     public static final String PATH_IDENTIFIER_FIRST_LOGIN = "/login/identifier";
     public static final String PATH_ERROR = "/error";
 
-    @Autowired
-    private Vertx vertx;
+    @Autowired private Vertx vertx;
 
-    @Autowired
-    private Router router;
+    @Autowired private Router router;
 
-    @Autowired
-    private Domain domain;
+    @Autowired private Domain domain;
 
-    @Autowired
-    private IdentityProviderManager identityProviderManager;
+    @Autowired private IdentityProviderManager identityProviderManager;
 
-    @Autowired
-    private UserAuthenticationManager userAuthenticationManager;
+    @Autowired private UserAuthenticationManager userAuthenticationManager;
 
-    @Autowired
-    private UserAuthProvider userAuthProvider;
+    @Autowired private UserAuthProvider userAuthProvider;
 
-    @Autowired
-    private ThymeleafTemplateEngine thymeleafTemplateEngine;
+    @Autowired private ThymeleafTemplateEngine thymeleafTemplateEngine;
 
-    @Autowired
-    private PasswordService passwordService;
+    @Autowired private PasswordService passwordService;
 
-    @Autowired
-    private ClientSyncService clientSyncService;
+    @Autowired private ClientSyncService clientSyncService;
 
-    @Autowired
-    private CookieSessionHandler sessionHandler;
+    @Autowired private CookieSessionHandler sessionHandler;
 
-    @Autowired
-    private SSOSessionHandler ssoSessionHandler;
+    @Autowired private SSOSessionHandler ssoSessionHandler;
 
-    @Autowired
-    private CookieHandler cookieHandler;
+    @Autowired private CookieHandler cookieHandler;
 
-    @Autowired
-    private CSRFHandler csrfHandler;
+    @Autowired private CSRFHandler csrfHandler;
 
-    @Autowired
-    private CSPHandler cspHandler;
+    @Autowired private CSPHandler cspHandler;
 
-    @Autowired
-    private XFrameHandler xframeHandler;
+    @Autowired private XFrameHandler xframeHandler;
 
-    @Autowired
-    private XSSHandler xssHandler;
+    @Autowired private XSSHandler xssHandler;
 
     @Autowired
     @Qualifier("managementUserService")
     private UserService userService;
 
-    @Autowired
-    private PolicyChainHandler policyChainHandler;
+    @Autowired private PolicyChainHandler policyChainHandler;
 
-    @Autowired
-    private FactorManager factorManager;
+    @Autowired private FactorManager factorManager;
 
-    @Autowired
-    private WebAuthn webAuthn;
+    @Autowired private WebAuthn webAuthn;
 
-    @Autowired
-    private JWTService jwtService;
+    @Autowired private JWTService jwtService;
 
-    @Autowired
-    private CertificateManager certificateManager;
+    @Autowired private CertificateManager certificateManager;
 
-    @Autowired
-    private CredentialService credentialService;
+    @Autowired private CredentialService credentialService;
 
-    @Autowired
-    private EventManager eventManager;
+    @Autowired private EventManager eventManager;
 
-    @Autowired
-    private AuthenticationFlowContextService authenticationFlowContextService;
+    @Autowired private AuthenticationFlowContextService authenticationFlowContextService;
 
-    @Autowired
-    private Environment environment;
+    @Autowired private Environment environment;
 
-    @Autowired
-    private BotDetectionManager botDetectionManager;
+    @Autowired private BotDetectionManager botDetectionManager;
 
-    @Autowired
-    private LoginAttemptService loginAttemptService;
+    @Autowired private LoginAttemptService loginAttemptService;
 
-    @Autowired
-    private DeviceIdentifierManager deviceIdentifierManager;
+    @Autowired private DeviceIdentifierManager deviceIdentifierManager;
 
-    @Autowired
-    private DeviceService deviceService;
+    @Autowired private DeviceService deviceService;
 
-    @Autowired
-    private WebClient webClient;
+    @Autowired private WebClient webClient;
 
-    @Autowired
-    public ObjectMapper objectMapper;
+    @Autowired public ObjectMapper objectMapper;
 
-    @Autowired
-    private UserActivityService userActivityService;
+    @Autowired private UserActivityService userActivityService;
 
-    @Autowired
-    private FactorService factorService;
+    @Autowired private FactorService factorService;
 
-    @Autowired
-    private GatewayMetricProvider gatewayMetricProvider;
+    @Autowired private GatewayMetricProvider gatewayMetricProvider;
 
     @Autowired
     @Qualifier("gwMessageResolver")
     private GraviteeMessageResolver messageResolver;
 
-    @Autowired
-    private WebAuthnCookieService webAuthnCookieService;
+    @Autowired private WebAuthnCookieService webAuthnCookieService;
 
-    @Autowired
-    private RateLimiterService rateLimiterService;
+    @Autowired private RateLimiterService rateLimiterService;
 
-    @Autowired
-    private PasswordHistoryService passwordHistoryService;
+    @Autowired private PasswordHistoryService passwordHistoryService;
 
-    @Autowired
-    private VerifyAttemptService verifyAttemptService;
+    @Autowired private VerifyAttemptService verifyAttemptService;
 
-    @Autowired
-    private EmailService emailService;
-
+    @Autowired private EmailService emailService;
 
     @Override
     protected void doStart() throws Exception {
@@ -321,25 +282,38 @@ public class RootProvider extends AbstractService<ProtocolProvider> implements P
         xssHandler(rootRouter);
 
         // common handler
-        Handler<RoutingContext> userTokenRequestParseHandler = new UserTokenRequestParseHandler(userService);
-        Handler<RoutingContext> clientRequestParseHandler = new ClientRequestParseHandler(clientSyncService).setRequired(true);
-        Handler<RoutingContext> clientRequestParseHandlerOptional = new ClientRequestParseHandler(clientSyncService);
-        Handler<RoutingContext> passwordPolicyRequestParseHandler = new PasswordPolicyRequestParseHandler(passwordService, domain);
-        Handler<RoutingContext> botDetectionHandler = new BotDetectionHandler(domain, botDetectionManager);
+        Handler<RoutingContext> userTokenRequestParseHandler =
+                new UserTokenRequestParseHandler(userService);
+        Handler<RoutingContext> clientRequestParseHandler =
+                new ClientRequestParseHandler(clientSyncService).setRequired(true);
+        Handler<RoutingContext> clientRequestParseHandlerOptional =
+                new ClientRequestParseHandler(clientSyncService);
+        Handler<RoutingContext> passwordPolicyRequestParseHandler =
+                new PasswordPolicyRequestParseHandler(passwordService, domain);
+        Handler<RoutingContext> botDetectionHandler =
+                new BotDetectionHandler(domain, botDetectionManager);
         Handler<RoutingContext> dataConsentHandler = new DataConsentHandler(environment);
-        Handler<RoutingContext> geoIpHandler = new GeoIpHandler(userActivityService, vertx.eventBus());
-        Handler<RoutingContext> loginAttemptHandler = new LoginAttemptHandler(domain, identityProviderManager, loginAttemptService, userActivityService);
+        Handler<RoutingContext> geoIpHandler =
+                new GeoIpHandler(userActivityService, vertx.eventBus());
+        Handler<RoutingContext> loginAttemptHandler =
+                new LoginAttemptHandler(
+                        domain, identityProviderManager, loginAttemptService, userActivityService);
         Handler<RoutingContext> rememberDeviceSettingsHandler = new RememberDeviceSettingsHandler();
-        Handler<RoutingContext> deviceIdentifierHandler = new DeviceIdentifierHandler(deviceService);
+        Handler<RoutingContext> deviceIdentifierHandler =
+                new DeviceIdentifierHandler(deviceService);
         Handler<RoutingContext> userActivityHandler = new UserActivityHandler(userActivityService);
         Handler<RoutingContext> localeHandler = new LocaleHandler(messageResolver);
-        Handler<RoutingContext> loginPostWebAuthnHandler = new LoginPostWebAuthnHandler(webAuthnCookieService);
+        Handler<RoutingContext> loginPostWebAuthnHandler =
+                new LoginPostWebAuthnHandler(webAuthnCookieService);
 
         // Root policy chain handler
-        rootRouter.route()
+        rootRouter
+                .route()
                 // client_id is useful at root level in order to handle properly the ROOT app flow
-                // but if the client_id is unknown or invalid (not only missing) the rootRouter will throw an error that will prevent to propagate the call to the right route
-                // for instance, the OAuthProvider will not execute the /oauth/authorize and there will have 500 ERROR instead of "missing client_id" OAuth 2.0 error
+                // but if the client_id is unknown or invalid (not only missing) the rootRouter will
+                // throw an error that will prevent to propagate the call to the right route
+                // for instance, the OAuthProvider will not execute the /oauth/authorize and there
+                // will have 500 ERROR instead of "missing client_id" OAuth 2.0 error
                 // See https://github.com/gravitee-io/issues/issues/5035
                 .handler(new ClientRequestParseHandler(clientSyncService).setContinueOnError(true))
                 .handler(dataConsentHandler)
@@ -347,32 +321,52 @@ public class RootProvider extends AbstractService<ProtocolProvider> implements P
                 .handler(policyChainHandler.create(ExtensionPoint.ROOT));
 
         // Identifier First Login route
-        rootRouter.get(PATH_IDENTIFIER_FIRST_LOGIN)
+        rootRouter
+                .get(PATH_IDENTIFIER_FIRST_LOGIN)
                 .handler(clientRequestParseHandler)
-                .handler(new LoginSocialAuthenticationHandler(identityProviderManager, jwtService, certificateManager))
+                .handler(
+                        new LoginSocialAuthenticationHandler(
+                                identityProviderManager, jwtService, certificateManager))
                 .handler(policyChainHandler.create(ExtensionPoint.PRE_LOGIN_IDENTIFIER))
                 .handler(localeHandler)
-                .handler(new IdentifierFirstLoginEndpoint(thymeleafTemplateEngine, domain, botDetectionManager));
+                .handler(
+                        new IdentifierFirstLoginEndpoint(
+                                thymeleafTemplateEngine, domain, botDetectionManager));
 
-        rootRouter.post(PATH_IDENTIFIER_FIRST_LOGIN)
+        rootRouter
+                .post(PATH_IDENTIFIER_FIRST_LOGIN)
                 .handler(clientRequestParseHandler)
                 .handler(botDetectionHandler)
-                .handler(new LoginSocialAuthenticationHandler(identityProviderManager, jwtService, certificateManager))
+                .handler(
+                        new LoginSocialAuthenticationHandler(
+                                identityProviderManager, jwtService, certificateManager))
                 .handler(policyChainHandler.create(ExtensionPoint.POST_LOGIN_IDENTIFIER))
                 .handler(new LoginSelectionRuleHandler(true))
-                .handler(new IdentifierFirstLoginEndpoint(thymeleafTemplateEngine, domain, botDetectionManager));
+                .handler(
+                        new IdentifierFirstLoginEndpoint(
+                                thymeleafTemplateEngine, domain, botDetectionManager));
 
         // login route
-        rootRouter.get(PATH_LOGIN)
+        rootRouter
+                .get(PATH_LOGIN)
                 .handler(clientRequestParseHandler)
-                .handler(new LoginSocialAuthenticationHandler(identityProviderManager, jwtService, certificateManager))
+                .handler(
+                        new LoginSocialAuthenticationHandler(
+                                identityProviderManager, jwtService, certificateManager))
                 .handler(policyChainHandler.create(ExtensionPoint.PRE_LOGIN))
                 .handler(new LoginHideFormHandler(domain))
                 .handler(new LoginSelectionRuleHandler(false))
                 .handler(localeHandler)
-                .handler(new LoginEndpoint(thymeleafTemplateEngine, domain, botDetectionManager, deviceIdentifierManager, userActivityService));
+                .handler(
+                        new LoginEndpoint(
+                                thymeleafTemplateEngine,
+                                domain,
+                                botDetectionManager,
+                                deviceIdentifierManager,
+                                userActivityService));
 
-        rootRouter.post(PATH_LOGIN)
+        rootRouter
+                .post(PATH_LOGIN)
                 .handler(clientRequestParseHandler)
                 .handler(botDetectionHandler)
                 .handler(loginAttemptHandler)
@@ -383,23 +377,56 @@ public class RootProvider extends AbstractService<ProtocolProvider> implements P
                 .handler(loginPostWebAuthnHandler)
                 .handler(new LoginPostEndpoint());
 
-        rootRouter.route(PATH_LOGIN)
+        rootRouter
+                .route(PATH_LOGIN)
                 .failureHandler(new LoginFailureHandler(authenticationFlowContextService));
 
         // logout route
-        rootRouter.route(PATH_LOGOUT)
-                .handler(new LogoutEndpoint(domain, clientSyncService, jwtService, userService, authenticationFlowContextService, identityProviderManager, certificateManager, webClient));
-        rootRouter.route(PATH_LOGOUT_CALLBACK)
-                .handler(new LogoutCallbackEndpoint(domain, clientSyncService, jwtService, userService, authenticationFlowContextService, certificateManager));
+        rootRouter
+                .route(PATH_LOGOUT)
+                .handler(
+                        new LogoutEndpoint(
+                                domain,
+                                clientSyncService,
+                                jwtService,
+                                userService,
+                                authenticationFlowContextService,
+                                identityProviderManager,
+                                certificateManager,
+                                webClient));
+        rootRouter
+                .route(PATH_LOGOUT_CALLBACK)
+                .handler(
+                        new LogoutCallbackEndpoint(
+                                domain,
+                                clientSyncService,
+                                jwtService,
+                                userService,
+                                authenticationFlowContextService,
+                                certificateManager));
 
         // SSO/Social login route
-        Handler<RoutingContext> socialAuthHandler = SocialAuthHandler.create(new SocialAuthenticationProvider(userAuthenticationManager, eventManager, identityProviderManager, domain, gatewayMetricProvider));
-        Handler<RoutingContext> loginCallbackParseHandler = new LoginCallbackParseHandler(clientSyncService, identityProviderManager, jwtService, certificateManager);
-        Handler<RoutingContext> loginCallbackOpenIDConnectFlowHandler = new LoginCallbackOpenIDConnectFlowHandler(thymeleafTemplateEngine);
-        Handler<RoutingContext> loginCallbackFailureHandler = new LoginCallbackFailureHandler(domain, authenticationFlowContextService, identityProviderManager);
+        Handler<RoutingContext> socialAuthHandler =
+                SocialAuthHandler.create(
+                        new SocialAuthenticationProvider(
+                                userAuthenticationManager,
+                                eventManager,
+                                identityProviderManager,
+                                domain,
+                                gatewayMetricProvider));
+        Handler<RoutingContext> loginCallbackParseHandler =
+                new LoginCallbackParseHandler(
+                        clientSyncService, identityProviderManager, jwtService, certificateManager);
+        Handler<RoutingContext> loginCallbackOpenIDConnectFlowHandler =
+                new LoginCallbackOpenIDConnectFlowHandler(thymeleafTemplateEngine);
+        Handler<RoutingContext> loginCallbackFailureHandler =
+                new LoginCallbackFailureHandler(
+                        domain, authenticationFlowContextService, identityProviderManager);
         Handler<RoutingContext> loginCallbackEndpoint = new LoginCallbackEndpoint();
-        Handler<RoutingContext> loginSSOPOSTEndpoint = new LoginSSOPOSTEndpoint(thymeleafTemplateEngine);
-        rootRouter.get(PATH_LOGIN_CALLBACK)
+        Handler<RoutingContext> loginSSOPOSTEndpoint =
+                new LoginSSOPOSTEndpoint(thymeleafTemplateEngine);
+        rootRouter
+                .get(PATH_LOGIN_CALLBACK)
                 .handler(loginCallbackOpenIDConnectFlowHandler)
                 .handler(loginCallbackParseHandler)
                 .handler(socialAuthHandler)
@@ -407,7 +434,8 @@ public class RootProvider extends AbstractService<ProtocolProvider> implements P
                 .handler(loginPostWebAuthnHandler)
                 .handler(loginCallbackEndpoint)
                 .failureHandler(loginCallbackFailureHandler);
-        rootRouter.post(PATH_LOGIN_CALLBACK)
+        rootRouter
+                .post(PATH_LOGIN_CALLBACK)
                 .handler(loginCallbackOpenIDConnectFlowHandler)
                 .handler(loginCallbackParseHandler)
                 .handler(socialAuthHandler)
@@ -415,89 +443,155 @@ public class RootProvider extends AbstractService<ProtocolProvider> implements P
                 .handler(loginPostWebAuthnHandler)
                 .handler(loginCallbackEndpoint)
                 .failureHandler(loginCallbackFailureHandler);
-        rootRouter.get(PATH_LOGIN_SSO_POST)
-                .handler(loginSSOPOSTEndpoint);
-        rootRouter.get(PATH_LOGIN_SSO_SPNEGO)
+        rootRouter.get(PATH_LOGIN_SSO_POST).handler(loginSSOPOSTEndpoint);
+        rootRouter
+                .get(PATH_LOGIN_SSO_SPNEGO)
                 .handler(policyChainHandler.create(ExtensionPoint.PRE_LOGIN))
-                .handler(new LoginNegotiateAuthenticationHandler(userAuthProvider, thymeleafTemplateEngine))
+                .handler(
+                        new LoginNegotiateAuthenticationHandler(
+                                userAuthProvider, thymeleafTemplateEngine))
                 .handler(policyChainHandler.create(ExtensionPoint.POST_LOGIN))
                 .handler(new LoginPostEndpoint());
 
         // MFA route
-        rootRouter.route(PATH_MFA_ENROLL)
+        rootRouter
+                .route(PATH_MFA_ENROLL)
                 .handler(clientRequestParseHandler)
                 .handler(localeHandler)
-                .handler(new MFAEnrollEndpoint(factorManager, thymeleafTemplateEngine, userService, domain));
-        rootRouter.route(PATH_MFA_CHALLENGE)
+                .handler(
+                        new MFAEnrollEndpoint(
+                                factorManager, thymeleafTemplateEngine, userService, domain));
+        rootRouter
+                .route(PATH_MFA_CHALLENGE)
                 .handler(clientRequestParseHandler)
                 .handler(rememberDeviceSettingsHandler)
                 .handler(localeHandler)
-                .handler(new MFAChallengeEndpoint(factorManager, userService, thymeleafTemplateEngine, deviceService, applicationContext,
-                        domain, credentialService, factorService, rateLimiterService, verifyAttemptService, emailService))
+                .handler(
+                        new MFAChallengeEndpoint(
+                                factorManager,
+                                userService,
+                                thymeleafTemplateEngine,
+                                deviceService,
+                                applicationContext,
+                                domain,
+                                credentialService,
+                                factorService,
+                                rateLimiterService,
+                                verifyAttemptService,
+                                emailService))
                 .failureHandler(new MFAChallengeFailureHandler(authenticationFlowContextService));
-        rootRouter.route(PATH_MFA_CHALLENGE_ALTERNATIVES)
+        rootRouter
+                .route(PATH_MFA_CHALLENGE_ALTERNATIVES)
                 .handler(clientRequestParseHandler)
                 .handler(localeHandler)
-                .handler(new MFAChallengeAlternativesEndpoint(thymeleafTemplateEngine, factorManager));
-        rootRouter.route(PATH_MFA_RECOVERY_CODE)
+                .handler(
+                        new MFAChallengeAlternativesEndpoint(
+                                thymeleafTemplateEngine, factorManager));
+        rootRouter
+                .route(PATH_MFA_RECOVERY_CODE)
                 .handler(clientRequestParseHandler)
                 .handler(localeHandler)
-                .handler(new MFARecoveryCodeEndpoint(thymeleafTemplateEngine, domain, userService, factorManager, applicationContext));
+                .handler(
+                        new MFARecoveryCodeEndpoint(
+                                thymeleafTemplateEngine,
+                                domain,
+                                userService,
+                                factorManager,
+                                applicationContext));
 
         // WebAuthn route
-        Handler<RoutingContext> webAuthnAccessHandler = new WebAuthnAccessHandler(domain, factorManager);
-        Handler<RoutingContext> webAuthnRememberDeviceHandler = new WebAuthnRememberDeviceHandler(webAuthnCookieService, domain);
-        rootRouter.get(PATH_WEBAUTHN_REGISTER)
+        Handler<RoutingContext> webAuthnAccessHandler =
+                new WebAuthnAccessHandler(domain, factorManager);
+        Handler<RoutingContext> webAuthnRememberDeviceHandler =
+                new WebAuthnRememberDeviceHandler(webAuthnCookieService, domain);
+        rootRouter
+                .get(PATH_WEBAUTHN_REGISTER)
                 .handler(clientRequestParseHandler)
                 .handler(webAuthnAccessHandler)
                 .handler(localeHandler)
-                .handler(new WebAuthnRegisterEndpoint(thymeleafTemplateEngine, domain, factorManager));
-        rootRouter.post(PATH_WEBAUTHN_REGISTER)
+                .handler(
+                        new WebAuthnRegisterEndpoint(
+                                thymeleafTemplateEngine, domain, factorManager));
+        rootRouter
+                .post(PATH_WEBAUTHN_REGISTER)
                 .handler(clientRequestParseHandler)
                 .handler(webAuthnAccessHandler)
-                .handler(new WebAuthnRegisterHandler(factorService, factorManager, domain, webAuthn, credentialService))
+                .handler(
+                        new WebAuthnRegisterHandler(
+                                factorService, factorManager, domain, webAuthn, credentialService))
                 .handler(webAuthnRememberDeviceHandler)
                 .handler(new WebAuthnRegisterPostEndpoint());
-        rootRouter.route(PATH_WEBAUTHN_REGISTER_CREDENTIALS)
+        rootRouter
+                .route(PATH_WEBAUTHN_REGISTER_CREDENTIALS)
                 .handler(clientRequestParseHandler)
                 .handler(webAuthnAccessHandler)
                 .handler(new WebAuthnRegisterCredentialsEndpoint(domain, webAuthn));
-        rootRouter.get(PATH_WEBAUTHN_LOGIN)
+        rootRouter
+                .get(PATH_WEBAUTHN_LOGIN)
                 .handler(clientRequestParseHandler)
                 .handler(webAuthnAccessHandler)
-                .handler(new LoginSocialAuthenticationHandler(identityProviderManager, jwtService, certificateManager))
+                .handler(
+                        new LoginSocialAuthenticationHandler(
+                                identityProviderManager, jwtService, certificateManager))
                 .handler(localeHandler)
-                .handler(new WebAuthnLoginEndpoint(thymeleafTemplateEngine, domain, deviceIdentifierManager, userActivityService));
-        rootRouter.post(PATH_WEBAUTHN_LOGIN)
+                .handler(
+                        new WebAuthnLoginEndpoint(
+                                thymeleafTemplateEngine,
+                                domain,
+                                deviceIdentifierManager,
+                                userActivityService));
+        rootRouter
+                .post(PATH_WEBAUTHN_LOGIN)
                 .handler(clientRequestParseHandler)
                 .handler(webAuthnAccessHandler)
-                .handler(new WebAuthnLoginHandler(factorService, factorManager, domain, webAuthn, credentialService, userAuthenticationManager))
+                .handler(
+                        new WebAuthnLoginHandler(
+                                factorService,
+                                factorManager,
+                                domain,
+                                webAuthn,
+                                credentialService,
+                                userAuthenticationManager))
                 .handler(deviceIdentifierHandler)
                 .handler(userActivityHandler)
                 .handler(webAuthnRememberDeviceHandler)
                 .handler(new WebAuthnLoginPostEndpoint());
-        rootRouter.route(PATH_WEBAUTHN_LOGIN_CREDENTIALS)
+        rootRouter
+                .route(PATH_WEBAUTHN_LOGIN_CREDENTIALS)
                 .handler(clientRequestParseHandler)
                 .handler(webAuthnAccessHandler)
                 .handler(new WebAuthnLoginCredentialsEndpoint(webAuthn));
-        rootRouter.post(PATH_WEBAUTHN_RESPONSE)
+        rootRouter
+                .post(PATH_WEBAUTHN_RESPONSE)
                 .handler(clientRequestParseHandler)
                 .handler(webAuthnAccessHandler)
-                .handler(new WebAuthnResponseHandler(factorService, factorManager, domain, webAuthn, credentialService, userAuthenticationManager))
+                .handler(
+                        new WebAuthnResponseHandler(
+                                factorService,
+                                factorManager,
+                                domain,
+                                webAuthn,
+                                credentialService,
+                                userAuthenticationManager))
                 .handler(deviceIdentifierHandler)
                 .handler(userActivityHandler)
                 .handler(new WebAuthnResponseEndpoint());
 
         // Registration route
         Handler<RoutingContext> registerAccessHandler = new RegisterAccessHandler(domain);
-        rootRouter.route(HttpMethod.GET, PATH_REGISTER)
+        rootRouter
+                .route(HttpMethod.GET, PATH_REGISTER)
                 .handler(clientRequestParseHandler)
                 .handler(registerAccessHandler)
-                .handler(new LoginSocialAuthenticationHandler(identityProviderManager, jwtService, certificateManager))
+                .handler(
+                        new LoginSocialAuthenticationHandler(
+                                identityProviderManager, jwtService, certificateManager))
                 .handler(policyChainHandler.create(ExtensionPoint.PRE_REGISTER))
                 .handler(localeHandler)
-                .handler(new RegisterEndpoint(thymeleafTemplateEngine, domain, botDetectionManager));
-        rootRouter.route(HttpMethod.POST, PATH_REGISTER)
+                .handler(
+                        new RegisterEndpoint(thymeleafTemplateEngine, domain, botDetectionManager));
+        rootRouter
+                .route(HttpMethod.POST, PATH_REGISTER)
                 .handler(new RegisterSubmissionRequestParseHandler())
                 .handler(clientRequestParseHandlerOptional)
                 .handler(botDetectionHandler)
@@ -506,16 +600,17 @@ public class RootProvider extends AbstractService<ProtocolProvider> implements P
                 .handler(new RegisterProcessHandler(userService, domain))
                 .handler(policyChainHandler.create(ExtensionPoint.POST_REGISTER))
                 .handler(new RegisterSubmissionEndpoint(environment));
-        rootRouter.route(PATH_REGISTER)
-                .failureHandler(new RegisterFailureHandler());
+        rootRouter.route(PATH_REGISTER).failureHandler(new RegisterFailureHandler());
 
-        rootRouter.route(HttpMethod.GET, PATH_CONFIRM_REGISTRATION)
+        rootRouter
+                .route(HttpMethod.GET, PATH_CONFIRM_REGISTRATION)
                 .handler(new RegisterConfirmationRequestParseHandler(userService))
                 .handler(clientRequestParseHandlerOptional)
                 .handler(policyChainHandler.create(ExtensionPoint.PRE_REGISTRATION_CONFIRMATION))
                 .handler(localeHandler)
                 .handler(new RegisterConfirmationEndpoint(thymeleafTemplateEngine, domain));
-        rootRouter.route(HttpMethod.POST, PATH_CONFIRM_REGISTRATION)
+        rootRouter
+                .route(HttpMethod.POST, PATH_CONFIRM_REGISTRATION)
                 .handler(new RegisterConfirmationSubmissionRequestParseHandler())
                 .handler(userTokenRequestParseHandler)
                 .handler(passwordPolicyRequestParseHandler)
@@ -525,18 +620,23 @@ public class RootProvider extends AbstractService<ProtocolProvider> implements P
         // Forgot password route
         final var forgotPasswordAccessHandler = new ForgotPasswordAccessHandler(domain);
         final var resetPasswordFailureHandler = new ErrorHandler(PATH_RESET_PASSWORD);
-        rootRouter.route(HttpMethod.GET, PATH_FORGOT_PASSWORD)
+        rootRouter
+                .route(HttpMethod.GET, PATH_FORGOT_PASSWORD)
                 .handler(clientRequestParseHandler)
                 .handler(forgotPasswordAccessHandler)
                 .handler(localeHandler)
-                .handler(new ForgotPasswordEndpoint(thymeleafTemplateEngine, domain, botDetectionManager));
-        rootRouter.route(HttpMethod.POST, PATH_FORGOT_PASSWORD)
+                .handler(
+                        new ForgotPasswordEndpoint(
+                                thymeleafTemplateEngine, domain, botDetectionManager));
+        rootRouter
+                .route(HttpMethod.POST, PATH_FORGOT_PASSWORD)
                 .handler(new ForgotPasswordSubmissionRequestParseHandler(domain))
                 .handler(clientRequestParseHandler)
                 .handler(botDetectionHandler)
                 .handler(forgotPasswordAccessHandler)
                 .handler(new ForgotPasswordSubmissionEndpoint(userService, domain));
-        rootRouter.route(HttpMethod.GET, PATH_RESET_PASSWORD)
+        rootRouter
+                .route(HttpMethod.GET, PATH_RESET_PASSWORD)
                 .handler(new ResetPasswordRequestParseHandler(userService))
                 .handler(clientRequestParseHandlerOptional)
                 .handler(userTokenRequestParseHandler)
@@ -544,23 +644,27 @@ public class RootProvider extends AbstractService<ProtocolProvider> implements P
                 .handler(localeHandler)
                 .handler(policyChainHandler.create(ExtensionPoint.PRE_RESET_PASSWORD))
                 .handler(new ResetPasswordEndpoint(thymeleafTemplateEngine, domain));
-        rootRouter.route(HttpMethod.POST, PATH_RESET_PASSWORD)
+        rootRouter
+                .route(HttpMethod.POST, PATH_RESET_PASSWORD)
                 .handler(new ResetPasswordSubmissionRequestParseHandler())
                 .handler(userTokenRequestParseHandler)
                 .handler(new ResetPasswordOneTimeTokenHandler())
                 .handler(passwordPolicyRequestParseHandler)
                 .handler(policyChainHandler.create(ExtensionPoint.POST_RESET_PASSWORD))
                 .handler(new ResetPasswordSubmissionEndpoint(userService, environment));
-        rootRouter.route(PATH_RESET_PASSWORD)
-                .failureHandler(resetPasswordFailureHandler);
+        rootRouter.route(PATH_RESET_PASSWORD).failureHandler(resetPasswordFailureHandler);
 
-        rootRouter.route(HttpMethod.POST, "/passwordHistory")
-                  .handler(clientRequestParseHandlerOptional)
-                  .handler(new PasswordHistoryHandler(passwordHistoryService, userService, domain));
+        rootRouter
+                .route(HttpMethod.POST, "/passwordHistory")
+                .handler(clientRequestParseHandlerOptional)
+                .handler(new PasswordHistoryHandler(passwordHistoryService, userService, domain));
 
         // error route
-        rootRouter.route(HttpMethod.GET, PATH_ERROR)
-                .handler(new ErrorEndpoint(domain, thymeleafTemplateEngine, clientSyncService, jwtService));
+        rootRouter
+                .route(HttpMethod.GET, PATH_ERROR)
+                .handler(
+                        new ErrorEndpoint(
+                                domain, thymeleafTemplateEngine, clientSyncService, jwtService));
 
         // error handler
         errorHandler(rootRouter);
@@ -580,79 +684,45 @@ public class RootProvider extends AbstractService<ProtocolProvider> implements P
         router.route().handler(cookieHandler);
 
         // Login endpoint
-        router.route(PATH_LOGIN)
-                .handler(sessionHandler);
-        router
-                .route(PATH_LOGIN_CALLBACK)
-                .handler(sessionHandler);
-        router
-                .route(PATH_LOGIN_SSO_POST)
-                .handler(sessionHandler);
-        router
-                .route(PATH_LOGIN_SSO_SPNEGO)
-                .handler(sessionHandler);
+        router.route(PATH_LOGIN).handler(sessionHandler);
+        router.route(PATH_LOGIN_CALLBACK).handler(sessionHandler);
+        router.route(PATH_LOGIN_SSO_POST).handler(sessionHandler);
+        router.route(PATH_LOGIN_SSO_SPNEGO).handler(sessionHandler);
 
         // MFA endpoint
-        router.route(PATH_MFA_ENROLL)
-                .handler(sessionHandler)
-                .handler(ssoSessionHandler);
-        router.route(PATH_MFA_CHALLENGE)
-                .handler(sessionHandler)
-                .handler(ssoSessionHandler);
+        router.route(PATH_MFA_ENROLL).handler(sessionHandler).handler(ssoSessionHandler);
+        router.route(PATH_MFA_CHALLENGE).handler(sessionHandler).handler(ssoSessionHandler);
         router.route(PATH_MFA_CHALLENGE_ALTERNATIVES)
                 .handler(sessionHandler)
                 .handler(ssoSessionHandler);
-        router.route(PATH_MFA_RECOVERY_CODE)
-                .handler(sessionHandler)
-                .handler(ssoSessionHandler);
+        router.route(PATH_MFA_RECOVERY_CODE).handler(sessionHandler).handler(ssoSessionHandler);
 
         // Logout endpoint
-        router
-                .route(PATH_LOGOUT)
-                .handler(sessionHandler);
-        router
-                .route(PATH_LOGOUT_CALLBACK)
-                .handler(sessionHandler);
+        router.route(PATH_LOGOUT).handler(sessionHandler);
+        router.route(PATH_LOGOUT_CALLBACK).handler(sessionHandler);
 
         // Registration confirmation endpoint
-        router
-                .route(PATH_REGISTER)
-                .handler(sessionHandler);
-        router
-                .route(PATH_CONFIRM_REGISTRATION)
-                .handler(sessionHandler);
+        router.route(PATH_REGISTER).handler(sessionHandler);
+        router.route(PATH_CONFIRM_REGISTRATION).handler(sessionHandler);
 
         // Reset password endpoint
-        router
-                .route(PATH_RESET_PASSWORD)
-                .handler(sessionHandler);
+        router.route(PATH_RESET_PASSWORD).handler(sessionHandler);
 
         // WebAuthn endpoint
-        router
-                .route(PATH_WEBAUTHN_REGISTER)
-                .handler(sessionHandler);
-        router
-                .route(PATH_WEBAUTHN_REGISTER_CREDENTIALS)
-                .handler(sessionHandler);
-        router
-                .route(PATH_WEBAUTHN_RESPONSE)
-                .handler(sessionHandler);
-        router
-                .route(PATH_WEBAUTHN_LOGIN)
-                .handler(sessionHandler);
-        router
-                .route(PATH_WEBAUTHN_LOGIN_CREDENTIALS)
-                .handler(sessionHandler);
+        router.route(PATH_WEBAUTHN_REGISTER).handler(sessionHandler);
+        router.route(PATH_WEBAUTHN_REGISTER_CREDENTIALS).handler(sessionHandler);
+        router.route(PATH_WEBAUTHN_RESPONSE).handler(sessionHandler);
+        router.route(PATH_WEBAUTHN_LOGIN).handler(sessionHandler);
+        router.route(PATH_WEBAUTHN_LOGIN_CREDENTIALS).handler(sessionHandler);
 
         // Identifier First login endpoint
-        router
-                .route(PATH_IDENTIFIER_FIRST_LOGIN)
-                .handler(sessionHandler);
+        router.route(PATH_IDENTIFIER_FIRST_LOGIN).handler(sessionHandler);
     }
 
     private void authFlowContextHandler(Router router) {
         // Login endpoint
-        AuthenticationFlowContextHandler authenticationFlowContextHandler = new AuthenticationFlowContextHandler(authenticationFlowContextService, environment);
+        AuthenticationFlowContextHandler authenticationFlowContextHandler =
+                new AuthenticationFlowContextHandler(authenticationFlowContextService, environment);
         router.route(PATH_LOGIN).handler(authenticationFlowContextHandler);
         router.route(PATH_LOGIN_CALLBACK).handler(authenticationFlowContextHandler);
         router.route(PATH_LOGIN_SSO_POST).handler(authenticationFlowContextHandler);

@@ -1,23 +1,27 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oidc.service.request.impl;
 
+import static io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils.isSignAlgCompliantWithFapi;
+import static io.gravitee.am.gateway.handler.root.resources.endpoint.ParamUtils.redirectMatches;
+
+import static org.springframework.util.CollectionUtils.isEmpty;
+
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestObjectException;
 import io.gravitee.am.common.exception.oauth2.InvalidRequestUriException;
 import io.gravitee.am.common.web.UriBuilder;
@@ -43,6 +47,7 @@ import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import io.vertx.reactivex.ext.web.client.HttpResponse;
 import io.vertx.reactivex.ext.web.client.WebClient;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URISyntaxException;
@@ -51,50 +56,49 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 
-import static io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils.isSignAlgCompliantWithFapi;
-import static io.gravitee.am.gateway.handler.root.resources.endpoint.ParamUtils.redirectMatches;
-import static org.springframework.util.CollectionUtils.isEmpty;
-
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author GraviteeSource Teams
  */
 public class RequestObjectServiceImpl implements RequestObjectService {
 
-    @Autowired
-    public WebClient webClient;
+    @Autowired public WebClient webClient;
 
-    @Autowired
-    private JWSService jwsService;
+    @Autowired private JWSService jwsService;
 
-    @Autowired
-    private JWEService jweService;
+    @Autowired private JWEService jweService;
 
-    @Autowired
-    private JWKService jwkService;
+    @Autowired private JWKService jwkService;
 
-    @Autowired
-    private OpenIDDiscoveryService openIDDiscoveryService;
+    @Autowired private OpenIDDiscoveryService openIDDiscoveryService;
 
-    @Autowired
-    private RequestObjectRepository requestObjectRepository;
+    @Autowired private RequestObjectRepository requestObjectRepository;
 
-    @Autowired
-    private Domain domain;
+    @Autowired private Domain domain;
 
     @Override
     public Single<JWT> readRequestObject(String request, Client client, boolean encRequired) {
-        return jweService.decrypt(request, encRequired)
-                .onErrorResumeNext(err -> {
-                    if (err instanceof InvalidRequestObjectException) {
-                        return Single.error(err);
-                    }
-                    return Single.error(new InvalidRequestObjectException("Malformed request object"));
-                })
-                .flatMap((Function<JWT, SingleSource<JWT>>) jwt -> {
-                    return checkRequestObjectAlgorithm(jwt)
-                            .andThen(Single.defer(() -> validateSignature((SignedJWT) jwt, client)));
-                });
+        return jweService
+                .decrypt(request, encRequired)
+                .onErrorResumeNext(
+                        err -> {
+                            if (err instanceof InvalidRequestObjectException) {
+                                return Single.error(err);
+                            }
+                            return Single.error(
+                                    new InvalidRequestObjectException("Malformed request object"));
+                        })
+                .flatMap(
+                        (Function<JWT, SingleSource<JWT>>)
+                                jwt -> {
+                                    return checkRequestObjectAlgorithm(jwt)
+                                            .andThen(
+                                                    Single.defer(
+                                                            () ->
+                                                                    validateSignature(
+                                                                            (SignedJWT) jwt,
+                                                                            client)));
+                                });
     }
 
     @Override
@@ -104,114 +108,163 @@ public class RequestObjectServiceImpl implements RequestObjectService {
                 // Extract the identifier
                 String identifier = requestUri.substring(RESOURCE_OBJECT_URN_PREFIX.length());
 
-                return requestObjectRepository.findById(identifier)
+                return requestObjectRepository
+                        .findById(identifier)
                         .switchIfEmpty(Single.error(new InvalidRequestObjectException()))
-                        .flatMap((Function<RequestObject, Single<JWT>>) req -> {
-                            if (req.getExpireAt().after(new Date())) {
-                                return readRequestObject(req.getPayload(), client, false);
-                            }
+                        .flatMap(
+                                (Function<RequestObject, Single<JWT>>)
+                                        req -> {
+                                            if (req.getExpireAt().after(new Date())) {
+                                                return readRequestObject(
+                                                        req.getPayload(), client, false);
+                                            }
 
-                            return Single.error(new InvalidRequestObjectException());
-                        });
+                                            return Single.error(
+                                                    new InvalidRequestObjectException());
+                                        });
             } else {
 
-                final var domainRequestUris = domain.getOidc() != null ? domain.getOidc().getRequestUris() : null;
-                final var registeredRequestUris = isEmpty(client.getRequestUris()) ? domainRequestUris : client.getRequestUris();
-                if (registeredRequestUris != null && registeredRequestUris
-                        .stream()
-                        .noneMatch(registeredClientUri -> redirectMatches(requestUri, registeredClientUri, this.domain.isRedirectUriStrictMatching()))) {
-                    return Single.error(new InvalidRequestUriException("The request_uri MUST match the registered URL for this application"));
+                final var domainRequestUris =
+                        domain.getOidc() != null ? domain.getOidc().getRequestUris() : null;
+                final var registeredRequestUris =
+                        isEmpty(client.getRequestUris())
+                                ? domainRequestUris
+                                : client.getRequestUris();
+                if (registeredRequestUris != null
+                        && registeredRequestUris.stream()
+                                .noneMatch(
+                                        registeredClientUri ->
+                                                redirectMatches(
+                                                        requestUri,
+                                                        registeredClientUri,
+                                                        this.domain
+                                                                .isRedirectUriStrictMatching()))) {
+                    return Single.error(
+                            new InvalidRequestUriException(
+                                    "The request_uri MUST match the registered URL for this application"));
                 }
 
-                return webClient.getAbs(UriBuilder.fromHttpUrl(requestUri).build().toString())
+                return webClient
+                        .getAbs(UriBuilder.fromHttpUrl(requestUri).build().toString())
                         .rxSend()
                         .map(HttpResponse::bodyAsString)
-                        .flatMap((Function<String, Single<JWT>>) s -> readRequestObject(s, client, false));
+                        .flatMap(
+                                (Function<String, Single<JWT>>)
+                                        s -> readRequestObject(s, client, false));
             }
-        }
-        catch (IllegalArgumentException | URISyntaxException ex) {
-            return Single.error(new InvalidRequestObjectException(requestUri+" is not valid."));
+        } catch (IllegalArgumentException | URISyntaxException ex) {
+            return Single.error(new InvalidRequestObjectException(requestUri + " is not valid."));
         }
     }
 
     @Override
-    public Single<RequestObjectRegistrationResponse> registerRequestObject(RequestObjectRegistrationRequest request, Client client) {
+    public Single<RequestObjectRegistrationResponse> registerRequestObject(
+            RequestObjectRegistrationRequest request, Client client) {
         try {
             JWT jwt = JWTParser.parse(request.getRequest());
 
             return checkRequestObjectAlgorithm(jwt)
                     .andThen(Single.defer(() -> validateSignature((SignedJWT) jwt, client)))
-                    .flatMap(new Function<JWT, SingleSource<RequestObject>>() {
-                        @Override
-                        public SingleSource<RequestObject> apply(JWT jwt) throws Exception {
-                            RequestObject requestObject = new RequestObject();
-                            requestObject.setId(UUID.random().toString());
-                            requestObject.setClient(client.getId());
-                            requestObject.setDomain(client.getDomain());
-                            requestObject.setCreatedAt(new Date());
+                    .flatMap(
+                            new Function<JWT, SingleSource<RequestObject>>() {
+                                @Override
+                                public SingleSource<RequestObject> apply(JWT jwt) throws Exception {
+                                    RequestObject requestObject = new RequestObject();
+                                    requestObject.setId(UUID.random().toString());
+                                    requestObject.setClient(client.getId());
+                                    requestObject.setDomain(client.getDomain());
+                                    requestObject.setCreatedAt(new Date());
 
-                            // There is no information from the specification about a valid expiration...
-                            Instant expirationInst = requestObject.getCreatedAt().toInstant().plus(Duration.ofDays(1));
-                            requestObject.setExpireAt(Date.from(expirationInst));
+                                    // There is no information from the specification about a valid
+                                    // expiration...
+                                    Instant expirationInst =
+                                            requestObject
+                                                    .getCreatedAt()
+                                                    .toInstant()
+                                                    .plus(Duration.ofDays(1));
+                                    requestObject.setExpireAt(Date.from(expirationInst));
 
-                            requestObject.setPayload(request.getRequest());
+                                    requestObject.setPayload(request.getRequest());
 
-                            return requestObjectRepository.create(requestObject);
-                        }
-                    })
-                    .flatMap((Function<RequestObject, SingleSource<RequestObjectRegistrationResponse>>) requestObject -> {
-                        RequestObjectRegistrationResponse response = new RequestObjectRegistrationResponse();
+                                    return requestObjectRepository.create(requestObject);
+                                }
+                            })
+                    .flatMap(
+                            (Function<
+                                            RequestObject,
+                                            SingleSource<RequestObjectRegistrationResponse>>)
+                                    requestObject -> {
+                                        RequestObjectRegistrationResponse response =
+                                                new RequestObjectRegistrationResponse();
 
-                        response.setIss(openIDDiscoveryService.getIssuer(request.getOrigin()));
-                        response.setAud(client.getClientId());
-                        response.setRequestUri(RESOURCE_OBJECT_URN_PREFIX + requestObject.getId());
-                        response.setExp(requestObject.getExpireAt().getTime());
+                                        response.setIss(
+                                                openIDDiscoveryService.getIssuer(
+                                                        request.getOrigin()));
+                                        response.setAud(client.getClientId());
+                                        response.setRequestUri(
+                                                RESOURCE_OBJECT_URN_PREFIX + requestObject.getId());
+                                        response.setExp(requestObject.getExpireAt().getTime());
 
-                        return Single.just(response);
-                    });
+                                        return Single.just(response);
+                                    });
         } catch (ParseException pe) {
             return Single.error(new InvalidRequestObjectException());
         }
     }
 
     private Single<JWT> validateSignature(SignedJWT jwt, Client client) {
-        return jwkService.getKeys(client)
+        return jwkService
+                .getKeys(client)
                 .switchIfEmpty(Maybe.error(new InvalidRequestObjectException()))
-                .flatMap(new Function<JWKSet, MaybeSource<JWK>>() {
-                    @Override
-                    public MaybeSource<JWK> apply(JWKSet jwkSet) throws Exception {
-                        return jwkService.getKey(jwkSet, jwt.getHeader().getKeyID());
-                    }
-                })
+                .flatMap(
+                        new Function<JWKSet, MaybeSource<JWK>>() {
+                            @Override
+                            public MaybeSource<JWK> apply(JWKSet jwkSet) throws Exception {
+                                return jwkService.getKey(jwkSet, jwt.getHeader().getKeyID());
+                            }
+                        })
                 .switchIfEmpty(Maybe.error(new InvalidRequestObjectException("Invalid key ID")))
-                .flatMapSingle(new Function<JWK, SingleSource<JWT>>() {
-                    @Override
-                    public SingleSource<JWT> apply(JWK jwk) throws Exception {
-                        // 6.3.2.  Signed Request Object
-                        // To perform Signature Validation, the alg Header Parameter in the
-                        // JOSE Header MUST match the value of the request_object_signing_alg
-                        // set during Client Registration
-                        if (!jwt.getHeader().getAlgorithm().getName().equals(client.getRequestObjectSigningAlg())) {
-                            return Single.error(new InvalidRequestObjectException("Invalid request object signing algorithm"));
-                        } else if (jwsService.isValidSignature(jwt, jwk)) {
-                            return Single.just(jwt);
-                        } else {
-                            return Single.error(new InvalidRequestObjectException("Invalid signature"));
-                        }
-                    }
-                });
+                .flatMapSingle(
+                        new Function<JWK, SingleSource<JWT>>() {
+                            @Override
+                            public SingleSource<JWT> apply(JWK jwk) throws Exception {
+                                // 6.3.2.  Signed Request Object
+                                // To perform Signature Validation, the alg Header Parameter in the
+                                // JOSE Header MUST match the value of the
+                                // request_object_signing_alg
+                                // set during Client Registration
+                                if (!jwt.getHeader()
+                                        .getAlgorithm()
+                                        .getName()
+                                        .equals(client.getRequestObjectSigningAlg())) {
+                                    return Single.error(
+                                            new InvalidRequestObjectException(
+                                                    "Invalid request object signing algorithm"));
+                                } else if (jwsService.isValidSignature(jwt, jwk)) {
+                                    return Single.just(jwt);
+                                } else {
+                                    return Single.error(
+                                            new InvalidRequestObjectException("Invalid signature"));
+                                }
+                            }
+                        });
     }
 
     private Completable checkRequestObjectAlgorithm(JWT jwt) {
-        // The authorization server shall verify that the request object is valid, the signature algorithm is not
+        // The authorization server shall verify that the request object is valid, the signature
+        // algorithm is not
         // none, and the signature is correct as in clause 6.3 of [OIDC].
-        if (! (jwt instanceof SignedJWT) ||
-                (jwt.getHeader().getAlgorithm() != null && "none".equalsIgnoreCase(jwt.getHeader().getAlgorithm().getName()))) {
-            return Completable.error(new InvalidRequestObjectException("Request object must be signed"));
+        if (!(jwt instanceof SignedJWT)
+                || (jwt.getHeader().getAlgorithm() != null
+                        && "none".equalsIgnoreCase(jwt.getHeader().getAlgorithm().getName()))) {
+            return Completable.error(
+                    new InvalidRequestObjectException("Request object must be signed"));
         }
 
-        if (this.domain.usePlainFapiProfile() && !isSignAlgCompliantWithFapi(jwt.getHeader().getAlgorithm().getName())) {
-            return Completable.error(new InvalidRequestObjectException("Request object must be signed with PS256"));
+        if (this.domain.usePlainFapiProfile()
+                && !isSignAlgCompliantWithFapi(jwt.getHeader().getAlgorithm().getName())) {
+            return Completable.error(
+                    new InvalidRequestObjectException("Request object must be signed with PS256"));
         }
 
         return Completable.complete();

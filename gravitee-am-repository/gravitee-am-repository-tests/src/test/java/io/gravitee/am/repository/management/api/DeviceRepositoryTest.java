@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
+
+import static java.util.Objects.nonNull;
 
 import io.gravitee.am.model.Device;
 import io.gravitee.am.model.ReferenceType;
@@ -22,12 +22,11 @@ import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.common.utils.UUID;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
-
-import static java.util.Objects.nonNull;
 
 /**
  * @author Rémi SULTAN (remi.sultan at graviteesource.com)
@@ -35,18 +34,18 @@ import static java.util.Objects.nonNull;
  */
 public class DeviceRepositoryTest extends AbstractManagementTest {
 
-    @Autowired
-    private DeviceRepository repository;
+    @Autowired private DeviceRepository repository;
 
     @Test
     public void testFindByDomainAndApplicationAndUser() {
         Device device = buildDevice();
         Device createdDevice = repository.create(device).blockingGet();
 
-        TestSubscriber<Device> testSubscriber = repository.findByDomainAndClientAndUser(
-                createdDevice.getReferenceId(),
-                createdDevice.getUserId()
-        ).test();
+        TestSubscriber<Device> testSubscriber =
+                repository
+                        .findByDomainAndClientAndUser(
+                                createdDevice.getReferenceId(), createdDevice.getUserId())
+                        .test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -59,7 +58,7 @@ public class DeviceRepositoryTest extends AbstractManagementTest {
         Device device = buildDevice(new Date(System.currentTimeMillis() - 10000));
         Device createdDevice = repository.create(device).blockingGet();
 
-       repository.findById(createdDevice.getUserId()).test().assertEmpty();
+        repository.findById(createdDevice.getUserId()).test().assertEmpty();
     }
 
     private Device buildDevice() {
@@ -92,10 +91,12 @@ public class DeviceRepositoryTest extends AbstractManagementTest {
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(bd -> bd.getId().equals(deviceCreated.getId()));
-        testObserver.assertValue(bd -> bd.getReferenceType().equals(deviceCreated.getReferenceType()));
+        testObserver.assertValue(
+                bd -> bd.getReferenceType().equals(deviceCreated.getReferenceType()));
         testObserver.assertValue(bd -> bd.getReferenceId().equals(deviceCreated.getReferenceId()));
         testObserver.assertValue(bd -> bd.getClient().equals(deviceCreated.getClient()));
-        testObserver.assertValue(bd -> bd.getDeviceIdentifierId().equals(deviceCreated.getDeviceIdentifierId()));
+        testObserver.assertValue(
+                bd -> bd.getDeviceIdentifierId().equals(deviceCreated.getDeviceIdentifierId()));
         testObserver.assertValue(bd -> bd.getDeviceId().equals(deviceCreated.getDeviceId()));
         testObserver.assertValue(bd -> bd.getType().equals(deviceCreated.getType()));
         testObserver.assertValue(bd -> bd.getUserId().equals(deviceCreated.getUserId()));
@@ -115,22 +116,31 @@ public class DeviceRepositoryTest extends AbstractManagementTest {
         Device rememberDevice = buildDevice();
         Device deviceCreated = repository.create(rememberDevice).blockingGet();
 
-        TestObserver<Device> testObserver = repository.findByDomainAndClientAndUserAndDeviceIdentifierAndDeviceId(
-                deviceCreated.getReferenceId(),
-                deviceCreated.getClient(),
-                deviceCreated.getUserId(),
-                deviceCreated.getDeviceIdentifierId(),
-                deviceCreated.getDeviceId()).test();
+        TestObserver<Device> testObserver =
+                repository
+                        .findByDomainAndClientAndUserAndDeviceIdentifierAndDeviceId(
+                                deviceCreated.getReferenceId(),
+                                deviceCreated.getClient(),
+                                deviceCreated.getUserId(),
+                                deviceCreated.getDeviceIdentifierId(),
+                                deviceCreated.getDeviceId())
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(device1 -> device1.getId().equals(deviceCreated.getId()));
-        testObserver.assertValue(device1 -> device1.getReferenceType().equals(deviceCreated.getReferenceType()));
-        testObserver.assertValue(device1 -> device1.getReferenceId().equals(deviceCreated.getReferenceId()));
+        testObserver.assertValue(
+                device1 -> device1.getReferenceType().equals(deviceCreated.getReferenceType()));
+        testObserver.assertValue(
+                device1 -> device1.getReferenceId().equals(deviceCreated.getReferenceId()));
         testObserver.assertValue(device1 -> device1.getClient().equals(deviceCreated.getClient()));
-        testObserver.assertValue(device1 -> device1.getDeviceIdentifierId().equals(deviceCreated.getDeviceIdentifierId()));
-        testObserver.assertValue(device1 -> device1.getDeviceId().equals(deviceCreated.getDeviceId()));
+        testObserver.assertValue(
+                device1 ->
+                        device1.getDeviceIdentifierId()
+                                .equals(deviceCreated.getDeviceIdentifierId()));
+        testObserver.assertValue(
+                device1 -> device1.getDeviceId().equals(deviceCreated.getDeviceId()));
         testObserver.assertValue(device1 -> device1.getType().equals(deviceCreated.getType()));
         testObserver.assertValue(device1 -> device1.getUserId().equals(deviceCreated.getUserId()));
     }
@@ -139,12 +149,16 @@ public class DeviceRepositoryTest extends AbstractManagementTest {
     public void testNotFindByDomainAndClientAndUserAndDeviceIdentifierAndDeviceId_unknown_client() {
         Device device = buildDevice();
         Device deviceCreated = repository.create(device).blockingGet();
-        final TestObserver<Device> test = repository.findByDomainAndClientAndUserAndDeviceIdentifierAndDeviceId(
-                deviceCreated.getReferenceId(),
-                "unknown_client",
-                deviceCreated.getUserId(),
-                deviceCreated.getDeviceIdentifierId(),
-                deviceCreated.getDeviceId()).test().assertEmpty();
+        final TestObserver<Device> test =
+                repository
+                        .findByDomainAndClientAndUserAndDeviceIdentifierAndDeviceId(
+                                deviceCreated.getReferenceId(),
+                                "unknown_client",
+                                deviceCreated.getUserId(),
+                                deviceCreated.getDeviceIdentifierId(),
+                                deviceCreated.getDeviceId())
+                        .test()
+                        .assertEmpty();
     }
 
     @Test
@@ -152,12 +166,16 @@ public class DeviceRepositoryTest extends AbstractManagementTest {
         Device device = buildDevice(new Date(System.currentTimeMillis() - 10000));
         Device deviceCreated = repository.create(device).blockingGet();
 
-        final TestObserver<Device> test = repository.findByDomainAndClientAndUserAndDeviceIdentifierAndDeviceId(
-                deviceCreated.getReferenceId(),
-                deviceCreated.getClient(),
-                deviceCreated.getUserId(),
-                deviceCreated.getDeviceIdentifierId(),
-                deviceCreated.getDeviceId()).test().assertEmpty();
+        final TestObserver<Device> test =
+                repository
+                        .findByDomainAndClientAndUserAndDeviceIdentifierAndDeviceId(
+                                deviceCreated.getReferenceId(),
+                                deviceCreated.getClient(),
+                                deviceCreated.getUserId(),
+                                deviceCreated.getDeviceIdentifierId(),
+                                deviceCreated.getDeviceId())
+                        .test()
+                        .assertEmpty();
     }
 
     @Test
@@ -175,11 +193,14 @@ public class DeviceRepositoryTest extends AbstractManagementTest {
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(device1 -> nonNull(device1.getId()));
-        testObserver.assertValue(device1 -> device1.getReferenceType().equals(device.getReferenceType()));
-        testObserver.assertValue(device1 -> device1.getReferenceId().equals(device.getReferenceId()));
+        testObserver.assertValue(
+                device1 -> device1.getReferenceType().equals(device.getReferenceType()));
+        testObserver.assertValue(
+                device1 -> device1.getReferenceId().equals(device.getReferenceId()));
         testObserver.assertValue(device1 -> device1.getClient().equals(device.getClient()));
         testObserver.assertValue(device1 -> device1.getType().equals(device.getType()));
-        testObserver.assertValue(device1 -> device1.getDeviceIdentifierId().equals(device.getDeviceIdentifierId()));
+        testObserver.assertValue(
+                device1 -> device1.getDeviceIdentifierId().equals(device.getDeviceIdentifierId()));
         testObserver.assertValue(device1 -> device1.getDeviceId().equals(device.getDeviceId()));
         testObserver.assertValue(device1 -> device1.getUserId().equals(device.getUserId()));
     }
@@ -199,11 +220,14 @@ public class DeviceRepositoryTest extends AbstractManagementTest {
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(device1 -> device1.getId().equals(device.getId()));
-        testObserver.assertValue(device1 -> device1.getReferenceType().equals(device.getReferenceType()));
-        testObserver.assertValue(device1 -> device1.getReferenceId().equals(device.getReferenceId()));
+        testObserver.assertValue(
+                device1 -> device1.getReferenceType().equals(device.getReferenceType()));
+        testObserver.assertValue(
+                device1 -> device1.getReferenceId().equals(device.getReferenceId()));
         testObserver.assertValue(device1 -> device1.getClient().equals(device.getClient()));
         testObserver.assertValue(device1 -> device1.getType().equals(device.getType()));
-        testObserver.assertValue(device1 -> device1.getDeviceIdentifierId().equals(device.getDeviceIdentifierId()));
+        testObserver.assertValue(
+                device1 -> device1.getDeviceIdentifierId().equals(device.getDeviceIdentifierId()));
         testObserver.assertValue(device1 -> device1.getDeviceId().equals(device.getDeviceId()));
         testObserver.assertValue(device1 -> device1.getUserId().equals(device.getUserId()));
     }

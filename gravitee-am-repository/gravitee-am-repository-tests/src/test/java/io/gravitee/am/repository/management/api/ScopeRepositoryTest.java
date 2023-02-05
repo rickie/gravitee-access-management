@@ -1,25 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
 
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.oauth2.Scope;
-import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.exceptions.TechnicalException;
+import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,8 +30,7 @@ import java.util.stream.Collectors;
  * @author GraviteeSource Team
  */
 public class ScopeRepositoryTest extends AbstractManagementTest {
-    @Autowired
-    private ScopeRepository scopeRepository;
+    @Autowired private ScopeRepository scopeRepository;
 
     @Test
     public void testFindByDomain() {
@@ -44,13 +42,15 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
         scopeRepository.create(scope).blockingGet();
 
         // fetch scopes
-        TestObserver<Page<Scope>> testObserver = scopeRepository.findByDomain("testDomain", 0, Integer.MAX_VALUE).test();
+        TestObserver<Page<Scope>> testObserver =
+                scopeRepository.findByDomain("testDomain", 0, Integer.MAX_VALUE).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(scopes -> scopes.getData().size() == 1);
-        testObserver.assertValue(scopes -> scopes.getData().iterator().next().getClaims().size() == 2);
+        testObserver.assertValue(
+                scopes -> scopes.getData().iterator().next().getClaims().size() == 2);
     }
 
     @Test
@@ -67,9 +67,9 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
         scope.setDomain("another");
         scopeRepository.create(scope).blockingGet();
 
-
         // fetch scopes
-        TestObserver<Scope> testObserver = scopeRepository.findByDomainAndKey("testDomain","one").test();
+        TestObserver<Scope> testObserver =
+                scopeRepository.findByDomainAndKey("testDomain", "one").test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -98,17 +98,25 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
         Scope scopeCreated2 = scopeRepository.create(scope).blockingGet();
 
         // fetch scopes
-        TestObserver<List<Scope>> testObserver = scopeRepository.findByDomainAndKeys("testDomain", Arrays.asList("one","two","three")).toList().test();
+        TestObserver<List<Scope>> testObserver =
+                scopeRepository
+                        .findByDomainAndKeys("testDomain", Arrays.asList("one", "two", "three"))
+                        .toList()
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        testObserver.assertValue(scopes -> scopes.size()==2 &&
-                scopes.stream()
-                        .map(Scope::getId)
-                        .collect(Collectors.toList())
-                        .containsAll(Arrays.asList(scopeCreated1.getId(), scopeCreated2.getId()))
-        );
+        testObserver.assertValue(
+                scopes ->
+                        scopes.size() == 2
+                                && scopes.stream()
+                                        .map(Scope::getId)
+                                        .collect(Collectors.toList())
+                                        .containsAll(
+                                                Arrays.asList(
+                                                        scopeCreated1.getId(),
+                                                        scopeCreated2.getId())));
     }
 
     @Test
@@ -142,13 +150,13 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
     private Scope buildScope() {
         Scope scope = new Scope();
         String rand = UUID.randomUUID().toString();
-        scope.setName("name"+rand);
-        scope.setDescription("desc"+rand);
+        scope.setName("name" + rand);
+        scope.setDescription("desc" + rand);
         scope.setDiscovery(true);
-        scope.setDomain("domain"+rand);
+        scope.setDomain("domain" + rand);
         scope.setExpiresIn(321);
-        scope.setIconUri("http://icon.acme.fr/"+rand);
-        scope.setKey("key"+rand);
+        scope.setIconUri("http://icon.acme.fr/" + rand);
+        scope.setKey("key" + rand);
         scope.setSystem(true);
         scope.setParameterized(true);
         scope.setCreatedAt(new Date());
@@ -226,12 +234,19 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
         scope.setClaims(Arrays.asList("claim1", "claim2"));
         Scope scopeCreated = scopeRepository.create(scope).blockingGet();
 
-        TestObserver<Page<Scope>> testObserver = scopeRepository.search(scopeCreated.getDomain(), "*" + scopeName + "*", 0, Integer.MAX_VALUE).test();
+        TestObserver<Page<Scope>> testObserver =
+                scopeRepository
+                        .search(
+                                scopeCreated.getDomain(),
+                                "*" + scopeName + "*",
+                                0,
+                                Integer.MAX_VALUE)
+                        .test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(s -> s.getData().size() == 1);
-        testObserver.assertValue(scopes -> scopes.getData().iterator().next().getClaims().size() == 2);
-
+        testObserver.assertValue(
+                scopes -> scopes.getData().iterator().next().getClaims().size() == 2);
     }
 }

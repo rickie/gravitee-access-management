@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oidc.resources.endpoint;
+
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest;
@@ -25,6 +25,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.core.http.HttpServerResponse;
 import io.vertx.reactivex.ext.web.RoutingContext;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,8 +34,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.*;
-
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
  * @author GraviteeSource Team
@@ -42,23 +41,19 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class DynamicClientRegistrationEndpointTest {
 
-    @Mock
-    private ClientSyncService clientSyncService;
+    @Mock private ClientSyncService clientSyncService;
 
-    @Mock
-    private DynamicClientRegistrationService dcrService;
+    @Mock private DynamicClientRegistrationService dcrService;
 
     @InjectMocks
-    private DynamicClientRegistrationEndpoint endpoint = new DynamicClientRegistrationEndpoint(dcrService, clientSyncService);
+    private DynamicClientRegistrationEndpoint endpoint =
+            new DynamicClientRegistrationEndpoint(dcrService, clientSyncService);
 
-    @Mock
-    private DynamicClientRegistrationRequest request;
+    @Mock private DynamicClientRegistrationRequest request;
 
-    @Mock
-    private JsonObject json;
+    @Mock private JsonObject json;
 
-    @Mock
-    private RoutingContext routingContext;
+    @Mock private RoutingContext routingContext;
 
     @Before
     public void setUp() {
@@ -68,45 +63,45 @@ public class DynamicClientRegistrationEndpointTest {
 
     @Test
     public void register_decodeException() {
-        //Context
+        // Context
         when(routingContext.getBodyAsJson()).thenThrow(new DecodeException());
 
-        //Test
+        // Test
         endpoint.handle(routingContext);
 
-        //Assertions
+        // Assertions
         verify(routingContext, times(1)).fail(any());
     }
 
     @Test
     public void register_invalidRequestFormat() {
-        //Context
+        // Context
         when(routingContext.getBodyAsJson()).thenReturn(null);
 
-        //Test
+        // Test
         endpoint.handle(routingContext);
 
-        //Assertions
+        // Assertions
         verify(routingContext, times(1)).fail(any());
     }
 
     @Test
     public void register_fail() {
-        //Context
+        // Context
         HttpServerRequest serverRequest = Mockito.mock(HttpServerRequest.class);
         when(routingContext.request()).thenReturn(serverRequest);
-        when(dcrService.create(any(),any())).thenReturn(Single.error(new Exception()));
+        when(dcrService.create(any(), any())).thenReturn(Single.error(new Exception()));
 
-        //Test
+        // Test
         endpoint.handle(routingContext);
 
-        //Assertions
+        // Assertions
         verify(routingContext, times(1)).fail(any());
     }
 
     @Test
     public void register_success() {
-        //Context
+        // Context
         HttpServerRequest serverRequest = Mockito.mock(HttpServerRequest.class);
         HttpServerResponse serverResponse = Mockito.mock(HttpServerResponse.class);
 
@@ -115,18 +110,18 @@ public class DynamicClientRegistrationEndpointTest {
         when(serverRequest.scheme()).thenReturn("https");
         when(serverRequest.host()).thenReturn("host");
         when(routingContext.response()).thenReturn(serverResponse);
-        when(serverResponse.putHeader(anyString(),anyString())).thenReturn(serverResponse);
+        when(serverResponse.putHeader(anyString(), anyString())).thenReturn(serverResponse);
         when(serverResponse.setStatusCode(201)).thenReturn(serverResponse);
 
-        when(dcrService.create(any(),any())).thenReturn(Single.just(new Client()));
+        when(dcrService.create(any(), any())).thenReturn(Single.just(new Client()));
         when(clientSyncService.addDynamicClientRegistred(any())).thenReturn(new Client());
 
-        //Test
+        // Test
         endpoint.handle(routingContext);
 
-        //Assertions
+        // Assertions
         verify(routingContext, times(1)).response();
-        verify(serverResponse,times(3)).putHeader(anyString(),anyString());
-        verify(serverResponse,times(1)).end(anyString());
+        verify(serverResponse, times(3)).putHeader(anyString(), anyString());
+        verify(serverResponse, times(1)).end(anyString());
     }
 }

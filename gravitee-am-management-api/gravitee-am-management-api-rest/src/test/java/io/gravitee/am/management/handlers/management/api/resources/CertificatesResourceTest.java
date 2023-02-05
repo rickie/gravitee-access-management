@@ -1,19 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.resources;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Certificate;
@@ -24,19 +29,14 @@ import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.junit.Test;
+
+import java.util.List;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -61,10 +61,13 @@ public class CertificatesResourceTest extends JerseySpringTest {
         mockCertificate2.setDomain(domainId);
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Flowable.just(mockCertificate, mockCertificate2)).when(certificateService).findByDomain(domainId);
+        doReturn(Flowable.just(mockCertificate, mockCertificate2))
+                .when(certificateService)
+                .findByDomain(domainId);
         doReturn(Flowable.empty()).when(applicationService).findByCertificate(anyString());
 
-        final Response response = target("domains").path(domainId).path("certificates").request().get();
+        final Response response =
+                target("domains").path(domainId).path("certificates").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
         final List<Certificate> responseEntity = readEntity(response, List.class);
@@ -74,9 +77,12 @@ public class CertificatesResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetCertificates_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(Flowable.error(new TechnicalManagementException("error occurs"))).when(certificateService).findByDomain(domainId);
+        doReturn(Flowable.error(new TechnicalManagementException("error occurs")))
+                .when(certificateService)
+                .findByDomain(domainId);
 
-        final Response response = target("domains").path(domainId).path("certificates").request().get();
+        final Response response =
+                target("domains").path(domainId).path("certificates").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
 
@@ -96,13 +102,19 @@ public class CertificatesResourceTest extends JerseySpringTest {
         certificate.setName("certificate-name");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Maybe.just("certificate-schema")).when(certificatePluginService).getSchema(anyString());
-        doReturn(Single.just(certificate)).when(certificateService).create(eq(domainId), any(), any());
+        doReturn(Maybe.just("certificate-schema"))
+                .when(certificatePluginService)
+                .getSchema(anyString());
+        doReturn(Single.just(certificate))
+                .when(certificateService)
+                .create(eq(domainId), any(), any());
 
-        final Response response = target("domains")
-                .path(domainId)
-                .path("certificates")
-                .request().post(Entity.json(newCertificate));
+        final Response response =
+                target("domains")
+                        .path(domainId)
+                        .path("certificates")
+                        .request()
+                        .post(Entity.json(newCertificate));
         assertEquals(HttpStatusCode.CREATED_201, response.getStatus());
     }
 
@@ -117,16 +129,22 @@ public class CertificatesResourceTest extends JerseySpringTest {
         certificate.setName("certificate-name");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Maybe.just("certificate-schema")).when(certificatePluginService).getSchema(anyString());
+        doReturn(Maybe.just("certificate-schema"))
+                .when(certificatePluginService)
+                .getSchema(anyString());
         doReturn(Single.just(certificate)).when(certificateService).rotate(eq(domainId), any());
 
-        final Response response = target("domains")
-                .path(domainId)
-                .path("certificates")
-                .path("rotate")
-                .request().post(Entity.json(null));
+        final Response response =
+                target("domains")
+                        .path(domainId)
+                        .path("certificates")
+                        .path("rotate")
+                        .request()
+                        .post(Entity.json(null));
 
         assertEquals(HttpStatusCode.CREATED_201, response.getStatus());
-        assertTrue(response.getHeaderString(HttpHeaders.LOCATION).endsWith("certificates/"+certificate.getId()));
+        assertTrue(
+                response.getHeaderString(HttpHeaders.LOCATION)
+                        .endsWith("certificates/" + certificate.getId()));
     }
 }

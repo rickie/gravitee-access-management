@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oidc.model.jwk;
@@ -29,57 +27,39 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class JWK {
 
-    /**
-     * "kty" (Key Type) Parameter
-     */
+    /** "kty" (Key Type) Parameter */
     @JsonProperty("kty")
     private String kty;
 
-    /**
-     * "use" (Public Key Use) Parameter
-     */
+    /** "use" (Public Key Use) Parameter */
     @JsonProperty("use")
     private String use;
 
-    /**
-     * "key_ops" (Key Operations) Parameter
-     */
+    /** "key_ops" (Key Operations) Parameter */
     @JsonProperty("key_ops")
     private Set<String> keyOps;
 
-    /**
-     * "alg" (Algorithm) Parameter
-     */
+    /** "alg" (Algorithm) Parameter */
     @JsonProperty("alg")
     private String alg;
 
-    /**
-     * "kid" (Key ID) Parameter
-     */
+    /** "kid" (Key ID) Parameter */
     @JsonProperty("kid")
     private String kid;
 
-    /**
-     * "x5u" (X.509 URL) Parameter
-     */
+    /** "x5u" (X.509 URL) Parameter */
     @JsonProperty("x5u")
     private String x5u;
 
-    /**
-     * "x5c" (X.509 Certificate Chain) Parameter
-     */
+    /** "x5c" (X.509 Certificate Chain) Parameter */
     @JsonProperty("x5c")
     private Set<String> x5c;
 
-    /**
-     * "x5t" (X.509 Certificate SHA-1 Thumbprint) Parameter
-     */
+    /** "x5t" (X.509 Certificate SHA-1 Thumbprint) Parameter */
     @JsonProperty("x5t")
     private String x5t;
 
-    /**
-     * "x5t#S256" (X.509 Certificate SHA-256 Thumbprint) Parameter
-     */
+    /** "x5t#S256" (X.509 Certificate SHA-256 Thumbprint) Parameter */
     @JsonProperty("x5t#S256")
     private String x5tS256;
 

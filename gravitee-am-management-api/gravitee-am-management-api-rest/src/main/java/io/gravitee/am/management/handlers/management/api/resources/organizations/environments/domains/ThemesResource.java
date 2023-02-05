@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
@@ -31,7 +29,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -46,9 +49,6 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -57,14 +57,11 @@ import java.util.List;
 @Api(tags = {"theme"})
 public class ThemesResource extends AbstractResource {
 
-    @Context
-    private ResourceContext resourceContext;
+    @Context private ResourceContext resourceContext;
 
-    @Autowired
-    private DomainService domainService;
+    @Autowired private DomainService domainService;
 
-    @Autowired
-    private ThemeService themeService;
+    @Autowired private ThemeService themeService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -72,13 +69,19 @@ public class ThemesResource extends AbstractResource {
     @ApiOperation(
             nickname = "listThemes",
             value = "List themes on the specified security domain",
-            notes = "User must have the DOMAIN_THEME[LIST] permission on the specified domain " +
-                    "or DOMAIN_THEME[LIST] permission on the specified environment " +
-                    "or DOMAIN_THEME[LIST] permission on the specified organization")
+            notes =
+                    "User must have the DOMAIN_THEME[LIST] permission on the specified domain "
+                            + "or DOMAIN_THEME[LIST] permission on the specified environment "
+                            + "or DOMAIN_THEME[LIST] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "List of themes", response = ThemeEntity.class, responseContainer = "List"),
-            @ApiResponse(code = 204, message = "There is no themes on this domain"),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(
+                code = 200,
+                message = "List of themes",
+                response = ThemeEntity.class,
+                responseContainer = "List"),
+        @ApiResponse(code = 204, message = "There is no themes on this domain"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void list(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -86,19 +89,28 @@ public class ThemesResource extends AbstractResource {
             // TODO do we have to manage Page or a simple list is enough ?
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN_THEME, Acl.LIST)
-                .andThen(domainService.findById(domainId)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domainId))))
-                .flatMap(domain -> this.themeService.findByReference(ReferenceType.DOMAIN, domainId).map(ThemeEntity::new))
+        checkAnyPermission(
+                        organizationId, environmentId, domainId, Permission.DOMAIN_THEME, Acl.LIST)
+                .andThen(
+                        domainService
+                                .findById(domainId)
+                                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domainId))))
+                .flatMap(
+                        domain ->
+                                this.themeService
+                                        .findByReference(ReferenceType.DOMAIN, domainId)
+                                        .map(ThemeEntity::new))
                 .map(List::of)
                 .switchIfEmpty(Maybe.just(Collections.emptyList()))
-                .subscribe(themes -> {
-                    if (themes == null || themes.isEmpty()) {
-                        response.resume(Response.noContent().build());
-                    } else {
-                        response.resume(themes);
-                    }
-                }, response::resume);
+                .subscribe(
+                        themes -> {
+                            if (themes == null || themes.isEmpty()) {
+                                response.resume(Response.noContent().build());
+                            } else {
+                                response.resume(themes);
+                            }
+                        },
+                        response::resume);
     }
 
     @POST
@@ -107,30 +119,51 @@ public class ThemesResource extends AbstractResource {
     @ApiOperation(
             nickname = "createTheme",
             value = "Create a theme on the specified security domain",
-            notes = "User must have the DOMAIN_THEME[CREATE] permission on the specified domain " +
-                    "or DOMAIN_THEME[CREATE] permission on the specified environment " +
-                    "or DOMAIN_THEME[CREATE] permission on the specified organization")
+            notes =
+                    "User must have the DOMAIN_THEME[CREATE] permission on the specified domain "
+                            + "or DOMAIN_THEME[CREATE] permission on the specified environment "
+                            + "or DOMAIN_THEME[CREATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 201, message = "Theme successfully created", response = ThemeEntity.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(
+                code = 201,
+                message = "Theme successfully created",
+                response = ThemeEntity.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void create(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
-            @ApiParam(name = "theme", required = true)
-            @Valid @NotNull final NewTheme newTheme,
+            @ApiParam(name = "theme", required = true) @Valid @NotNull final NewTheme newTheme,
             @Suspended final AsyncResponse response) {
 
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN_THEME, Acl.CREATE)
-                .andThen(domainService.findById(domainId)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domainId))))
+        checkAnyPermission(
+                        organizationId,
+                        environmentId,
+                        domainId,
+                        Permission.DOMAIN_THEME,
+                        Acl.CREATE)
+                .andThen(
+                        domainService
+                                .findById(domainId)
+                                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domainId))))
                 .flatMapSingle(domain -> themeService.create(domain, newTheme, authenticatedUser))
-                .map(theme -> Response
-                        .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domainId + "/themes/" + theme.getId()))
-                        .entity(new ThemeEntity(theme))
-                        .build())
+                .map(
+                        theme ->
+                                Response.created(
+                                                URI.create(
+                                                        "/organizations/"
+                                                                + organizationId
+                                                                + "/environments/"
+                                                                + environmentId
+                                                                + "/domains/"
+                                                                + domainId
+                                                                + "/themes/"
+                                                                + theme.getId()))
+                                        .entity(new ThemeEntity(theme))
+                                        .build())
                 .subscribe(response::resume, response::resume);
     }
 
@@ -138,5 +171,4 @@ public class ThemesResource extends AbstractResource {
     public ThemeResource getThemeResource() {
         return resourceContext.getResource(ThemeResource.class);
     }
-
 }

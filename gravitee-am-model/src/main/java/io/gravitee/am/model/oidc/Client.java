@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.model.oidc;
@@ -24,24 +22,26 @@ import io.gravitee.am.model.account.AccountSettings;
 import io.gravitee.am.model.application.ApplicationScopeSettings;
 import io.gravitee.am.model.idp.ApplicationIdentityProvider;
 import io.gravitee.am.model.login.LoginSettings;
-
 import io.gravitee.risk.assessment.api.assessment.settings.RiskAssessmentSettings;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
- * @author GraviteeSource Team
- * See https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
+ * @author GraviteeSource Team See
+ *     https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
  */
 public class Client implements Cloneable, Resource, PasswordSettingsAware {
 
-    public final static int DEFAULT_ACCESS_TOKEN_VALIDITY_SECONDS = 7200;
-    public final static int DEFAULT_REFRESH_TOKEN_VALIDITY_SECONDS = 14400;
-    public final static int DEFAULT_ID_TOKEN_VALIDITY_SECONDS = 14400;
-    public final static List<String> DEFAULT_GRANT_TYPES = Collections.singletonList(GrantType.AUTHORIZATION_CODE);
-    public final static List<String> DEFAULT_RESPONSE_TYPES = Collections.singletonList(ResponseType.CODE);
+    public static final int DEFAULT_ACCESS_TOKEN_VALIDITY_SECONDS = 7200;
+    public static final int DEFAULT_REFRESH_TOKEN_VALIDITY_SECONDS = 14400;
+    public static final int DEFAULT_ID_TOKEN_VALIDITY_SECONDS = 14400;
+    public static final List<String> DEFAULT_GRANT_TYPES =
+            Collections.singletonList(GrantType.AUTHORIZATION_CODE);
+    public static final List<String> DEFAULT_RESPONSE_TYPES =
+            Collections.singletonList(ResponseType.CODE);
 
     private String id;
 
@@ -55,7 +55,7 @@ public class Client implements Cloneable, Resource, PasswordSettingsAware {
 
     private List<String> responseTypes = DEFAULT_RESPONSE_TYPES;
 
-    //Default value must be web.
+    // Default value must be web.
     private String applicationType = ApplicationType.WEB;
 
     private List<String> contacts;
@@ -110,11 +110,11 @@ public class Client implements Cloneable, Resource, PasswordSettingsAware {
 
     private List<String> requestUris;
 
-    private String softwareId; //Should be UUID
+    private String softwareId; // Should be UUID
 
     private String softwareVersion;
 
-    private String softwareStatement; //Should be JWT
+    private String softwareStatement; // Should be JWT
 
     private String registrationAccessToken;
 
@@ -150,24 +150,16 @@ public class Client implements Cloneable, Resource, PasswordSettingsAware {
 
     private String authorizationEncryptedResponseEnc;
 
-    /**
-     * Security domain associated to the client
-     */
+    /** Security domain associated to the client */
     private String domain;
 
-    /**
-     * Client enabled.
-     */
+    /** Client enabled. */
     private boolean enabled;
 
-    /**
-     * The Client creation date
-     */
+    /** The Client creation date */
     private Date createdAt;
 
-    /**
-     * The Client last updated date
-     */
+    /** The Client last updated date */
     private Date updatedAt;
 
     private String certificate;
@@ -236,16 +228,19 @@ public class Client implements Cloneable, Resource, PasswordSettingsAware {
     // ----------- Refresh token Settings -----------
     private boolean disableRefreshTokenRotation;
 
-    public Client() {
-    }
+    public Client() {}
 
     public Client(Client other) {
         this.id = other.id;
         this.clientId = other.clientId;
         this.clientSecret = other.clientSecret;
         this.redirectUris = other.redirectUris != null ? new ArrayList<>(other.redirectUris) : null;
-        this.authorizedGrantTypes = other.authorizedGrantTypes != null ? new ArrayList<>(other.authorizedGrantTypes) : null;
-        this.responseTypes = other.responseTypes != null ? new ArrayList<>(other.responseTypes) : null;
+        this.authorizedGrantTypes =
+                other.authorizedGrantTypes != null
+                        ? new ArrayList<>(other.authorizedGrantTypes)
+                        : null;
+        this.responseTypes =
+                other.responseTypes != null ? new ArrayList<>(other.responseTypes) : null;
         this.applicationType = other.applicationType;
         this.contacts = other.contacts != null ? new ArrayList<>(other.contacts) : null;
         this.clientName = other.clientName;
@@ -280,7 +275,8 @@ public class Client implements Cloneable, Resource, PasswordSettingsAware {
         this.registrationClientUri = other.registrationClientUri;
         this.clientIdIssuedAt = other.clientIdIssuedAt;
         this.clientSecretExpiresAt = other.clientSecretExpiresAt;
-        this.autoApproveScopes = other.autoApproveScopes != null ? new ArrayList<>(other.autoApproveScopes) : null;
+        this.autoApproveScopes =
+                other.autoApproveScopes != null ? new ArrayList<>(other.autoApproveScopes) : null;
         this.accessTokenValiditySeconds = other.accessTokenValiditySeconds;
         this.refreshTokenValiditySeconds = other.refreshTokenValiditySeconds;
         this.idTokenValiditySeconds = other.idTokenValiditySeconds;
@@ -288,15 +284,18 @@ public class Client implements Cloneable, Resource, PasswordSettingsAware {
         this.enabled = other.enabled;
         this.createdAt = other.createdAt;
         this.updatedAt = other.updatedAt;
-        this.identityProviders = other.identityProviders != null ? new TreeSet<>(other.identityProviders) : null;
+        this.identityProviders =
+                other.identityProviders != null ? new TreeSet<>(other.identityProviders) : null;
         this.factors = other.factors != null ? new HashSet<>(other.factors) : null;
         this.certificate = other.certificate;
         this.enhanceScopesWithUserPermissions = other.enhanceScopesWithUserPermissions;
-        this.scopeSettings = other.scopeSettings != null ? new ArrayList<>(other.scopeSettings) : null;
+        this.scopeSettings =
+                other.scopeSettings != null ? new ArrayList<>(other.scopeSettings) : null;
         this.accountSettings = other.accountSettings;
         this.loginSettings = other.loginSettings;
         this.passwordSettings = other.passwordSettings;
-        this.tokenCustomClaims = other.tokenCustomClaims != null ? new ArrayList<>(other.tokenCustomClaims) : null;
+        this.tokenCustomClaims =
+                other.tokenCustomClaims != null ? new ArrayList<>(other.tokenCustomClaims) : null;
         this.template = other.template;
         this.metadata = other.metadata != null ? new HashMap<>(other.metadata) : null;
         this.authorizationSignedResponseAlg = other.authorizationSignedResponseAlg;
@@ -642,11 +641,13 @@ public class Client implements Cloneable, Resource, PasswordSettingsAware {
     }
 
     public void setClientSecretExpiresAt(Date clientSecretExpiresAt) {
-        //Enforce date to UTC time zone.
+        // Enforce date to UTC time zone.
         if (clientSecretExpiresAt != null) {
-            this.clientSecretExpiresAt = Date.from(
-                    ZonedDateTime.ofInstant(clientSecretExpiresAt.toInstant(), ZoneId.of("UTC")).toInstant()
-            );
+            this.clientSecretExpiresAt =
+                    Date.from(
+                            ZonedDateTime.ofInstant(
+                                            clientSecretExpiresAt.toInstant(), ZoneId.of("UTC"))
+                                    .toInstant());
         }
     }
 
@@ -934,7 +935,8 @@ public class Client implements Cloneable, Resource, PasswordSettingsAware {
         return tlsClientCertificateBoundAccessTokens;
     }
 
-    public void setTlsClientCertificateBoundAccessTokens(boolean tlsClientCertificateBoundAccessTokens) {
+    public void setTlsClientCertificateBoundAccessTokens(
+            boolean tlsClientCertificateBoundAccessTokens) {
         this.tlsClientCertificateBoundAccessTokens = tlsClientCertificateBoundAccessTokens;
     }
 
@@ -958,7 +960,8 @@ public class Client implements Cloneable, Resource, PasswordSettingsAware {
         return backchannelClientNotificationEndpoint;
     }
 
-    public void setBackchannelClientNotificationEndpoint(String backchannelClientNotificationEndpoint) {
+    public void setBackchannelClientNotificationEndpoint(
+            String backchannelClientNotificationEndpoint) {
         this.backchannelClientNotificationEndpoint = backchannelClientNotificationEndpoint;
     }
 
@@ -1063,18 +1066,35 @@ public class Client implements Cloneable, Resource, PasswordSettingsAware {
     public Client clone() throws CloneNotSupportedException {
         Client clone = (Client) super.clone();
 
-        clone.setRedirectUris(this.getRedirectUris() != null ? new ArrayList<>(this.getRedirectUris()) : null);
-        clone.setAuthorizedGrantTypes(this.getAuthorizedGrantTypes() != null ? new ArrayList<>(this.getAuthorizedGrantTypes()) : null);
-        clone.setResponseTypes(this.getResponseTypes() != null ? new ArrayList<>(this.getResponseTypes()) : null);
+        clone.setRedirectUris(
+                this.getRedirectUris() != null ? new ArrayList<>(this.getRedirectUris()) : null);
+        clone.setAuthorizedGrantTypes(
+                this.getAuthorizedGrantTypes() != null
+                        ? new ArrayList<>(this.getAuthorizedGrantTypes())
+                        : null);
+        clone.setResponseTypes(
+                this.getResponseTypes() != null ? new ArrayList<>(this.getResponseTypes()) : null);
         clone.setContacts(this.getContacts() != null ? new ArrayList<>(this.getContacts()) : null);
-        clone.setDefaultACRvalues(this.getDefaultACRvalues() != null ? new ArrayList<>(this.getDefaultACRvalues()) : null);
-        clone.setRequestUris(this.getRequestUris() != null ? new ArrayList<>(this.getRequestUris()) : null);
-        clone.setScopeSettings(this.scopeSettings != null ? new ArrayList<>(this.getScopeSettings()) : null);
-        clone.setAutoApproveScopes(this.getAutoApproveScopes() != null ? new ArrayList<>(this.getAutoApproveScopes()) : null);
-        clone.setIdentityProviders(this.getIdentityProviders() != null ? new TreeSet<>(this.getIdentityProviders()) : null);
+        clone.setDefaultACRvalues(
+                this.getDefaultACRvalues() != null
+                        ? new ArrayList<>(this.getDefaultACRvalues())
+                        : null);
+        clone.setRequestUris(
+                this.getRequestUris() != null ? new ArrayList<>(this.getRequestUris()) : null);
+        clone.setScopeSettings(
+                this.scopeSettings != null ? new ArrayList<>(this.getScopeSettings()) : null);
+        clone.setAutoApproveScopes(
+                this.getAutoApproveScopes() != null
+                        ? new ArrayList<>(this.getAutoApproveScopes())
+                        : null);
+        clone.setIdentityProviders(
+                this.getIdentityProviders() != null
+                        ? new TreeSet<>(this.getIdentityProviders())
+                        : null);
         clone.setFactors(this.getFactors() != null ? new HashSet<>(this.getFactors()) : null);
         clone.setJwks(this.getJwks() != null ? this.getJwks().clone() : null);
-        Optional.ofNullable(this.passwordSettings).ifPresent(ps -> clone.setPasswordSettings(new PasswordSettings(ps)));
+        Optional.ofNullable(this.passwordSettings)
+                .ifPresent(ps -> clone.setPasswordSettings(new PasswordSettings(ps)));
 
         return clone;
     }

@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oidc.service.clientregistration;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.gateway.handler.oidc.service.clientregistration.impl.ClientServiceImpl;
 import io.gravitee.am.model.Application;
@@ -29,6 +30,7 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,9 +41,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -50,13 +49,11 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ClientServiceTest {
 
-    @InjectMocks
-    private ClientService clientService = new ClientServiceImpl();
+    @InjectMocks private ClientService clientService = new ClientServiceImpl();
 
-    @Mock
-    private ApplicationService applicationService;
+    @Mock private ApplicationService applicationService;
 
-    private final static String DOMAIN = "domain1";
+    private static final String DOMAIN = "domain1";
 
     @Test
     public void shouldFindById() {
@@ -80,7 +77,8 @@ public class ClientServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(applicationService.findById("my-client")).thenReturn(Maybe.error(TechnicalManagementException::new));
+        when(applicationService.findById("my-client"))
+                .thenReturn(Maybe.error(TechnicalManagementException::new));
         TestObserver testObserver = new TestObserver();
         clientService.findById("my-client").subscribe(testObserver);
 
@@ -101,7 +99,8 @@ public class ClientServiceTest {
         toCreate.setDomain(DOMAIN);
         toCreate.setAuthorizedGrantTypes(Collections.singletonList("implicit"));
         toCreate.setResponseTypes(Collections.singletonList("token"));
-        when(applicationService.create(any())).thenReturn(Single.error(new InvalidRedirectUriException()));
+        when(applicationService.create(any()))
+                .thenReturn(Single.error(new InvalidRedirectUriException()));
         TestObserver testObserver = clientService.create(toCreate).test();
         testObserver.awaitTerminalEvent();
 
@@ -111,7 +110,8 @@ public class ClientServiceTest {
 
     @Test
     public void create_generateUuidAsClientId() {
-        when(applicationService.create(any(Application.class))).thenReturn(Single.just(new Application()));
+        when(applicationService.create(any(Application.class)))
+                .thenReturn(Single.just(new Application()));
 
         Client toCreate = new Client();
         toCreate.setDomain(DOMAIN);
@@ -124,8 +124,12 @@ public class ClientServiceTest {
 
         ArgumentCaptor<Application> captor = ArgumentCaptor.forClass(Application.class);
         verify(applicationService, times(1)).create(captor.capture());
-        Assert.assertNotNull("client_id must be generated", captor.getValue().getSettings().getOauth().getClientId());
-        Assert.assertNotNull("client_secret must be generated", captor.getValue().getSettings().getOauth().getClientSecret());
+        Assert.assertNotNull(
+                "client_id must be generated",
+                captor.getValue().getSettings().getOauth().getClientId());
+        Assert.assertNotNull(
+                "client_secret must be generated",
+                captor.getValue().getSettings().getOauth().getClientSecret());
     }
 
     @Test
@@ -137,7 +141,8 @@ public class ClientServiceTest {
 
     @Test
     public void update_implicitGrant_invalidRedirectUri() {
-        when(applicationService.update(any(Application.class))).thenReturn(Single.error(new InvalidRedirectUriException()));
+        when(applicationService.update(any(Application.class)))
+                .thenReturn(Single.error(new InvalidRedirectUriException()));
 
         Client toUpdate = new Client();
         toUpdate.setAuthorizedGrantTypes(Collections.singletonList("implicit"));
@@ -152,7 +157,8 @@ public class ClientServiceTest {
 
     @Test
     public void update_defaultGrant_ok() {
-        when(applicationService.update(any(Application.class))).thenReturn(Single.just(new Application()));
+        when(applicationService.update(any(Application.class)))
+                .thenReturn(Single.just(new Application()));
 
         Client toUpdate = new Client();
         toUpdate.setDomain(DOMAIN);
@@ -168,7 +174,8 @@ public class ClientServiceTest {
 
     @Test
     public void update_clientCredentials_ok() {
-        when(applicationService.update(any(Application.class))).thenReturn(Single.just(new Application()));
+        when(applicationService.update(any(Application.class)))
+                .thenReturn(Single.just(new Application()));
 
         Client toUpdate = new Client();
         toUpdate.setDomain(DOMAIN);
@@ -215,7 +222,8 @@ public class ClientServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(applicationService.delete("my-client", null)).thenReturn(Completable.error(TechnicalManagementException::new));
+        when(applicationService.delete("my-client", null))
+                .thenReturn(Completable.error(TechnicalManagementException::new));
 
         TestObserver testObserver = clientService.delete("my-client").test();
         testObserver.awaitTerminalEvent();
@@ -226,7 +234,8 @@ public class ClientServiceTest {
 
     @Test
     public void shouldDelete_clientNotFound() {
-        when(applicationService.delete("my-client", null)).thenReturn(Completable.error(new ClientNotFoundException("my-client")));
+        when(applicationService.delete("my-client", null))
+                .thenReturn(Completable.error(new ClientNotFoundException("my-client")));
 
         TestObserver testObserver = clientService.delete("my-client").test();
         testObserver.awaitTerminalEvent();
@@ -242,7 +251,8 @@ public class ClientServiceTest {
         Application client = new Application();
         client.setDomain(DOMAIN);
 
-        when(applicationService.renewClientSecret(DOMAIN, "my-client", null)).thenReturn(Single.just(new Application()));
+        when(applicationService.renewClientSecret(DOMAIN, "my-client", null))
+                .thenReturn(Single.just(new Application()));
 
         TestObserver testObserver = clientService.renewClientSecret(DOMAIN, "my-client").test();
         testObserver.awaitTerminalEvent();
@@ -255,7 +265,8 @@ public class ClientServiceTest {
 
     @Test
     public void shouldRenewSecret_clientNotFound() {
-        when(applicationService.renewClientSecret(DOMAIN, "my-client", null)).thenReturn(Single.error(new ClientNotFoundException("my-client")));
+        when(applicationService.renewClientSecret(DOMAIN, "my-client", null))
+                .thenReturn(Single.error(new ClientNotFoundException("my-client")));
 
         TestObserver testObserver = clientService.renewClientSecret(DOMAIN, "my-client").test();
         testObserver.awaitTerminalEvent();
@@ -268,7 +279,8 @@ public class ClientServiceTest {
 
     @Test
     public void shouldRenewSecret_technicalException() {
-        when(applicationService.renewClientSecret(DOMAIN, "my-client", null)).thenReturn(Single.error(TechnicalManagementException::new));
+        when(applicationService.renewClientSecret(DOMAIN, "my-client", null))
+                .thenReturn(Single.error(TechnicalManagementException::new));
 
         TestObserver testObserver = clientService.renewClientSecret(DOMAIN, "my-client").test();
         testObserver.awaitTerminalEvent();

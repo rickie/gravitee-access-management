@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.model.flow;
@@ -28,58 +26,32 @@ import java.util.List;
  */
 public class Flow {
 
-    /**
-     * Flow technical id
-     */
+    /** Flow technical id */
     private String id;
-    /**
-     * The type of reference the flow is attached to (for now, should be DOMAIN).
-     */
+    /** The type of reference the flow is attached to (for now, should be DOMAIN). */
     private ReferenceType referenceType;
-    /**
-     * The id of the reference the flow is attached to (for now, should be the domain id).
-     */
+    /** The id of the reference the flow is attached to (for now, should be the domain id). */
     private String referenceId;
-    /**
-     * The application id the flow is attached to (if flow is defined at application level).
-     */
+    /** The application id the flow is attached to (if flow is defined at application level). */
     private String application;
-    /**
-     * Flow name
-     */
+    /** Flow name */
     private String name;
-    /**
-     * execution order of the flow if multiple flows with the same 'type' exist
-     */
+    /** execution order of the flow if multiple flows with the same 'type' exist */
     private Integer order;
-    /**
-     * Flow pre steps
-     */
+    /** Flow pre steps */
     private List<Step> pre = new ArrayList<>();
-    /**
-     * Flow post steps
-     */
+    /** Flow post steps */
     private List<Step> post = new ArrayList<>();
-    /**
-     * Flow state
-     */
+    /** Flow state */
     private boolean enabled;
-    /**
-     * The type of flow
-     */
+    /** The type of flow */
     private Type type;
-    /**
-     * Condition attached to the Flow
-     */
+    /** Condition attached to the Flow */
     private String condition;
-    /**
-     * Flow created date
-     */
+    /** Flow created date */
     @ApiModelProperty(dataType = "java.lang.Long")
     private Date createdAt;
-    /**
-     * Flow updated date
-     */
+    /** Flow updated date */
     @ApiModelProperty(dataType = "java.lang.Long")
     private Date updatedAt;
 
@@ -91,8 +63,7 @@ public class Flow {
         this.order = order;
     }
 
-    public Flow() {
-    }
+    public Flow() {}
 
     public Flow(Flow other) {
         this.id = other.id;
@@ -208,11 +179,18 @@ public class Flow {
 
     @Override
     public String toString() {
-        return "{\"_class\":\"Flow\", " +
-                "\"id\":" + (id == null ? "null" : "\"" + id + "\"") + ", " +
-                "\"referenceType\":" + (referenceType == null ? "null" : referenceType) + ", " +
-                "\"referenceId\":" + (referenceId == null ? "null" : "\"" + referenceId + "\"") + ", " +
-                "\"name\":" + (name == null ? "null" : "\"" + name + "\"") +
-                "}";
+        return "{\"_class\":\"Flow\", "
+                + "\"id\":"
+                + (id == null ? "null" : "\"" + id + "\"")
+                + ", "
+                + "\"referenceType\":"
+                + (referenceType == null ? "null" : referenceType)
+                + ", "
+                + "\"referenceId\":"
+                + (referenceId == null ? "null" : "\"" + referenceId + "\"")
+                + ", "
+                + "\"name\":"
+                + (name == null ? "null" : "\"" + name + "\"")
+                + "}";
     }
 }

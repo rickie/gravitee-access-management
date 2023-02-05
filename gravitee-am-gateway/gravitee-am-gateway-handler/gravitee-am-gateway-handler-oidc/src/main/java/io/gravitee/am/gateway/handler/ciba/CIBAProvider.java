@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.ciba;
@@ -42,6 +40,7 @@ import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.ext.web.Router;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.handler.CorsHandler;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 
@@ -56,50 +55,35 @@ public class CIBAProvider extends AbstractService<ProtocolProvider> implements P
     public static final String AUTHENTICATION_ENDPOINT = "/authenticate";
     public static final String AUTHENTICATION_CALLBACK_ENDPOINT = "/authenticate/callback";
 
-    @Autowired
-    private Domain domain;
+    @Autowired private Domain domain;
 
-    @Autowired
-    private Router router;
+    @Autowired private Router router;
 
-    @Autowired
-    private Vertx vertx;
+    @Autowired private Vertx vertx;
 
-    @Autowired
-    private ClientSyncService clientSyncService;
+    @Autowired private ClientSyncService clientSyncService;
 
-    @Autowired
-    private ClientAssertionService clientAssertionService;
+    @Autowired private ClientAssertionService clientAssertionService;
 
-    @Autowired
-    private JWKService jwkService;
+    @Autowired private JWKService jwkService;
 
-    @Autowired
-    private JWSService jwsService;
+    @Autowired private JWSService jwsService;
 
-    @Autowired
-    private OpenIDDiscoveryService openIDDiscoveryService;
+    @Autowired private OpenIDDiscoveryService openIDDiscoveryService;
 
-    @Autowired
-    private RequestObjectService requestObjectService;
+    @Autowired private RequestObjectService requestObjectService;
 
-    @Autowired
-    private AuthenticationRequestService authService;
+    @Autowired private AuthenticationRequestService authService;
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
-    @Autowired
-    private Environment environment;
+    @Autowired private Environment environment;
 
-    @Autowired
-    private JWTService jwtService;
+    @Autowired private JWTService jwtService;
 
-    @Autowired
-    private CorsHandler corsHandler;
+    @Autowired private CorsHandler corsHandler;
 
-    @Autowired
-    private ScopeManager scopeManager;
+    @Autowired private ScopeManager scopeManager;
 
     @Override
     public String path() {
@@ -118,24 +102,41 @@ public class CIBAProvider extends AbstractService<ProtocolProvider> implements P
     private void initRouter() {
         final Router cibaRouter = Router.router(vertx);
 
-        final String certificateHeader = environment.getProperty(ConstantKeys.HTTP_SSL_CERTIFICATE_HEADER);
-        final Handler<RoutingContext> clientAuthHandler = ClientAuthHandler.create(clientSyncService, clientAssertionService, jwkService, domain, certificateHeader);
+        final String certificateHeader =
+                environment.getProperty(ConstantKeys.HTTP_SSL_CERTIFICATE_HEADER);
+        final Handler<RoutingContext> clientAuthHandler =
+                ClientAuthHandler.create(
+                        clientSyncService,
+                        clientAssertionService,
+                        jwkService,
+                        domain,
+                        certificateHeader);
 
-        cibaRouter.route(HttpMethod.OPTIONS, AUTHENTICATION_ENDPOINT)
-                .handler(corsHandler);
-        cibaRouter.route(HttpMethod.POST, AUTHENTICATION_ENDPOINT)
+        cibaRouter.route(HttpMethod.OPTIONS, AUTHENTICATION_ENDPOINT).handler(corsHandler);
+        cibaRouter
+                .route(HttpMethod.POST, AUTHENTICATION_ENDPOINT)
                 .handler(corsHandler)
                 .handler(clientAuthHandler)
-                .handler(new AuthorizationRequestParseProviderConfigurationHandler(this.openIDDiscoveryService))
-                .handler(new AuthenticationRequestParseRequestObjectHandler(this.requestObjectService, this.domain))
-                .handler(new AuthenticationRequestParametersHandler(domain, jwsService, jwkService, userService, scopeManager))
-                .handler(new AuthenticationRequestAcknowledgeHandler(authService, domain, jwtService));
+                .handler(
+                        new AuthorizationRequestParseProviderConfigurationHandler(
+                                this.openIDDiscoveryService))
+                .handler(
+                        new AuthenticationRequestParseRequestObjectHandler(
+                                this.requestObjectService, this.domain))
+                .handler(
+                        new AuthenticationRequestParametersHandler(
+                                domain, jwsService, jwkService, userService, scopeManager))
+                .handler(
+                        new AuthenticationRequestAcknowledgeHandler(
+                                authService, domain, jwtService));
 
-        // To process the callback content we perform authentication of the caller that must be registered as AM client.
-        // If a plugin need a non authenticate webhook, we should create another endpoint without clientAuthHandler.
-        cibaRouter.route(HttpMethod.OPTIONS, AUTHENTICATION_CALLBACK_ENDPOINT)
-                .handler(corsHandler);
-        cibaRouter.route(HttpMethod.POST, AUTHENTICATION_CALLBACK_ENDPOINT)
+        // To process the callback content we perform authentication of the caller that must be
+        // registered as AM client.
+        // If a plugin need a non authenticate webhook, we should create another endpoint without
+        // clientAuthHandler.
+        cibaRouter.route(HttpMethod.OPTIONS, AUTHENTICATION_CALLBACK_ENDPOINT).handler(corsHandler);
+        cibaRouter
+                .route(HttpMethod.POST, AUTHENTICATION_CALLBACK_ENDPOINT)
                 .handler(corsHandler)
                 .handler(clientAuthHandler)
                 .handler(new AuthenticationRequestCallbackHandler(authService));
@@ -148,7 +149,6 @@ public class CIBAProvider extends AbstractService<ProtocolProvider> implements P
     private void errorHandler(Router router) {
         router.route().failureHandler(new ExceptionHandler());
     }
-
 
     private boolean isCibaEnabled() {
         return domain.useCiba();

@@ -1,23 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.users.resources.consents;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.common.jwt.JWT;
-import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.common.utils.ConstantKeys;
+import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
 import io.gravitee.am.gateway.handler.common.vertx.web.auth.handler.OAuth2AuthHandler;
 import io.gravitee.am.gateway.handler.common.vertx.web.auth.provider.OAuth2AuthProvider;
@@ -32,6 +34,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
+
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,10 +44,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -52,20 +51,17 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class UserConsentsEndpointHandlerTest extends RxWebTestBase {
 
-    @Mock
-    private UserService userService;
+    @Mock private UserService userService;
 
-    @Mock
-    private ClientSyncService clientService;
+    @Mock private ClientSyncService clientService;
 
-    @Mock
-    private Domain domain;
+    @Mock private Domain domain;
 
-    @Mock
-    private OAuth2AuthProvider oAuth2AuthProvider;
+    @Mock private OAuth2AuthProvider oAuth2AuthProvider;
 
     @InjectMocks
-    private UserConsentsEndpointHandler userConsentsEndpointHandler = new UserConsentsEndpointHandler(userService, clientService, domain);
+    private UserConsentsEndpointHandler userConsentsEndpointHandler =
+            new UserConsentsEndpointHandler(userService, clientService, domain);
 
     private OAuth2AuthHandler oAuth2AuthHandler = OAuth2AuthHandler.create(oAuth2AuthProvider);
 
@@ -84,7 +80,6 @@ public class UserConsentsEndpointHandlerTest extends RxWebTestBase {
         testRequest(
                 HttpMethod.GET, "/users/user-id/consents",
                 HttpStatusCode.UNAUTHORIZED_401, "Unauthorized");
-
     }
 
     // TODO : need to mock Async Handler of the oauth2AuthHandler
@@ -97,47 +92,56 @@ public class UserConsentsEndpointHandlerTest extends RxWebTestBase {
                 .failureHandler(new ErrorHandler());
 
         testRequest(
-                HttpMethod.GET, "/users/user-id/consents",
+                HttpMethod.GET,
+                "/users/user-id/consents",
                 req -> req.putHeader(HttpHeaders.AUTHORIZATION.toString(), "Bearer token"),
                 401,
-                "Unauthorized", null);
+                "Unauthorized",
+                null);
     }
 
     @Test
     public void shouldListConsents() throws Exception {
-        when(userService.consents(anyString())).thenReturn(Single.just(Collections.singleton(new ScopeApproval())));
+        when(userService.consents(anyString()))
+                .thenReturn(Single.just(Collections.singleton(new ScopeApproval())));
 
         router.route("/users/:userId/consents")
                 .handler(userConsentsEndpointHandler::list)
                 .failureHandler(new ErrorHandler());
 
         testRequest(
-                HttpMethod.GET, "/users/user-id/consents",
+                HttpMethod.GET,
+                "/users/user-id/consents",
                 req -> req.putHeader(HttpHeaders.AUTHORIZATION.toString(), "Bearer token"),
                 200,
-                "OK", null);
-
+                "OK",
+                null);
     }
 
     @Test
     public void shouldRevokeConsents() throws Exception {
-        when(userService.findById(anyString())).thenReturn(Maybe.just(new io.gravitee.am.model.User()));
-        when(userService.revokeConsents(anyString(), any(User.class))).thenReturn(Completable.complete());
+        when(userService.findById(anyString()))
+                .thenReturn(Maybe.just(new io.gravitee.am.model.User()));
+        when(userService.revokeConsents(anyString(), any(User.class)))
+                .thenReturn(Completable.complete());
 
         router.route("/users/:userId/consents")
-                .handler(rc -> {
-                    JWT token = new JWT();
-                    token.setSub("sub");
-                    rc.put(ConstantKeys.TOKEN_CONTEXT_KEY, token);
-                    rc.next();
-                })
+                .handler(
+                        rc -> {
+                            JWT token = new JWT();
+                            token.setSub("sub");
+                            rc.put(ConstantKeys.TOKEN_CONTEXT_KEY, token);
+                            rc.next();
+                        })
                 .handler(userConsentsEndpointHandler::revoke)
                 .failureHandler(new ErrorHandler());
 
         testRequest(
-                HttpMethod.DELETE, "/users/user-id/consents",
+                HttpMethod.DELETE,
+                "/users/user-id/consents",
                 req -> req.putHeader(HttpHeaders.AUTHORIZATION.toString(), "Bearer token"),
                 204,
-                "No Content", null);
+                "No Content",
+                null);
     }
 }

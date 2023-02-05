@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.root.resources.handler.webauthn;
@@ -37,7 +35,8 @@ public class WebAuthnRememberDeviceHandler implements Handler<RoutingContext> {
     private final WebAuthnCookieService webAuthnCookieService;
     private final Domain domain;
 
-    public WebAuthnRememberDeviceHandler(WebAuthnCookieService webAuthnCookieService, Domain domain) {
+    public WebAuthnRememberDeviceHandler(
+            WebAuthnCookieService webAuthnCookieService, Domain domain) {
         this.webAuthnCookieService = webAuthnCookieService;
         this.domain = domain;
     }
@@ -46,10 +45,10 @@ public class WebAuthnRememberDeviceHandler implements Handler<RoutingContext> {
     public void handle(RoutingContext routingContext) {
         // only apply this handler for HTML responses
         // see https://github.com/gravitee-io/issues/issues/7158
-        if (MediaType.APPLICATION_JSON.equals(routingContext.request().getHeader(HttpHeaders.CONTENT_TYPE))) {
+        if (MediaType.APPLICATION_JSON.equals(
+                routingContext.request().getHeader(HttpHeaders.CONTENT_TYPE))) {
             routingContext.next();
             return;
-
         }
 
         // if webauthn remember device is disabled, continue
@@ -69,17 +68,30 @@ public class WebAuthnRememberDeviceHandler implements Handler<RoutingContext> {
             return;
         }
 
-        final io.gravitee.am.model.User endUser = ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User) user.getDelegate()).getUser();;
-        webAuthnCookieService.generateRememberDeviceCookieValue(endUser)
-                .map(cookieValue -> {
-                    Cookie cookie = Cookie.cookie(webAuthnCookieService.getRememberDeviceCookieName(), cookieValue);
-                    // persist the cookie
-                    cookie.setMaxAge(TimeUnit.MILLISECONDS.toSeconds(webAuthnCookieService.getRememberDeviceCookieTimeout()));
-                    return cookie;
-                })
-                .subscribe(cookie -> {
-                    routingContext.response().addCookie(cookie);
-                    routingContext.next();
-                });
+        final io.gravitee.am.model.User endUser =
+                ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
+                                user.getDelegate())
+                        .getUser();
+        ;
+        webAuthnCookieService
+                .generateRememberDeviceCookieValue(endUser)
+                .map(
+                        cookieValue -> {
+                            Cookie cookie =
+                                    Cookie.cookie(
+                                            webAuthnCookieService.getRememberDeviceCookieName(),
+                                            cookieValue);
+                            // persist the cookie
+                            cookie.setMaxAge(
+                                    TimeUnit.MILLISECONDS.toSeconds(
+                                            webAuthnCookieService
+                                                    .getRememberDeviceCookieTimeout()));
+                            return cookie;
+                        })
+                .subscribe(
+                        cookie -> {
+                            routingContext.response().addCookie(cookie);
+                            routingContext.next();
+                        });
     }
 }

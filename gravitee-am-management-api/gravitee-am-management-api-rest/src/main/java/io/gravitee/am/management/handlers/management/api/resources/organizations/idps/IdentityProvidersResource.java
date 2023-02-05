@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.idps;
@@ -27,7 +25,10 @@ import io.gravitee.am.service.model.NewIdentityProvider;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Maybe;
 import io.swagger.annotations.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.net.URI;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -37,7 +38,6 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.net.URI;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -46,67 +46,106 @@ import java.net.URI;
 @Api(tags = {"identity provider"})
 public class IdentityProvidersResource extends AbstractResource {
 
-    @Context
-    private ResourceContext resourceContext;
+    @Context private ResourceContext resourceContext;
 
-    @Autowired
-    private IdentityProviderServiceProxy identityProviderService;
+    @Autowired private IdentityProviderServiceProxy identityProviderService;
 
-    @Autowired
-    private IdentityProviderManager identityProviderManager;
+    @Autowired private IdentityProviderManager identityProviderManager;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "List registered identity providers of the organization",
-            notes = "User must have the ORGANIZATION_IDENTITY_PROVIDER[LIST] permission on the specified organization. " +
-                    "Each returned identity provider is filtered and contains only basic information such as id, name, type and isExternal.")
+    @ApiOperation(
+            value = "List registered identity providers of the organization",
+            notes =
+                    "User must have the ORGANIZATION_IDENTITY_PROVIDER[LIST] permission on the specified organization. "
+                            + "Each returned identity provider is filtered and contains only basic information such as id, name, type and isExternal.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "List registered identity providers of the organization", response = IdentityProvider.class, responseContainer = "Set"),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(
+                code = 200,
+                message = "List registered identity providers of the organization",
+                response = IdentityProvider.class,
+                responseContainer = "Set"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void list(
             @PathParam("organizationId") String organizationId,
             @QueryParam("userProvider") boolean userProvider,
             @Suspended final AsyncResponse response) {
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_IDENTITY_PROVIDER, Acl.LIST)
-                .andThen(identityProviderService.findAll(ReferenceType.ORGANIZATION, organizationId)
-                        .flatMapMaybe(identityProvider -> {
-                            if (userProvider) {
-                                // if userProvider, we only want to manage IDP with a UserProvider
-                                // as UserProvider may be disabled by configuration we have to check the existence of the instance
-                                return identityProviderManager.getUserProvider(identityProvider.getId())
-                                        .map(ignorable -> identityProvider);
-                            } else {
-                                return Maybe.just(identityProvider);
-                            }
-                        })
-                        .map(this::filterIdentityProviderInfos)
-                        .sorted((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName()))
-                        .toList())
+        checkPermission(
+                        ReferenceType.ORGANIZATION,
+                        organizationId,
+                        Permission.ORGANIZATION_IDENTITY_PROVIDER,
+                        Acl.LIST)
+                .andThen(
+                        identityProviderService
+                                .findAll(ReferenceType.ORGANIZATION, organizationId)
+                                .flatMapMaybe(
+                                        identityProvider -> {
+                                            if (userProvider) {
+                                                // if userProvider, we only want to manage IDP with
+                                                // a UserProvider
+                                                // as UserProvider may be disabled by configuration
+                                                // we have to check the existence of the instance
+                                                return identityProviderManager
+                                                        .getUserProvider(identityProvider.getId())
+                                                        .map(ignorable -> identityProvider);
+                                            } else {
+                                                return Maybe.just(identityProvider);
+                                            }
+                                        })
+                                .map(this::filterIdentityProviderInfos)
+                                .sorted(
+                                        (o1, o2) ->
+                                                String.CASE_INSENSITIVE_ORDER.compare(
+                                                        o1.getName(), o2.getName()))
+                                .toList())
                 .subscribe(response::resume, response::resume);
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Create an identity provider for the organization",
-            notes = "User must have the ORGANIZATION_IDENTITY_PROVIDER[CREATE] permission on the specified organization")
+    @ApiOperation(
+            value = "Create an identity provider for the organization",
+            notes =
+                    "User must have the ORGANIZATION_IDENTITY_PROVIDER[CREATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 201, message = "Identity provider successfully created"),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 201, message = "Identity provider successfully created"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void create(
             @PathParam("organizationId") String organizationId,
-            @ApiParam(name = "identity", required = true) @Valid @NotNull final NewIdentityProvider newIdentityProvider,
+            @ApiParam(name = "identity", required = true) @Valid @NotNull
+                    final NewIdentityProvider newIdentityProvider,
             @Suspended final AsyncResponse response) {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_IDENTITY_PROVIDER, Acl.CREATE)
-                .andThen(identityProviderService.create(ReferenceType.ORGANIZATION, organizationId, newIdentityProvider, authenticatedUser, false)
-                        .map(identityProvider -> Response
-                                .created(URI.create("/organizations/" + organizationId + "/identities/" + identityProvider.getId()))
-                                .entity(identityProvider)
-                                .build()))
+        checkPermission(
+                        ReferenceType.ORGANIZATION,
+                        organizationId,
+                        Permission.ORGANIZATION_IDENTITY_PROVIDER,
+                        Acl.CREATE)
+                .andThen(
+                        identityProviderService
+                                .create(
+                                        ReferenceType.ORGANIZATION,
+                                        organizationId,
+                                        newIdentityProvider,
+                                        authenticatedUser,
+                                        false)
+                                .map(
+                                        identityProvider ->
+                                                Response.created(
+                                                                URI.create(
+                                                                        "/organizations/"
+                                                                                + organizationId
+                                                                                + "/identities/"
+                                                                                + identityProvider
+                                                                                        .getId()))
+                                                        .entity(identityProvider)
+                                                        .build()))
                 .subscribe(response::resume, response::resume);
     }
 

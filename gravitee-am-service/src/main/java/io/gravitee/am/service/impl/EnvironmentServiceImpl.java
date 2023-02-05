@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.impl;
@@ -30,6 +28,7 @@ import io.gravitee.am.service.reporter.builder.management.EnvironmentAuditBuilde
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
@@ -53,9 +52,10 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
     private final AuditService auditService;
 
-    public EnvironmentServiceImpl(@Lazy EnvironmentRepository environmentRepository,
-                                  OrganizationService organizationService,
-                                  AuditService auditService) {
+    public EnvironmentServiceImpl(
+            @Lazy EnvironmentRepository environmentRepository,
+            OrganizationService organizationService,
+            AuditService auditService) {
         this.environmentRepository = environmentRepository;
         this.organizationService = organizationService;
         this.auditService = auditService;
@@ -64,14 +64,16 @@ public class EnvironmentServiceImpl implements EnvironmentService {
     @Override
     public Single<Environment> findById(String id, String organizationId) {
         LOGGER.debug("Find environment by id: {}", id);
-        return environmentRepository.findById(id, organizationId)
+        return environmentRepository
+                .findById(id, organizationId)
                 .switchIfEmpty(Single.error(new EnvironmentNotFoundException(id)));
     }
 
     @Override
     public Single<Environment> findById(String id) {
         LOGGER.debug("Find environment by id: {}", id);
-        return environmentRepository.findById(id)
+        return environmentRepository
+                .findById(id)
                 .switchIfEmpty(Single.error(new EnvironmentNotFoundException(id)));
     }
 
@@ -94,35 +96,59 @@ public class EnvironmentServiceImpl implements EnvironmentService {
         environment.setDomainRestrictions(Collections.emptyList());
 
         // No need to create default organization of one or more organizations already exist.
-        return environmentRepository.count()
+        return environmentRepository
+                .count()
                 .filter(aLong -> aLong == 0)
                 .flatMap(aLong -> createInternal(environment, null).toMaybe());
     }
 
     @Override
-    public Single<Environment> createOrUpdate(String organizationId, String environmentId, NewEnvironment newEnvironment, User byUser) {
+    public Single<Environment> createOrUpdate(
+            String organizationId,
+            String environmentId,
+            NewEnvironment newEnvironment,
+            User byUser) {
 
-        return environmentRepository.findById(environmentId, organizationId)
-                .flatMap(environment -> {
-                    environment.setName(newEnvironment.getName());
-                    environment.setDescription(newEnvironment.getDescription());
-                    environment.setDomainRestrictions(newEnvironment.getDomainRestrictions());
-                    environment.setHrids(newEnvironment.getHrids());
+        return environmentRepository
+                .findById(environmentId, organizationId)
+                .flatMap(
+                        environment -> {
+                            environment.setName(newEnvironment.getName());
+                            environment.setDescription(newEnvironment.getDescription());
+                            environment.setDomainRestrictions(
+                                    newEnvironment.getDomainRestrictions());
+                            environment.setHrids(newEnvironment.getHrids());
 
-                    return updateInternal(environment, byUser).toMaybe();
-                })
-                .switchIfEmpty(Single.defer(() -> organizationService.findById(organizationId)
-                        .map(organization -> {
-                            Environment toCreate = new Environment();
-                            toCreate.setId(environmentId);
-                            toCreate.setHrids(newEnvironment.getHrids());
-                            toCreate.setName(newEnvironment.getName());
-                            toCreate.setDescription(newEnvironment.getDescription());
-                            toCreate.setOrganizationId(organization.getId());
-                            toCreate.setDomainRestrictions(newEnvironment.getDomainRestrictions());
+                            return updateInternal(environment, byUser).toMaybe();
+                        })
+                .switchIfEmpty(
+                        Single.defer(
+                                () ->
+                                        organizationService
+                                                .findById(organizationId)
+                                                .map(
+                                                        organization -> {
+                                                            Environment toCreate =
+                                                                    new Environment();
+                                                            toCreate.setId(environmentId);
+                                                            toCreate.setHrids(
+                                                                    newEnvironment.getHrids());
+                                                            toCreate.setName(
+                                                                    newEnvironment.getName());
+                                                            toCreate.setDescription(
+                                                                    newEnvironment
+                                                                            .getDescription());
+                                                            toCreate.setOrganizationId(
+                                                                    organization.getId());
+                                                            toCreate.setDomainRestrictions(
+                                                                    newEnvironment
+                                                                            .getDomainRestrictions());
 
-                            return toCreate;
-                        }).flatMap(toCreate -> createInternal(toCreate, byUser))));
+                                                            return toCreate;
+                                                        })
+                                                .flatMap(
+                                                        toCreate ->
+                                                                createInternal(toCreate, byUser))));
     }
 
     private Single<Environment> createInternal(Environment toCreate, User createdBy) {
@@ -132,17 +158,46 @@ public class EnvironmentServiceImpl implements EnvironmentService {
         toCreate.setCreatedAt(now);
         toCreate.setUpdatedAt(now);
 
-        return environmentRepository.create(toCreate)
-                .doOnSuccess(environment -> auditService.report(AuditBuilder.builder(EnvironmentAuditBuilder.class).type(EventType.ENVIRONMENT_CREATED).environment(environment).principal(createdBy)))
-                .doOnError(throwable -> auditService.report(AuditBuilder.builder(EnvironmentAuditBuilder.class).type(EventType.ENVIRONMENT_CREATED).environment(toCreate).principal(createdBy).throwable(throwable)));
+        return environmentRepository
+                .create(toCreate)
+                .doOnSuccess(
+                        environment ->
+                                auditService.report(
+                                        AuditBuilder.builder(EnvironmentAuditBuilder.class)
+                                                .type(EventType.ENVIRONMENT_CREATED)
+                                                .environment(environment)
+                                                .principal(createdBy)))
+                .doOnError(
+                        throwable ->
+                                auditService.report(
+                                        AuditBuilder.builder(EnvironmentAuditBuilder.class)
+                                                .type(EventType.ENVIRONMENT_CREATED)
+                                                .environment(toCreate)
+                                                .principal(createdBy)
+                                                .throwable(throwable)));
     }
 
     private Single<Environment> updateInternal(Environment toUpdate, User updatedBy) {
 
         toUpdate.setUpdatedAt(new Date());
 
-        return environmentRepository.update(toUpdate)
-                .doOnSuccess(updated -> auditService.report(AuditBuilder.builder(EnvironmentAuditBuilder.class).type(EventType.ENVIRONMENT_UPDATED).environment(updated).principal(updatedBy).oldValue(toUpdate)))
-                .doOnError(throwable -> auditService.report(AuditBuilder.builder(EnvironmentAuditBuilder.class).type(EventType.ENVIRONMENT_UPDATED).environment(toUpdate).principal(updatedBy).throwable(throwable)));
+        return environmentRepository
+                .update(toUpdate)
+                .doOnSuccess(
+                        updated ->
+                                auditService.report(
+                                        AuditBuilder.builder(EnvironmentAuditBuilder.class)
+                                                .type(EventType.ENVIRONMENT_UPDATED)
+                                                .environment(updated)
+                                                .principal(updatedBy)
+                                                .oldValue(toUpdate)))
+                .doOnError(
+                        throwable ->
+                                auditService.report(
+                                        AuditBuilder.builder(EnvironmentAuditBuilder.class)
+                                                .type(EventType.ENVIRONMENT_UPDATED)
+                                                .environment(toUpdate)
+                                                .principal(updatedBy)
+                                                .throwable(throwable)));
     }
 }

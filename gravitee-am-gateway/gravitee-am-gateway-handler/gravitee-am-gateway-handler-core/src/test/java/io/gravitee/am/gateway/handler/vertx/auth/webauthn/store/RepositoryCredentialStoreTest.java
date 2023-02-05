@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.vertx.auth.webauthn.store;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.jwt.JWTBuilder;
 import io.gravitee.am.model.Credential;
@@ -22,6 +23,7 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.service.CredentialService;
 import io.reactivex.Flowable;
 import io.vertx.ext.auth.webauthn.Authenticator;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,9 +32,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -44,14 +43,11 @@ public class RepositoryCredentialStoreTest {
     @InjectMocks
     private RepositoryCredentialStore repositoryCredentialStore = new RepositoryCredentialStore();
 
-    @Mock
-    private CredentialService credentialService;
+    @Mock private CredentialService credentialService;
 
-    @Mock
-    private JWTBuilder jwtBuilder;
+    @Mock private JWTBuilder jwtBuilder;
 
-    @Mock
-    private Domain domain;
+    @Mock private Domain domain;
 
     @Test
     public void shouldFetchAuthenticator_byUsername_emptyList() {
@@ -59,8 +55,11 @@ public class RepositoryCredentialStoreTest {
         query.setUserName("username");
 
         when(domain.getId()).thenReturn("domain-id");
-        when(credentialService.findByUsername(ReferenceType.DOMAIN, domain.getId(), query.getUserName())).thenReturn(Flowable.empty());
-        when(jwtBuilder.sign(any())).thenReturn("part1.part2.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
+        when(credentialService.findByUsername(
+                        ReferenceType.DOMAIN, domain.getId(), query.getUserName()))
+                .thenReturn(Flowable.empty());
+        when(jwtBuilder.sign(any()))
+                .thenReturn("part1.part2.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
 
         List<Authenticator> authenticators = repositoryCredentialStore.fetch(query).result();
         List<Authenticator> authenticators2 = repositoryCredentialStore.fetch(query).result();
@@ -69,7 +68,8 @@ public class RepositoryCredentialStoreTest {
         Assert.assertNotNull(authenticators2);
         Assert.assertTrue(!authenticators.isEmpty());
         Assert.assertTrue(!authenticators2.isEmpty());
-        Assert.assertTrue(authenticators.get(0).getCredID().equals(authenticators2.get(0).getCredID()));
+        Assert.assertTrue(
+                authenticators.get(0).getCredID().equals(authenticators2.get(0).getCredID()));
         verify(jwtBuilder, times(4)).sign(any());
     }
 
@@ -82,9 +82,15 @@ public class RepositoryCredentialStoreTest {
         query2.setUserName("username2");
 
         when(domain.getId()).thenReturn("domain-id");
-        when(credentialService.findByUsername(ReferenceType.DOMAIN, domain.getId(), query.getUserName())).thenReturn(Flowable.empty());
-        when(credentialService.findByUsername(ReferenceType.DOMAIN, domain.getId(), query2.getUserName())).thenReturn(Flowable.empty());
-        when(jwtBuilder.sign(any())).thenReturn("part1.part2.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c").thenReturn("part1.part2.-sVkXqTOhFeJwQXyH3WhuNJfAfnRkVM6llEu6k46iqY");
+        when(credentialService.findByUsername(
+                        ReferenceType.DOMAIN, domain.getId(), query.getUserName()))
+                .thenReturn(Flowable.empty());
+        when(credentialService.findByUsername(
+                        ReferenceType.DOMAIN, domain.getId(), query2.getUserName()))
+                .thenReturn(Flowable.empty());
+        when(jwtBuilder.sign(any()))
+                .thenReturn("part1.part2.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c")
+                .thenReturn("part1.part2.-sVkXqTOhFeJwQXyH3WhuNJfAfnRkVM6llEu6k46iqY");
 
         List<Authenticator> authenticators = repositoryCredentialStore.fetch(query).result();
         List<Authenticator> authenticators2 = repositoryCredentialStore.fetch(query2).result();
@@ -93,7 +99,8 @@ public class RepositoryCredentialStoreTest {
         Assert.assertNotNull(authenticators2);
         Assert.assertTrue(!authenticators.isEmpty());
         Assert.assertTrue(!authenticators2.isEmpty());
-        Assert.assertTrue(!authenticators.get(0).getCredID().equals(authenticators2.get(0).getCredID()));
+        Assert.assertTrue(
+                !authenticators.get(0).getCredID().equals(authenticators2.get(0).getCredID()));
         verify(jwtBuilder, times(4)).sign(any());
     }
 
@@ -107,7 +114,9 @@ public class RepositoryCredentialStoreTest {
         credential.setCredentialId("credID");
 
         when(domain.getId()).thenReturn("domain-id");
-        when(credentialService.findByUsername(ReferenceType.DOMAIN, domain.getId(), query.getUserName())).thenReturn(Flowable.just(credential));
+        when(credentialService.findByUsername(
+                        ReferenceType.DOMAIN, domain.getId(), query.getUserName()))
+                .thenReturn(Flowable.just(credential));
         List<Authenticator> authenticators = repositoryCredentialStore.fetch(query).result();
 
         Assert.assertNotNull(authenticators);

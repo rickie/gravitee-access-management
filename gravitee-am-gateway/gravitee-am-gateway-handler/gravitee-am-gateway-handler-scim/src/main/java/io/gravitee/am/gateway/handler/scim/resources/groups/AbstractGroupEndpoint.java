@@ -1,21 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.scim.resources.groups;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest;
 import io.gravitee.am.gateway.handler.scim.exception.InvalidSyntaxException;
 import io.gravitee.am.gateway.handler.scim.exception.InvalidValueException;
@@ -37,7 +36,8 @@ public class AbstractGroupEndpoint {
     protected GroupService groupService;
     protected ObjectMapper objectMapper;
 
-    public AbstractGroupEndpoint(GroupService groupService, ObjectMapper objectMapper, UserService userService) {
+    public AbstractGroupEndpoint(
+            GroupService groupService, ObjectMapper objectMapper, UserService userService) {
         this.groupService = groupService;
         this.objectMapper = objectMapper;
         this.userService = userService;
@@ -53,13 +53,16 @@ public class AbstractGroupEndpoint {
         }
         Set<String> schemaSet = new HashSet();
         // check duplicate and check if values are supported
-        schemas.forEach(schema -> {
-            if (!schemaSet.add(schema)) {
-                throw new InvalidSyntaxException("Duplicate 'schemas' values are forbidden");
-            }
-            if (!restrictedSchemas.contains(schema)) {
-                throw new InvalidSyntaxException("The 'schemas' attribute MUST only contain values defined as 'schema' and schemaExtensions' for the resource's defined User type");
-            }
-        });
+        schemas.forEach(
+                schema -> {
+                    if (!schemaSet.add(schema)) {
+                        throw new InvalidSyntaxException(
+                                "Duplicate 'schemas' values are forbidden");
+                    }
+                    if (!restrictedSchemas.contains(schema)) {
+                        throw new InvalidSyntaxException(
+                                "The 'schemas' attribute MUST only contain values defined as 'schema' and schemaExtensions' for the resource's defined User type");
+                    }
+                });
     }
 }

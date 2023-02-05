@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.handler;
@@ -28,6 +26,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.handler.HttpException;
 import io.vertx.reactivex.ext.web.RoutingContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +47,8 @@ public class ExceptionHandler implements Handler<RoutingContext> {
             Throwable throwable = routingContext.failure();
             if (throwable instanceof OAuth2Exception) {
                 OAuth2Exception oAuth2Exception = (OAuth2Exception) throwable;
-                OAuth2ErrorResponse oAuth2ErrorResponse = new OAuth2ErrorResponse(oAuth2Exception.getOAuth2ErrorCode());
+                OAuth2ErrorResponse oAuth2ErrorResponse =
+                        new OAuth2ErrorResponse(oAuth2Exception.getOAuth2ErrorCode());
                 oAuth2ErrorResponse.setDescription(oAuth2Exception.getMessage());
                 routingContext
                         .response()
@@ -59,11 +59,12 @@ public class ExceptionHandler implements Handler<RoutingContext> {
                         .end(Json.encodePrettily(oAuth2ErrorResponse));
             } else if (throwable instanceof UmaException) {
                 UmaException umaException = (UmaException) throwable;
-                UMAErrorResponse umaErrorResponse = new UMAErrorResponse(umaException.getError())
-                        .setTicket(umaException.getTicket())
-                        .setRedirectUser(umaException.getRedirectUser())
-                        .setInterval(umaException.getInterval())
-                        .setRequiredClaims(this.from(umaException));
+                UMAErrorResponse umaErrorResponse =
+                        new UMAErrorResponse(umaException.getError())
+                                .setTicket(umaException.getTicket())
+                                .setRedirectUser(umaException.getRedirectUser())
+                                .setInterval(umaException.getInterval())
+                                .setRequiredClaims(this.from(umaException));
                 routingContext
                         .response()
                         .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
@@ -73,7 +74,8 @@ public class ExceptionHandler implements Handler<RoutingContext> {
                         .end(Json.encodePrettily(umaErrorResponse));
             } else if (throwable instanceof PolicyChainException) {
                 PolicyChainException policyChainException = (PolicyChainException) throwable;
-                OAuth2ErrorResponse oAuth2ErrorResponse = new OAuth2ErrorResponse(policyChainException.key());
+                OAuth2ErrorResponse oAuth2ErrorResponse =
+                        new OAuth2ErrorResponse(policyChainException.key());
                 oAuth2ErrorResponse.setDescription(policyChainException.getMessage());
                 routingContext
                         .response()
@@ -90,10 +92,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
             } else {
                 logger.error("An exception occurs while handling incoming request", throwable);
                 if (routingContext.statusCode() != -1) {
-                    routingContext
-                            .response()
-                            .setStatusCode(routingContext.statusCode())
-                            .end();
+                    routingContext.response().setStatusCode(routingContext.statusCode()).end();
                 } else {
                     routingContext
                             .response()
@@ -105,8 +104,10 @@ public class ExceptionHandler implements Handler<RoutingContext> {
     }
 
     private List<UMARequiredClaimsError> from(UmaException umaException) {
-        if(umaException.getRequiredClaims()!=null) {
-            return umaException.getRequiredClaims().stream().map(UMARequiredClaimsError::from).collect(Collectors.toList());
+        if (umaException.getRequiredClaims() != null) {
+            return umaException.getRequiredClaims().stream()
+                    .map(UMARequiredClaimsError::from)
+                    .collect(Collectors.toList());
         }
         return null;
     }

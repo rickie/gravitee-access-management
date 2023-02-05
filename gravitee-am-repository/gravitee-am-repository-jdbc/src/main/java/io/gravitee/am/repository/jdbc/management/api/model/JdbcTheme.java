@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.management.api.model;
@@ -27,29 +25,40 @@ import java.time.LocalDateTime;
  */
 @Table("themes")
 public class JdbcTheme {
-    @Id
-    private String id;
+    @Id private String id;
+
     @Column("reference_id")
     private String referenceId;
+
     @Column("reference_type")
     private String referenceType;
+
     @Column("logo_url")
     private String logoUrl;
+
     @Column("logo_width")
     private int logoWidth;
+
     @Column("favicon_url")
     private String faviconUrl;
+
     @Column("primary_button_color")
     private String primaryButtonColorHex;
+
     @Column("secondary_button_color")
     private String secondaryButtonColorHex;
+
     @Column("primary_text_color")
     private String primaryTextColorHex;
+
     @Column("secondary_text_color")
     private String secondaryTextColorHex;
+
     private String css;
+
     @Column("created_at")
     private LocalDateTime createdAt;
+
     @Column("updated_at")
     private LocalDateTime updatedAt;
 

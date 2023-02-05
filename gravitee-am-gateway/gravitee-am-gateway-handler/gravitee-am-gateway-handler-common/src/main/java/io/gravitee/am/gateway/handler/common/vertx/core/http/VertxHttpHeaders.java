@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.vertx.core.http;
@@ -26,7 +24,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Implements {@link MultiValueMap <String,String>} for backward compatibility due to the changes to Headers in 3.15.
+ * Implements {@link MultiValueMap <String,String>} for backward compatibility due to the changes to
+ * Headers in 3.15.
+ *
  * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author GraviteeSource Team
  */
@@ -129,8 +129,9 @@ public class VertxHttpHeaders implements HttpHeaders, MultiValueMap<String, Stri
     }
 
     /**
-     * @see LinkedCaseInsensitiveMap#get(Object)
-     * Contrary to {@link DefaultHttpHeaders#get(CharSequence)}, the list of values is returned, not only the first element
+     * @see LinkedCaseInsensitiveMap#get(Object) Contrary to {@link
+     *     DefaultHttpHeaders#get(CharSequence)}, the list of values is returned, not only the first
+     *     element
      */
     @Override
     public List<String> get(Object key) {
@@ -139,13 +140,15 @@ public class VertxHttpHeaders implements HttpHeaders, MultiValueMap<String, Stri
     }
 
     /**
-     * @see HashMap#putVal(int, Object, Object, boolean, boolean), returns the previous value if present, else null.
+     * @see HashMap#putVal(int, Object, Object, boolean, boolean), returns the previous value if
+     *     present, else null.
      */
     @Override
     public List<String> put(String key, List<String> value) {
         final List<String> previousValues = headers.getAll(key);
         for (int i = 0; i < value.size(); i++) {
-            // For the first element, we need to use set to override previous value, then we use add to add new ones.
+            // For the first element, we need to use set to override previous value, then we use add
+            // to add new ones.
             if (i == 0) {
                 headers.set(key, value.get(i));
             } else {
@@ -156,7 +159,8 @@ public class VertxHttpHeaders implements HttpHeaders, MultiValueMap<String, Stri
     }
 
     /**
-     * @see HashMap#remove(Object), returns the previous value (can bee {@code null}) associated with {@code key} or null if none.
+     * @see HashMap#remove(Object), returns the previous value (can bee {@code null}) associated
+     *     with {@code key} or null if none.
      */
     @Override
     public List<String> remove(Object key) {
@@ -169,10 +173,9 @@ public class VertxHttpHeaders implements HttpHeaders, MultiValueMap<String, Stri
     public void putAll(Map<? extends String, ? extends List<String>> map) {
         final MultiMap multimap = HeadersMultiMap.headers();
 
-        // Flatten the Map<String, List<String>> to be able to add each entry one by one to a new Multimap object
-        map
-                .entrySet()
-                .stream()
+        // Flatten the Map<String, List<String>> to be able to add each entry one by one to a new
+        // Multimap object
+        map.entrySet().stream()
                 .flatMap(entry -> entry.getValue().stream().map(v -> Map.entry(entry.getKey(), v)))
                 .forEach(entry -> multimap.add(entry.getKey(), entry.getValue()));
 
@@ -186,9 +189,7 @@ public class VertxHttpHeaders implements HttpHeaders, MultiValueMap<String, Stri
 
     @Override
     public Collection<List<String>> values() {
-        return headers
-                .entries()
-                .stream()
+        return headers.entries().stream()
                 .collect(Collectors.groupingBy(Entry::getKey))
                 .values()
                 .stream()
@@ -198,13 +199,17 @@ public class VertxHttpHeaders implements HttpHeaders, MultiValueMap<String, Stri
 
     @Override
     public Set<Entry<String, List<String>>> entrySet() {
-        return headers
-                .entries()
-                .stream()
+        return headers.entries().stream()
                 .collect(Collectors.groupingBy(Entry::getKey))
                 .entrySet()
                 .stream()
-                .map(entry -> Map.entry(entry.getKey(), entry.getValue().stream().map(Entry::getValue).collect(Collectors.toList())))
+                .map(
+                        entry ->
+                                Map.entry(
+                                        entry.getKey(),
+                                        entry.getValue().stream()
+                                                .map(Entry::getValue)
+                                                .collect(Collectors.toList())))
                 .collect(Collectors.toSet());
     }
 
@@ -230,4 +235,3 @@ public class VertxHttpHeaders implements HttpHeaders, MultiValueMap<String, Stri
         }
     }
 }
-

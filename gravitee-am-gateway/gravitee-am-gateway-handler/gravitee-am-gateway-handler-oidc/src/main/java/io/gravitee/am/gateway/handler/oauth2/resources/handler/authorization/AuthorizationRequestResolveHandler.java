@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization;
+
+import static io.gravitee.am.common.utils.ConstantKeys.AUTHORIZATION_REQUEST_CONTEXT_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
 
 import io.gravitee.am.gateway.handler.oauth2.resources.request.AuthorizationRequestFactory;
 import io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest;
@@ -26,16 +27,14 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.ext.web.RoutingContext;
 
-import static io.gravitee.am.common.utils.ConstantKeys.AUTHORIZATION_REQUEST_CONTEXT_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class AuthorizationRequestResolveHandler implements Handler<RoutingContext> {
 
-    private final AuthorizationRequestFactory authorizationRequestFactory = new AuthorizationRequestFactory();
+    private final AuthorizationRequestFactory authorizationRequestFactory =
+            new AuthorizationRequestFactory();
     private final AuthorizationRequestResolver authorizationRequestResolver;
 
     public AuthorizationRequestResolveHandler(ScopeManager scopeManager) {
@@ -49,34 +48,49 @@ public class AuthorizationRequestResolveHandler implements Handler<RoutingContex
         final Client client = routingContext.get(CLIENT_CONTEXT_KEY);
 
         // get user
-        final io.gravitee.am.model.User endUser = routingContext.user() != null ?
-                ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User) routingContext.user().getDelegate()).getUser() : null;
+        final io.gravitee.am.model.User endUser =
+                routingContext.user() != null
+                        ? ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
+                                        routingContext.user().getDelegate())
+                                .getUser()
+                        : null;
 
         // create authorization request
-        final AuthorizationRequest authorizationRequest = resolveInitialAuthorizeRequest(routingContext);
+        final AuthorizationRequest authorizationRequest =
+                resolveInitialAuthorizeRequest(routingContext);
 
         // compute authorization request
-        computeAuthorizationRequest(authorizationRequest, client, endUser, h -> {
-            if (h.failed()) {
-                routingContext.fail(h.cause());
-                return;
-            }
-            // prepare context for the next handlers
-            routingContext.put(AUTHORIZATION_REQUEST_CONTEXT_KEY, authorizationRequest);
-            // continue
-            routingContext.next();
-        });
+        computeAuthorizationRequest(
+                authorizationRequest,
+                client,
+                endUser,
+                h -> {
+                    if (h.failed()) {
+                        routingContext.fail(h.cause());
+                        return;
+                    }
+                    // prepare context for the next handlers
+                    routingContext.put(AUTHORIZATION_REQUEST_CONTEXT_KEY, authorizationRequest);
+                    // continue
+                    routingContext.next();
+                });
     }
 
-    private void computeAuthorizationRequest(AuthorizationRequest authorizationRequest, Client client, User endUser, Handler<AsyncResult> handler) {
-        authorizationRequestResolver.resolve(authorizationRequest, client, endUser)
+    private void computeAuthorizationRequest(
+            AuthorizationRequest authorizationRequest,
+            Client client,
+            User endUser,
+            Handler<AsyncResult> handler) {
+        authorizationRequestResolver
+                .resolve(authorizationRequest, client, endUser)
                 .subscribe(
                         __ -> handler.handle(Future.succeededFuture()),
                         error -> handler.handle(Future.failedFuture(error)));
     }
 
     private AuthorizationRequest resolveInitialAuthorizeRequest(RoutingContext routingContext) {
-        AuthorizationRequest authorizationRequest = routingContext.get(AUTHORIZATION_REQUEST_CONTEXT_KEY);
+        AuthorizationRequest authorizationRequest =
+                routingContext.get(AUTHORIZATION_REQUEST_CONTEXT_KEY);
         // we have the authorization request in session if we come from the approval user page
         if (authorizationRequest != null) {
             return authorizationRequest;

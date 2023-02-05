@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.ciba.resources.handler;
+
+import static io.gravitee.am.common.utils.ConstantKeys.*;
 
 import io.gravitee.am.authdevice.notifier.api.model.ADNotificationRequest;
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
@@ -33,6 +33,7 @@ import io.gravitee.common.http.MediaType;
 import io.vertx.core.Handler;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -40,14 +41,13 @@ import org.springframework.util.CollectionUtils;
 import java.time.Instant;
 import java.util.List;
 
-import static io.gravitee.am.common.utils.ConstantKeys.*;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class AuthenticationRequestAcknowledgeHandler implements Handler<RoutingContext> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationRequestAcknowledgeHandler.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(AuthenticationRequestAcknowledgeHandler.class);
 
     private AuthenticationRequestService authRequestService;
 
@@ -55,7 +55,8 @@ public class AuthenticationRequestAcknowledgeHandler implements Handler<RoutingC
 
     private JWTService jwtService;
 
-    public AuthenticationRequestAcknowledgeHandler(AuthenticationRequestService authRequestService, Domain domain, JWTService jwtService) {
+    public AuthenticationRequestAcknowledgeHandler(
+            AuthenticationRequestService authRequestService, Domain domain, JWTService jwtService) {
         this.authRequestService = authRequestService;
         this.domain = domain;
         this.jwtService = jwtService;
@@ -67,10 +68,13 @@ public class AuthenticationRequestAcknowledgeHandler implements Handler<RoutingC
         if (authRequest != null) {
             final Client client = context.get(CLIENT_CONTEXT_KEY);
 
-            final List<CIBASettingNotifier> deviceNotifiers = this.domain.getOidc().getCibaSettings().getDeviceNotifiers();
+            final List<CIBASettingNotifier> deviceNotifiers =
+                    this.domain.getOidc().getCibaSettings().getDeviceNotifiers();
             if (CollectionUtils.isEmpty(deviceNotifiers)) {
-                LOGGER.warn("CIBA Authentication Request can't be processed without device notifier configured");
-                context.fail(new InvalidRequestException("No Device notifier configure for the domain"));
+                LOGGER.warn(
+                        "CIBA Authentication Request can't be processed without device notifier configured");
+                context.fail(
+                        new InvalidRequestException("No Device notifier configure for the domain"));
                 return;
             }
 
@@ -86,7 +90,10 @@ public class AuthenticationRequestAcknowledgeHandler implements Handler<RoutingC
 
             LOGGER.debug("CIBA Authentication Request linked to auth_req_id '{}'", authRequest);
 
-            final int expiresIn = authRequest.getRequestedExpiry() != null ? authRequest.getRequestedExpiry() : domain.getOidc().getCibaSettings().getAuthReqExpiry();
+            final int expiresIn =
+                    authRequest.getRequestedExpiry() != null
+                            ? authRequest.getRequestedExpiry()
+                            : domain.getOidc().getCibaSettings().getAuthReqExpiry();
             final String externalTrxId = SecureRandomString.generate();
 
             // Forge a state token to validate the callback response
@@ -98,51 +105,82 @@ public class AuthenticationRequestAcknowledgeHandler implements Handler<RoutingC
             jwt.setAud(client.getClientId());
             jwt.setSub(authRequest.getSubject());
             jwt.setJti(externalTrxId);
-            this.jwtService.encode(jwt, client)
-                    .flatMap(stateJwt ->
-                            this.authRequestService.register(authRequest, client)
-                                    .flatMap(req -> {
+            this.jwtService
+                    .encode(jwt, client)
+                    .flatMap(
+                            stateJwt ->
+                                    this.authRequestService
+                                            .register(authRequest, client)
+                                            .flatMap(
+                                                    req -> {
+                                                        final ADNotificationRequest adRequest =
+                                                                new ADNotificationRequest();
+                                                        adRequest.setExpiresIn(expiresIn);
+                                                        adRequest.setAcrValues(
+                                                                authRequest.getAcrValues());
+                                                        adRequest.setMessage(
+                                                                authRequest.getBindingMessage());
+                                                        adRequest.setScopes(
+                                                                authRequest.getScopes());
+                                                        adRequest.setSubject(
+                                                                authRequest.getSubject());
+                                                        adRequest.setState(stateJwt);
+                                                        adRequest.setTransactionId(externalTrxId);
+                                                        adRequest.setDeviceNotifierId(
+                                                                authDeviceNotifierId);
 
-                                        final ADNotificationRequest adRequest = new ADNotificationRequest();
-                                        adRequest.setExpiresIn(expiresIn);
-                                        adRequest.setAcrValues(authRequest.getAcrValues());
-                                        adRequest.setMessage(authRequest.getBindingMessage());
-                                        adRequest.setScopes(authRequest.getScopes());
-                                        adRequest.setSubject(authRequest.getSubject());
-                                        adRequest.setState(stateJwt);
-                                        adRequest.setTransactionId(externalTrxId);
-                                        adRequest.setDeviceNotifierId(authDeviceNotifierId);
+                                                        return authRequestService
+                                                                .notify(adRequest)
+                                                                .flatMap(
+                                                                        adResponse -> {
+                                                                            req
+                                                                                    .setExternalInformation(
+                                                                                            adResponse
+                                                                                                    .getExtraData());
+                                                                            req.setExternalTrxId(
+                                                                                    adResponse
+                                                                                            .getTransactionId());
+                                                                            return authRequestService
+                                                                                    .updateAuthDeviceInformation(
+                                                                                            req);
+                                                                        });
+                                                    }))
+                    .subscribe(
+                            req -> {
+                                CibaAuthenticationResponse response =
+                                        new CibaAuthenticationResponse();
+                                response.setAuthReqId(req.getId());
+                                response.setExpiresIn(
+                                        req.getExpireAt()
+                                                .toInstant()
+                                                .minusMillis(req.getCreatedAt().getTime())
+                                                .getEpochSecond());
 
-                                        return authRequestService.notify(adRequest)
-                                                .flatMap(adResponse -> {
-                                                    req.setExternalInformation(adResponse.getExtraData());
-                                                    req.setExternalTrxId(adResponse.getTransactionId());
-                                                    return authRequestService.updateAuthDeviceInformation(req);
-                                                });
-                                    })
-                    ).subscribe(req -> {
+                                // specify rate limit for Poll and Ping mode
+                                if (client.getBackchannelTokenDeliveryMode() != null
+                                        && !client.getBackchannelTokenDeliveryMode()
+                                                .equals(CIBADeliveryMode.PUSH)) {
+                                    response.setInterval(
+                                            domain.getOidc()
+                                                    .getCibaSettings()
+                                                    .getTokenReqInterval());
+                                }
 
-                        CibaAuthenticationResponse response = new CibaAuthenticationResponse();
-                        response.setAuthReqId(req.getId());
-                        response.setExpiresIn(req.getExpireAt().toInstant().minusMillis(req.getCreatedAt().getTime()).getEpochSecond());
-
-                        // specify rate limit for Poll and Ping mode
-                        if (client.getBackchannelTokenDeliveryMode()!= null && !client.getBackchannelTokenDeliveryMode().equals(CIBADeliveryMode.PUSH)) {
-                            response.setInterval(domain.getOidc().getCibaSettings().getTokenReqInterval());
-                        }
-
-                        context
-                                .response()
-                                .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
-                                .putHeader(HttpHeaders.PRAGMA, "no-cache")
-                                .setStatusCode(HttpStatusCode.OK_200)
-                                .end(Json.encodePrettily(response));
-
-                    }, error -> {
-                        LOGGER.error("Unable to persist CIBA AuthenticationRequest object", error);
-                        context.fail(error);
-                    });
+                                context.response()
+                                        .putHeader(
+                                                HttpHeaders.CONTENT_TYPE,
+                                                MediaType.APPLICATION_JSON)
+                                        .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+                                        .putHeader(HttpHeaders.PRAGMA, "no-cache")
+                                        .setStatusCode(HttpStatusCode.OK_200)
+                                        .end(Json.encodePrettily(response));
+                            },
+                            error -> {
+                                LOGGER.error(
+                                        "Unable to persist CIBA AuthenticationRequest object",
+                                        error);
+                                context.fail(error);
+                            });
 
             return;
         } else {

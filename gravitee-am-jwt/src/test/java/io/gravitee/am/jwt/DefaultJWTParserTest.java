@@ -1,34 +1,38 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.jwt;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+
 import io.gravitee.am.common.exception.jwt.ExpiredJWTException;
 import io.gravitee.am.common.exception.jwt.MalformedJWTException;
 import io.gravitee.am.common.exception.jwt.PrematureJWTException;
 import io.gravitee.am.common.exception.jwt.SignatureException;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.jwt.SignatureAlgorithm;
+
 import org.junit.Test;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
@@ -39,9 +43,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Date;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -51,43 +53,37 @@ public class DefaultJWTParserTest {
 
     @Test
     public void shouldParse_ec() throws Exception {
-        ECKey ecKey = new ECKeyGenerator(Curve.P_256)
-                .keyID("123")
-                .generate();
+        ECKey ecKey = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         ECPrivateKey rsaPrivateKey = ecKey.toECPrivateKey();
         ECPublicKey rsaPublicKey = ecKey.toECPublicKey();
         String algorithm = SignatureAlgorithm.ES256.getValue();
-        JWTBuilder jwtBuilder  = new DefaultJWTBuilder(rsaPrivateKey, algorithm, ecKey.getKeyID());
+        JWTBuilder jwtBuilder = new DefaultJWTBuilder(rsaPrivateKey, algorithm, ecKey.getKeyID());
         JWTParser jwtParser = new DefaultJWTParser(rsaPublicKey);
         assertJwt(jwtBuilder, jwtParser, algorithm);
     }
 
     @Test
     public void shouldParse_rsa() throws Exception {
-        RSAKey rsaJWK = new RSAKeyGenerator(2048)
-                .keyID("123")
-                .generate();
+        RSAKey rsaJWK = new RSAKeyGenerator(2048).keyID("123").generate();
         RSAPrivateKey rsaPrivateKey = rsaJWK.toRSAPrivateKey();
         RSAPublicKey rsaPublicKey = rsaJWK.toRSAPublicKey();
         String algorithm = SignatureAlgorithm.RS256.getValue();
-        JWTBuilder jwtBuilder  = new DefaultJWTBuilder(rsaPrivateKey, algorithm, rsaJWK.getKeyID());
+        JWTBuilder jwtBuilder = new DefaultJWTBuilder(rsaPrivateKey, algorithm, rsaJWK.getKeyID());
         JWTParser jwtParser = new DefaultJWTParser(rsaPublicKey);
         assertJwt(jwtBuilder, jwtParser, algorithm);
     }
 
     @Test(expected = SignatureException.class)
     public void shouldNotParse_rsa_wrongSignature() throws Exception {
-        RSAKey rsaJWK = new RSAKeyGenerator(2048)
-                .keyID("123")
-                .generate();
+        RSAKey rsaJWK = new RSAKeyGenerator(2048).keyID("123").generate();
         RSAPrivateKey rsaPrivateKey = rsaJWK.toRSAPrivateKey();
 
-        RSAKey wrongRsaJWK = new RSAKeyGenerator(2048)
-                .keyID("456")
-                .generate();
+        RSAKey wrongRsaJWK = new RSAKeyGenerator(2048).keyID("456").generate();
         RSAPublicKey wrongRsaPublicKey = wrongRsaJWK.toRSAPublicKey();
 
-        JWTBuilder jwtBuilder  = new DefaultJWTBuilder(rsaPrivateKey, SignatureAlgorithm.RS256.getValue(), rsaJWK.getKeyID());
+        JWTBuilder jwtBuilder =
+                new DefaultJWTBuilder(
+                        rsaPrivateKey, SignatureAlgorithm.RS256.getValue(), rsaJWK.getKeyID());
         JWTParser jwtParser = new DefaultJWTParser(wrongRsaPublicKey);
 
         JWT jwt = new JWT();
@@ -102,12 +98,12 @@ public class DefaultJWTParserTest {
 
     @Test(expected = PrematureJWTException.class)
     public void shouldNotParse_rsa_prematureToken() throws Exception {
-        RSAKey rsaJWK = new RSAKeyGenerator(2048)
-                .keyID("123")
-                .generate();
+        RSAKey rsaJWK = new RSAKeyGenerator(2048).keyID("123").generate();
         RSAPrivateKey rsaPrivateKey = rsaJWK.toRSAPrivateKey();
         RSAPublicKey rsaPublicKey = rsaJWK.toRSAPublicKey();
-        JWTBuilder jwtBuilder  = new DefaultJWTBuilder(rsaPrivateKey, SignatureAlgorithm.RS256.getValue(), rsaJWK.getKeyID());
+        JWTBuilder jwtBuilder =
+                new DefaultJWTBuilder(
+                        rsaPrivateKey, SignatureAlgorithm.RS256.getValue(), rsaJWK.getKeyID());
         JWTParser jwtParser = new DefaultJWTParser(rsaPublicKey);
 
         JWT jwt = new JWT();
@@ -122,12 +118,12 @@ public class DefaultJWTParserTest {
 
     @Test(expected = ExpiredJWTException.class)
     public void shouldNotParse_rsa_expiredToken() throws Exception {
-        RSAKey rsaJWK = new RSAKeyGenerator(2048)
-                .keyID("123")
-                .generate();
+        RSAKey rsaJWK = new RSAKeyGenerator(2048).keyID("123").generate();
         RSAPrivateKey rsaPrivateKey = rsaJWK.toRSAPrivateKey();
         RSAPublicKey rsaPublicKey = rsaJWK.toRSAPublicKey();
-        JWTBuilder jwtBuilder  = new DefaultJWTBuilder(rsaPrivateKey, SignatureAlgorithm.RS256.getValue(), rsaJWK.getKeyID());
+        JWTBuilder jwtBuilder =
+                new DefaultJWTBuilder(
+                        rsaPrivateKey, SignatureAlgorithm.RS256.getValue(), rsaJWK.getKeyID());
         JWTParser jwtParser = new DefaultJWTParser(rsaPublicKey);
 
         JWT jwt = new JWT();
@@ -142,9 +138,7 @@ public class DefaultJWTParserTest {
 
     @Test(expected = MalformedJWTException.class)
     public void shouldNotParse_rsa_malformedToken() throws Exception {
-        RSAKey rsaJWK = new RSAKeyGenerator(2048)
-                .keyID("123")
-                .generate();
+        RSAKey rsaJWK = new RSAKeyGenerator(2048).keyID("123").generate();
         RSAPublicKey rsaPublicKey = rsaJWK.toRSAPublicKey();
         JWTParser jwtParser = new DefaultJWTParser(rsaPublicKey);
 
@@ -156,8 +150,10 @@ public class DefaultJWTParserTest {
         SecureRandom random = new SecureRandom();
         byte[] sharedSecret = new byte[32];
         random.nextBytes(sharedSecret);
-        SecretKeySpec secretKeySpec = new SecretKeySpec(sharedSecret, SignatureAlgorithm.HS256.getJcaName());
-        JWTBuilder jwtBuilder  = new DefaultJWTBuilder(secretKeySpec, SignatureAlgorithm.HS256.getValue(), "123");
+        SecretKeySpec secretKeySpec =
+                new SecretKeySpec(sharedSecret, SignatureAlgorithm.HS256.getJcaName());
+        JWTBuilder jwtBuilder =
+                new DefaultJWTBuilder(secretKeySpec, SignatureAlgorithm.HS256.getValue(), "123");
         JWTParser jwtParser = new DefaultJWTParser(secretKeySpec);
 
         JWT jwt = new JWT();
@@ -182,14 +178,17 @@ public class DefaultJWTParserTest {
         SecureRandom random = new SecureRandom();
         byte[] sharedSecret = new byte[32];
         random.nextBytes(sharedSecret);
-        SecretKeySpec secretKeySpec = new SecretKeySpec(sharedSecret, SignatureAlgorithm.HS256.getJcaName());
+        SecretKeySpec secretKeySpec =
+                new SecretKeySpec(sharedSecret, SignatureAlgorithm.HS256.getJcaName());
 
         SecureRandom wrongRandom = new SecureRandom();
         byte[] wrongSharedSecret = new byte[32];
         wrongRandom.nextBytes(wrongSharedSecret);
-        SecretKeySpec wrongSecretKeySpec = new SecretKeySpec(wrongSharedSecret, SignatureAlgorithm.HS256.getJcaName());
+        SecretKeySpec wrongSecretKeySpec =
+                new SecretKeySpec(wrongSharedSecret, SignatureAlgorithm.HS256.getJcaName());
 
-        JWTBuilder jwtBuilder  = new DefaultJWTBuilder(secretKeySpec, SignatureAlgorithm.HS256.getValue(), "123");
+        JWTBuilder jwtBuilder =
+                new DefaultJWTBuilder(secretKeySpec, SignatureAlgorithm.HS256.getValue(), "123");
         JWTParser jwtParser = new DefaultJWTParser(wrongSecretKeySpec);
 
         JWT jwt = new JWT();
@@ -207,8 +206,10 @@ public class DefaultJWTParserTest {
         SecureRandom random = new SecureRandom();
         byte[] sharedSecret = new byte[32];
         random.nextBytes(sharedSecret);
-        SecretKeySpec secretKeySpec = new SecretKeySpec(sharedSecret, SignatureAlgorithm.HS256.getJcaName());
-        JWTBuilder jwtBuilder  = new DefaultJWTBuilder(secretKeySpec, SignatureAlgorithm.HS256.getValue(), "123");
+        SecretKeySpec secretKeySpec =
+                new SecretKeySpec(sharedSecret, SignatureAlgorithm.HS256.getJcaName());
+        JWTBuilder jwtBuilder =
+                new DefaultJWTBuilder(secretKeySpec, SignatureAlgorithm.HS256.getValue(), "123");
         JWTParser jwtParser = new DefaultJWTParser(secretKeySpec);
 
         JWT jwt = new JWT();
@@ -226,8 +227,10 @@ public class DefaultJWTParserTest {
         SecureRandom random = new SecureRandom();
         byte[] sharedSecret = new byte[32];
         random.nextBytes(sharedSecret);
-        SecretKeySpec secretKeySpec = new SecretKeySpec(sharedSecret, SignatureAlgorithm.HS256.getJcaName());
-        JWTBuilder jwtBuilder  = new DefaultJWTBuilder(secretKeySpec, SignatureAlgorithm.HS256.getValue(), "123");
+        SecretKeySpec secretKeySpec =
+                new SecretKeySpec(sharedSecret, SignatureAlgorithm.HS256.getJcaName());
+        JWTBuilder jwtBuilder =
+                new DefaultJWTBuilder(secretKeySpec, SignatureAlgorithm.HS256.getValue(), "123");
         JWTParser jwtParser = new DefaultJWTParser(secretKeySpec);
 
         JWT jwt = new JWT();
@@ -245,7 +248,8 @@ public class DefaultJWTParserTest {
         SecureRandom random = new SecureRandom();
         byte[] sharedSecret = new byte[32];
         random.nextBytes(sharedSecret);
-        SecretKeySpec secretKeySpec = new SecretKeySpec(sharedSecret, SignatureAlgorithm.HS256.getJcaName());
+        SecretKeySpec secretKeySpec =
+                new SecretKeySpec(sharedSecret, SignatureAlgorithm.HS256.getJcaName());
         JWTParser jwtParser = new DefaultJWTParser(secretKeySpec);
 
         jwtParser.parse("malformed-token");
@@ -260,8 +264,10 @@ public class DefaultJWTParserTest {
         String signedJWT = jwtBuilder.sign(jwt);
 
         // check header
-        String actualHeader = new String(Base64.getDecoder().decode(signedJWT.split("\\.")[0]), UTF_8);
-        String expectedHeader = String.format("{\"kid\":\"123\",\"typ\":\"JWT\",\"alg\":\"%s\"}", algorithm);
+        String actualHeader =
+                new String(Base64.getDecoder().decode(signedJWT.split("\\.")[0]), UTF_8);
+        String expectedHeader =
+                String.format("{\"kid\":\"123\",\"typ\":\"JWT\",\"alg\":\"%s\"}", algorithm);
         assertEquals(expectedHeader, actualHeader);
 
         JWT parsedJWT = jwtParser.parse(signedJWT);

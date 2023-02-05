@@ -1,37 +1,36 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
+
+import static junit.framework.TestCase.*;
+
+import static java.util.UUID.randomUUID;
 
 import io.gravitee.am.model.PasswordHistory;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
 
-import static java.util.UUID.randomUUID;
-import static junit.framework.TestCase.*;
-
 @SuppressWarnings("ALL")
 public class PasswordHistoryRepositoryTest extends AbstractManagementTest {
     public static final String REF_ID = randomUUID().toString();
-    @Autowired
-    private PasswordHistoryRepository repository;
+    @Autowired private PasswordHistoryRepository repository;
 
     @Test
     public void shouldCreatePasswordHistory() {
@@ -74,12 +73,14 @@ public class PasswordHistoryRepositoryTest extends AbstractManagementTest {
             PasswordHistory history = buildPasswordHistory(userId, password + i);
             repository.create(history).blockingGet();
         }
-        var testObserver = repository.findUserHistory(ReferenceType.DOMAIN, REF_ID, userId).toList().test();
+        var testObserver =
+                repository.findUserHistory(ReferenceType.DOMAIN, REF_ID, userId).toList().test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        testObserver.assertValue(passwordHistories -> passwordHistories.stream().allMatch(p -> p.getUserId()
-                .equals(userId)));
+        testObserver.assertValue(
+                passwordHistories ->
+                        passwordHistories.stream().allMatch(p -> p.getUserId().equals(userId)));
     }
 
     @Test
@@ -124,7 +125,8 @@ public class PasswordHistoryRepositoryTest extends AbstractManagementTest {
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        var testSubscriber = repository.findUserHistory(ReferenceType.DOMAIN, REF_ID, userId).test();
+        var testSubscriber =
+                repository.findUserHistory(ReferenceType.DOMAIN, REF_ID, userId).test();
         testSubscriber.awaitTerminalEvent();
         testSubscriber.assertComplete();
         testSubscriber.assertNoErrors();
@@ -156,7 +158,8 @@ public class PasswordHistoryRepositoryTest extends AbstractManagementTest {
         return history;
     }
 
-    private void assertEqualsTo(PasswordHistory history, TestObserver<PasswordHistory> testObserver) {
+    private void assertEqualsTo(
+            PasswordHistory history, TestObserver<PasswordHistory> testObserver) {
         testObserver.assertValue(g -> g.getReferenceId().equals(history.getReferenceId()));
         testObserver.assertValue(g -> g.getReferenceType().equals(history.getReferenceType()));
         testObserver.assertValue(g -> g.getPassword().equals(history.getPassword()));

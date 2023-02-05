@@ -1,30 +1,30 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.authentication.web;
 
 import io.gravitee.common.http.HttpHeaders;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -32,12 +32,14 @@ import java.io.IOException;
  */
 public class XForwardedAwareRedirectStrategy implements RedirectStrategy {
 
-    private static final Logger logger = LoggerFactory.getLogger(XForwardedAwareRedirectStrategy.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(XForwardedAwareRedirectStrategy.class);
     private static final String X_FORWARDED_PREFIX = "X-Forwarded-Prefix";
     private boolean contextRelative;
 
     @Override
-    public void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url) throws IOException {
+    public void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
+            throws IOException {
         String redirectUrl = calculateRedirectUrl(request.getContextPath(), url);
 
         UriComponentsBuilder builder;
@@ -56,7 +58,7 @@ public class XForwardedAwareRedirectStrategy implements RedirectStrategy {
         if (host != null && !host.isEmpty()) {
             if (host.contains(":")) {
                 // Forwarded host contains both host and port
-                String [] parts = host.split(":");
+                String[] parts = host.split(":");
                 builder.host(parts[0]);
                 builder.port(parts[1]);
             } else {
@@ -69,7 +71,9 @@ public class XForwardedAwareRedirectStrategy implements RedirectStrategy {
         if (forwardedPath != null && !forwardedPath.isEmpty()) {
             String path = builder.build().getPath();
             // remove trailing slash
-            forwardedPath = forwardedPath.substring(0, forwardedPath.length() - (forwardedPath.endsWith("/") ? 1 : 0));
+            forwardedPath =
+                    forwardedPath.substring(
+                            0, forwardedPath.length() - (forwardedPath.endsWith("/") ? 1 : 0));
             builder.replacePath(forwardedPath + path);
         }
 
@@ -110,11 +114,10 @@ public class XForwardedAwareRedirectStrategy implements RedirectStrategy {
     }
 
     /**
-     * If <tt>true</tt>, causes any redirection URLs to be calculated minus the protocol
-     * and context path (defaults to <tt>false</tt>).
+     * If <tt>true</tt>, causes any redirection URLs to be calculated minus the protocol and context
+     * path (defaults to <tt>false</tt>).
      */
     public void setContextRelative(boolean useRelativeContext) {
         this.contextRelative = useRelativeContext;
     }
-
 }

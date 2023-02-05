@@ -1,19 +1,22 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.management.api;
+
+import static org.springframework.data.relational.core.query.Criteria.where;
+
+import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Membership;
@@ -28,23 +31,20 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Repository;
-
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Repository
-public class JdbcMembershipRepository extends AbstractJdbcRepository implements MembershipRepository {
-    @Autowired
-    private SpringMembershipRepository membershipRepository;
+public class JdbcMembershipRepository extends AbstractJdbcRepository
+        implements MembershipRepository {
+    @Autowired private SpringMembershipRepository membershipRepository;
 
     protected Membership toEntity(JdbcMembership entity) {
         return mapper.map(entity, Membership.class);
@@ -57,56 +57,83 @@ public class JdbcMembershipRepository extends AbstractJdbcRepository implements 
     @Override
     public Flowable<Membership> findByReference(String referenceId, ReferenceType referenceType) {
         LOGGER.debug("findByReference({},{})", referenceId, referenceType);
-        return this.membershipRepository.findByReference(referenceId, referenceType.name())
+        return this.membershipRepository
+                .findByReference(referenceId, referenceType.name())
                 .map(this::toEntity);
     }
 
     @Override
     public Flowable<Membership> findByMember(String memberId, MemberType memberType) {
         LOGGER.debug("findByMember({},{})", memberId, memberType);
-        return this.membershipRepository.findByMember(memberId, memberType.name())
+        return this.membershipRepository
+                .findByMember(memberId, memberType.name())
                 .map(this::toEntity);
     }
 
     @Override
-    public Flowable<Membership> findByCriteria(ReferenceType referenceType, String referenceId, MembershipCriteria criteria) {
+    public Flowable<Membership> findByCriteria(
+            ReferenceType referenceType, String referenceId, MembershipCriteria criteria) {
         LOGGER.debug("findByCriteria({},{},{}", referenceType, referenceId, criteria);
         Criteria whereClause = Criteria.empty();
         Criteria groupClause = Criteria.empty();
         Criteria userClause = Criteria.empty();
 
-        Criteria referenceClause = where("reference_id").is(referenceId).and(where("reference_type").is(referenceType.name()));
+        Criteria referenceClause =
+                where("reference_id")
+                        .is(referenceId)
+                        .and(where("reference_type").is(referenceType.name()));
 
         if (criteria.getGroupIds().isPresent()) {
-            groupClause = where("member_id").in(criteria.getGroupIds().get()).and(where("member_type").is(MemberType.GROUP.name()));
+            groupClause =
+                    where("member_id")
+                            .in(criteria.getGroupIds().get())
+                            .and(where("member_type").is(MemberType.GROUP.name()));
         }
 
         if (criteria.getUserId().isPresent()) {
-            userClause = where("member_id").is(criteria.getUserId().get()).and(where("member_type").is(MemberType.USER.name()));
+            userClause =
+                    where("member_id")
+                            .is(criteria.getUserId().get())
+                            .and(where("member_type").is(MemberType.USER.name()));
         }
 
         if (criteria.getRoleId().isPresent()) {
             userClause = where("role_id").is(criteria.getRoleId().get());
         }
 
-        whereClause = whereClause.and(referenceClause.and(criteria.isLogicalOR() ? userClause.or(groupClause) : userClause.and(groupClause)));
+        whereClause =
+                whereClause.and(
+                        referenceClause.and(
+                                criteria.isLogicalOR()
+                                        ? userClause.or(groupClause)
+                                        : userClause.and(groupClause)));
 
         return fluxToFlowable(template.select(Query.query(whereClause), JdbcMembership.class))
                 .map(this::toEntity);
     }
 
     @Override
-    public Maybe<Membership> findByReferenceAndMember(ReferenceType referenceType, String referenceId, MemberType memberType, String memberId) {
-        LOGGER.debug("findByReferenceAndMember({},{},{},{})", referenceType,referenceId,memberType,memberId);
-        return this.membershipRepository.findByReferenceAndMember(referenceId, referenceType.name(), memberId, memberType.name())
+    public Maybe<Membership> findByReferenceAndMember(
+            ReferenceType referenceType,
+            String referenceId,
+            MemberType memberType,
+            String memberId) {
+        LOGGER.debug(
+                "findByReferenceAndMember({},{},{},{})",
+                referenceType,
+                referenceId,
+                memberType,
+                memberId);
+        return this.membershipRepository
+                .findByReferenceAndMember(
+                        referenceId, referenceType.name(), memberId, memberType.name())
                 .map(this::toEntity);
     }
 
     @Override
     public Maybe<Membership> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return membershipRepository.findById(id)
-                .map(this::toEntity);
+        return membershipRepository.findById(id).map(this::toEntity);
     }
 
     @Override
@@ -119,8 +146,7 @@ public class JdbcMembershipRepository extends AbstractJdbcRepository implements 
     @Override
     public Single<Membership> update(Membership item) {
         LOGGER.debug("update membership with id {}", item.getId());
-        return membershipRepository.save(toJdbcEntity(item))
-                .map(this::toEntity);
+        return membershipRepository.save(toJdbcEntity(item)).map(this::toEntity);
     }
 
     @Override

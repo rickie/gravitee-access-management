@@ -1,23 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.identityprovider.ldap.common.authentication;
 
 import org.ldaptive.*;
 import org.ldaptive.handler.HandlerResult;
-import org.ldaptive.handler.RecursiveEntryHandler;
 import org.ldaptive.handler.SearchEntryHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +48,8 @@ public class GroupSearchEntryHandler implements SearchEntryHandler {
     }
 
     @Override
-    public HandlerResult<SearchEntry> handle(Connection conn, SearchRequest request, SearchEntry entry) throws LdapException {
+    public HandlerResult<SearchEntry> handle(
+            Connection conn, SearchRequest request, SearchEntry entry) throws LdapException {
         try {
             Set<LdapEntry> allGroups = new HashSet<>();
             // search groups where the user is directly referenced as a member
@@ -63,12 +61,17 @@ public class GroupSearchEntryHandler implements SearchEntryHandler {
                 allGroups.addAll(directGroups);
             }
 
-            final String[] groupName = allGroups.stream().map(groupEntry -> groupEntry.getAttributes()
-                            .stream()
-                            .map(ldapAttribute -> ldapAttribute.getStringValue())
-                            .collect(Collectors.toList()))
-                    .flatMap(List::stream)
-                    .toArray(size -> new String[size]);
+            final String[] groupName =
+                    allGroups.stream()
+                            .map(
+                                    groupEntry ->
+                                            groupEntry.getAttributes().stream()
+                                                    .map(
+                                                            ldapAttribute ->
+                                                                    ldapAttribute.getStringValue())
+                                                    .collect(Collectors.toList()))
+                            .flatMap(List::stream)
+                            .toArray(size -> new String[size]);
 
             entry.addAttribute(new LdapAttribute(MEMBEROF_ATTRIBUTE, groupName));
         } catch (Exception ex) {
@@ -78,11 +81,15 @@ public class GroupSearchEntryHandler implements SearchEntryHandler {
         }
     }
 
-    private void recursiveGroupsSearch(Connection conn, Collection<LdapEntry> groupsToSearch, Set<LdapEntry> accGroups) throws LdapException {
+    private void recursiveGroupsSearch(
+            Connection conn, Collection<LdapEntry> groupsToSearch, Set<LdapEntry> accGroups)
+            throws LdapException {
         List<LdapEntry> ancestors = new ArrayList<>();
-        Set<String> processedGroupDNs = accGroups.stream().map(LdapEntry::getDn).collect(Collectors.toSet());
-        for (LdapEntry grp: groupsToSearch) {
-            // check if the group is already pushed into the accumulator list to avoid infinite loops
+        Set<String> processedGroupDNs =
+                accGroups.stream().map(LdapEntry::getDn).collect(Collectors.toSet());
+        for (LdapEntry grp : groupsToSearch) {
+            // check if the group is already pushed into the accumulator list to avoid infinite
+            // loops
             if (!processedGroupDNs.contains(grp.getDn())) {
                 accGroups.add(grp);
                 processedGroupDNs.add(grp.getDn());

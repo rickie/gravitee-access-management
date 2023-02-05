@@ -1,22 +1,23 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.oauth2;
 
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.repository.mongodb.oauth2.internal.model.AuthorizationCodeMongo;
 import io.gravitee.am.repository.oauth2.api.AuthorizationCodeRepository;
@@ -26,21 +27,22 @@ import io.gravitee.common.util.MultiValueMap;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+
 import org.bson.Document;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.mongodb.client.model.Filters.eq;
+import javax.annotation.PostConstruct;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class MongoAuthorizationCodeRepository extends AbstractOAuth2MongoRepository implements AuthorizationCodeRepository {
+public class MongoAuthorizationCodeRepository extends AbstractOAuth2MongoRepository
+        implements AuthorizationCodeRepository {
 
     private static final String FIELD_TRANSACTION_ID = "transactionId";
     private static final String FIELD_CODE = "code";
@@ -49,18 +51,21 @@ public class MongoAuthorizationCodeRepository extends AbstractOAuth2MongoReposit
 
     @PostConstruct
     public void init() {
-        authorizationCodeCollection = mongoOperations.getCollection("authorization_codes", AuthorizationCodeMongo.class);
+        authorizationCodeCollection =
+                mongoOperations.getCollection("authorization_codes", AuthorizationCodeMongo.class);
         super.init(authorizationCodeCollection);
         super.createIndex(authorizationCodeCollection, new Document(FIELD_CODE, 1));
         super.createIndex(authorizationCodeCollection, new Document(FIELD_TRANSACTION_ID, 1));
 
         // expire after index
-        super.createIndex(authorizationCodeCollection, new Document(FIELD_RESET_TIME, 1), new IndexOptions().expireAfter(0l, TimeUnit.SECONDS));
+        super.createIndex(
+                authorizationCodeCollection,
+                new Document(FIELD_RESET_TIME, 1),
+                new IndexOptions().expireAfter(0l, TimeUnit.SECONDS));
     }
 
     private Maybe<AuthorizationCode> findById(String id) {
-        return Observable
-                .fromPublisher(authorizationCodeCollection.find(eq(FIELD_ID, id)).first())
+        return Observable.fromPublisher(authorizationCodeCollection.find(eq(FIELD_ID, id)).first())
                 .firstElement()
                 .map(this::convert);
     }
@@ -71,19 +76,25 @@ public class MongoAuthorizationCodeRepository extends AbstractOAuth2MongoReposit
             authorizationCode.setId(RandomString.generate());
         }
 
-        return Single
-                .fromPublisher(authorizationCodeCollection.insertOne(convert(authorizationCode)))
+        return Single.fromPublisher(
+                        authorizationCodeCollection.insertOne(convert(authorizationCode)))
                 .flatMap(success -> Single.just(authorizationCode));
     }
 
     @Override
     public Maybe<AuthorizationCode> delete(String code) {
-        return Observable.fromPublisher(authorizationCodeCollection.findOneAndDelete(eq(FIELD_ID, code))).firstElement().map(this::convert);
+        return Observable.fromPublisher(
+                        authorizationCodeCollection.findOneAndDelete(eq(FIELD_ID, code)))
+                .firstElement()
+                .map(this::convert);
     }
 
     @Override
     public Maybe<AuthorizationCode> findByCode(String code) {
-        return Observable.fromPublisher(authorizationCodeCollection.find(eq(FIELD_CODE, code)).first()).firstElement().map(this::convert);
+        return Observable.fromPublisher(
+                        authorizationCodeCollection.find(eq(FIELD_CODE, code)).first())
+                .firstElement()
+                .map(this::convert);
     }
 
     private AuthorizationCode convert(AuthorizationCodeMongo authorizationCodeMongo) {
@@ -104,7 +115,9 @@ public class MongoAuthorizationCodeRepository extends AbstractOAuth2MongoReposit
 
         if (authorizationCodeMongo.getRequestParameters() != null) {
             MultiValueMap<String, String> requestParameters = new LinkedMultiValueMap<>();
-            authorizationCodeMongo.getRequestParameters().forEach((key, value) -> requestParameters.put(key, (List<String>) value));
+            authorizationCodeMongo
+                    .getRequestParameters()
+                    .forEach((key, value) -> requestParameters.put(key, (List<String>) value));
             authorizationCode.setRequestParameters(requestParameters);
         }
         return authorizationCode;

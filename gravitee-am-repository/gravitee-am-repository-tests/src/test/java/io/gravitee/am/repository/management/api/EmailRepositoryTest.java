@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
@@ -20,6 +18,7 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -38,20 +37,19 @@ public class EmailRepositoryTest extends AbstractManagementTest {
     public static final String FIXED_REF_ID = "fixedRefId";
     public static final String FIXED_CLI_ID = "fixedClientId";
 
-    @Autowired
-    protected EmailRepository repository;
+    @Autowired protected EmailRepository repository;
 
     protected Email buildEmail() {
         Email email = new Email();
         String randomString = UUID.randomUUID().toString();
-        email.setClient("client"+randomString);
-        email.setContent("content"+randomString);
-        email.setFrom("from"+randomString);
-        email.setFromName("fromName"+randomString);
-        email.setReferenceId("ref"+randomString);
+        email.setClient("client" + randomString);
+        email.setContent("content" + randomString);
+        email.setFrom("from" + randomString);
+        email.setFromName("fromName" + randomString);
+        email.setReferenceId("ref" + randomString);
         email.setReferenceType(ReferenceType.DOMAIN);
-        email.setSubject("subject"+randomString);
-        email.setTemplate("tpl"+randomString);
+        email.setSubject("subject" + randomString);
+        email.setTemplate("tpl" + randomString);
         email.setCreatedAt(new Date());
         email.setUpdatedAt(new Date());
         email.setExpiresAfter(120000);
@@ -83,7 +81,13 @@ public class EmailRepositoryTest extends AbstractManagementTest {
         Email email = buildEmail();
         Email createdEmail = repository.create(email).blockingGet();
 
-        TestObserver<Email> testObserver = repository.findById(createdEmail.getReferenceType(), createdEmail.getReferenceId(), createdEmail.getId()).test();
+        TestObserver<Email> testObserver =
+                repository
+                        .findById(
+                                createdEmail.getReferenceType(),
+                                createdEmail.getReferenceId(),
+                                createdEmail.getId())
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -110,15 +114,20 @@ public class EmailRepositoryTest extends AbstractManagementTest {
         assertEqualsTo(updatableEmail, createdEmail.getId(), updatedEmail);
     }
 
-    private void assertEqualsTo(Email expectedEmail, String expectedId, TestObserver<Email> testObserver) {
+    private void assertEqualsTo(
+            Email expectedEmail, String expectedId, TestObserver<Email> testObserver) {
         testObserver.assertValue(e -> e.getId().equals(expectedId));
-        testObserver.assertValue(e ->  (e.getClient() == null && expectedEmail.getClient() == null) || e.getClient().equals(expectedEmail.getClient()));
+        testObserver.assertValue(
+                e ->
+                        (e.getClient() == null && expectedEmail.getClient() == null)
+                                || e.getClient().equals(expectedEmail.getClient()));
         testObserver.assertValue(e -> e.getContent().equals(expectedEmail.getContent()));
         testObserver.assertValue(e -> e.getExpiresAfter() == expectedEmail.getExpiresAfter());
         testObserver.assertValue(e -> e.getFrom().equals(expectedEmail.getFrom()));
         testObserver.assertValue(e -> e.getFromName().equals(expectedEmail.getFromName()));
         testObserver.assertValue(e -> e.getReferenceId().equals(expectedEmail.getReferenceId()));
-        testObserver.assertValue(e -> e.getReferenceType().equals(expectedEmail.getReferenceType()));
+        testObserver.assertValue(
+                e -> e.getReferenceType().equals(expectedEmail.getReferenceType()));
         testObserver.assertValue(e -> e.getSubject().equals(expectedEmail.getSubject()));
         testObserver.assertValue(e -> e.getTemplate().equals(expectedEmail.getTemplate()));
     }
@@ -152,17 +161,25 @@ public class EmailRepositoryTest extends AbstractManagementTest {
         testSubscriber.assertNoValues();
 
         final int loop = 10;
-        List<Email> emails = IntStream.range(0, loop).mapToObj(__ -> buildEmail()).collect(Collectors.toList());
-        emails.forEach(email -> repository.create(email).map(e -> {
-            email.setId(e.getId());
-            return e;
-        }).blockingGet());
+        List<Email> emails =
+                IntStream.range(0, loop).mapToObj(__ -> buildEmail()).collect(Collectors.toList());
+        emails.forEach(
+                email ->
+                        repository
+                                .create(email)
+                                .map(
+                                        e -> {
+                                            email.setId(e.getId());
+                                            return e;
+                                        })
+                                .blockingGet());
 
         TestSubscriber<String> testIdSubscriber = repository.findAll().map(Email::getId).test();
         testIdSubscriber.awaitTerminalEvent();
         testIdSubscriber.assertNoErrors();
         testIdSubscriber.assertValueCount(loop);
-        testIdSubscriber.assertValueSet(emails.stream().map(Email::getId).collect(Collectors.toList()));
+        testIdSubscriber.assertValueSet(
+                emails.stream().map(Email::getId).collect(Collectors.toList()));
     }
 
     @Test
@@ -173,24 +190,36 @@ public class EmailRepositoryTest extends AbstractManagementTest {
         testSubscriber.assertNoValues();
 
         final int loop = 10;
-        List<Email> emails = IntStream.range(0, loop).mapToObj(__ -> {
-            final Email email = buildEmail();
-            email.setReferenceId(FIXED_REF_ID);
-            return email;
-        }).collect(Collectors.toList());
-        emails.forEach(email -> repository.create(email).map(e -> {
-            email.setId(e.getId());
-            return e;
-        }).blockingGet());
+        List<Email> emails =
+                IntStream.range(0, loop)
+                        .mapToObj(
+                                __ -> {
+                                    final Email email = buildEmail();
+                                    email.setReferenceId(FIXED_REF_ID);
+                                    return email;
+                                })
+                        .collect(Collectors.toList());
+        emails.forEach(
+                email ->
+                        repository
+                                .create(email)
+                                .map(
+                                        e -> {
+                                            email.setId(e.getId());
+                                            return e;
+                                        })
+                                .blockingGet());
 
         // random refId
         IntStream.range(0, loop).forEach(email -> repository.create(buildEmail()).blockingGet());
 
-        TestSubscriber<String> testIdSubscriber = repository.findAll(ReferenceType.DOMAIN, FIXED_REF_ID).map(Email::getId).test();
+        TestSubscriber<String> testIdSubscriber =
+                repository.findAll(ReferenceType.DOMAIN, FIXED_REF_ID).map(Email::getId).test();
         testIdSubscriber.awaitTerminalEvent();
         testIdSubscriber.assertNoErrors();
         testIdSubscriber.assertValueCount(loop);
-        testIdSubscriber.assertValueSet(emails.stream().map(Email::getId).collect(Collectors.toList()));
+        testIdSubscriber.assertValueSet(
+                emails.stream().map(Email::getId).collect(Collectors.toList()));
     }
 
     @Test
@@ -201,16 +230,26 @@ public class EmailRepositoryTest extends AbstractManagementTest {
         testSubscriber.assertNoValues();
 
         final int loop = 10;
-        List<Email> emails = IntStream.range(0, loop).mapToObj(__ -> {
-            final Email email = buildEmail();
-            email.setReferenceId(FIXED_REF_ID);
-            email.setClient(FIXED_CLI_ID);
-            return email;
-        }).collect(Collectors.toList());
-        emails.forEach(email -> repository.create(email).map(e -> {
-            email.setId(e.getId());
-            return e;
-        }).blockingGet());
+        List<Email> emails =
+                IntStream.range(0, loop)
+                        .mapToObj(
+                                __ -> {
+                                    final Email email = buildEmail();
+                                    email.setReferenceId(FIXED_REF_ID);
+                                    email.setClient(FIXED_CLI_ID);
+                                    return email;
+                                })
+                        .collect(Collectors.toList());
+        emails.forEach(
+                email ->
+                        repository
+                                .create(email)
+                                .map(
+                                        e -> {
+                                            email.setId(e.getId());
+                                            return e;
+                                        })
+                                .blockingGet());
 
         for (int i = 0; i < loop; i++) {
             final Email email = buildEmail();
@@ -218,11 +257,16 @@ public class EmailRepositoryTest extends AbstractManagementTest {
             repository.create(email).blockingGet();
         }
 
-        TestSubscriber<String> testIdSubscriber = repository.findByClient(ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID).map(Email::getId).test();
+        TestSubscriber<String> testIdSubscriber =
+                repository
+                        .findByClient(ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID)
+                        .map(Email::getId)
+                        .test();
         testIdSubscriber.awaitTerminalEvent();
         testIdSubscriber.assertNoErrors();
         testIdSubscriber.assertValueCount(loop);
-        testIdSubscriber.assertValueSet(emails.stream().map(Email::getId).collect(Collectors.toList()));
+        testIdSubscriber.assertValueSet(
+                emails.stream().map(Email::getId).collect(Collectors.toList()));
     }
 
     @Test
@@ -245,7 +289,10 @@ public class EmailRepositoryTest extends AbstractManagementTest {
         email.setClient(null);
         Email templateEmail = repository.create(email).blockingGet();
 
-        TestObserver<Email> testMaybe = repository.findByTemplate(ReferenceType.DOMAIN, FIXED_REF_ID, "MyTemplateId").test();
+        TestObserver<Email> testMaybe =
+                repository
+                        .findByTemplate(ReferenceType.DOMAIN, FIXED_REF_ID, "MyTemplateId")
+                        .test();
         testMaybe.awaitTerminalEvent();
         testMaybe.assertNoErrors();
         assertEqualsTo(templateEmail, templateEmail.getId(), testMaybe);
@@ -272,10 +319,13 @@ public class EmailRepositoryTest extends AbstractManagementTest {
         email.setTemplate("MyTemplateId");
         Email templateEmail = repository.create(email).blockingGet();
 
-        TestObserver<Email> testMaybe = repository.findByClientAndTemplate(ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID, "MyTemplateId").test();
+        TestObserver<Email> testMaybe =
+                repository
+                        .findByClientAndTemplate(
+                                ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID, "MyTemplateId")
+                        .test();
         testMaybe.awaitTerminalEvent();
         testMaybe.assertNoErrors();
         assertEqualsTo(templateEmail, templateEmail.getId(), testMaybe);
     }
-
 }

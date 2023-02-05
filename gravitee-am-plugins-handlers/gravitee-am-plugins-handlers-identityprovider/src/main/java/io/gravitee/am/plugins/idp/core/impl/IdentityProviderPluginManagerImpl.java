@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.plugins.idp.core.impl;
+
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 import io.gravitee.am.identityprovider.api.AuthenticationProvider;
 import io.gravitee.am.identityprovider.api.IdentityProvider;
@@ -31,6 +32,7 @@ import io.gravitee.am.plugins.idp.core.IdentityProviderRoleMapperFactory;
 import io.gravitee.plugin.core.api.PluginContextFactory;
 import io.reactivex.Single;
 import io.vertx.reactivex.core.Vertx;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -39,9 +41,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Stream;
-
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -52,19 +51,21 @@ public class IdentityProviderPluginManagerImpl extends IdentityProviderPluginMan
 
     private final Logger logger = LoggerFactory.getLogger(IdentityProviderPluginManagerImpl.class);
 
-    private final ConfigurationFactory<IdentityProviderConfiguration> identityProviderConfigurationFactory;
+    private final ConfigurationFactory<IdentityProviderConfiguration>
+            identityProviderConfigurationFactory;
     private final IdentityProviderMapperFactory identityProviderMapperFactory;
     private final IdentityProviderRoleMapperFactory identityProviderRoleMapperFactory;
     private final Properties graviteeProperties;
     private final Vertx vertx;
 
-    public IdentityProviderPluginManagerImpl(PluginContextFactory pluginContextFactory,
-                                             ConfigurationFactory<IdentityProviderConfiguration> identityProviderConfigurationFactory,
-                                             IdentityProviderMapperFactory identityProviderMapperFactory,
-                                             IdentityProviderRoleMapperFactory identityProviderRoleMapperFactory,
-                                             Properties graviteeProperties,
-                                             Vertx vertx
-    ) {
+    public IdentityProviderPluginManagerImpl(
+            PluginContextFactory pluginContextFactory,
+            ConfigurationFactory<IdentityProviderConfiguration>
+                    identityProviderConfigurationFactory,
+            IdentityProviderMapperFactory identityProviderMapperFactory,
+            IdentityProviderRoleMapperFactory identityProviderRoleMapperFactory,
+            Properties graviteeProperties,
+            Vertx vertx) {
         super(pluginContextFactory);
         this.identityProviderConfigurationFactory = identityProviderConfigurationFactory;
         this.identityProviderMapperFactory = identityProviderMapperFactory;
@@ -81,81 +82,123 @@ public class IdentityProviderPluginManagerImpl extends IdentityProviderPluginMan
     }
 
     @Override
-    public AuthenticationProvider create(AuthenticationProviderConfiguration providerConfiguration) {
-        logger.debug("Looking for an authentication provider for [{}]", providerConfiguration.getType());
+    public AuthenticationProvider create(
+            AuthenticationProviderConfiguration providerConfiguration) {
+        logger.debug(
+                "Looking for an authentication provider for [{}]", providerConfiguration.getType());
         IdentityProvider identityProvider = instances.get(providerConfiguration.getType());
 
         if (identityProvider != null) {
-            Class<? extends IdentityProviderConfiguration> configurationClass = identityProvider.configuration();
-            IdentityProviderConfiguration identityProviderConfiguration = identityProviderConfigurationFactory.create(configurationClass, providerConfiguration.getConfiguration());
+            Class<? extends IdentityProviderConfiguration> configurationClass =
+                    identityProvider.configuration();
+            IdentityProviderConfiguration identityProviderConfiguration =
+                    identityProviderConfigurationFactory.create(
+                            configurationClass, providerConfiguration.getConfiguration());
 
             Class<? extends IdentityProviderMapper> mapperClass = identityProvider.mapper();
-            IdentityProviderMapper identityProviderMapper = identityProviderMapperFactory.create(mapperClass, providerConfiguration.getMappers());
+            IdentityProviderMapper identityProviderMapper =
+                    identityProviderMapperFactory.create(
+                            mapperClass, providerConfiguration.getMappers());
 
-            Class<? extends IdentityProviderRoleMapper> roleMapperClass = identityProvider.roleMapper();
-            IdentityProviderRoleMapper identityProviderRoleMapper = identityProviderRoleMapperFactory.create(roleMapperClass, providerConfiguration.getRoleMapper());
+            Class<? extends IdentityProviderRoleMapper> roleMapperClass =
+                    identityProvider.roleMapper();
+            IdentityProviderRoleMapper identityProviderRoleMapper =
+                    identityProviderRoleMapperFactory.create(
+                            roleMapperClass, providerConfiguration.getRoleMapper());
 
-            final List<BeanFactoryPostProcessor> beanFactoryPostProcessors = Stream.of(
-                    new IdentityProviderConfigurationBeanFactoryPostProcessor(identityProviderConfiguration),
-                    new IdentityProviderMapperBeanFactoryPostProcessor(identityProviderMapper),
-                    new IdentityProviderRoleMapperBeanFactoryPostProcessor(identityProviderRoleMapper),
-                    new PropertiesBeanFactoryPostProcessor(graviteeProperties),
-                    new VertxBeanFactoryPostProcessor(vertx),
-                    new IdentityProviderEntityBeanFactoryPostProcessor(providerConfiguration.getIdentityProvider())
-            ).collect(toList());
+            final List<BeanFactoryPostProcessor> beanFactoryPostProcessors =
+                    Stream.of(
+                                    new IdentityProviderConfigurationBeanFactoryPostProcessor(
+                                            identityProviderConfiguration),
+                                    new IdentityProviderMapperBeanFactoryPostProcessor(
+                                            identityProviderMapper),
+                                    new IdentityProviderRoleMapperBeanFactoryPostProcessor(
+                                            identityProviderRoleMapper),
+                                    new PropertiesBeanFactoryPostProcessor(graviteeProperties),
+                                    new VertxBeanFactoryPostProcessor(vertx),
+                                    new IdentityProviderEntityBeanFactoryPostProcessor(
+                                            providerConfiguration.getIdentityProvider()))
+                            .collect(toList());
 
-            ofNullable(providerConfiguration.getCertificateManager()).ifPresent(certificateManager ->
-                    beanFactoryPostProcessors.add(new CertificateManagerBeanFactoryPostProcessor(providerConfiguration.getCertificateManager()))
-            );
+            ofNullable(providerConfiguration.getCertificateManager())
+                    .ifPresent(
+                            certificateManager ->
+                                    beanFactoryPostProcessors.add(
+                                            new CertificateManagerBeanFactoryPostProcessor(
+                                                    providerConfiguration
+                                                            .getCertificateManager())));
 
             return createProvider(
                     plugins.get(identityProvider),
                     identityProvider.authenticationProvider(),
-                    beanFactoryPostProcessors
-            );
+                    beanFactoryPostProcessors);
         } else {
-            logger.error("No identity provider is registered for type {}", providerConfiguration.getType());
-            throw new IllegalStateException("No identity provider is registered for type " + providerConfiguration.getType());
+            logger.error(
+                    "No identity provider is registered for type {}",
+                    providerConfiguration.getType());
+            throw new IllegalStateException(
+                    "No identity provider is registered for type "
+                            + providerConfiguration.getType());
         }
     }
 
     @Override
-    public Single<Optional<UserProvider>> create(String type, String configuration, io.gravitee.am.model.IdentityProvider identityProviderEntity) {
+    public Single<Optional<UserProvider>> create(
+            String type,
+            String configuration,
+            io.gravitee.am.model.IdentityProvider identityProviderEntity) {
         logger.debug("Looking for an user provider for [{}]", type);
         var providerConfiguration = new ProviderConfiguration(type, configuration);
         IdentityProvider identityProvider = instances.get(providerConfiguration.getType());
 
         if (identityProvider != null) {
-            Class<? extends IdentityProviderConfiguration> configurationClass = identityProvider.configuration();
-            IdentityProviderConfiguration identityProviderConfiguration = identityProviderConfigurationFactory.create(configurationClass, providerConfiguration.getConfiguration());
+            Class<? extends IdentityProviderConfiguration> configurationClass =
+                    identityProvider.configuration();
+            IdentityProviderConfiguration identityProviderConfiguration =
+                    identityProviderConfigurationFactory.create(
+                            configurationClass, providerConfiguration.getConfiguration());
 
-            if (identityProvider.userProvider() == null || !identityProviderConfiguration.userProvider()) {
-                logger.info("No user provider is registered for type {}", providerConfiguration.getType());
+            if (identityProvider.userProvider() == null
+                    || !identityProviderConfiguration.userProvider()) {
+                logger.info(
+                        "No user provider is registered for type {}",
+                        providerConfiguration.getType());
                 return Single.just(Optional.empty());
             }
 
             Class<? extends IdentityProviderMapper> mapperClass = identityProvider.mapper();
-            IdentityProviderMapper identityProviderMapper = identityProviderMapperFactory.create(mapperClass, identityProviderEntity.getMappers());
+            IdentityProviderMapper identityProviderMapper =
+                    identityProviderMapperFactory.create(
+                            mapperClass, identityProviderEntity.getMappers());
 
             try {
                 return createUserProvider(
-                        plugins.get(identityProvider),
-                        identityProvider.userProvider(),
-                        List.of(
-                                new IdentityProviderConfigurationBeanFactoryPostProcessor(identityProviderConfiguration),
-                                new PropertiesBeanFactoryPostProcessor(graviteeProperties),
-                                new VertxBeanFactoryPostProcessor(vertx),
-                                new IdentityProviderEntityBeanFactoryPostProcessor(identityProviderEntity),
-                                new IdentityProviderMapperBeanFactoryPostProcessor(identityProviderMapper != null ? identityProviderMapper : new NoIdentityProviderMapper())
-                        )
-                ).map(Optional::of);
+                                plugins.get(identityProvider),
+                                identityProvider.userProvider(),
+                                List.of(
+                                        new IdentityProviderConfigurationBeanFactoryPostProcessor(
+                                                identityProviderConfiguration),
+                                        new PropertiesBeanFactoryPostProcessor(graviteeProperties),
+                                        new VertxBeanFactoryPostProcessor(vertx),
+                                        new IdentityProviderEntityBeanFactoryPostProcessor(
+                                                identityProviderEntity),
+                                        new IdentityProviderMapperBeanFactoryPostProcessor(
+                                                identityProviderMapper != null
+                                                        ? identityProviderMapper
+                                                        : new NoIdentityProviderMapper())))
+                        .map(Optional::of);
             } catch (Exception ex) {
                 logger.error("An unexpected error occurs while loading", ex);
                 return Single.error(ex);
             }
         } else {
-            logger.error("No identity provider is registered for type {}", providerConfiguration.getType());
-            return Single.error(new IllegalStateException("No identity provider is registered for type " + providerConfiguration.getType()));
+            logger.error(
+                    "No identity provider is registered for type {}",
+                    providerConfiguration.getType());
+            return Single.error(
+                    new IllegalStateException(
+                            "No identity provider is registered for type "
+                                    + providerConfiguration.getType()));
         }
     }
 }

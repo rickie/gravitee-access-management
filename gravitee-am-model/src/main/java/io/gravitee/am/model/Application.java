@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.model;
@@ -29,67 +27,41 @@ import java.util.*;
  */
 public class Application implements Resource, PasswordSettingsAware {
 
-    /**
-     * Application technical id
-     */
+    /** Application technical id */
     private String id;
-    /**
-     * Application name
-     */
+    /** Application name */
     private String name;
-    /**
-     * Application type
-     */
+    /** Application type */
     private ApplicationType type;
-    /**
-     * Application description
-     */
+    /** Application description */
     private String description;
-    /**
-     * Security domain associated to the application
-     */
+    /** Security domain associated to the application */
     private String domain;
-    /**
-     * Application state
-     */
+    /** Application state */
     private boolean enabled = true;
     /**
-     * Boolean value specifying whether the application should be use as a registration template or active application
+     * Boolean value specifying whether the application should be use as a registration template or
+     * active application
      */
     private boolean template;
-    /**
-     * Factors used for authentication
-     */
+    /** Factors used for authentication */
     private Set<String> factors;
-    /**
-     * Certificate use to sign the tokens
-     */
+    /** Certificate use to sign the tokens */
     private String certificate;
-    /**
-     * Application metadata
-     */
+    /** Application metadata */
     private Map<String, Object> metadata;
-    /**
-     * Application settings
-     */
+    /** Application settings */
     private ApplicationSettings settings;
-    /**
-     * Identity Provider Settings
-     */
+    /** Identity Provider Settings */
     private SortedSet<ApplicationIdentityProvider> identityProviders;
-    /**
-     * Application created date
-     */
+    /** Application created date */
     @ApiModelProperty(dataType = "java.lang.Long")
     private Date createdAt;
-    /**
-     * Application updated date
-     */
+    /** Application updated date */
     @ApiModelProperty(dataType = "java.lang.Long")
     private Date updatedAt;
 
-    public Application() {
-    }
+    public Application() {}
 
     public Application(Application other) {
         this.id = other.id;
@@ -238,6 +210,8 @@ public class Application implements Resource, PasswordSettingsAware {
 
     @Override
     public PasswordSettings getPasswordSettings() {
-        return Optional.ofNullable(settings).map(ApplicationSettings::getPasswordSettings).orElse(null);
+        return Optional.ofNullable(settings)
+                .map(ApplicationSettings::getPasswordSettings)
+                .orElse(null);
     }
 }

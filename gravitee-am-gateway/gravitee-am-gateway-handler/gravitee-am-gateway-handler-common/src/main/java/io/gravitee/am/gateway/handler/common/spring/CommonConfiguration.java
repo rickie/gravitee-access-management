@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.spring;
@@ -58,6 +56,7 @@ import io.gravitee.am.gateway.policy.spring.PolicyConfiguration;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.ext.web.client.WebClient;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -73,28 +72,38 @@ import org.springframework.core.env.Environment;
 @Configuration
 @ComponentScan("io.gravitee.am.gateway.handler.common.utils")
 @Import({
-        WebConfiguration.class,
-        FreemarkerConfiguration.class,
-        PolicyConfiguration.class,
-        ContextConfiguration.class,
-        RiskAssessmentConfiguration.class})
+    WebConfiguration.class,
+    FreemarkerConfiguration.class,
+    PolicyConfiguration.class,
+    ContextConfiguration.class,
+    RiskAssessmentConfiguration.class
+})
 public class CommonConfiguration {
 
-    @Autowired
-    private Environment environment;
+    @Autowired private Environment environment;
 
-    @Autowired
-    private Vertx vertx;
+    @Autowired private Vertx vertx;
 
     @Bean
     @Qualifier("oidcWebClient")
     public WebClient webClient() {
-        WebClientOptions options = new WebClientOptions()
-                .setConnectTimeout(Integer.valueOf(environment.getProperty("oidc.http.connectionTimeout", "10")) * 1000)
-                .setMaxPoolSize(Integer.valueOf(environment.getProperty("oidc.http.pool.maxTotalConnection", "200")))
-                .setTrustAll(Boolean.valueOf(environment.getProperty("oidc.http.client.trustAll", "true")));
+        WebClientOptions options =
+                new WebClientOptions()
+                        .setConnectTimeout(
+                                Integer.valueOf(
+                                                environment.getProperty(
+                                                        "oidc.http.connectionTimeout", "10"))
+                                        * 1000)
+                        .setMaxPoolSize(
+                                Integer.valueOf(
+                                        environment.getProperty(
+                                                "oidc.http.pool.maxTotalConnection", "200")))
+                        .setTrustAll(
+                                Boolean.valueOf(
+                                        environment.getProperty(
+                                                "oidc.http.client.trustAll", "true")));
 
-        return WebClient.create(vertx,options);
+        return WebClient.create(vertx, options);
     }
 
     @Bean

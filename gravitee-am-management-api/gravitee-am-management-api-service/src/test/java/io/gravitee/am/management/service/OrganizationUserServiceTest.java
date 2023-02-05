@@ -1,19 +1,26 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.service;
+
+import static io.gravitee.am.service.validators.user.UserValidatorImpl.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.identityprovider.api.UserProvider;
@@ -37,6 +44,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -46,14 +54,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.HashMap;
 
-import static io.gravitee.am.service.validators.user.UserValidatorImpl.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -62,39 +62,32 @@ import static org.mockito.Mockito.*;
 public class OrganizationUserServiceTest {
 
     @InjectMocks
-    private final OrganizationUserService organizationUserService = new OrganizationUserServiceImpl();
+    private final OrganizationUserService organizationUserService =
+            new OrganizationUserServiceImpl();
 
-    @Mock
-    private PasswordService passwordService;
+    @Mock private PasswordService passwordService;
 
-    @Mock
-    private IdentityProviderManager identityProviderManager;
+    @Mock private IdentityProviderManager identityProviderManager;
 
-    @Mock
-    private AuditService auditService;
+    @Mock private AuditService auditService;
 
-    @Mock
-    private io.gravitee.am.service.OrganizationUserService commonUserService;
+    @Mock private io.gravitee.am.service.OrganizationUserService commonUserService;
 
-    @Mock
-    private MembershipService membershipService;
+    @Mock private MembershipService membershipService;
 
-    @Mock
-    private RateLimiterService rateLimiterService;
+    @Mock private RateLimiterService rateLimiterService;
 
-    @Mock
-    private PasswordHistoryService passwordHistoryService;
+    @Mock private PasswordHistoryService passwordHistoryService;
 
-    @Mock
-    private VerifyAttemptService verifyAttemptService;
+    @Mock private VerifyAttemptService verifyAttemptService;
 
     @Spy
-    private UserValidatorImpl userValidator = new UserValidatorImpl(
-            NAME_STRICT_PATTERN,
-            NAME_LAX_PATTERN,
-            USERNAME_PATTERN,
-            new EmailValidatorImpl("")
-    );
+    private UserValidatorImpl userValidator =
+            new UserValidatorImpl(
+                    NAME_STRICT_PATTERN,
+                    NAME_LAX_PATTERN,
+                    USERNAME_PATTERN,
+                    new EmailValidatorImpl(""));
 
     @Test
     public void shouldDeleteUser_without_membership() {
@@ -113,7 +106,8 @@ public class OrganizationUserServiceTest {
         when(passwordHistoryService.deleteByUser(any())).thenReturn(Completable.complete());
         when(verifyAttemptService.deleteByUser(any())).thenReturn(Completable.complete());
 
-        organizationUserService.delete(ReferenceType.ORGANIZATION, organization, userId)
+        organizationUserService
+                .delete(ReferenceType.ORGANIZATION, organization, userId)
                 .test()
                 .assertComplete()
                 .assertNoErrors();
@@ -146,7 +140,8 @@ public class OrganizationUserServiceTest {
         when(passwordHistoryService.deleteByUser(any())).thenReturn(Completable.complete());
         when(verifyAttemptService.deleteByUser(any())).thenReturn(Completable.complete());
 
-        organizationUserService.delete(ReferenceType.ORGANIZATION, organization, userId)
+        organizationUserService
+                .delete(ReferenceType.ORGANIZATION, organization, userId)
                 .test()
                 .assertComplete()
                 .assertNoErrors();
@@ -172,16 +167,21 @@ public class OrganizationUserServiceTest {
         newUser.setPassword("Test123!");
         newUser.setEmail("email@acme.fr");
         when(passwordService.isValid(any())).thenReturn(true);
-        when(commonUserService.findByUsernameAndSource(any(), any(), anyString(), anyString())).thenReturn(Maybe.empty());
+        when(commonUserService.findByUsernameAndSource(any(), any(), anyString(), anyString()))
+                .thenReturn(Maybe.empty());
         final UserProvider provider = mock(UserProvider.class);
         when(identityProviderManager.getUserProvider(any())).thenReturn(Maybe.just(provider));
-        when(provider.create(any())).thenReturn(Single.just(mock(io.gravitee.am.identityprovider.api.User.class)));
+        when(provider.create(any()))
+                .thenReturn(Single.just(mock(io.gravitee.am.identityprovider.api.User.class)));
 
         doReturn(Completable.complete()).when(userValidator).validate(any());
         when(commonUserService.create(any())).thenReturn(Single.just(mock(User.class)));
         when(commonUserService.setRoles(any())).thenReturn(Completable.complete());
 
-        TestObserver<User> testObserver = organizationUserService.createGraviteeUser(new Organization(), newUser, null).test();
+        TestObserver<User> testObserver =
+                organizationUserService
+                        .createGraviteeUser(new Organization(), newUser, null)
+                        .test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
 
@@ -197,7 +197,10 @@ public class OrganizationUserServiceTest {
         newUser.setPassword("Test123!");
         newUser.setEmail("email@acme.fr");
 
-        TestObserver<User> testObserver = organizationUserService.createGraviteeUser(new Organization(), newUser, null).test();
+        TestObserver<User> testObserver =
+                organizationUserService
+                        .createGraviteeUser(new Organization(), newUser, null)
+                        .test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(UserInvalidException.class);
 
@@ -212,9 +215,15 @@ public class OrganizationUserServiceTest {
         Organization organization = new Organization();
         organization.setId("orgaid");
 
-        when(commonUserService.findByUsernameAndSource(ReferenceType.ORGANIZATION, organization.getId(), newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.just(new User()));
+        when(commonUserService.findByUsernameAndSource(
+                        ReferenceType.ORGANIZATION,
+                        organization.getId(),
+                        newUser.getUsername(),
+                        newUser.getSource()))
+                .thenReturn(Maybe.just(new User()));
 
-        TestObserver<User> testObserver = organizationUserService.createGraviteeUser(organization, newUser, null).test();
+        TestObserver<User> testObserver =
+                organizationUserService.createGraviteeUser(organization, newUser, null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(UserAlreadyExistsException.class);
     }
@@ -226,10 +235,17 @@ public class OrganizationUserServiceTest {
         Organization organization = new Organization();
         organization.setId("orgaid");
 
-        when(commonUserService.findByUsernameAndSource(ReferenceType.ORGANIZATION, organization.getId(), newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.empty());
-        when(identityProviderManager.getUserProvider(newUser.getSource())).thenReturn(Maybe.empty());
+        when(commonUserService.findByUsernameAndSource(
+                        ReferenceType.ORGANIZATION,
+                        organization.getId(),
+                        newUser.getUsername(),
+                        newUser.getSource()))
+                .thenReturn(Maybe.empty());
+        when(identityProviderManager.getUserProvider(newUser.getSource()))
+                .thenReturn(Maybe.empty());
 
-        TestObserver<User> testObserver = organizationUserService.createGraviteeUser(organization, newUser, null).test();
+        TestObserver<User> testObserver =
+                organizationUserService.createGraviteeUser(organization, newUser, null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(UserProviderNotFoundException.class);
     }
@@ -239,9 +255,14 @@ public class OrganizationUserServiceTest {
         NewUser newUser = newOrganizationUser();
         newUser.setPassword(null);
 
-        when(commonUserService.findByUsernameAndSource(any(), any(),  any(),  any())).thenReturn(Maybe.empty());
-        when(identityProviderManager.getUserProvider(any())).thenReturn(Maybe.just(mock(UserProvider.class)));
-        TestObserver<User> testObserver = organizationUserService.createGraviteeUser(new Organization(), newUser, null).test();
+        when(commonUserService.findByUsernameAndSource(any(), any(), any(), any()))
+                .thenReturn(Maybe.empty());
+        when(identityProviderManager.getUserProvider(any()))
+                .thenReturn(Maybe.just(mock(UserProvider.class)));
+        TestObserver<User> testObserver =
+                organizationUserService
+                        .createGraviteeUser(new Organization(), newUser, null)
+                        .test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(InvalidPasswordException.class);
     }
@@ -265,25 +286,38 @@ public class OrganizationUserServiceTest {
 
         User user = new User();
         user.setId("user#1");
-        when(commonUserService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, "orga#1", newUser.getExternalId(), newUser.getSource())).thenReturn(Maybe.just(user));
-        when(commonUserService.update(any(User.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(commonUserService.findByExternalIdAndSource(
+                        ReferenceType.ORGANIZATION,
+                        "orga#1",
+                        newUser.getExternalId(),
+                        newUser.getSource()))
+                .thenReturn(Maybe.just(user));
+        when(commonUserService.update(any(User.class)))
+                .thenAnswer(i -> Single.just(i.getArgument(0)));
 
-        TestObserver<User> obs = organizationUserService.createOrUpdate(ReferenceType.ORGANIZATION, "orga#1", newUser).test();
+        TestObserver<User> obs =
+                organizationUserService
+                        .createOrUpdate(ReferenceType.ORGANIZATION, "orga#1", newUser)
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertNoErrors();
-        obs.assertValue(updatedUser -> {
-            assertEquals(updatedUser.getId(), user.getId());
-            assertEquals(updatedUser.getFirstName(), newUser.getFirstName());
-            assertEquals(updatedUser.getLastName(), newUser.getLastName());
-            assertEquals(updatedUser.getEmail(), newUser.getEmail());
-            assertEquals(updatedUser.getAdditionalInformation(), newUser.getAdditionalInformation());
-            assertEquals(updatedUser.getPicture(), newUser.getAdditionalInformation().get(StandardClaims.PICTURE));
+        obs.assertValue(
+                updatedUser -> {
+                    assertEquals(updatedUser.getId(), user.getId());
+                    assertEquals(updatedUser.getFirstName(), newUser.getFirstName());
+                    assertEquals(updatedUser.getLastName(), newUser.getLastName());
+                    assertEquals(updatedUser.getEmail(), newUser.getEmail());
+                    assertEquals(
+                            updatedUser.getAdditionalInformation(),
+                            newUser.getAdditionalInformation());
+                    assertEquals(
+                            updatedUser.getPicture(),
+                            newUser.getAdditionalInformation().get(StandardClaims.PICTURE));
 
-            return true;
-        });
+                    return true;
+                });
     }
-
 
     @Test
     public void shouldUpdateUser_logoutDate() {
@@ -303,23 +337,37 @@ public class OrganizationUserServiceTest {
         additionalInformation.put(StandardClaims.PICTURE, "https://gravitee.io/my-picture");
         user.setAdditionalInformation(additionalInformation);
 
-        when(commonUserService.findById(ReferenceType.ORGANIZATION, "orga#1", user.getId())).thenReturn(Single.just(user));
-        when(commonUserService.update(any(User.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(commonUserService.findById(ReferenceType.ORGANIZATION, "orga#1", user.getId()))
+                .thenReturn(Single.just(user));
+        when(commonUserService.update(any(User.class)))
+                .thenAnswer(i -> Single.just(i.getArgument(0)));
 
-        TestObserver<User> obs = organizationUserService.updateLogoutDate(ReferenceType.ORGANIZATION, "orga#1", user.getId()).test();
+        TestObserver<User> obs =
+                organizationUserService
+                        .updateLogoutDate(ReferenceType.ORGANIZATION, "orga#1", user.getId())
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertNoErrors();
-        obs.assertValue(updatedUser -> {
-            assertEquals(updatedUser.getId(), user.getId());
-            assertEquals(updatedUser.getFirstName(), user.getFirstName());
-            assertEquals(updatedUser.getLastName(), user.getLastName());
-            assertEquals(updatedUser.getEmail(), user.getEmail());
-            assertEquals(updatedUser.getAdditionalInformation(), user.getAdditionalInformation());
-            assertEquals(updatedUser.getPicture(), user.getAdditionalInformation().get(StandardClaims.PICTURE));
-            assertTrue(updatedUser.getLastLogoutAt() != null && (System.currentTimeMillis() - updatedUser.getLastLogoutAt().getTime()) < 100);
-            return true;
-        });
+        obs.assertValue(
+                updatedUser -> {
+                    assertEquals(updatedUser.getId(), user.getId());
+                    assertEquals(updatedUser.getFirstName(), user.getFirstName());
+                    assertEquals(updatedUser.getLastName(), user.getLastName());
+                    assertEquals(updatedUser.getEmail(), user.getEmail());
+                    assertEquals(
+                            updatedUser.getAdditionalInformation(),
+                            user.getAdditionalInformation());
+                    assertEquals(
+                            updatedUser.getPicture(),
+                            user.getAdditionalInformation().get(StandardClaims.PICTURE));
+                    assertTrue(
+                            updatedUser.getLastLogoutAt() != null
+                                    && (System.currentTimeMillis()
+                                                    - updatedUser.getLastLogoutAt().getTime())
+                                            < 100);
+                    return true;
+                });
     }
 
     @Test
@@ -341,24 +389,43 @@ public class OrganizationUserServiceTest {
 
         User user = new User();
         user.setId("user#1");
-        when(commonUserService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, "orga#1", newUser.getExternalId(), newUser.getSource())).thenReturn(Maybe.empty());
-        when(commonUserService.findByUsernameAndSource(ReferenceType.ORGANIZATION, "orga#1", newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.just(user));
-        when(commonUserService.update(any(User.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(commonUserService.findByExternalIdAndSource(
+                        ReferenceType.ORGANIZATION,
+                        "orga#1",
+                        newUser.getExternalId(),
+                        newUser.getSource()))
+                .thenReturn(Maybe.empty());
+        when(commonUserService.findByUsernameAndSource(
+                        ReferenceType.ORGANIZATION,
+                        "orga#1",
+                        newUser.getUsername(),
+                        newUser.getSource()))
+                .thenReturn(Maybe.just(user));
+        when(commonUserService.update(any(User.class)))
+                .thenAnswer(i -> Single.just(i.getArgument(0)));
 
-        TestObserver<User> obs = organizationUserService.createOrUpdate(ReferenceType.ORGANIZATION, "orga#1", newUser).test();
+        TestObserver<User> obs =
+                organizationUserService
+                        .createOrUpdate(ReferenceType.ORGANIZATION, "orga#1", newUser)
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertNoErrors();
-        obs.assertValue(updatedUser -> {
-            assertEquals(updatedUser.getId(), user.getId());
-            assertEquals(updatedUser.getFirstName(), newUser.getFirstName());
-            assertEquals(updatedUser.getLastName(), newUser.getLastName());
-            assertEquals(updatedUser.getEmail(), newUser.getEmail());
-            assertEquals(updatedUser.getAdditionalInformation(), newUser.getAdditionalInformation());
-            assertEquals(updatedUser.getPicture(), newUser.getAdditionalInformation().get(StandardClaims.PICTURE));
+        obs.assertValue(
+                updatedUser -> {
+                    assertEquals(updatedUser.getId(), user.getId());
+                    assertEquals(updatedUser.getFirstName(), newUser.getFirstName());
+                    assertEquals(updatedUser.getLastName(), newUser.getLastName());
+                    assertEquals(updatedUser.getEmail(), newUser.getEmail());
+                    assertEquals(
+                            updatedUser.getAdditionalInformation(),
+                            newUser.getAdditionalInformation());
+                    assertEquals(
+                            updatedUser.getPicture(),
+                            newUser.getAdditionalInformation().get(StandardClaims.PICTURE));
 
-            return true;
-        });
+                    return true;
+                });
     }
 
     @Test
@@ -378,29 +445,49 @@ public class OrganizationUserServiceTest {
         additionalInformation.put(StandardClaims.PICTURE, "https://gravitee.io/my-picture");
         newUser.setAdditionalInformation(additionalInformation);
 
-        when(commonUserService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, "orga#1", newUser.getExternalId(), newUser.getSource())).thenReturn(Maybe.empty());
-        when(commonUserService.findByUsernameAndSource(ReferenceType.ORGANIZATION, "orga#1", newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.empty());
-        when(commonUserService.create(any(User.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(commonUserService.findByExternalIdAndSource(
+                        ReferenceType.ORGANIZATION,
+                        "orga#1",
+                        newUser.getExternalId(),
+                        newUser.getSource()))
+                .thenReturn(Maybe.empty());
+        when(commonUserService.findByUsernameAndSource(
+                        ReferenceType.ORGANIZATION,
+                        "orga#1",
+                        newUser.getUsername(),
+                        newUser.getSource()))
+                .thenReturn(Maybe.empty());
+        when(commonUserService.create(any(User.class)))
+                .thenAnswer(i -> Single.just(i.getArgument(0)));
 
-        TestObserver<User> obs = organizationUserService.createOrUpdate(ReferenceType.ORGANIZATION, "orga#1", newUser).test();
+        TestObserver<User> obs =
+                organizationUserService
+                        .createOrUpdate(ReferenceType.ORGANIZATION, "orga#1", newUser)
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertNoErrors();
-        obs.assertValue(updatedUser -> {
-            assertNotNull(updatedUser.getId());
-            assertEquals(updatedUser.getFirstName(), newUser.getFirstName());
-            assertEquals(updatedUser.getLastName(), newUser.getLastName());
-            assertEquals(updatedUser.getEmail(), newUser.getEmail());
-            assertEquals(updatedUser.getAdditionalInformation(), newUser.getAdditionalInformation());
-            assertEquals(updatedUser.getPicture(), newUser.getAdditionalInformation().get(StandardClaims.PICTURE));
+        obs.assertValue(
+                updatedUser -> {
+                    assertNotNull(updatedUser.getId());
+                    assertEquals(updatedUser.getFirstName(), newUser.getFirstName());
+                    assertEquals(updatedUser.getLastName(), newUser.getLastName());
+                    assertEquals(updatedUser.getEmail(), newUser.getEmail());
+                    assertEquals(
+                            updatedUser.getAdditionalInformation(),
+                            newUser.getAdditionalInformation());
+                    assertEquals(
+                            updatedUser.getPicture(),
+                            newUser.getAdditionalInformation().get(StandardClaims.PICTURE));
 
-            return true;
-        });
+                    return true;
+                });
     }
 
     @Test
     public void shouldNotResetPassword_MissingPwd() {
-        final TestObserver<Void> testObserver = organizationUserService.resetPassword("org#1", new User(), null, null).test();
+        final TestObserver<Void> testObserver =
+                organizationUserService.resetPassword("org#1", new User(), null, null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(InvalidPasswordException.class);
     }
@@ -408,7 +495,8 @@ public class OrganizationUserServiceTest {
     @Test
     public void shouldNotResetPassword_invalidPwd() {
         when(passwordService.isValid(anyString())).thenReturn(false);
-        final TestObserver<Void> testObserver = organizationUserService.resetPassword("org#1", new User(), "simple", null).test();
+        final TestObserver<Void> testObserver =
+                organizationUserService.resetPassword("org#1", new User(), "simple", null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(InvalidPasswordException.class);
     }
@@ -423,7 +511,8 @@ public class OrganizationUserServiceTest {
 
         when(commonUserService.update(any())).thenReturn(Single.just(user));
 
-        final TestObserver<Void> testObserver = organizationUserService.resetPassword("org#1", user, "Test123!", null).test();
+        final TestObserver<Void> testObserver =
+                organizationUserService.resetPassword("org#1", user, "Test123!", null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
 
@@ -438,11 +527,11 @@ public class OrganizationUserServiceTest {
         user.setUsername("username");
         user.setSource("invalid");
 
-        final TestObserver<Void> testObserver = organizationUserService.resetPassword("org#1", user, "Test123!", null).test();
+        final TestObserver<Void> testObserver =
+                organizationUserService.resetPassword("org#1", user, "Test123!", null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(InvalidUserException.class);
 
         verify(commonUserService, never()).update(any());
     }
-
 }

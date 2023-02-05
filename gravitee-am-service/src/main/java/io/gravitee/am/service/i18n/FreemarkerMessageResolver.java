@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.i18n;
+
+import static java.text.MessageFormat.format;
+import static java.util.Optional.ofNullable;
 
 import freemarker.template.SimpleDate;
 import freemarker.template.SimpleNumber;
@@ -23,9 +24,6 @@ import freemarker.template.TemplateModelException;
 
 import java.util.List;
 import java.util.Properties;
-
-import static java.text.MessageFormat.format;
-import static java.util.Optional.ofNullable;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -59,10 +57,7 @@ public class FreemarkerMessageResolver implements TemplateMethodModelEx {
 
     private Object[] toArguments(List list) {
         if (list.size() >= 2) {
-            return list.subList(1, list.size())
-                    .stream()
-                    .map(this::convert)
-                    .toArray();
+            return list.subList(1, list.size()).stream().map(this::convert).toArray();
         } else {
             return new Object[0];
         }

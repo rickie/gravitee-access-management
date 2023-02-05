@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.reactor.impl;
@@ -19,6 +17,7 @@ import io.gravitee.am.common.event.DomainEvent;
 import io.gravitee.am.common.event.EventManager;
 import io.gravitee.am.gateway.reactor.SecurityDomainManager;
 import io.gravitee.am.model.Domain;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +32,12 @@ import java.util.Map;
  */
 public class DefaultSecurityDomainManager implements SecurityDomainManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultSecurityDomainManager.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(DefaultSecurityDomainManager.class);
 
-    @Autowired
-    private EventManager eventManager;
+    @Autowired private EventManager eventManager;
 
     private final Map<String, Domain> domains = new HashMap<>();
-
 
     @Override
     public void deploy(Domain domain) {

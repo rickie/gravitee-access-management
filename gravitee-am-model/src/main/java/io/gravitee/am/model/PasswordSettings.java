@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.model;
@@ -24,75 +22,48 @@ import java.util.Optional;
  */
 public class PasswordSettings {
 
-    /**
-     * See https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html
-     */
+    /** See https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html */
     public static final int PASSWORD_MAX_LENGTH = 64;
+
     public static final int PASSWORD_MIN_LENGTH = 8;
 
-    /**
-     * Account settings configuration inherited ?
-     */
+    /** Account settings configuration inherited ? */
     private boolean inherited = true;
 
-    /**
-     * Password min length
-     */
+    /** Password min length */
     private Integer minLength = PASSWORD_MIN_LENGTH;
 
-    /**
-     * Password max length
-     */
+    /** Password max length */
     private Integer maxLength = PASSWORD_MAX_LENGTH;
 
-    /**
-     * Must include numbers
-     */
+    /** Must include numbers */
     private Boolean includeNumbers;
 
-    /**
-     * Must include special characters
-     */
+    /** Must include special characters */
     private Boolean includeSpecialCharacters;
 
-    /**
-     * letters in mixed case
-     */
+    /** letters in mixed case */
     private Boolean lettersInMixedCase;
 
-    /**
-     * Max consecutive letters
-     */
+    /** Max consecutive letters */
     private Integer maxConsecutiveLetters;
 
-    /**
-     * Excludes passwords contained within password dictionary
-     */
+    /** Excludes passwords contained within password dictionary */
     private Boolean excludePasswordsInDictionary;
 
-    /**
-     * Excludes user profile information from password
-     */
+    /** Excludes user profile information from password */
     private Boolean excludeUserProfileInfoInPassword;
 
-    /**
-     * The Expiration duration (in days) of a password
-     */
+    /** The Expiration duration (in days) of a password */
     private Integer expiryDuration;
 
-    /**
-     * Does the password history is enabled to prevent the usage of old password
-     */
+    /** Does the password history is enabled to prevent the usage of old password */
     private boolean passwordHistoryEnabled;
 
-    /**
-     * How many passwords are preserved into the history
-     */
+    /** How many passwords are preserved into the history */
     private Short oldPasswords;
 
-    public PasswordSettings() {
-
-    }
+    public PasswordSettings() {}
 
     public PasswordSettings(PasswordSettings other) {
         this.inherited = other.inherited;
@@ -205,7 +176,8 @@ public class PasswordSettings {
         this.oldPasswords = oldPasswords;
     }
 
-    public static Optional<PasswordSettings> getInstance(PasswordSettingsAware passwordSettingsAware, Domain domain) {
+    public static Optional<PasswordSettings> getInstance(
+            PasswordSettingsAware passwordSettingsAware, Domain domain) {
         if (passwordSettingsAware == null) {
             return Optional.ofNullable(domain.getPasswordSettings());
         }

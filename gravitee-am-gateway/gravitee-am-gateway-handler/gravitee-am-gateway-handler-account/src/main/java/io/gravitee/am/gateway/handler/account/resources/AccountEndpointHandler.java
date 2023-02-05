@@ -1,28 +1,35 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.account.resources;
+
+import static io.gravitee.am.gateway.handler.account.resources.AccountResponseHandler.*;
+import static io.gravitee.am.service.impl.user.activity.utils.ConsentUtils.canSaveIp;
+import static io.gravitee.am.service.impl.user.activity.utils.ConsentUtils.canSaveUserAgent;
+import static io.gravitee.common.http.HttpStatusCode.FORBIDDEN_403;
+
+import static org.springframework.util.StringUtils.isEmpty;
+
+import static java.util.Objects.isNull;
 
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.oidc.StandardClaims;
+import io.gravitee.am.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.account.resources.util.AccountRoutes;
 import io.gravitee.am.gateway.handler.account.resources.util.ContextPathParamUtil;
 import io.gravitee.am.gateway.handler.account.services.AccountService;
-import io.gravitee.am.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.vertx.utils.RequestUtils;
 import io.gravitee.am.gateway.handler.common.vertx.web.handler.RedirectHandler;
 import io.gravitee.am.identityprovider.api.DefaultUser;
@@ -35,19 +42,13 @@ import io.gravitee.am.service.exception.UserProviderNotFoundException;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.ext.web.RoutingContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import static io.gravitee.am.gateway.handler.account.resources.AccountResponseHandler.*;
-import static io.gravitee.am.service.impl.user.activity.utils.ConsentUtils.canSaveIp;
-import static io.gravitee.am.service.impl.user.activity.utils.ConsentUtils.canSaveUserAgent;
-import static io.gravitee.common.http.HttpStatusCode.FORBIDDEN_403;
-import static java.util.Objects.isNull;
-import static org.springframework.util.StringUtils.isEmpty;
 
 /**
  * @author Donald Courtney (donald.courtney at graviteesource.com)
@@ -67,17 +68,18 @@ public class AccountEndpointHandler {
 
     public void getUser(RoutingContext routingContext) {
         JWT token = routingContext.get(ConstantKeys.TOKEN_CONTEXT_KEY);
-        accountService.get(token.getSub()).subscribe(
-                user -> {
-                    routingContext.put(ConstantKeys.USER_CONTEXT_KEY, user);
-                    routingContext.next();
-                },
-                error -> {
-                    LOGGER.error("Unable to retrieve user for Id {}", token.getSub());
-                    routingContext.fail(error);
-                },
-                () -> routingContext.fail(new UserNotFoundException(token.getSub()))
-        );
+        accountService
+                .get(token.getSub())
+                .subscribe(
+                        user -> {
+                            routingContext.put(ConstantKeys.USER_CONTEXT_KEY, user);
+                            routingContext.next();
+                        },
+                        error -> {
+                            LOGGER.error("Unable to retrieve user for Id {}", token.getSub());
+                            routingContext.fail(error);
+                        },
+                        () -> routingContext.fail(new UserNotFoundException(token.getSub())));
     }
 
     public void getProfile(RoutingContext routingContext) {
@@ -86,14 +88,18 @@ public class AccountEndpointHandler {
 
     public void getActivity(RoutingContext routingContext) {
         final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        final AuditReportableCriteria criteria = new AuditReportableCriteria.Builder().userId(user.getId()).build();
+        final AuditReportableCriteria criteria =
+                new AuditReportableCriteria.Builder().userId(user.getId()).build();
         final int page = ContextPathParamUtil.getPageNumber(routingContext);
         final int size = ContextPathParamUtil.getPageSize(routingContext);
 
-        accountService.getActivity(user, criteria, page, size).subscribe(
-                activities -> AccountResponseHandler.handleDefaultResponse(routingContext, activities),
-                routingContext::fail
-        );
+        accountService
+                .getActivity(user, criteria, page, size)
+                .subscribe(
+                        activities ->
+                                AccountResponseHandler.handleDefaultResponse(
+                                        routingContext, activities),
+                        routingContext::fail);
     }
 
     public void changePassword(RoutingContext routingContext) {
@@ -116,17 +122,18 @@ public class AccountEndpointHandler {
                 return;
             }
 
-            accountService.resetPassword(user, client, password, principal)
+            accountService
+                    .resetPassword(user, client, password, principal)
                     .subscribe(
                             __ -> handleNoBodyResponse(routingContext),
                             error -> {
                                 if (error instanceof UserProviderNotFoundException) {
-                                    handleUpdateUserResponse(routingContext, "Action forbidden", FORBIDDEN_403);
+                                    handleUpdateUserResponse(
+                                            routingContext, "Action forbidden", FORBIDDEN_403);
                                 } else {
                                     routingContext.fail(error);
                                 }
-                            }
-                    );
+                            });
         } catch (DecodeException ex) {
             routingContext.fail(new InvalidRequestException("Unable to parse body message"));
         }
@@ -134,6 +141,7 @@ public class AccountEndpointHandler {
 
     /**
      * Create principal from the authenticated user
+     *
      * @param routingContext
      * @param user
      * @return
@@ -142,10 +150,12 @@ public class AccountEndpointHandler {
         DefaultUser principal = new DefaultUser(user.getUsername());
         Map<String, Object> additionalInformation = new HashMap<>();
         if (canSaveIp(routingContext)) {
-            additionalInformation.put(Claims.ip_address, RequestUtils.remoteAddress(routingContext.request()));
+            additionalInformation.put(
+                    Claims.ip_address, RequestUtils.remoteAddress(routingContext.request()));
         }
         if (canSaveUserAgent(routingContext)) {
-            additionalInformation.put(Claims.user_agent, RequestUtils.userAgent(routingContext.request()));
+            additionalInformation.put(
+                    Claims.user_agent, RequestUtils.userAgent(routingContext.request()));
         }
         additionalInformation.put(Claims.domain, domain.getId());
         principal.setAdditionalInformation(additionalInformation);
@@ -154,7 +164,10 @@ public class AccountEndpointHandler {
 
     public void redirectForgotPassword(RoutingContext routingContext) {
         final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final String path = AccountRoutes.CHANGE_PASSWORD_REDIRECT.getRoute() + "?client_id=" + client.getClientId();
+        final String path =
+                AccountRoutes.CHANGE_PASSWORD_REDIRECT.getRoute()
+                        + "?client_id="
+                        + client.getClientId();
         RedirectHandler.create(path).handle(routingContext);
     }
 
@@ -162,7 +175,8 @@ public class AccountEndpointHandler {
         User user = getUserFromContext(routingContext);
         User updatedUser = mapRequestToUser(user, routingContext);
         if (Objects.equals(user.getId(), updatedUser.getId())) {
-            accountService.update(user)
+            accountService
+                    .update(user)
                     .doOnSuccess(nestedResult -> handleUpdateUserResponse(routingContext))
                     .doOnError(er -> handleUpdateUserResponse(routingContext, er.getMessage()))
                     .subscribe();

@@ -1,28 +1,26 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.model.openid;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.gravitee.am.model.oidc.CIBASettings;
 import io.gravitee.am.model.oidc.ClientRegistrationSettings;
 import io.gravitee.am.model.oidc.OIDCSettings;
 import io.gravitee.am.model.oidc.SecurityProfileSettings;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.utils.SetterUtils;
-import io.netty.channel.ChannelInboundInvoker;
 
 import java.util.HashSet;
 import java.util.List;
@@ -55,7 +53,8 @@ public class PatchOIDCSettings {
         return clientRegistrationSettings;
     }
 
-    public void setClientRegistrationSettings(Optional<PatchClientRegistrationSettings> clientRegistrationSettings) {
+    public void setClientRegistrationSettings(
+            Optional<PatchClientRegistrationSettings> clientRegistrationSettings) {
         this.clientRegistrationSettings = clientRegistrationSettings;
     }
 
@@ -63,7 +62,8 @@ public class PatchOIDCSettings {
         return securityProfileSettings;
     }
 
-    public void setSecurityProfileSettings(Optional<PatchSecurityProfileSettings> securityProfileSettings) {
+    public void setSecurityProfileSettings(
+            Optional<PatchSecurityProfileSettings> securityProfileSettings) {
         this.securityProfileSettings = securityProfileSettings;
     }
 
@@ -101,17 +101,20 @@ public class PatchOIDCSettings {
 
     public OIDCSettings patch(OIDCSettings toPatch) {
 
-        //If source may be null, in such case init with default values
-        if (toPatch == null ) {
+        // If source may be null, in such case init with default values
+        if (toPatch == null) {
             toPatch = OIDCSettings.defaultSettings();
         }
-        SetterUtils.safeSet(toPatch::setRedirectUriStrictMatching, this.getRedirectUriStrictMatching(), boolean.class);
+        SetterUtils.safeSet(
+                toPatch::setRedirectUriStrictMatching,
+                this.getRedirectUriStrictMatching(),
+                boolean.class);
         SetterUtils.safeSet(toPatch::setPostLogoutRedirectUris, this.getPostLogoutRedirectUris());
         SetterUtils.safeSet(toPatch::setRequestUris, this.getRequestUris());
 
-        if(getClientRegistrationSettings()!=null) {
-            //If present apply settings, else return default settings.
-            if(getClientRegistrationSettings().isPresent()) {
+        if (getClientRegistrationSettings() != null) {
+            // If present apply settings, else return default settings.
+            if (getClientRegistrationSettings().isPresent()) {
                 PatchClientRegistrationSettings patcher = getClientRegistrationSettings().get();
                 ClientRegistrationSettings source = toPatch.getClientRegistrationSettings();
                 toPatch.setClientRegistrationSettings(patcher.patch(source));
@@ -142,7 +145,6 @@ public class PatchOIDCSettings {
 
         return toPatch;
     }
-
 
     public Set<Permission> getRequiredPermissions() {
 

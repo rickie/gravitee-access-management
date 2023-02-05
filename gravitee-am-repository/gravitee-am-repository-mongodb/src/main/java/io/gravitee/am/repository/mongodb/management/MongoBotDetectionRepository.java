@@ -1,50 +1,54 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.BotDetection;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.management.api.BotDetectionRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.BotDetectionMongo;
 import io.reactivex.*;
+
 import org.bson.Document;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class MongoBotDetectionRepository extends AbstractManagementMongoRepository implements BotDetectionRepository {
+public class MongoBotDetectionRepository extends AbstractManagementMongoRepository
+        implements BotDetectionRepository {
 
     public static final String COLLECTION_NAME = "bot_detections";
     private MongoCollection<BotDetectionMongo> botDetectionMongoCollection;
 
     @PostConstruct
     public void init() {
-        botDetectionMongoCollection = mongoOperations.getCollection(COLLECTION_NAME, BotDetectionMongo.class);
+        botDetectionMongoCollection =
+                mongoOperations.getCollection(COLLECTION_NAME, BotDetectionMongo.class);
         super.init(botDetectionMongoCollection);
-        super.createIndex(botDetectionMongoCollection, new Document(FIELD_REFERENCE_ID, 1).append(FIELD_REFERENCE_TYPE, 1));
+        super.createIndex(
+                botDetectionMongoCollection,
+                new Document(FIELD_REFERENCE_ID, 1).append(FIELD_REFERENCE_TYPE, 1));
     }
 
     @Override
@@ -54,12 +58,20 @@ public class MongoBotDetectionRepository extends AbstractManagementMongoReposito
 
     @Override
     public Flowable<BotDetection> findByReference(ReferenceType referenceType, String referenceId) {
-        return Flowable.fromPublisher(botDetectionMongoCollection.find(and(eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_REFERENCE_TYPE, referenceType.name())))).map(this::convert);
+        return Flowable.fromPublisher(
+                        botDetectionMongoCollection.find(
+                                and(
+                                        eq(FIELD_REFERENCE_ID, referenceId),
+                                        eq(FIELD_REFERENCE_TYPE, referenceType.name()))))
+                .map(this::convert);
     }
 
     @Override
     public Maybe<BotDetection> findById(String botDetectionId) {
-        return Observable.fromPublisher(botDetectionMongoCollection.find(eq(FIELD_ID, botDetectionId)).first()).firstElement().map(this::convert);
+        return Observable.fromPublisher(
+                        botDetectionMongoCollection.find(eq(FIELD_ID, botDetectionId)).first())
+                .firstElement()
+                .map(this::convert);
     }
 
     @Override
@@ -67,16 +79,19 @@ public class MongoBotDetectionRepository extends AbstractManagementMongoReposito
         BotDetectionMongo entity = convert(item);
         entity.setId(entity.getId() == null ? RandomString.generate() : entity.getId());
         return Single.fromPublisher(botDetectionMongoCollection.insertOne(entity))
-                .flatMap(success -> {
-                    item.setId(entity.getId());
-                    return Single.just(item);
-                });
+                .flatMap(
+                        success -> {
+                            item.setId(entity.getId());
+                            return Single.just(item);
+                        });
     }
 
     @Override
     public Single<BotDetection> update(BotDetection item) {
         BotDetectionMongo entity = convert(item);
-        return Single.fromPublisher(botDetectionMongoCollection.replaceOne(eq(FIELD_ID, entity.getId()), entity))
+        return Single.fromPublisher(
+                        botDetectionMongoCollection.replaceOne(
+                                eq(FIELD_ID, entity.getId()), entity))
                 .flatMap(updateResult -> Single.just(item));
     }
 

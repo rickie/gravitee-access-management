@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.root.resources.handler.user;
@@ -51,31 +49,35 @@ public class PasswordPolicyRequestParseHandler extends UserRequestHandler {
         MultiMap queryParams = RequestUtils.getCleanedQueryParams(request);
 
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        Optional<PasswordSettings> passwordSettings = PasswordSettings.getInstance(client, this.domain);
+        Optional<PasswordSettings> passwordSettings =
+                PasswordSettings.getInstance(client, this.domain);
 
         try {
             User user = getUser(context);
             passwordService.validate(password, passwordSettings.orElse(null), user);
             context.next();
         } catch (InvalidPasswordException e) {
-            Optional.ofNullable(context.request().getParam(Parameters.CLIENT_ID)).ifPresent(t -> queryParams.set(Parameters.CLIENT_ID, t));
+            Optional.ofNullable(context.request().getParam(Parameters.CLIENT_ID))
+                    .ifPresent(t -> queryParams.set(Parameters.CLIENT_ID, t));
             warningRedirection(context, queryParams, e.getErrorKey());
         }
     }
 
     private User getUser(RoutingContext context) {
-        //User is connected
+        // User is connected
         User user = context.get(ConstantKeys.USER_CONTEXT_KEY);
         if (user != null) {
             return user;
         }
-        //We use contact information from the form
+        // We use contact information from the form
         MultiMap params = context.request().formAttributes();
         return convert(params);
     }
 
-    private void warningRedirection(RoutingContext context, MultiMap queryParams, String warningMsgKey) {
-        Optional.ofNullable(context.request().getParam(ConstantKeys.TOKEN_PARAM_KEY)).ifPresent(t -> queryParams.set(ConstantKeys.TOKEN_PARAM_KEY, t));
+    private void warningRedirection(
+            RoutingContext context, MultiMap queryParams, String warningMsgKey) {
+        Optional.ofNullable(context.request().getParam(ConstantKeys.TOKEN_PARAM_KEY))
+                .ifPresent(t -> queryParams.set(ConstantKeys.TOKEN_PARAM_KEY, t));
         queryParams.set(ConstantKeys.WARNING_PARAM_KEY, warningMsgKey);
         redirectToPage(context, queryParams);
     }

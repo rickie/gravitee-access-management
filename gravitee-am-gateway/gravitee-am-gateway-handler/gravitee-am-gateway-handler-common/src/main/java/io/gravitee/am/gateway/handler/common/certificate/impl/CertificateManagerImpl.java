@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.certificate.impl;
@@ -37,6 +35,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -57,7 +56,8 @@ import java.util.stream.Collectors;
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class CertificateManagerImpl extends AbstractService implements CertificateManager, EventListener<CertificateEvent, Payload>, InitializingBean {
+public class CertificateManagerImpl extends AbstractService
+        implements CertificateManager, EventListener<CertificateEvent, Payload>, InitializingBean {
 
     private static final Logger logger = LoggerFactory.getLogger(CertificateManagerImpl.class);
 
@@ -67,17 +67,13 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
     @Value("${jwt.kid:default-gravitee-AM-key}")
     private String signingKeyId;
 
-    @Autowired
-    private Domain domain;
+    @Autowired private Domain domain;
 
-    @Autowired
-    private CertificateRepository certificateRepository;
+    @Autowired private CertificateRepository certificateRepository;
 
-    @Autowired
-    private EventManager eventManager;
+    @Autowired private EventManager eventManager;
 
-    @Autowired
-    private CertificateProviderManager certificateProviderManager;
+    @Autowired private CertificateProviderManager certificateProviderManager;
 
     private CertificateProvider defaultCertificateProvider;
 
@@ -91,27 +87,35 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
         initDefaultCertificateProvider();
         logger.info("Default certificate loaded for domain {}", domain.getName());
 
-        logger.info("Initializing none algorithm certificate provider for domain {}", domain.getName());
+        logger.info(
+                "Initializing none algorithm certificate provider for domain {}", domain.getName());
         initNoneAlgorithmCertificateProvider();
         logger.info("None algorithm certificate loaded for domain {}", domain.getName());
 
         logger.info("Initializing certificates for domain {}", domain.getName());
-        certificateRepository.findByDomain(domain.getId())
+        certificateRepository
+                .findByDomain(domain.getId())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         certificate -> {
                             certificateProviderManager.create(certificate);
                             certificates.put(certificate.getId(), certificate);
-                            logger.info("Certificate {} loaded for domain {}", certificate.getName(), domain.getName());
+                            logger.info(
+                                    "Certificate {} loaded for domain {}",
+                                    certificate.getName(),
+                                    domain.getName());
                         },
-                        error -> logger.error("An error has occurred when loading certificates for domain {}", domain.getName(), error)
-                );
+                        error ->
+                                logger.error(
+                                        "An error has occurred when loading certificates for domain {}",
+                                        domain.getName(),
+                                        error));
     }
 
     @Override
     public void onEvent(Event<CertificateEvent, Payload> event) {
-        if (event.content().getReferenceType() == ReferenceType.DOMAIN &&
-                domain.getId().equals(event.content().getReferenceId())) {
+        if (event.content().getReferenceType() == ReferenceType.DOMAIN
+                && domain.getId().equals(event.content().getReferenceId())) {
             switch (event.type()) {
                 case DEPLOY:
                 case UPDATE:
@@ -128,7 +132,8 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
     protected void doStart() throws Exception {
         super.doStart();
 
-        logger.info("Register event listener for certificate events for domain {}", domain.getName());
+        logger.info(
+                "Register event listener for certificate events for domain {}", domain.getName());
         eventManager.subscribeForEvents(this, CertificateEvent.class, domain.getId());
     }
 
@@ -136,7 +141,8 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
     protected void doStop() throws Exception {
         super.doStop();
 
-        logger.info("Dispose event listener for certificate events for domain {}", domain.getName());
+        logger.info(
+                "Dispose event listener for certificate events for domain {}", domain.getName());
         eventManager.unsubscribeForEvents(this, CertificateEvent.class, domain.getId());
     }
 
@@ -165,23 +171,24 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
             return Maybe.empty();
         }
 
-        Optional<CertificateProvider> certificate = this
-                .providers()
-                .stream()
-                .filter(certificateProvider ->
-                        certificateProvider != null && certificateProvider.getProvider() != null &&
-                                algorithm.equals(certificateProvider.getProvider().signatureAlgorithm())
-                )
-                .findFirst();
+        Optional<CertificateProvider> certificate =
+                this.providers().stream()
+                        .filter(
+                                certificateProvider ->
+                                        certificateProvider != null
+                                                && certificateProvider.getProvider() != null
+                                                && algorithm.equals(
+                                                        certificateProvider
+                                                                .getProvider()
+                                                                .signatureAlgorithm()))
+                        .findFirst();
 
         return certificate.map(Maybe::just).orElseGet(Maybe::empty);
     }
 
     @Override
     public Collection<CertificateProvider> providers() {
-        return certificateProviderManager
-                .certificateProviders()
-                .stream()
+        return certificateProviderManager.certificateProviders().stream()
                 .filter(c -> domain.getId().equals(c.getDomain()))
                 .collect(Collectors.toList());
     }
@@ -198,20 +205,33 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
 
     private void deployCertificate(String certificateId) {
         logger.info("Deploying certificate {} for domain {}", certificateId, domain.getName());
-        certificateRepository.findById(certificateId)
+        certificateRepository
+                .findById(certificateId)
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         certificate -> {
                             try {
                                 certificateProviderManager.create(certificate);
                                 certificates.put(certificateId, certificate);
-                                logger.info("Certificate {} loaded for domain {}", certificateId, domain.getName());
+                                logger.info(
+                                        "Certificate {} loaded for domain {}",
+                                        certificateId,
+                                        domain.getName());
                             } catch (Exception ex) {
-                                logger.error("Unable to load certificate {} for domain {}", certificate.getName(), certificate.getDomain(), ex);
+                                logger.error(
+                                        "Unable to load certificate {} for domain {}",
+                                        certificate.getName(),
+                                        certificate.getDomain(),
+                                        ex);
                                 certificates.remove(certificateId, certificate);
                             }
                         },
-                        error -> logger.error("An error has occurred when loading certificate {} for domain {}", certificateId, domain.getName(), error),
+                        error ->
+                                logger.error(
+                                        "An error has occurred when loading certificate {} for domain {}",
+                                        certificateId,
+                                        domain.getName(),
+                                        error),
                         () -> logger.error("No certificate found with id {}", certificateId));
     }
 
@@ -220,9 +240,13 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
         Certificate deletedCertificate = certificates.remove(certificateId);
         certificateProviderManager.delete(certificateId);
         if (deletedCertificate != null) {
-            logger.info("Certificate {} has been removed for domain {}", certificateId, domain.getName());
+            logger.info(
+                    "Certificate {} has been removed for domain {}",
+                    certificateId,
+                    domain.getName());
         } else {
-            logger.info("Certificate {} was not loaded for domain {}", certificateId, domain.getName());
+            logger.info(
+                    "Certificate {} was not loaded for domain {}", certificateId, domain.getName());
         }
     }
 
@@ -235,87 +259,97 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
 
         // create default certificate provider
         CertificateMetadata certificateMetadata = new CertificateMetadata();
-        certificateMetadata.setMetadata(Collections.singletonMap(CertificateMetadata.DIGEST_ALGORITHM_NAME, signatureAlgorithm.getDigestName()));
+        certificateMetadata.setMetadata(
+                Collections.singletonMap(
+                        CertificateMetadata.DIGEST_ALGORITHM_NAME,
+                        signatureAlgorithm.getDigestName()));
 
-        io.gravitee.am.certificate.api.CertificateProvider defaultProvider = new io.gravitee.am.certificate.api.CertificateProvider() {
-            @Override
-            public Optional<Date> getExpirationDate() {
-                return Optional.empty();
-            }
+        io.gravitee.am.certificate.api.CertificateProvider defaultProvider =
+                new io.gravitee.am.certificate.api.CertificateProvider() {
+                    @Override
+                    public Optional<Date> getExpirationDate() {
+                        return Optional.empty();
+                    }
 
-            @Override
-            public Single<io.gravitee.am.certificate.api.Key> key() {
-                return Single.just(certificateKey);
-            }
+                    @Override
+                    public Single<io.gravitee.am.certificate.api.Key> key() {
+                        return Single.just(certificateKey);
+                    }
 
-            @Override
-            public Flowable<JWK> privateKey() {
-                return null;
-            }
+                    @Override
+                    public Flowable<JWK> privateKey() {
+                        return null;
+                    }
 
-            @Override
-            public Single<String> publicKey() {
-                return null;
-            }
+                    @Override
+                    public Single<String> publicKey() {
+                        return null;
+                    }
 
-            @Override
-            public Flowable<JWK> keys() {
-                return null;
-            }
+                    @Override
+                    public Flowable<JWK> keys() {
+                        return null;
+                    }
 
-            @Override
-            public String signatureAlgorithm() {
-                return signatureAlgorithm.getValue();
-            }
+                    @Override
+                    public String signatureAlgorithm() {
+                        return signatureAlgorithm.getValue();
+                    }
 
-            @Override
-            public CertificateMetadata certificateMetadata() {
-                return certificateMetadata;
-            }
-        };
+                    @Override
+                    public CertificateMetadata certificateMetadata() {
+                        return certificateMetadata;
+                    }
+                };
         this.defaultCertificateProvider = certificateProviderManager.create(defaultProvider);
     }
 
     private void initNoneAlgorithmCertificateProvider() {
         CertificateMetadata certificateMetadata = new CertificateMetadata();
-        certificateMetadata.setMetadata(Collections.singletonMap(CertificateMetadata.DIGEST_ALGORITHM_NAME, SignatureAlgorithm.NONE.getValue()));
+        certificateMetadata.setMetadata(
+                Collections.singletonMap(
+                        CertificateMetadata.DIGEST_ALGORITHM_NAME,
+                        SignatureAlgorithm.NONE.getValue()));
 
-        io.gravitee.am.certificate.api.CertificateProvider noneProvider = new io.gravitee.am.certificate.api.CertificateProvider() {
-            @Override
-            public Optional<Date> getExpirationDate() {
-                return Optional.empty();
-            }
+        io.gravitee.am.certificate.api.CertificateProvider noneProvider =
+                new io.gravitee.am.certificate.api.CertificateProvider() {
+                    @Override
+                    public Optional<Date> getExpirationDate() {
+                        return Optional.empty();
+                    }
 
-            @Override
-            public Flowable<JWK> privateKey() {
-                throw new UnsupportedOperationException("No private key for \"none\" algorithm");
-            }
+                    @Override
+                    public Flowable<JWK> privateKey() {
+                        throw new UnsupportedOperationException(
+                                "No private key for \"none\" algorithm");
+                    }
 
-            @Override
-            public Single<io.gravitee.am.certificate.api.Key> key() {
-                throw new UnsupportedOperationException("No key for \"none\" algorithm");
-            }
+                    @Override
+                    public Single<io.gravitee.am.certificate.api.Key> key() {
+                        throw new UnsupportedOperationException("No key for \"none\" algorithm");
+                    }
 
-            @Override
-            public Single<String> publicKey() {
-                throw new UnsupportedOperationException("No public key for \"none\" algorithm");
-            }
+                    @Override
+                    public Single<String> publicKey() {
+                        throw new UnsupportedOperationException(
+                                "No public key for \"none\" algorithm");
+                    }
 
-            @Override
-            public Flowable<JWK> keys() {
-                throw new UnsupportedOperationException("No keys for \"none\" algorithm");
-            }
+                    @Override
+                    public Flowable<JWK> keys() {
+                        throw new UnsupportedOperationException("No keys for \"none\" algorithm");
+                    }
 
-            @Override
-            public String signatureAlgorithm() {
-                return SignatureAlgorithm.NONE.getValue();
-            }
+                    @Override
+                    public String signatureAlgorithm() {
+                        return SignatureAlgorithm.NONE.getValue();
+                    }
 
-            @Override
-            public CertificateMetadata certificateMetadata() {
-                return certificateMetadata;
-            }
-        };
+                    @Override
+                    public CertificateMetadata certificateMetadata() {
+                        return certificateMetadata;
+                    }
+                };
         this.noneAlgorithmCertificateProvider = certificateProviderManager.create(noneProvider);
     }
 }

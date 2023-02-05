@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
@@ -32,7 +30,11 @@ import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.net.URI;
+import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -42,8 +44,6 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.util.List;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -51,50 +51,72 @@ import java.util.List;
  */
 public class MembersResource extends AbstractResource {
 
-    @Context
-    private ResourceContext resourceContext;
+    @Context private ResourceContext resourceContext;
 
-    @Autowired
-    private DomainService domainService;
+    @Autowired private DomainService domainService;
 
-    @Autowired
-    private MembershipService membershipService;
+    @Autowired private MembershipService membershipService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "List members for a security domain",
-            notes = "User must have the DOMAIN_MEMBER[LIST] permission on the specified domain " +
-                    "or DOMAIN_MEMBER[LIST] permission on the specified environment " +
-                    "or DOMAIN_MEMBER[LIST] permission on the specified organization")
+    @ApiOperation(
+            value = "List members for a security domain",
+            notes =
+                    "User must have the DOMAIN_MEMBER[LIST] permission on the specified domain "
+                            + "or DOMAIN_MEMBER[LIST] permission on the specified environment "
+                            + "or DOMAIN_MEMBER[LIST] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "List members for a security domain", response = MembershipListItem.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(
+                code = 200,
+                message = "List members for a security domain",
+                response = MembershipListItem.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void list(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_MEMBER, Acl.LIST)
-                .andThen(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(domain1 -> membershipService.findByReference(domain1.getId(), ReferenceType.DOMAIN).toList())
-                        .flatMap(memberships -> membershipService.getMetadata(memberships)
-                                .map(metadata -> new MembershipListItem(memberships, metadata))))
+        checkAnyPermission(
+                        organizationId, environmentId, domain, Permission.DOMAIN_MEMBER, Acl.LIST)
+                .andThen(
+                        domainService
+                                .findById(domain)
+                                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
+                                .flatMapSingle(
+                                        domain1 ->
+                                                membershipService
+                                                        .findByReference(
+                                                                domain1.getId(),
+                                                                ReferenceType.DOMAIN)
+                                                        .toList())
+                                .flatMap(
+                                        memberships ->
+                                                membershipService
+                                                        .getMetadata(memberships)
+                                                        .map(
+                                                                metadata ->
+                                                                        new MembershipListItem(
+                                                                                memberships,
+                                                                                metadata))))
                 .subscribe(response::resume, response::resume);
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Add or update an security domain member",
-            notes = "User must have the DOMAIN_MEMBER[CREATE] permission on the specified domain " +
-                    "or DOMAIN_MEMBER[CREATE] permission on the specified environment " +
-                    "or DOMAIN_MEMBER[CREATE] permission on the specified organization")
+    @ApiOperation(
+            value = "Add or update an security domain member",
+            notes =
+                    "User must have the DOMAIN_MEMBER[CREATE] permission on the specified domain "
+                            + "or DOMAIN_MEMBER[CREATE] permission on the specified environment "
+                            + "or DOMAIN_MEMBER[CREATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 201, message = "Member has been added or updated successfully"),
-            @ApiResponse(code = 400, message = "Membership parameter is not valid"),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 201, message = "Member has been added or updated successfully"),
+        @ApiResponse(code = 400, message = "Membership parameter is not valid"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void addOrUpdateMember(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -109,28 +131,57 @@ public class MembersResource extends AbstractResource {
         membership.setReferenceId(domain);
         membership.setReferenceType(ReferenceType.DOMAIN);
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_MEMBER, Acl.CREATE)
-                .andThen(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(domain1 -> membershipService.addOrUpdate(organizationId, membership, authenticatedUser))
-                        .flatMap(membership1 -> membershipService.addEnvironmentUserRoleIfNecessary(organizationId, environmentId, newMembership, authenticatedUser)
-                                .andThen(Single.just(Response
-                                        .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/members/" + membership1.getId()))
-                                        .entity(membership1)
-                                        .build()))))
+        checkAnyPermission(
+                        organizationId, environmentId, domain, Permission.DOMAIN_MEMBER, Acl.CREATE)
+                .andThen(
+                        domainService
+                                .findById(domain)
+                                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
+                                .flatMapSingle(
+                                        domain1 ->
+                                                membershipService.addOrUpdate(
+                                                        organizationId,
+                                                        membership,
+                                                        authenticatedUser))
+                                .flatMap(
+                                        membership1 ->
+                                                membershipService
+                                                        .addEnvironmentUserRoleIfNecessary(
+                                                                organizationId,
+                                                                environmentId,
+                                                                newMembership,
+                                                                authenticatedUser)
+                                                        .andThen(
+                                                                Single.just(
+                                                                        Response.created(
+                                                                                        URI.create(
+                                                                                                "/organizations/"
+                                                                                                        + organizationId
+                                                                                                        + "/environments/"
+                                                                                                        + environmentId
+                                                                                                        + "/domains/"
+                                                                                                        + domain
+                                                                                                        + "/members/"
+                                                                                                        + membership1
+                                                                                                                .getId()))
+                                                                                .entity(membership1)
+                                                                                .build()))))
                 .subscribe(response::resume, response::resume);
     }
 
     @GET
     @Path("permissions")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "List domain member's permissions",
-            notes = "User must have DOMAIN[READ] permission on the specified domain " +
-                    "or DOMAIN[READ] permission on the specified environment " +
-                    "or DOMAIN[READ] permission on the specified organization")
+    @ApiOperation(
+            value = "List domain member's permissions",
+            notes =
+                    "User must have DOMAIN[READ] permission on the specified domain "
+                            + "or DOMAIN[READ] permission on the specified environment "
+                            + "or DOMAIN[READ] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Domain member's permissions", response = List.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 200, message = "Domain member's permissions", response = List.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void permissions(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -139,8 +190,10 @@ public class MembersResource extends AbstractResource {
         final User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)
-                .andThen(permissionService.findAllPermissions(authenticatedUser, ReferenceType.DOMAIN, domain)
-                        .map(Permission::flatten))
+                .andThen(
+                        permissionService
+                                .findAllPermissions(authenticatedUser, ReferenceType.DOMAIN, domain)
+                                .map(Permission::flatten))
                 .subscribe(response::resume, response::resume);
     }
 

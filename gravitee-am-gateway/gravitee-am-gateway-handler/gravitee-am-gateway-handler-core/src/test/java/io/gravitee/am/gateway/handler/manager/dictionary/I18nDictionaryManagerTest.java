@@ -1,19 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.manager.dictionary;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import io.gravitee.am.common.event.EventManager;
 import io.gravitee.am.common.event.I18nDictionaryEvent;
@@ -27,20 +33,13 @@ import io.gravitee.am.service.i18n.GraviteeMessageResolver;
 import io.gravitee.common.event.Event;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -49,23 +48,17 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class I18nDictionaryManagerTest {
 
-    @Mock
-    private EventManager eventManager;
+    @Mock private EventManager eventManager;
 
-    @Mock
-    private I18nDictionaryRepository i18nDictionaryRepository;
+    @Mock private I18nDictionaryRepository i18nDictionaryRepository;
 
-    @Mock
-    private GraviteeMessageResolver graviteeMessageResolver;
+    @Mock private GraviteeMessageResolver graviteeMessageResolver;
 
-    @Mock
-    private Domain domain;
+    @Mock private Domain domain;
 
-    @Mock
-    private Payload payload;
+    @Mock private Payload payload;
 
-    @InjectMocks
-    private I18nDictionaryManager i18nDictionaryManager = new I18nDictionaryManager();
+    @InjectMocks private I18nDictionaryManager i18nDictionaryManager = new I18nDictionaryManager();
 
     @Before
     public void setUp() {
@@ -82,7 +75,8 @@ public class I18nDictionaryManagerTest {
         I18nDictionary i18nDictionary = mock(I18nDictionary.class);
         when(i18nDictionary.getId()).thenReturn("dictionary-id");
 
-        when(i18nDictionaryRepository.findAll(ReferenceType.DOMAIN, domain.getId())).thenReturn(Flowable.just(i18nDictionary));
+        when(i18nDictionaryRepository.findAll(ReferenceType.DOMAIN, domain.getId()))
+                .thenReturn(Flowable.just(i18nDictionary));
 
         i18nDictionaryManager.afterPropertiesSet();
 
@@ -92,7 +86,8 @@ public class I18nDictionaryManagerTest {
 
     @Test
     public void shouldNotLoadDictionaries_after_properties_set_exception() throws Exception {
-        when(i18nDictionaryRepository.findAll(ReferenceType.DOMAIN, domain.getId())).thenReturn(Flowable.error(TechnicalException::new));
+        when(i18nDictionaryRepository.findAll(ReferenceType.DOMAIN, domain.getId()))
+                .thenReturn(Flowable.error(TechnicalException::new));
 
         i18nDictionaryManager.afterPropertiesSet();
 
@@ -104,14 +99,18 @@ public class I18nDictionaryManagerTest {
     public void shouldSubscribeToEvents() throws Exception {
         i18nDictionaryManager.doStart();
 
-        verify(eventManager, times(1)).subscribeForEvents(i18nDictionaryManager, I18nDictionaryEvent.class, domain.getId());
+        verify(eventManager, times(1))
+                .subscribeForEvents(
+                        i18nDictionaryManager, I18nDictionaryEvent.class, domain.getId());
     }
 
     @Test
     public void shouldUnSubscribeToEvents() throws Exception {
         i18nDictionaryManager.doStop();
 
-        verify(eventManager, times(1)).unsubscribeForEvents(i18nDictionaryManager, I18nDictionaryEvent.class, domain.getId());
+        verify(eventManager, times(1))
+                .unsubscribeForEvents(
+                        i18nDictionaryManager, I18nDictionaryEvent.class, domain.getId());
     }
 
     @Test
@@ -136,7 +135,7 @@ public class I18nDictionaryManagerTest {
 
     @Test
     public void shouldUpdate() {
-       shouldDeploy(I18nDictionaryEvent.UPDATE);
+        shouldDeploy(I18nDictionaryEvent.UPDATE);
     }
 
     @Test
@@ -145,7 +144,8 @@ public class I18nDictionaryManagerTest {
         when(event.type()).thenReturn(I18nDictionaryEvent.DEPLOY);
         when(event.content()).thenReturn(payload);
 
-        when(i18nDictionaryRepository.findById("dictionary-id")).thenReturn(Maybe.error(TechnicalException::new));
+        when(i18nDictionaryRepository.findById("dictionary-id"))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
         i18nDictionaryManager.onEvent(event);
 
@@ -180,7 +180,8 @@ public class I18nDictionaryManagerTest {
         I18nDictionary i18nDictionary = mock(I18nDictionary.class);
         when(i18nDictionary.getId()).thenReturn("dictionary-id");
         when(i18nDictionary.getLocale()).thenReturn("dictionary-locale");
-        when(i18nDictionaryRepository.findById("dictionary-id")).thenReturn(Maybe.just(i18nDictionary));
+        when(i18nDictionaryRepository.findById("dictionary-id"))
+                .thenReturn(Maybe.just(i18nDictionary));
 
         i18nDictionaryManager.onEvent(deployEvent);
         i18nDictionaryManager.onEvent(undeployEvent);
@@ -195,7 +196,8 @@ public class I18nDictionaryManagerTest {
 
         I18nDictionary i18nDictionary = mock(I18nDictionary.class);
         when(i18nDictionary.getId()).thenReturn("dictionary-id");
-        when(i18nDictionaryRepository.findById("dictionary-id")).thenReturn(Maybe.just(i18nDictionary));
+        when(i18nDictionaryRepository.findById("dictionary-id"))
+                .thenReturn(Maybe.just(i18nDictionary));
 
         i18nDictionaryManager.onEvent(event);
 

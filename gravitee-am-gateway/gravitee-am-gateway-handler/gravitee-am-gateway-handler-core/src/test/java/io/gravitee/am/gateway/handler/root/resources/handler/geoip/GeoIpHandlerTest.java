@@ -1,20 +1,21 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.gravitee.am.gateway.handler.root.resources.handler.geoip;
+
+import static io.gravitee.am.common.utils.ConstantKeys.GEOIP_KEY;
+
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.root.resources.handler.dummies.MockHttpServerRequest;
@@ -29,7 +30,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.eventbus.EventBus;
 import io.vertx.reactivex.core.eventbus.Message;
 import io.vertx.reactivex.core.http.HttpServerRequest;
-import java.util.HashMap;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,8 +39,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static io.gravitee.am.common.utils.ConstantKeys.GEOIP_KEY;
-import static org.mockito.Mockito.*;
+import java.util.HashMap;
 
 /**
  * @author Rémi SULTAN (remi.sultan at graviteesource.com)
@@ -48,14 +48,11 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class GeoIpHandlerTest {
 
-    @Mock
-    private EventBus eventBus;
+    @Mock private EventBus eventBus;
 
-    @Mock
-    private UserActivityService userActivityService;
+    @Mock private UserActivityService userActivityService;
 
-    @Spy
-    private SpyRoutingContext routingContext;
+    @Spy private SpyRoutingContext routingContext;
     private HashMap<Object, Object> data;
     private Client client;
 
@@ -109,8 +106,8 @@ public class GeoIpHandlerTest {
         client.getMfaSettings().setAdaptiveAuthenticationRule("{#object = 'value'}");
         request.getDelegate().headers().add(HttpHeaders.X_FORWARDED_FOR, "55.55.55.55");
         geoIpHandler.handle(routingContext);
-        verify(eventBus, times(1)).request(
-                any(), anyString(), (Handler<AsyncResult<Message<Object>>>) Mockito.any());
+        verify(eventBus, times(1))
+                .request(any(), anyString(), (Handler<AsyncResult<Message<Object>>>) Mockito.any());
     }
 
     @Test
@@ -118,8 +115,7 @@ public class GeoIpHandlerTest {
         doReturn(true).when(userActivityService).canSaveUserActivity();
         request.getDelegate().headers().add(HttpHeaders.X_FORWARDED_FOR, "55.55.55.55");
         geoIpHandler.handle(routingContext);
-        verify(eventBus, times(1)).request(
-                any(), anyString(), (Handler<AsyncResult<Message<Object>>>) Mockito.any());
+        verify(eventBus, times(1))
+                .request(any(), anyString(), (Handler<AsyncResult<Message<Object>>>) Mockito.any());
     }
-
 }

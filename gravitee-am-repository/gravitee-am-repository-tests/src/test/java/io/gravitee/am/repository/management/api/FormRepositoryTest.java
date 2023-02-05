@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
@@ -19,6 +17,7 @@ import io.gravitee.am.model.Form;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,18 +34,17 @@ public class FormRepositoryTest extends AbstractManagementTest {
     public static final String FIXED_REF_ID = "fixedRefId";
     public static final String FIXED_CLI_ID = "fixedClientId";
 
-    @Autowired
-    protected FormRepository repository;
+    @Autowired protected FormRepository repository;
 
     protected Form buildForm() {
         Form form = new Form();
         String randomString = UUID.randomUUID().toString();
-        form.setClient("client"+randomString);
-        form.setContent("content"+randomString);
-        form.setReferenceId("ref"+randomString);
+        form.setClient("client" + randomString);
+        form.setContent("content" + randomString);
+        form.setReferenceId("ref" + randomString);
         form.setReferenceType(ReferenceType.DOMAIN);
-        form.setTemplate("tpl"+randomString);
-        form.setAssets("assets"+randomString);
+        form.setTemplate("tpl" + randomString);
+        form.setAssets("assets" + randomString);
         form.setEnabled(true);
         form.setCreatedAt(new Date());
         form.setUpdatedAt(new Date());
@@ -78,7 +76,13 @@ public class FormRepositoryTest extends AbstractManagementTest {
         Form form = buildForm();
         Form createdForm = repository.create(form).blockingGet();
 
-        TestObserver<Form> testObserver = repository.findById(createdForm.getReferenceType(), createdForm.getReferenceId(), createdForm.getId()).test();
+        TestObserver<Form> testObserver =
+                repository
+                        .findById(
+                                createdForm.getReferenceType(),
+                                createdForm.getReferenceId(),
+                                createdForm.getId())
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -105,9 +109,13 @@ public class FormRepositoryTest extends AbstractManagementTest {
         assertEqualsTo(updatableForm, createdForm.getId(), updatedForm);
     }
 
-    private void assertEqualsTo(Form expectedForm, String expectedId, TestObserver<Form> testObserver) {
+    private void assertEqualsTo(
+            Form expectedForm, String expectedId, TestObserver<Form> testObserver) {
         testObserver.assertValue(e -> e.getId().equals(expectedId));
-        testObserver.assertValue(e -> (e.getClient() == null && expectedForm.getClient() == null ) || e.getClient().equals(expectedForm.getClient()));
+        testObserver.assertValue(
+                e ->
+                        (e.getClient() == null && expectedForm.getClient() == null)
+                                || e.getClient().equals(expectedForm.getClient()));
         testObserver.assertValue(e -> e.getContent().equals(expectedForm.getContent()));
         testObserver.assertValue(e -> e.getReferenceId().equals(expectedForm.getReferenceId()));
         testObserver.assertValue(e -> e.getReferenceType().equals(expectedForm.getReferenceType()));
@@ -151,13 +159,13 @@ public class FormRepositoryTest extends AbstractManagementTest {
             repository.create(buildForm()).blockingGet();
         }
 
-        TestObserver<List<Form>> testObserver = repository.findAll(ReferenceType.DOMAIN, FIXED_REF_ID).toList().test();
+        TestObserver<List<Form>> testObserver =
+                repository.findAll(ReferenceType.DOMAIN, FIXED_REF_ID).toList().test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(l -> l.size() == loop);
         testObserver.assertValue(l -> l.stream().map(Form::getId).distinct().count() == loop);
     }
-
 
     @Test
     public void shouldFindByClient() {
@@ -175,7 +183,11 @@ public class FormRepositoryTest extends AbstractManagementTest {
             repository.create(form).blockingGet();
         }
 
-        TestObserver<List<Form>> testObserver = repository.findByClient(ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID).toList().test();
+        TestObserver<List<Form>> testObserver =
+                repository
+                        .findByClient(ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID)
+                        .toList()
+                        .test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(l -> l.size() == loop);
@@ -197,7 +209,10 @@ public class FormRepositoryTest extends AbstractManagementTest {
         form.setClient(null);
         Form templateForm = repository.create(form).blockingGet();
 
-        TestObserver<Form> testMaybe = repository.findByTemplate(ReferenceType.DOMAIN, FIXED_REF_ID, "MyTemplateId").test();
+        TestObserver<Form> testMaybe =
+                repository
+                        .findByTemplate(ReferenceType.DOMAIN, FIXED_REF_ID, "MyTemplateId")
+                        .test();
         testMaybe.awaitTerminalEvent();
         testMaybe.assertNoErrors();
         assertEqualsTo(templateForm, templateForm.getId(), testMaybe);
@@ -219,10 +234,13 @@ public class FormRepositoryTest extends AbstractManagementTest {
         form.setTemplate("MyTemplateId");
         Form templateForm = repository.create(form).blockingGet();
 
-        TestObserver<Form> testMaybe = repository.findByClientAndTemplate(ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID, "MyTemplateId").test();
+        TestObserver<Form> testMaybe =
+                repository
+                        .findByClientAndTemplate(
+                                ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID, "MyTemplateId")
+                        .test();
         testMaybe.awaitTerminalEvent();
         testMaybe.assertNoErrors();
         assertEqualsTo(templateForm, templateForm.getId(), testMaybe);
     }
-
 }

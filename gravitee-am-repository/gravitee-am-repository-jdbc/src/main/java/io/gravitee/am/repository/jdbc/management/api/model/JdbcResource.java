@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.management.api.model;
@@ -20,8 +18,6 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -29,20 +25,25 @@ import java.util.List;
  */
 @Table("uma_resource_set")
 public class JdbcResource {
-    @Id
-    private String id;
+    @Id private String id;
     private String description;
+
     @Column("icon_uri")
     private String iconUri;
+
     private String name;
     private String type;
     private String domain;
+
     @Column("user_id")
     private String userId;
+
     @Column("client_id")
     private String clientId;
+
     @Column("created_at")
     private LocalDateTime createdAt;
+
     @Column("updated_at")
     private LocalDateTime updatedAt;
 
@@ -130,6 +131,7 @@ public class JdbcResource {
     public static class Scope {
         @Column("resource_id")
         private String resourceId;
+
         private String scope;
 
         public String getResourceId() {

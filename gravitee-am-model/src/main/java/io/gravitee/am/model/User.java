@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.model;
@@ -137,8 +135,7 @@ public class User implements IUser {
     @ApiModelProperty(dataType = "java.lang.Long")
     private Date updatedAt;
 
-    public User() {
-    }
+    public User() {}
 
     public User(boolean withDefaultValues) {
 
@@ -153,7 +150,6 @@ public class User implements IUser {
             this.loginsCount = null;
         }
     }
-
 
     public User(User other) {
         this.id = other.id;
@@ -178,7 +174,8 @@ public class User implements IUser {
         this.roles = other.roles != null ? new ArrayList<>(other.roles) : null;
         this.dynamicRoles = other.dynamicRoles != null ? new ArrayList<>(other.dynamicRoles) : null;
         this.rolesPermissions = other.rolesPermissions;
-        this.x509Certificates = other.x509Certificates != null ? new ArrayList<>(other.x509Certificates) : null;
+        this.x509Certificates =
+                other.x509Certificates != null ? new ArrayList<>(other.x509Certificates) : null;
         this.accountNonExpired = other.accountNonExpired;
         this.accountNonLocked = other.accountNonLocked;
         this.accountLockedAt = other.accountLockedAt;
@@ -197,7 +194,10 @@ public class User implements IUser {
         this.client = other.client;
         this.loginsCount = other.loginsCount;
         this.factors = other.factors != null ? new ArrayList<>(other.factors) : null;
-        this.additionalInformation = other.additionalInformation != null ? new HashMap<>(other.additionalInformation) : null;
+        this.additionalInformation =
+                other.additionalInformation != null
+                        ? new HashMap<>(other.additionalInformation)
+                        : null;
         this.loggedAt = other.loggedAt;
         this.lastPasswordReset = other.lastPasswordReset;
         this.lastLogoutAt = other.lastLogoutAt;
@@ -278,7 +278,10 @@ public class User implements IUser {
                 return (String) getAdditionalInformation().get(StandardClaims.NAME);
             }
             if (getAdditionalInformation().get(StandardClaims.GIVEN_NAME) != null) {
-                return getAdditionalInformation().get(StandardClaims.GIVEN_NAME) + ((getAdditionalInformation().get(StandardClaims.FAMILY_NAME) != null) ? " " + getAdditionalInformation().get(StandardClaims.FAMILY_NAME) : "");
+                return getAdditionalInformation().get(StandardClaims.GIVEN_NAME)
+                        + ((getAdditionalInformation().get(StandardClaims.FAMILY_NAME) != null)
+                                ? " " + getAdditionalInformation().get(StandardClaims.FAMILY_NAME)
+                                : "");
             }
         }
 
@@ -292,7 +295,8 @@ public class User implements IUser {
 
     public String getFirstName() {
         if (firstName == null) {
-            if (getAdditionalInformation() != null && getAdditionalInformation().get(StandardClaims.GIVEN_NAME) != null) {
+            if (getAdditionalInformation() != null
+                    && getAdditionalInformation().get(StandardClaims.GIVEN_NAME) != null) {
                 // fall back to OIDC standard claims
                 firstName = (String) getAdditionalInformation().get(StandardClaims.GIVEN_NAME);
             }
@@ -305,7 +309,8 @@ public class User implements IUser {
     }
 
     public String getMiddleName() {
-        if (getAdditionalInformation() != null && getAdditionalInformation().get(StandardClaims.MIDDLE_NAME) != null) {
+        if (getAdditionalInformation() != null
+                && getAdditionalInformation().get(StandardClaims.MIDDLE_NAME) != null) {
             return (String) getAdditionalInformation().get(StandardClaims.MIDDLE_NAME);
         }
         return null;
@@ -317,7 +322,8 @@ public class User implements IUser {
 
     public String getLastName() {
         if (lastName == null) {
-            if (getAdditionalInformation() != null && getAdditionalInformation().get(StandardClaims.FAMILY_NAME) != null) {
+            if (getAdditionalInformation() != null
+                    && getAdditionalInformation().get(StandardClaims.FAMILY_NAME) != null) {
                 // fall back to OIDC standard claims
                 lastName = (String) getAdditionalInformation().get(StandardClaims.FAMILY_NAME);
             }
@@ -357,12 +363,14 @@ public class User implements IUser {
         if (picture == null) {
             if (photos != null && !photos.isEmpty()) {
                 // fall back to SCIM photos
-                picture = photos.stream()
-                        .filter(p -> Boolean.TRUE.equals(p.isPrimary()))
-                        .map(Attribute::getValue)
-                        .findFirst()
-                        .orElse(photos.get(0).getValue());
-            } else if (getAdditionalInformation() != null && getAdditionalInformation().get(StandardClaims.PICTURE) != null) {
+                picture =
+                        photos.stream()
+                                .filter(p -> Boolean.TRUE.equals(p.isPrimary()))
+                                .map(Attribute::getValue)
+                                .findFirst()
+                                .orElse(photos.get(0).getValue());
+            } else if (getAdditionalInformation() != null
+                    && getAdditionalInformation().get(StandardClaims.PICTURE) != null) {
                 // fall back to OIDC standard claims
                 picture = (String) getAdditionalInformation().get(StandardClaims.PICTURE);
             }
@@ -737,7 +745,8 @@ public class User implements IUser {
     }
 
     public Map<String, Object> getAddress() {
-        if (getAdditionalInformation() != null && getAdditionalInformation().get(StandardClaims.ADDRESS) != null) {
+        if (getAdditionalInformation() != null
+                && getAdditionalInformation().get(StandardClaims.ADDRESS) != null) {
             return (Map<String, Object>) getAdditionalInformation().get(StandardClaims.ADDRESS);
         }
         return null;

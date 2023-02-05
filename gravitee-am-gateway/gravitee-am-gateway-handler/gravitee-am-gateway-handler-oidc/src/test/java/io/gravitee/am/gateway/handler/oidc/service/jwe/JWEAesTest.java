@@ -1,31 +1,38 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oidc.service.jwe;
 
+import static com.nimbusds.jose.JWEAlgorithm.*;
+
+import static org.junit.Assert.fail;
+import static org.junit.runners.Parameterized.Parameters;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import com.nimbusds.jose.JWEObject;
 import com.nimbusds.jose.crypto.AESDecrypter;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
+
 import io.gravitee.am.gateway.handler.oidc.service.jwe.impl.JWEServiceImpl;
 import io.gravitee.am.gateway.handler.oidc.service.jwk.JWKService;
 import io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils;
-import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.jose.OCTKey;
+import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.oidc.JWKSet;
 import io.reactivex.Maybe;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,18 +42,13 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import static com.nimbusds.jose.JWEAlgorithm.*;
-import static org.junit.Assert.fail;
-import static org.junit.runners.Parameterized.Parameters;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -55,14 +57,11 @@ import static org.mockito.Mockito.when;
 @RunWith(Parameterized.class)
 public class JWEAesTest {
 
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
+    @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-    @InjectMocks
-    private JWEService jweService = new JWEServiceImpl();
+    @InjectMocks private JWEService jweService = new JWEServiceImpl();
 
-    @Mock
-    private JWKService jwkService;
+    @Mock private JWKService jwkService;
 
     private String alg;
     private String enc;
@@ -72,15 +71,16 @@ public class JWEAesTest {
         this.enc = enc;
     }
 
-    @Parameters(name="Encrypt with AES alg {0}, enc {1}")
+    @Parameters(name = "Encrypt with AES alg {0}, enc {1}")
     public static Collection<Object[]> data() {
 
-        //return list of Object[]{Algorithm, Encryption}
-        return Arrays.asList(A128KW, A128GCMKW, A192KW, A192GCMKW, A256KW, A256GCMKW).stream().flatMap(
-                algorithm -> JWAlgorithmUtils.getSupportedIdTokenResponseEnc().stream().map(
-                        enc -> new Object[]{algorithm.getName(),enc}
-                )
-        ).collect(Collectors.toList());
+        // return list of Object[]{Algorithm, Encryption}
+        return Arrays.asList(A128KW, A128GCMKW, A192KW, A192GCMKW, A256KW, A256GCMKW).stream()
+                .flatMap(
+                        algorithm ->
+                                JWAlgorithmUtils.getSupportedIdTokenResponseEnc().stream()
+                                        .map(enc -> new Object[] {algorithm.getName(), enc}))
+                .collect(Collectors.toList());
     }
 
     @Test
@@ -111,19 +111,19 @@ public class JWEAesTest {
             client.setIdTokenEncryptedResponseEnc(this.enc);
 
             when(jwkService.getKeys(client)).thenReturn(Maybe.just(new JWKSet()));
-            when(jwkService.filter(any(),any())).thenReturn(Maybe.just(key));
+            when(jwkService.filter(any(), any())).thenReturn(Maybe.just(key));
 
             TestObserver testObserver = jweService.encryptIdToken("JWT", client).test();
             testObserver.assertNoErrors();
             testObserver.assertComplete();
 
-            testObserver.assertValue(jweString -> {
-                JWEObject jwe = JWEObject.parse((String)jweString);
-                jwe.decrypt(new AESDecrypter(jwk));
-                return "JWT".equals(jwe.getPayload().toString());
-            });
-        }
-        catch(NoSuchAlgorithmException e) {
+            testObserver.assertValue(
+                    jweString -> {
+                        JWEObject jwe = JWEObject.parse((String) jweString);
+                        jwe.decrypt(new AESDecrypter(jwk));
+                        return "JWT".equals(jwe.getPayload().toString());
+                    });
+        } catch (NoSuchAlgorithmException e) {
             fail(e.getMessage());
         }
     }
@@ -156,19 +156,19 @@ public class JWEAesTest {
             client.setUserinfoEncryptedResponseEnc(this.enc);
 
             when(jwkService.getKeys(client)).thenReturn(Maybe.just(new JWKSet()));
-            when(jwkService.filter(any(),any())).thenReturn(Maybe.just(key));
+            when(jwkService.filter(any(), any())).thenReturn(Maybe.just(key));
 
             TestObserver testObserver = jweService.encryptUserinfo("JWT", client).test();
             testObserver.assertNoErrors();
             testObserver.assertComplete();
 
-            testObserver.assertValue(jweString -> {
-                JWEObject jwe = JWEObject.parse((String)jweString);
-                jwe.decrypt(new AESDecrypter(jwk));
-                return "JWT".equals(jwe.getPayload().toString());
-            });
-        }
-        catch(NoSuchAlgorithmException e) {
+            testObserver.assertValue(
+                    jweString -> {
+                        JWEObject jwe = JWEObject.parse((String) jweString);
+                        jwe.decrypt(new AESDecrypter(jwk));
+                        return "JWT".equals(jwe.getPayload().toString());
+                    });
+        } catch (NoSuchAlgorithmException e) {
             fail(e.getMessage());
         }
     }

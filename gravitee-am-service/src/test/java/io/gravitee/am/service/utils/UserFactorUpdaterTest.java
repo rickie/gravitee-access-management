@@ -1,33 +1,32 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.utils;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+import static java.util.Collections.singletonList;
 
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.factor.EnrolledFactor;
 import io.gravitee.am.model.factor.EnrolledFactorChannel;
 import io.gravitee.am.model.scim.Attribute;
+
 import org.junit.Assume;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
-
-import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -36,7 +35,7 @@ import static org.junit.Assert.assertNull;
 public class UserFactorUpdaterTest {
 
     @Test
-    public void shouldNotUpdateFactors_NoChannel () {
+    public void shouldNotUpdateFactors_NoChannel() {
         EnrolledFactor factor = new EnrolledFactor();
         Assume.assumeTrue(factor.getChannel() == null);
 
@@ -57,14 +56,17 @@ public class UserFactorUpdaterTest {
         existingUser.setEmail("email@domain.org");
 
         EnrolledFactor factor = new EnrolledFactor();
-        factor.setChannel(new EnrolledFactorChannel(EnrolledFactorChannel.Type.EMAIL, existingUser.getEmail()));
+        factor.setChannel(
+                new EnrolledFactorChannel(
+                        EnrolledFactorChannel.Type.EMAIL, existingUser.getEmail()));
 
         User updatedUser = new User();
         updatedUser.setEmail("email2@domain.org");
 
         UserFactorUpdater.updateFactors(singletonList(factor), existingUser, updatedUser);
 
-        assertEquals("Email should be updated", updatedUser.getEmail(), factor.getChannel().getTarget());
+        assertEquals(
+                "Email should be updated", updatedUser.getEmail(), factor.getChannel().getTarget());
     }
 
     @Test
@@ -73,14 +75,19 @@ public class UserFactorUpdaterTest {
         existingUser.setEmail("email@domain.org");
 
         EnrolledFactor factor = new EnrolledFactor();
-        factor.setChannel(new EnrolledFactorChannel(EnrolledFactorChannel.Type.EMAIL, existingUser.getEmail()));
+        factor.setChannel(
+                new EnrolledFactorChannel(
+                        EnrolledFactorChannel.Type.EMAIL, existingUser.getEmail()));
 
         User updatedUser = new User();
         updatedUser.setEmail(null);
 
         UserFactorUpdater.updateFactors(singletonList(factor), existingUser, updatedUser);
 
-        assertEquals("Email should not be updated", existingUser.getEmail(), factor.getChannel().getTarget());
+        assertEquals(
+                "Email should not be updated",
+                existingUser.getEmail(),
+                factor.getChannel().getTarget());
     }
 
     @Test
@@ -94,7 +101,8 @@ public class UserFactorUpdaterTest {
         existingUser.setEmails(Arrays.asList(email1, email2));
 
         EnrolledFactor factor = new EnrolledFactor();
-        factor.setChannel(new EnrolledFactorChannel(EnrolledFactorChannel.Type.EMAIL, email2.getValue()));
+        factor.setChannel(
+                new EnrolledFactorChannel(EnrolledFactorChannel.Type.EMAIL, email2.getValue()));
 
         User updatedUser = new User();
         updatedUser.setEmail(null);
@@ -106,7 +114,8 @@ public class UserFactorUpdaterTest {
 
         UserFactorUpdater.updateFactors(singletonList(factor), existingUser, updatedUser);
 
-        assertEquals("Email should be updated", uemail2.getValue(), factor.getChannel().getTarget());
+        assertEquals(
+                "Email should be updated", uemail2.getValue(), factor.getChannel().getTarget());
     }
 
     @Test
@@ -122,7 +131,8 @@ public class UserFactorUpdaterTest {
         existingUser.setEmails(Arrays.asList(email1, email2, email3));
 
         EnrolledFactor factor = new EnrolledFactor();
-        factor.setChannel(new EnrolledFactorChannel(EnrolledFactorChannel.Type.EMAIL, email3.getValue()));
+        factor.setChannel(
+                new EnrolledFactorChannel(EnrolledFactorChannel.Type.EMAIL, email3.getValue()));
 
         User updatedUser = new User();
         updatedUser.setEmail(null);
@@ -134,9 +144,9 @@ public class UserFactorUpdaterTest {
 
         UserFactorUpdater.updateFactors(singletonList(factor), existingUser, updatedUser);
 
-        assertEquals("Email should not be updated", email3.getValue(), factor.getChannel().getTarget());
+        assertEquals(
+                "Email should not be updated", email3.getValue(), factor.getChannel().getTarget());
     }
-
 
     @Test
     public void shouldNotUpdateEmail_TooMuchDiff() {
@@ -151,7 +161,8 @@ public class UserFactorUpdaterTest {
         existingUser.setEmails(Arrays.asList(email1, email2, email3));
 
         EnrolledFactor factor = new EnrolledFactor();
-        factor.setChannel(new EnrolledFactorChannel(EnrolledFactorChannel.Type.EMAIL, email3.getValue()));
+        factor.setChannel(
+                new EnrolledFactorChannel(EnrolledFactorChannel.Type.EMAIL, email3.getValue()));
 
         User updatedUser = new User();
         updatedUser.setEmail(null);
@@ -165,7 +176,7 @@ public class UserFactorUpdaterTest {
 
         UserFactorUpdater.updateFactors(singletonList(factor), existingUser, updatedUser);
 
-        assertEquals("Email should not be updated", email3.getValue(), factor.getChannel().getTarget());
+        assertEquals(
+                "Email should not be updated", email3.getValue(), factor.getChannel().getTarget());
     }
-
 }

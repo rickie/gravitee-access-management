@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.vertx.core.http;
@@ -31,13 +29,14 @@ import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.net.SocketAddress;
 
-import javax.net.ssl.SSLSession;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.net.ssl.SSLSession;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -64,7 +63,8 @@ public class VertxHttpServerRequest implements Request {
         this.timestamp = System.currentTimeMillis();
         this.id = UUID.toString(UUID.random());
         this.transactionId = UUID.toString(UUID.random());
-        this.contextPath = httpServerRequest.path() != null ? httpServerRequest.path().split("/")[0] : null;
+        this.contextPath =
+                httpServerRequest.path() != null ? httpServerRequest.path().split("/")[0] : null;
         this.headers = new VertxHttpHeaders(httpServerRequest.headers());
         this.metrics = Metrics.on(timestamp).build();
         this.metrics.setRequestId(id());
@@ -73,17 +73,21 @@ public class VertxHttpServerRequest implements Request {
         this.metrics.setRemoteAddress(remoteAddress());
         this.metrics.setHost(httpServerRequest.host());
         this.metrics.setUri(uri());
-        this.metrics.setUserAgent(httpServerRequest.getHeader(io.vertx.core.http.HttpHeaders.USER_AGENT));
+        this.metrics.setUserAgent(
+                httpServerRequest.getHeader(io.vertx.core.http.HttpHeaders.USER_AGENT));
     }
 
     /**
-     * Introduced for https://github.com/gravitee-io/issues/issues/7958
-     * This constructor allows to add parameters to the query parameters known by the httpServerRequest param.
-     * This should be used only for some specific cases where a previous state has to be restored in order to perform some check.
+     * Introduced for https://github.com/gravitee-io/issues/issues/7958 This constructor allows to
+     * add parameters to the query parameters known by the httpServerRequest param. This should be
+     * used only for some specific cases where a previous state has to be restored in order to
+     * perform some check.
+     *
      * @param httpServerRequest
      * @param originalParams
      */
-    public VertxHttpServerRequest(HttpServerRequest httpServerRequest, io.vertx.reactivex.core.MultiMap originalParams) {
+    public VertxHttpServerRequest(
+            HttpServerRequest httpServerRequest, io.vertx.reactivex.core.MultiMap originalParams) {
         this(httpServerRequest);
         this.originalParams = originalParams;
     }
@@ -129,17 +133,23 @@ public class VertxHttpServerRequest implements Request {
             MultiMap parameters = httpServerRequest.params();
             queryParameters = new LinkedMultiValueMap<>(parameters.size());
 
-            for(Map.Entry<String, String> param : httpServerRequest.params()) {
+            for (Map.Entry<String, String> param : httpServerRequest.params()) {
                 try {
                     if (decoded) {
-                        String paramKey = URLDecoder.decode(param.getKey(), StandardCharsets.UTF_8.name());
-                        List<String> paramValues = parameters.getAll(param.getKey()).stream().map(v -> {
-                            try {
-                                return URLDecoder.decode(v, StandardCharsets.UTF_8.name());
-                            } catch (UnsupportedEncodingException e) {
-                                return v;
-                            }
-                        }).collect(Collectors.toList());
+                        String paramKey =
+                                URLDecoder.decode(param.getKey(), StandardCharsets.UTF_8.name());
+                        List<String> paramValues =
+                                parameters.getAll(param.getKey()).stream()
+                                        .map(
+                                                v -> {
+                                                    try {
+                                                        return URLDecoder.decode(
+                                                                v, StandardCharsets.UTF_8.name());
+                                                    } catch (UnsupportedEncodingException e) {
+                                                        return v;
+                                                    }
+                                                })
+                                        .collect(Collectors.toList());
                         queryParameters.put(paramKey, paramValues);
                     } else {
                         queryParameters.put(param.getKey(), parameters.getAll(param.getKey()));
@@ -151,7 +161,7 @@ public class VertxHttpServerRequest implements Request {
         }
 
         if (this.originalParams != null) {
-            originalParams.forEach((k,v) -> queryParameters.set(k, v));
+            originalParams.forEach((k, v) -> queryParameters.set(k, v));
         }
 
         return queryParameters;
@@ -210,11 +220,13 @@ public class VertxHttpServerRequest implements Request {
 
     @Override
     public Request bodyHandler(Handler<Buffer> bodyHandler) {
-        if (! httpServerRequest.isEnded()) {
-            httpServerRequest.handler(event -> {
-                bodyHandler.handle(Buffer.buffer(event.getBytes()));
-                metrics.setRequestContentLength(metrics.getRequestContentLength() + event.length());
-            });
+        if (!httpServerRequest.isEnded()) {
+            httpServerRequest.handler(
+                    event -> {
+                        bodyHandler.handle(Buffer.buffer(event.getBytes()));
+                        metrics.setRequestContentLength(
+                                metrics.getRequestContentLength() + event.length());
+                    });
         }
 
         return this;
@@ -282,5 +294,4 @@ public class VertxHttpServerRequest implements Request {
     public String host() {
         return this.httpServerRequest.host();
     }
-
 }

@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.authentication.handler;
+
+import static io.gravitee.am.management.handlers.management.api.authentication.controller.LoginController.ORGANIZATION_PARAMETER_NAME;
 
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.common.web.UriBuilder;
@@ -25,16 +25,16 @@ import io.gravitee.am.service.AuditService;
 import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.AuthenticationAuditBuilder;
 import io.gravitee.common.http.HttpHeaders;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
+import java.io.IOException;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
-import static io.gravitee.am.management.handlers.management.api.authentication.controller.LoginController.ORGANIZATION_PARAMETER_NAME;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -42,8 +42,7 @@ import static io.gravitee.am.management.handlers.management.api.authentication.c
  */
 public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
-    @Autowired
-    private AuditService auditService;
+    @Autowired private AuditService auditService;
 
     private String defaultFailureUrl;
 
@@ -54,22 +53,35 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
     }
 
     @Override
-    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+    public void onAuthenticationFailure(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException exception)
+            throws IOException, ServletException {
         String organizationId = getOrganizationId(request);
 
-        EndUserAuthentication authentication = new EndUserAuthentication(request.getParameter("username"), null, new SimpleAuthenticationContext());
+        EndUserAuthentication authentication =
+                new EndUserAuthentication(
+                        request.getParameter("username"), null, new SimpleAuthenticationContext());
         authentication.getContext().set(Claims.ip_address, remoteAddress(request));
         authentication.getContext().set(Claims.user_agent, userAgent(request));
         authentication.getContext().set(Claims.organization, organizationId);
 
         // audit event
-        auditService.report(AuditBuilder.builder(AuthenticationAuditBuilder.class).principal(authentication)
-                .referenceType(ReferenceType.ORGANIZATION).referenceId(organizationId).throwable(exception));
+        auditService.report(
+                AuditBuilder.builder(AuthenticationAuditBuilder.class)
+                        .principal(authentication)
+                        .referenceType(ReferenceType.ORGANIZATION)
+                        .referenceId(organizationId)
+                        .throwable(exception));
 
         String redirectUri = defaultFailureUrl;
 
         if (!Organization.DEFAULT.equals(organizationId)) {
-            redirectUri = UriBuilder.fromURIString(defaultFailureUrl).addParameter("organizationId", organizationId).buildString();
+            redirectUri =
+                    UriBuilder.fromURIString(defaultFailureUrl)
+                            .addParameter("organizationId", organizationId)
+                            .buildString();
         }
 
         super.getRedirectStrategy().sendRedirect(request, response, redirectUri);
@@ -97,7 +109,8 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
             idx = remoteAddress.indexOf(':');
 
-            remoteAddress = (idx != -1) ? remoteAddress.substring(0, idx).trim() : remoteAddress.trim();
+            remoteAddress =
+                    (idx != -1) ? remoteAddress.substring(0, idx).trim() : remoteAddress.trim();
         } else {
             remoteAddress = httpServerRequest.getRemoteAddr();
         }

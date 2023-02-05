@@ -1,32 +1,32 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.service.impl.upgrades;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.Role;
-import io.gravitee.am.model.application.ApplicationAdvancedSettings;
 import io.gravitee.am.model.application.ApplicationOAuthSettings;
 import io.gravitee.am.model.application.ApplicationSettings;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.oauth2.Scope;
-import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.service.*;
 import io.gravitee.am.service.model.NewScope;
 import io.reactivex.Single;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -35,9 +35,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -45,20 +42,15 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ScopeUpgraderTest {
 
-    @InjectMocks
-    private ScopeUpgrader scopeUpgrader = new ScopeUpgrader();
+    @InjectMocks private ScopeUpgrader scopeUpgrader = new ScopeUpgrader();
 
-    @Mock
-    private DomainService domainService;
+    @Mock private DomainService domainService;
 
-    @Mock
-    private ScopeService scopeService;
+    @Mock private ScopeService scopeService;
 
-    @Mock
-    private ApplicationService applicationService;
+    @Mock private ApplicationService applicationService;
 
-    @Mock
-    private RoleService roleService;
+    @Mock private RoleService roleService;
 
     @Test
     public void shouldCreateScopes_withRoleAndClientScopes() {
@@ -93,11 +85,15 @@ public class ScopeUpgraderTest {
         role.setOauthScopes(Collections.singletonList(roleScope.getKey()));
 
         when(domainService.findAll()).thenReturn(Single.just(Collections.singletonList(domain)));
-        when(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.emptySet(),0 ,0)))
-                .thenReturn(Single.just(new Page<>(Collections.singleton(domainScope),0, 1)));
-        when(applicationService.findByDomain(domain.getId())).thenReturn(Single.just(Collections.singleton(app)));
-        when(roleService.findByDomain(domain.getId())).thenReturn(Single.just(Collections.singleton(role)));
-        when(scopeService.create(any(String.class), any(NewScope.class))).thenReturn(Single.just(new Scope()));
+        when(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE))
+                .thenReturn(Single.just(new Page<>(Collections.emptySet(), 0, 0)))
+                .thenReturn(Single.just(new Page<>(Collections.singleton(domainScope), 0, 1)));
+        when(applicationService.findByDomain(domain.getId()))
+                .thenReturn(Single.just(Collections.singleton(app)));
+        when(roleService.findByDomain(domain.getId()))
+                .thenReturn(Single.just(Collections.singleton(role)));
+        when(scopeService.create(any(String.class), any(NewScope.class)))
+                .thenReturn(Single.just(new Scope()));
 
         scopeUpgrader.upgrade();
 
@@ -121,7 +117,8 @@ public class ScopeUpgraderTest {
         domain.setName(domainName);
 
         when(domainService.findAll()).thenReturn(Single.just(Collections.singletonList(domain)));
-        when(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.singleton(domainScope), 0, 1)));
+        when(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE))
+                .thenReturn(Single.just(new Page<>(Collections.singleton(domainScope), 0, 1)));
 
         scopeUpgrader.upgrade();
 
@@ -130,9 +127,7 @@ public class ScopeUpgraderTest {
         verify(applicationService, never()).findByDomain(domain.getId());
         verify(roleService, never()).findByDomain(domain.getId());
         verify(scopeService, never()).create(any(String.class), any(NewScope.class));
-
     }
-
 
     @Test
     public void shouldNotCreateScopes_noClientAndNoRole() {
@@ -147,10 +142,13 @@ public class ScopeUpgraderTest {
         domain.setName(domainName);
 
         when(domainService.findAll()).thenReturn(Single.just(Collections.singletonList(domain)));
-        when(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.emptySet(), 0, 0)))
+        when(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE))
+                .thenReturn(Single.just(new Page<>(Collections.emptySet(), 0, 0)))
                 .thenReturn(Single.just(new Page<>(Collections.singleton(domainScope), 0, 0)));
-        when(applicationService.findByDomain(domain.getId())).thenReturn(Single.just(Collections.emptySet()));
-        when(roleService.findByDomain(domain.getId())).thenReturn(Single.just(Collections.emptySet()));
+        when(applicationService.findByDomain(domain.getId()))
+                .thenReturn(Single.just(Collections.emptySet()));
+        when(roleService.findByDomain(domain.getId()))
+                .thenReturn(Single.just(Collections.emptySet()));
 
         scopeUpgrader.upgrade();
 
@@ -159,7 +157,6 @@ public class ScopeUpgraderTest {
         verify(applicationService, times(1)).findByDomain(domain.getId());
         verify(roleService, times(1)).findByDomain(domain.getId());
         verify(scopeService, never()).create(any(String.class), any(NewScope.class));
-
     }
 
     @Test
@@ -182,9 +179,16 @@ public class ScopeUpgraderTest {
         role.setPermissionAcls(null);
 
         when(domainService.findAll()).thenReturn(Single.just(Collections.singletonList(domain)));
-        when(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.emptySet(),0, Integer.MAX_VALUE))).thenReturn(Single.just(new Page<>(Collections.singleton(domainScope), 0, Integer.MAX_VALUE)));
-        when(applicationService.findByDomain(domain.getId())).thenReturn(Single.just(Collections.singleton(app)));
-        when(roleService.findByDomain(domain.getId())).thenReturn(Single.just(Collections.singleton(role)));
+        when(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE))
+                .thenReturn(Single.just(new Page<>(Collections.emptySet(), 0, Integer.MAX_VALUE)))
+                .thenReturn(
+                        Single.just(
+                                new Page<>(
+                                        Collections.singleton(domainScope), 0, Integer.MAX_VALUE)));
+        when(applicationService.findByDomain(domain.getId()))
+                .thenReturn(Single.just(Collections.singleton(app)));
+        when(roleService.findByDomain(domain.getId()))
+                .thenReturn(Single.just(Collections.singleton(role)));
 
         scopeUpgrader.upgrade();
 
@@ -193,6 +197,5 @@ public class ScopeUpgraderTest {
         verify(applicationService, times(1)).findByDomain(domain.getId());
         verify(roleService, times(1)).findByDomain(domain.getId());
         verify(scopeService, never()).create(any(String.class), any(NewScope.class));
-
     }
 }

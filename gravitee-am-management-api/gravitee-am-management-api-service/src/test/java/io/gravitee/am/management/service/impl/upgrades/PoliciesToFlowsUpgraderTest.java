@@ -1,19 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.service.impl.upgrades;
+
+import static io.reactivex.Single.just;
+
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
+
+import static java.util.Arrays.asList;
 
 import io.gravitee.am.common.policy.ExtensionPoint;
 import io.gravitee.am.management.service.PolicyPluginService;
@@ -28,6 +33,7 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -38,11 +44,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.reactivex.Single.just;
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
@@ -52,19 +53,16 @@ public class PoliciesToFlowsUpgraderTest {
 
     public static final String MY_DOMAIN_ID = "MY_DOMAIN_ID";
     public static final String MY_DOMAIN_ID2 = "MY_DOMAIN_ID2";
-    public static final List<Type> FLOWS = asList(Type.ROOT, Type.CONSENT, Type.LOGIN, Type.REGISTER);
+    public static final List<Type> FLOWS =
+            asList(Type.ROOT, Type.CONSENT, Type.LOGIN, Type.REGISTER);
 
-    @InjectMocks
-    private PoliciesToFlowsUpgrader upgrader;
+    @InjectMocks private PoliciesToFlowsUpgrader upgrader;
 
-    @Mock
-    private PolicyRepository policyRepository;
+    @Mock private PolicyRepository policyRepository;
 
-    @Mock
-    private FlowService flowService;
+    @Mock private FlowService flowService;
 
-    @Mock
-    private PolicyPluginService policyPluginService;
+    @Mock private PolicyPluginService policyPluginService;
 
     @Test
     public void testMigration_NoPolicies() throws Exception {
@@ -121,8 +119,19 @@ public class PoliciesToFlowsUpgraderTest {
         postConsent2.setOrder(1);
         postConsent2.setConfiguration("POST CONSENT CONFIG");
 
-        when(policyRepository.findAll()).thenReturn(Flowable.just(rootPolicy2, rootPolicy1, preConsent, postConsent2, postConsent)); // rootPolicy2 first to test ordering
-        when(flowService.defaultFlows(ReferenceType.DOMAIN, MY_DOMAIN_ID)).thenReturn(FLOWS.stream().map(type -> buildFlow(type, ReferenceType.DOMAIN, MY_DOMAIN_ID)).collect(Collectors.toList()));
+        when(policyRepository.findAll())
+                .thenReturn(
+                        Flowable.just(
+                                rootPolicy2,
+                                rootPolicy1,
+                                preConsent,
+                                postConsent2,
+                                postConsent)); // rootPolicy2 first to test ordering
+        when(flowService.defaultFlows(ReferenceType.DOMAIN, MY_DOMAIN_ID))
+                .thenReturn(
+                        FLOWS.stream()
+                                .map(type -> buildFlow(type, ReferenceType.DOMAIN, MY_DOMAIN_ID))
+                                .collect(Collectors.toList()));
         when(flowService.create(any(), anyString(), any())).thenReturn(Single.just(new Flow()));
         when(policyPluginService.findById(null)).thenReturn(Maybe.just(new PolicyPlugin()));
 
@@ -131,31 +140,90 @@ public class PoliciesToFlowsUpgraderTest {
         verify(flowService).defaultFlows(ReferenceType.DOMAIN, MY_DOMAIN_ID);
         verify(policyRepository).deleteCollection();
         verify(policyRepository).findAll();
-        verify(flowService, times(4)).create(any(), anyString(), argThat(flow -> {
-            boolean result = false;
-            switch (flow.getType()) {
-                case ROOT:
-                    result = CollectionUtils.isEmpty(flow.getPost()) && flow.getPre().size() == 2;
-                    result = result && flow.getPre().get(0).getConfiguration().equals(rootPolicy1.getConfiguration());
-                    result = result && flow.getPre().get(0).isEnabled() == rootPolicy1.isEnabled();
-                    result = result && flow.getPre().get(1).getConfiguration().equals(rootPolicy2.getConfiguration());
-                    result = result && flow.getPre().get(1).isEnabled() == rootPolicy2.isEnabled();
-                    break;
-                case CONSENT:
-                    result = flow.getPost().size() == 2 && flow.getPre().size() == 1;
-                    result = result && flow.getPre().get(0).getConfiguration().equals(preConsent.getConfiguration());
-                    result = result && flow.getPre().get(0).isEnabled() == preConsent.isEnabled();
+        verify(flowService, times(4))
+                .create(
+                        any(),
+                        anyString(),
+                        argThat(
+                                flow -> {
+                                    boolean result = false;
+                                    switch (flow.getType()) {
+                                        case ROOT:
+                                            result =
+                                                    CollectionUtils.isEmpty(flow.getPost())
+                                                            && flow.getPre().size() == 2;
+                                            result =
+                                                    result
+                                                            && flow.getPre()
+                                                                    .get(0)
+                                                                    .getConfiguration()
+                                                                    .equals(
+                                                                            rootPolicy1
+                                                                                    .getConfiguration());
+                                            result =
+                                                    result
+                                                            && flow.getPre().get(0).isEnabled()
+                                                                    == rootPolicy1.isEnabled();
+                                            result =
+                                                    result
+                                                            && flow.getPre()
+                                                                    .get(1)
+                                                                    .getConfiguration()
+                                                                    .equals(
+                                                                            rootPolicy2
+                                                                                    .getConfiguration());
+                                            result =
+                                                    result
+                                                            && flow.getPre().get(1).isEnabled()
+                                                                    == rootPolicy2.isEnabled();
+                                            break;
+                                        case CONSENT:
+                                            result =
+                                                    flow.getPost().size() == 2
+                                                            && flow.getPre().size() == 1;
+                                            result =
+                                                    result
+                                                            && flow.getPre()
+                                                                    .get(0)
+                                                                    .getConfiguration()
+                                                                    .equals(
+                                                                            preConsent
+                                                                                    .getConfiguration());
+                                            result =
+                                                    result
+                                                            && flow.getPre().get(0).isEnabled()
+                                                                    == preConsent.isEnabled();
 
-                    result = result && flow.getPost().get(0).getConfiguration().equals(postConsent.getConfiguration());
-                    result = result && flow.getPost().get(0).isEnabled() == postConsent.isEnabled();
-                    result = result && flow.getPost().get(1).getConfiguration().equals(postConsent2.getConfiguration());
-                    result = result && flow.getPost().get(1).isEnabled() == postConsent2.isEnabled();
-                    break;
-                default:
-                    result = true;
-            }
-            return result;
-        }));
+                                            result =
+                                                    result
+                                                            && flow.getPost()
+                                                                    .get(0)
+                                                                    .getConfiguration()
+                                                                    .equals(
+                                                                            postConsent
+                                                                                    .getConfiguration());
+                                            result =
+                                                    result
+                                                            && flow.getPost().get(0).isEnabled()
+                                                                    == postConsent.isEnabled();
+                                            result =
+                                                    result
+                                                            && flow.getPost()
+                                                                    .get(1)
+                                                                    .getConfiguration()
+                                                                    .equals(
+                                                                            postConsent2
+                                                                                    .getConfiguration());
+                                            result =
+                                                    result
+                                                            && flow.getPost().get(1).isEnabled()
+                                                                    == postConsent2.isEnabled();
+                                            break;
+                                        default:
+                                            result = true;
+                                    }
+                                    return result;
+                                }));
     }
 
     @Test
@@ -199,9 +267,24 @@ public class PoliciesToFlowsUpgraderTest {
         postConsent2.setOrder(1);
         postConsent2.setConfiguration("POST CONSENT CONFIG");
 
-        when(policyRepository.findAll()).thenReturn(Flowable.just(rootPolicy2, rootPolicy1, preConsent, postConsent2, postConsent)); // rootPolicy2 first to test ordering
-        when(flowService.defaultFlows(ReferenceType.DOMAIN, MY_DOMAIN_ID)).thenReturn(FLOWS.stream().map(type -> buildFlow(type, ReferenceType.DOMAIN, MY_DOMAIN_ID)).collect(Collectors.toList()));
-        when(flowService.defaultFlows(ReferenceType.DOMAIN, MY_DOMAIN_ID2)).thenReturn(FLOWS.stream().map(type -> buildFlow(type, ReferenceType.DOMAIN, MY_DOMAIN_ID2)).collect(Collectors.toList()));
+        when(policyRepository.findAll())
+                .thenReturn(
+                        Flowable.just(
+                                rootPolicy2,
+                                rootPolicy1,
+                                preConsent,
+                                postConsent2,
+                                postConsent)); // rootPolicy2 first to test ordering
+        when(flowService.defaultFlows(ReferenceType.DOMAIN, MY_DOMAIN_ID))
+                .thenReturn(
+                        FLOWS.stream()
+                                .map(type -> buildFlow(type, ReferenceType.DOMAIN, MY_DOMAIN_ID))
+                                .collect(Collectors.toList()));
+        when(flowService.defaultFlows(ReferenceType.DOMAIN, MY_DOMAIN_ID2))
+                .thenReturn(
+                        FLOWS.stream()
+                                .map(type -> buildFlow(type, ReferenceType.DOMAIN, MY_DOMAIN_ID2))
+                                .collect(Collectors.toList()));
         when(flowService.create(any(), anyString(), any())).thenReturn(Single.just(new Flow()));
         when(policyPluginService.findById(null)).thenReturn(Maybe.just(new PolicyPlugin()));
 
@@ -211,39 +294,98 @@ public class PoliciesToFlowsUpgraderTest {
         verify(flowService).defaultFlows(ReferenceType.DOMAIN, MY_DOMAIN_ID2);
         verify(policyRepository).deleteCollection();
         verify(policyRepository).findAll();
-        verify(flowService, times(8)).create(any(), anyString(), argThat(flow -> {
-            boolean result = false;
-            switch (flow.getType()) {
-                case ROOT:
-                    if (flow.getReferenceId().equals(MY_DOMAIN_ID)) {
-                        result = CollectionUtils.isEmpty(flow.getPost()) && flow.getPre().size() == 2;
-                        result = result && flow.getPre().get(0).getConfiguration().equals(rootPolicy1.getConfiguration());
-                        result = result && flow.getPre().get(0).isEnabled() == rootPolicy1.isEnabled();
-                        result = result && flow.getPre().get(1).getConfiguration().equals(rootPolicy2.getConfiguration());
-                        result = result && flow.getPre().get(1).isEnabled() == rootPolicy2.isEnabled();
-                    } else {
-                        result = true;
-                    }
-                    break;
-                case CONSENT:
-                    if (flow.getReferenceId().equals(MY_DOMAIN_ID2)) {
-                        result = flow.getPost().size() == 2 && flow.getPre().size() == 1;
-                        result = result && flow.getPre().get(0).getConfiguration().equals(preConsent.getConfiguration());
-                        result = result && flow.getPre().get(0).isEnabled() == preConsent.isEnabled();
+        verify(flowService, times(8))
+                .create(
+                        any(),
+                        anyString(),
+                        argThat(
+                                flow -> {
+                                    boolean result = false;
+                                    switch (flow.getType()) {
+                                        case ROOT:
+                                            if (flow.getReferenceId().equals(MY_DOMAIN_ID)) {
+                                                result =
+                                                        CollectionUtils.isEmpty(flow.getPost())
+                                                                && flow.getPre().size() == 2;
+                                                result =
+                                                        result
+                                                                && flow.getPre()
+                                                                        .get(0)
+                                                                        .getConfiguration()
+                                                                        .equals(
+                                                                                rootPolicy1
+                                                                                        .getConfiguration());
+                                                result =
+                                                        result
+                                                                && flow.getPre().get(0).isEnabled()
+                                                                        == rootPolicy1.isEnabled();
+                                                result =
+                                                        result
+                                                                && flow.getPre()
+                                                                        .get(1)
+                                                                        .getConfiguration()
+                                                                        .equals(
+                                                                                rootPolicy2
+                                                                                        .getConfiguration());
+                                                result =
+                                                        result
+                                                                && flow.getPre().get(1).isEnabled()
+                                                                        == rootPolicy2.isEnabled();
+                                            } else {
+                                                result = true;
+                                            }
+                                            break;
+                                        case CONSENT:
+                                            if (flow.getReferenceId().equals(MY_DOMAIN_ID2)) {
+                                                result =
+                                                        flow.getPost().size() == 2
+                                                                && flow.getPre().size() == 1;
+                                                result =
+                                                        result
+                                                                && flow.getPre()
+                                                                        .get(0)
+                                                                        .getConfiguration()
+                                                                        .equals(
+                                                                                preConsent
+                                                                                        .getConfiguration());
+                                                result =
+                                                        result
+                                                                && flow.getPre().get(0).isEnabled()
+                                                                        == preConsent.isEnabled();
 
-                        result = result && flow.getPost().get(0).getConfiguration().equals(postConsent.getConfiguration());
-                        result = result && flow.getPost().get(0).isEnabled() == postConsent.isEnabled();
-                        result = result && flow.getPost().get(1).getConfiguration().equals(postConsent2.getConfiguration());
-                        result = result && flow.getPost().get(1).isEnabled() == postConsent2.isEnabled();
-                    } else {
-                        result = true;
-                    }
-                    break;
-                default:
-                    result = true;
-            }
-            return result;
-        }));
+                                                result =
+                                                        result
+                                                                && flow.getPost()
+                                                                        .get(0)
+                                                                        .getConfiguration()
+                                                                        .equals(
+                                                                                postConsent
+                                                                                        .getConfiguration());
+                                                result =
+                                                        result
+                                                                && flow.getPost().get(0).isEnabled()
+                                                                        == postConsent.isEnabled();
+                                                result =
+                                                        result
+                                                                && flow.getPost()
+                                                                        .get(1)
+                                                                        .getConfiguration()
+                                                                        .equals(
+                                                                                postConsent2
+                                                                                        .getConfiguration());
+                                                result =
+                                                        result
+                                                                && flow.getPost().get(1).isEnabled()
+                                                                        == postConsent2.isEnabled();
+                                            } else {
+                                                result = true;
+                                            }
+                                            break;
+                                        default:
+                                            result = true;
+                                    }
+                                    return result;
+                                }));
     }
 
     private Flow buildFlow(Type type, ReferenceType referenceType, String referenceId) {

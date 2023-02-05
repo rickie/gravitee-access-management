@@ -1,18 +1,19 @@
-package io.gravitee.am.factor.email.provider; /**
+package io.gravitee.am.factor.email.provider;
+/**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.common.exception.mfa.InvalidCodeException;
 import io.gravitee.am.common.factor.FactorDataKeys;
@@ -32,6 +33,7 @@ import io.gravitee.common.util.Maps;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,9 +45,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
@@ -56,22 +55,16 @@ public class EmailFactorProviderTest {
     public static final String CODE = "886024";
     public static final String SHARED_SECRET = "RVVAGS23PDJNU3NPRBMUHFXU4OXZTNRA";
 
-    @InjectMocks
-    private EmailFactorProvider cut;
+    @InjectMocks private EmailFactorProvider cut;
 
-    @Mock
-    private EmailFactorConfiguration configuration;
+    @Mock private EmailFactorConfiguration configuration;
 
-    @Mock
-    private ResourceManager resourceManager;
+    @Mock private ResourceManager resourceManager;
 
-    @Mock
-    private FactorContext factorContext;
+    @Mock private FactorContext factorContext;
 
-    @Mock
-    private EmailService emailService;
-    @Mock
-    private UserService userService;
+    @Mock private EmailService emailService;
+    @Mock private UserService userService;
 
     @Before
     public void init() {
@@ -83,7 +76,7 @@ public class EmailFactorProviderTest {
     }
 
     @Test
-    public void shouldSendEmailAndGenerateCode() throws Exception{
+    public void shouldSendEmailAndGenerateCode() throws Exception {
         EmailSenderProvider smtpProvider = mock(EmailSenderProvider.class);
         when(resourceManager.getResourceProvider(any())).thenReturn(smtpProvider);
 
@@ -93,18 +86,23 @@ public class EmailFactorProviderTest {
         template.setExpiresAfter(600);
 
         io.gravitee.am.common.email.Email generatedEmail = new io.gravitee.am.common.email.Email();
-        generatedEmail.setTo(new String[]{RECIPIENT});
-        when(emailService.createEmail(any(), any(), any(), any(), any())).thenReturn(new EmailService.EmailWrapper(generatedEmail));
+        generatedEmail.setTo(new String[] {RECIPIENT});
+        when(emailService.createEmail(any(), any(), any(), any(), any()))
+                .thenReturn(new EmailService.EmailWrapper(generatedEmail));
 
         EnrolledFactor enrolled = new EnrolledFactor();
         enrolled.setUpdatedAt(new Date());
-        Map<String, Object> additionalData = new Maps.MapBuilder(new HashMap())
-                .put(FactorDataKeys.KEY_MOVING_FACTOR, 0)
-                .put(FactorDataKeys.KEY_EXPIRE_AT, System.currentTimeMillis() + 600)
-                .build();
-        enrolled.setSecurity(new EnrolledFactorSecurity(FactorSecurityType.SHARED_SECRET, SHARED_SECRET, additionalData));
+        Map<String, Object> additionalData =
+                new Maps.MapBuilder(new HashMap())
+                        .put(FactorDataKeys.KEY_MOVING_FACTOR, 0)
+                        .put(FactorDataKeys.KEY_EXPIRE_AT, System.currentTimeMillis() + 600)
+                        .build();
+        enrolled.setSecurity(
+                new EnrolledFactorSecurity(
+                        FactorSecurityType.SHARED_SECRET, SHARED_SECRET, additionalData));
         enrolled.setChannel(new EnrolledFactorChannel(EnrolledFactorChannel.Type.EMAIL, RECIPIENT));
-        when(factorContext.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class)).thenReturn(enrolled);
+        when(factorContext.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class))
+                .thenReturn(enrolled);
         when(factorContext.getTemplateValues()).thenReturn(new HashMap<>());
         User user = mock(User.class);
         when(user.getId()).thenReturn("id");
@@ -118,7 +116,8 @@ public class EmailFactorProviderTest {
         test.assertNoValues();
         test.assertNoErrors();
 
-        verify(smtpProvider).sendMessage(argThat(m -> m.getTo()[0].equals(RECIPIENT)), anyBoolean());
+        verify(smtpProvider)
+                .sendMessage(argThat(m -> m.getTo()[0].equals(RECIPIENT)), anyBoolean());
         verify(userService).addFactor(any(), any(), any());
     }
 
@@ -128,13 +127,17 @@ public class EmailFactorProviderTest {
 
         EnrolledFactor enrolled = new EnrolledFactor();
         enrolled.setUpdatedAt(new Date());
-        Map<String, Object> additionalData = new Maps.MapBuilder(new HashMap())
-                .put(FactorDataKeys.KEY_MOVING_FACTOR, 0)
-                .put(FactorDataKeys.KEY_EXPIRE_AT, System.currentTimeMillis() + 600)
-                .build();
-        enrolled.setSecurity(new EnrolledFactorSecurity(FactorSecurityType.SHARED_SECRET, SHARED_SECRET, additionalData));
+        Map<String, Object> additionalData =
+                new Maps.MapBuilder(new HashMap())
+                        .put(FactorDataKeys.KEY_MOVING_FACTOR, 0)
+                        .put(FactorDataKeys.KEY_EXPIRE_AT, System.currentTimeMillis() + 600)
+                        .build();
+        enrolled.setSecurity(
+                new EnrolledFactorSecurity(
+                        FactorSecurityType.SHARED_SECRET, SHARED_SECRET, additionalData));
         enrolled.setChannel(new EnrolledFactorChannel(EnrolledFactorChannel.Type.EMAIL, RECIPIENT));
-        when(factorContext.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class)).thenReturn(enrolled);
+        when(factorContext.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class))
+                .thenReturn(enrolled);
         when(factorContext.getData(FactorContext.KEY_CODE, String.class)).thenReturn(CODE);
 
         TestObserver<Void> test = cut.verify(factorContext).test();
@@ -148,13 +151,17 @@ public class EmailFactorProviderTest {
         when(configuration.getReturnDigits()).thenReturn(6);
 
         EnrolledFactor enrolled = new EnrolledFactor();
-        Map<String, Object> additionalData = new Maps.MapBuilder(new HashMap())
-                .put(FactorDataKeys.KEY_MOVING_FACTOR, 0)
-                .put(FactorDataKeys.KEY_EXPIRE_AT, System.currentTimeMillis() - 600)
-                .build();
-        enrolled.setSecurity(new EnrolledFactorSecurity(FactorSecurityType.SHARED_SECRET, SHARED_SECRET, additionalData));
+        Map<String, Object> additionalData =
+                new Maps.MapBuilder(new HashMap())
+                        .put(FactorDataKeys.KEY_MOVING_FACTOR, 0)
+                        .put(FactorDataKeys.KEY_EXPIRE_AT, System.currentTimeMillis() - 600)
+                        .build();
+        enrolled.setSecurity(
+                new EnrolledFactorSecurity(
+                        FactorSecurityType.SHARED_SECRET, SHARED_SECRET, additionalData));
         enrolled.setChannel(new EnrolledFactorChannel(EnrolledFactorChannel.Type.EMAIL, RECIPIENT));
-        when(factorContext.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class)).thenReturn(enrolled);
+        when(factorContext.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class))
+                .thenReturn(enrolled);
         when(factorContext.getData(FactorContext.KEY_CODE, String.class)).thenReturn(CODE);
 
         TestObserver<Void> test = cut.verify(factorContext).test();
@@ -167,13 +174,17 @@ public class EmailFactorProviderTest {
     public void shouldNotVerifyCode_UnknownCode() {
         EnrolledFactor enrolled = new EnrolledFactor();
         enrolled.setUpdatedAt(new Date());
-        Map<String, Object> additionalData = new Maps.MapBuilder(new HashMap())
-                .put(FactorDataKeys.KEY_MOVING_FACTOR, 0)
-                .put(FactorDataKeys.KEY_EXPIRE_AT, System.currentTimeMillis() + 600)
-                .build();
-        enrolled.setSecurity(new EnrolledFactorSecurity(FactorSecurityType.SHARED_SECRET, SHARED_SECRET, additionalData));
+        Map<String, Object> additionalData =
+                new Maps.MapBuilder(new HashMap())
+                        .put(FactorDataKeys.KEY_MOVING_FACTOR, 0)
+                        .put(FactorDataKeys.KEY_EXPIRE_AT, System.currentTimeMillis() + 600)
+                        .build();
+        enrolled.setSecurity(
+                new EnrolledFactorSecurity(
+                        FactorSecurityType.SHARED_SECRET, SHARED_SECRET, additionalData));
         enrolled.setChannel(new EnrolledFactorChannel(EnrolledFactorChannel.Type.EMAIL, RECIPIENT));
-        when(factorContext.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class)).thenReturn(enrolled);
+        when(factorContext.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class))
+                .thenReturn(enrolled);
         when(factorContext.getData(FactorContext.KEY_CODE, String.class)).thenReturn(CODE);
 
         TestObserver<Void> test = cut.verify(factorContext).test();
@@ -181,5 +192,4 @@ public class EmailFactorProviderTest {
         test.assertNoValues();
         test.assertError(InvalidCodeException.class);
     }
-
 }

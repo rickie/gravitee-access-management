@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.root.resources.endpoint.user.password;
@@ -29,6 +27,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.ext.web.RoutingContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -39,14 +38,19 @@ import org.springframework.core.env.Environment;
  */
 public class ResetPasswordSubmissionEndpoint extends UserRequestHandler {
 
-    public static final String GATEWAY_ENDPOINT_RESET_PWD_KEEP_PARAMS = "legacy.resetPassword.keepParams";
-    private static final Logger logger = LoggerFactory.getLogger(ResetPasswordSubmissionEndpoint.class);
+    public static final String GATEWAY_ENDPOINT_RESET_PWD_KEEP_PARAMS =
+            "legacy.resetPassword.keepParams";
+    private static final Logger logger =
+            LoggerFactory.getLogger(ResetPasswordSubmissionEndpoint.class);
     private final UserService userService;
 
     private final boolean keepParams;
+
     public ResetPasswordSubmissionEndpoint(UserService userService, Environment environment) {
         this.userService = userService;
-        this.keepParams = environment.getProperty(GATEWAY_ENDPOINT_RESET_PWD_KEEP_PARAMS, boolean.class, true);
+        this.keepParams =
+                environment.getProperty(
+                        GATEWAY_ENDPOINT_RESET_PWD_KEEP_PARAMS, boolean.class, true);
     }
 
     @Override
@@ -62,40 +66,59 @@ public class ResetPasswordSubmissionEndpoint extends UserRequestHandler {
         user.setPassword(password);
 
         // reset password
-        resetPassword(client, user, getAuthenticatedUser(context), h -> {
-            // prepare response
-            MultiMap queryParams = RequestUtils.getCleanedQueryParams(context.request());
+        resetPassword(
+                client,
+                user,
+                getAuthenticatedUser(context),
+                h -> {
+                    // prepare response
+                    MultiMap queryParams = RequestUtils.getCleanedQueryParams(context.request());
 
-            // if failure, return to the reset password page with an error
-            if (h.failed()) {
-                logger.error("An error occurs while ending user reset password process", h.cause());
-                queryParams.set(ConstantKeys.ERROR_PARAM_KEY, "reset_password_failed");
-                redirectToPage(context, queryParams, h.cause());
-                return;
-            }
-            // handle response
-            ResetPasswordResponse resetPasswordResponse = h.result();
-            // if auto login option is enabled add the user to the session
-            if (resetPasswordResponse.isAutoLogin()) {
-                context.setUser(io.vertx.reactivex.ext.auth.User.newInstance(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(resetPasswordResponse.getUser())));
-            }
-            // no redirect uri has been set, redirect to the default page
-            if (resetPasswordResponse.getRedirectUri() == null || resetPasswordResponse.getRedirectUri().isEmpty()) {
-                queryParams.set(ConstantKeys.SUCCESS_PARAM_KEY, "reset_password_completed");
-                redirectToPage(context, queryParams);
-                return;
-            }
-            // else, redirect to the custom redirect_uri
-            var redirectTo = keepParams ? ParamUtils.appendQueryParameter(resetPasswordResponse.getRedirectUri(), queryParams) : resetPasswordResponse.getRedirectUri();
-            context.response()
-                    .putHeader(HttpHeaders.LOCATION, redirectTo)
-                    .setStatusCode(302)
-                    .end();
-        });
+                    // if failure, return to the reset password page with an error
+                    if (h.failed()) {
+                        logger.error(
+                                "An error occurs while ending user reset password process",
+                                h.cause());
+                        queryParams.set(ConstantKeys.ERROR_PARAM_KEY, "reset_password_failed");
+                        redirectToPage(context, queryParams, h.cause());
+                        return;
+                    }
+                    // handle response
+                    ResetPasswordResponse resetPasswordResponse = h.result();
+                    // if auto login option is enabled add the user to the session
+                    if (resetPasswordResponse.isAutoLogin()) {
+                        context.setUser(
+                                io.vertx.reactivex.ext.auth.User.newInstance(
+                                        new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                .user.User(resetPasswordResponse.getUser())));
+                    }
+                    // no redirect uri has been set, redirect to the default page
+                    if (resetPasswordResponse.getRedirectUri() == null
+                            || resetPasswordResponse.getRedirectUri().isEmpty()) {
+                        queryParams.set(ConstantKeys.SUCCESS_PARAM_KEY, "reset_password_completed");
+                        redirectToPage(context, queryParams);
+                        return;
+                    }
+                    // else, redirect to the custom redirect_uri
+                    var redirectTo =
+                            keepParams
+                                    ? ParamUtils.appendQueryParameter(
+                                            resetPasswordResponse.getRedirectUri(), queryParams)
+                                    : resetPasswordResponse.getRedirectUri();
+                    context.response()
+                            .putHeader(HttpHeaders.LOCATION, redirectTo)
+                            .setStatusCode(302)
+                            .end();
+                });
     }
 
-    private void resetPassword(Client client, User user, io.gravitee.am.identityprovider.api.User principal, Handler<AsyncResult<ResetPasswordResponse>> handler) {
-        userService.resetPassword(client, user, principal)
+    private void resetPassword(
+            Client client,
+            User user,
+            io.gravitee.am.identityprovider.api.User principal,
+            Handler<AsyncResult<ResetPasswordResponse>> handler) {
+        userService
+                .resetPassword(client, user, principal)
                 .subscribe(
                         response -> handler.handle(Future.succeededFuture(response)),
                         error -> handler.handle(Future.failedFuture(error)));

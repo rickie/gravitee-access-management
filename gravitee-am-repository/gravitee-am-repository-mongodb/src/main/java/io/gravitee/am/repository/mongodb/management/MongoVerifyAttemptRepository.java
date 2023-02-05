@@ -1,22 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.VerifyAttempt;
@@ -27,60 +29,70 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import javax.annotation.PostConstruct;
 
 /**
  * @author Ashraful Hasan (ashraful.hasan at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class MongoVerifyAttemptRepository extends AbstractManagementMongoRepository implements VerifyAttemptRepository {
-    private static final String VERIFY_ATTEMPT="verify_attempt";
+public class MongoVerifyAttemptRepository extends AbstractManagementMongoRepository
+        implements VerifyAttemptRepository {
+    private static final String VERIFY_ATTEMPT = "verify_attempt";
     private static final String FIELD_FACTOR_ID = "factorId";
 
     private MongoCollection<VerifyAttemptMongo> verifyAttemptCollection;
 
     @PostConstruct
-    public void init(){
-        verifyAttemptCollection = mongoOperations.getCollection(VERIFY_ATTEMPT, VerifyAttemptMongo.class);
+    public void init() {
+        verifyAttemptCollection =
+                mongoOperations.getCollection(VERIFY_ATTEMPT, VerifyAttemptMongo.class);
         super.init(verifyAttemptCollection);
-        super.createIndex(verifyAttemptCollection, new Document(FIELD_USER_ID, 1)
-                .append(FIELD_CLIENT, 1)
-                .append(FIELD_FACTOR_ID,1));
+        super.createIndex(
+                verifyAttemptCollection,
+                new Document(FIELD_USER_ID, 1).append(FIELD_CLIENT, 1).append(FIELD_FACTOR_ID, 1));
     }
 
     @Override
     public Maybe<VerifyAttempt> findById(String id) {
-        return Observable.fromPublisher(verifyAttemptCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return Observable.fromPublisher(verifyAttemptCollection.find(eq(FIELD_ID, id)).first())
+                .firstElement()
+                .map(this::convert);
     }
 
     @Override
     public Maybe<VerifyAttempt> findByCriteria(VerifyAttemptCriteria criteria) {
-        return Observable.fromPublisher(verifyAttemptCollection.find(query(criteria)).first()).firstElement().map(this::convert);
+        return Observable.fromPublisher(verifyAttemptCollection.find(query(criteria)).first())
+                .firstElement()
+                .map(this::convert);
     }
 
     @Override
     public Single<VerifyAttempt> create(VerifyAttempt item) {
         VerifyAttemptMongo verifyAttemptMongo = convert(item);
-        return Single.fromPublisher(verifyAttemptCollection.insertOne(verifyAttemptMongo)).flatMap(success -> {
-            item.setId(verifyAttemptMongo.getId());
-            return Single.just(item);
-        });
+        return Single.fromPublisher(verifyAttemptCollection.insertOne(verifyAttemptMongo))
+                .flatMap(
+                        success -> {
+                            item.setId(verifyAttemptMongo.getId());
+                            return Single.just(item);
+                        });
     }
 
     @Override
     public Single<VerifyAttempt> update(VerifyAttempt item) {
         VerifyAttemptMongo verifyAttemptMongo = convert(item);
-        return Single.fromPublisher(verifyAttemptCollection.replaceOne(eq(FIELD_ID, verifyAttemptMongo.getId()), verifyAttemptMongo)).flatMap(success -> Single.just(item));
+        return Single.fromPublisher(
+                        verifyAttemptCollection.replaceOne(
+                                eq(FIELD_ID, verifyAttemptMongo.getId()), verifyAttemptMongo))
+                .flatMap(success -> Single.just(item));
     }
 
     @Override
@@ -95,12 +107,17 @@ public class MongoVerifyAttemptRepository extends AbstractManagementMongoReposit
 
     @Override
     public Completable deleteByUser(String userId) {
-        return Completable.fromPublisher(verifyAttemptCollection.deleteMany(eq(FIELD_USER_ID, userId)));
+        return Completable.fromPublisher(
+                verifyAttemptCollection.deleteMany(eq(FIELD_USER_ID, userId)));
     }
 
     @Override
     public Completable deleteByDomain(String domainId, ReferenceType referenceType) {
-        return Completable.fromPublisher(verifyAttemptCollection.deleteMany(and(eq(FIELD_REFERENCE_ID, domainId), eq(FIELD_REFERENCE_TYPE, referenceType.name()))));
+        return Completable.fromPublisher(
+                verifyAttemptCollection.deleteMany(
+                        and(
+                                eq(FIELD_REFERENCE_ID, domainId),
+                                eq(FIELD_REFERENCE_TYPE, referenceType.name()))));
     }
 
     private Bson query(VerifyAttemptCriteria criteria) {
@@ -143,7 +160,8 @@ public class MongoVerifyAttemptRepository extends AbstractManagementMongoReposit
 
     private VerifyAttemptMongo convert(VerifyAttempt verifyAttempt) {
         final VerifyAttemptMongo verifyAttemptMongo = new VerifyAttemptMongo();
-        verifyAttemptMongo.setId(verifyAttempt.getId() != null ? verifyAttempt.getId() : RandomString.generate());
+        verifyAttemptMongo.setId(
+                verifyAttempt.getId() != null ? verifyAttempt.getId() : RandomString.generate());
         verifyAttemptMongo.setUserId(verifyAttempt.getUserId());
         verifyAttemptMongo.setClient(verifyAttempt.getClient());
         verifyAttemptMongo.setFactorId(verifyAttempt.getFactorId());

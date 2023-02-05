@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.utils;
@@ -21,14 +19,13 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
  * @author GraviteeSource Team
  */
 public class SetterUtils {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(SetterUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SetterUtils.class);
 
     // These values are used to manage primitive types. There's 8 primitive in Java.
     private static boolean DEFAULT_BOOLEAN;
@@ -41,8 +38,9 @@ public class SetterUtils {
     private static double DEFAULT_DOUBLE;
 
     /**
-     * Safe setter, apply setter only if Optional is not null.
-     * If Optional is empty, set field to null, else apply the value.
+     * Safe setter, apply setter only if Optional is not null. If Optional is empty, set field to
+     * null, else apply the value.
+     *
      * @param setter Consumer setter method.
      * @param value Optional value
      * @param <T> value class
@@ -54,18 +52,20 @@ public class SetterUtils {
     }
 
     /**
-     * Safe setter, apply setter only if Optional is not null.
-     * If Optional is empty, set field to null, else apply the value.
+     * Safe setter, apply setter only if Optional is not null. If Optional is empty, set field to
+     * null, else apply the value.
+     *
      * @param setter Consumer setter method.
      * @param value Optional value
      * @param <T> value class
      */
-    public static <T> void safeSet(final Consumer<T> setter, final Optional<T> value, final Class primitive) {
+    public static <T> void safeSet(
+            final Consumer<T> setter, final Optional<T> value, final Class primitive) {
         if (value != null) {
-            if(value.isPresent()) {
+            if (value.isPresent()) {
                 setter.accept(value.get());
             } else {
-                setter.accept((T)getDefaultValue(primitive));
+                setter.accept((T) getDefaultValue(primitive));
             }
         }
     }
@@ -74,35 +74,30 @@ public class SetterUtils {
 
         if (primitive.equals(boolean.class)) {
             return DEFAULT_BOOLEAN;
-        }
-        else if (primitive.equals(byte.class)) {
+        } else if (primitive.equals(byte.class)) {
             return DEFAULT_BYTE;
-        }
-        else if (primitive.equals(char.class)) {
+        } else if (primitive.equals(char.class)) {
             return DEFAULT_CHAR;
-        }
-        else if (primitive.equals(short.class)) {
+        } else if (primitive.equals(short.class)) {
             return DEFAULT_SHORT;
-        }
-        else if (primitive.equals(int.class)) {
+        } else if (primitive.equals(int.class)) {
             return DEFAULT_INT;
-        }
-        else if (primitive.equals(long.class)) {
+        } else if (primitive.equals(long.class)) {
             return DEFAULT_LONG;
-        }
-        else if (primitive.equals(float.class)) {
+        } else if (primitive.equals(float.class)) {
             return DEFAULT_FLOAT;
-        }
-        else if (primitive.equals(double.class)) {
+        } else if (primitive.equals(double.class)) {
             return DEFAULT_DOUBLE;
         }
 
-        LOGGER.warn("should never happen except if class is not a primitive:" + primitive.isPrimitive());
+        LOGGER.warn(
+                "should never happen except if class is not a primitive:"
+                        + primitive.isPrimitive());
         return null;
     }
 
-    public static<T> void set(final Consumer<T> setter, final Optional<T> value) {
-        if(value == null) {
+    public static <T> void set(final Consumer<T> setter, final Optional<T> value) {
+        if (value == null) {
             setter.accept(null);
         } else {
             setter.accept(value.orElse(null));

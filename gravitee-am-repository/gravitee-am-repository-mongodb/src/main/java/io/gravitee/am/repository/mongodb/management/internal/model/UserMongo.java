@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management.internal.model;
@@ -20,6 +18,7 @@ import io.gravitee.am.repository.mongodb.common.model.Auditable;
 import io.gravitee.am.repository.mongodb.management.internal.model.scim.AddressMongo;
 import io.gravitee.am.repository.mongodb.management.internal.model.scim.AttributeMongo;
 import io.gravitee.am.repository.mongodb.management.internal.model.scim.CertificateMongo;
+
 import org.bson.Document;
 import org.bson.codecs.pojo.annotations.BsonId;
 
@@ -32,8 +31,7 @@ import java.util.List;
  */
 public class UserMongo extends Auditable {
 
-    @BsonId
-    private String id;
+    @BsonId private String id;
     private String externalId;
     private String username;
     private String email;
@@ -75,9 +73,7 @@ public class UserMongo extends Auditable {
     private List<EnrolledFactor> factors;
     private List<String> roles;
     private List<String> dynamicRoles;
-    /**
-     * Map codec support is planned for version 3.7 jira.mongodb.org issue: JAVA-2695
-     */
+    /** Map codec support is planned for version 3.7 jira.mongodb.org issue: JAVA-2695 */
     private Document additionalInformation;
 
     public String getId() {

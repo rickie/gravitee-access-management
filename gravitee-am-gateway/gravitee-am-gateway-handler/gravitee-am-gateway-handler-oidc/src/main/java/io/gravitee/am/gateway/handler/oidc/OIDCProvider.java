@@ -1,26 +1,26 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oidc;
 
+import static io.gravitee.am.common.oauth2.Parameters.CLIENT_ID;
+
 import io.gravitee.am.common.oidc.Scope;
+import io.gravitee.am.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.api.ProtocolProvider;
 import io.gravitee.am.gateway.handler.ciba.CIBAProvider;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
-import io.gravitee.am.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.vertx.web.auth.handler.OAuth2AuthHandler;
 import io.gravitee.am.gateway.handler.common.vertx.web.auth.provider.OAuth2AuthProvider;
 import io.gravitee.am.gateway.handler.oauth2.OAuth2Provider;
@@ -50,11 +50,10 @@ import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.ext.web.Router;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.handler.CorsHandler;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
-
-import static io.gravitee.am.common.oauth2.Parameters.CLIENT_ID;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -64,59 +63,41 @@ import static io.gravitee.am.common.oauth2.Parameters.CLIENT_ID;
  */
 public class OIDCProvider extends AbstractService<ProtocolProvider> implements ProtocolProvider {
 
-    @Autowired
-    private Vertx vertx;
+    @Autowired private Vertx vertx;
 
-    @Autowired
-    private Router router;
+    @Autowired private Router router;
 
-    @Autowired
-    private CorsHandler corsHandler;
+    @Autowired private CorsHandler corsHandler;
 
-    @Autowired
-    private OpenIDDiscoveryService discoveryService;
+    @Autowired private OpenIDDiscoveryService discoveryService;
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
-    @Autowired
-    private ClientSyncService clientSyncService;
+    @Autowired private ClientSyncService clientSyncService;
 
-    @Autowired
-    private ClientAssertionService clientAssertionService;
+    @Autowired private ClientAssertionService clientAssertionService;
 
-    @Autowired
-    private JWTService jwtService;
+    @Autowired private JWTService jwtService;
 
-    @Autowired
-    private JWKService jwkService;
+    @Autowired private JWKService jwkService;
 
-    @Autowired
-    private JWEService jweService;
+    @Autowired private JWEService jweService;
 
-    @Autowired
-    private DynamicClientRegistrationService dcrService;
+    @Autowired private DynamicClientRegistrationService dcrService;
 
-    @Autowired
-    private Domain domain;
+    @Autowired private Domain domain;
 
-    @Autowired
-    private OAuth2AuthProvider oAuth2AuthProvider;
+    @Autowired private OAuth2AuthProvider oAuth2AuthProvider;
 
-    @Autowired
-    private ApplicationContext applicationContext;
+    @Autowired private ApplicationContext applicationContext;
 
-    @Autowired
-    private ExtensionGrantManager extensionGrantManager;
+    @Autowired private ExtensionGrantManager extensionGrantManager;
 
-    @Autowired
-    private ScopeManager scopeManager;
+    @Autowired private ScopeManager scopeManager;
 
-    @Autowired
-    private RequestObjectService requestObjectService;
+    @Autowired private RequestObjectService requestObjectService;
 
-    @Autowired
-    private Environment environment;
+    @Autowired private Environment environment;
 
     @Override
     protected void doStart() throws Exception {
@@ -168,20 +149,25 @@ public class OIDCProvider extends AbstractService<ProtocolProvider> implements P
         final Router oidcRouter = Router.router(vertx);
 
         // OpenID Provider Configuration Information Endpoint
-        Handler<RoutingContext> openIDProviderConfigurationEndpoint = new ProviderConfigurationEndpoint();
-        ((ProviderConfigurationEndpoint) openIDProviderConfigurationEndpoint).setDiscoveryService(discoveryService);
+        Handler<RoutingContext> openIDProviderConfigurationEndpoint =
+                new ProviderConfigurationEndpoint();
+        ((ProviderConfigurationEndpoint) openIDProviderConfigurationEndpoint)
+                .setDiscoveryService(discoveryService);
         oidcRouter.route("/.well-known/openid-configuration").handler(corsHandler);
         oidcRouter
                 .route(HttpMethod.GET, "/.well-known/openid-configuration")
                 .handler(openIDProviderConfigurationEndpoint);
 
         // UserInfo Endpoint
-        OAuth2AuthHandler userInfoAuthHandler = OAuth2AuthHandler.create(oAuth2AuthProvider, Scope.OPENID.getKey());
+        OAuth2AuthHandler userInfoAuthHandler =
+                OAuth2AuthHandler.create(oAuth2AuthProvider, Scope.OPENID.getKey());
         userInfoAuthHandler.extractToken(true);
         userInfoAuthHandler.extractClient(true);
         userInfoAuthHandler.forceEndUserToken(true);
 
-        Handler<RoutingContext> userInfoEndpoint = new UserInfoEndpoint(userService, jwtService, jweService, discoveryService, environment);
+        Handler<RoutingContext> userInfoEndpoint =
+                new UserInfoEndpoint(
+                        userService, jwtService, jweService, discoveryService, environment);
         oidcRouter.route("/userinfo").handler(corsHandler);
         oidcRouter
                 .route(HttpMethod.GET, "/userinfo")
@@ -194,28 +180,34 @@ public class OIDCProvider extends AbstractService<ProtocolProvider> implements P
                 .handler(userInfoEndpoint);
 
         // OpenID Provider JWK Set
-        Handler<RoutingContext> openIDProviderJWKSetEndpoint = new ProviderJWKSetEndpoint(jwkService);
+        Handler<RoutingContext> openIDProviderJWKSetEndpoint =
+                new ProviderJWKSetEndpoint(jwkService);
         oidcRouter.route("/.well-known/jwks.json").handler(corsHandler);
         oidcRouter
                 .route(HttpMethod.GET, "/.well-known/jwks.json")
                 .handler(openIDProviderJWKSetEndpoint);
 
         // Dynamic Client Registration templates
-        DynamicClientRegistrationTemplateHandler dynamicClientRegistrationTemplateHandler = new DynamicClientRegistrationTemplateHandler(domain);
-        DynamicClientRegistrationTemplateEndpoint dynamicClientRegistrationTemplateEndpoint = new DynamicClientRegistrationTemplateEndpoint(clientSyncService);
+        DynamicClientRegistrationTemplateHandler dynamicClientRegistrationTemplateHandler =
+                new DynamicClientRegistrationTemplateHandler(domain);
+        DynamicClientRegistrationTemplateEndpoint dynamicClientRegistrationTemplateEndpoint =
+                new DynamicClientRegistrationTemplateEndpoint(clientSyncService);
         oidcRouter
                 .route(HttpMethod.GET, "/register_templates")
                 .handler(dynamicClientRegistrationTemplateHandler)
                 .handler(dynamicClientRegistrationTemplateEndpoint);
 
         // Dynamic Client Registration
-        OAuth2AuthHandler dynamicClientRegistrationAuthHandler = OAuth2AuthHandler.create(oAuth2AuthProvider, Scope.DCR_ADMIN.getKey());
+        OAuth2AuthHandler dynamicClientRegistrationAuthHandler =
+                OAuth2AuthHandler.create(oAuth2AuthProvider, Scope.DCR_ADMIN.getKey());
         dynamicClientRegistrationAuthHandler.extractToken(true);
         dynamicClientRegistrationAuthHandler.extractClient(true);
         dynamicClientRegistrationAuthHandler.forceClientToken(true);
 
-        DynamicClientRegistrationHandler dynamicClientRegistrationHandler = new DynamicClientRegistrationHandler(domain, dynamicClientRegistrationAuthHandler);
-        DynamicClientRegistrationEndpoint dynamicClientRegistrationEndpoint = new DynamicClientRegistrationEndpoint(dcrService, clientSyncService);
+        DynamicClientRegistrationHandler dynamicClientRegistrationHandler =
+                new DynamicClientRegistrationHandler(domain, dynamicClientRegistrationAuthHandler);
+        DynamicClientRegistrationEndpoint dynamicClientRegistrationEndpoint =
+                new DynamicClientRegistrationEndpoint(dcrService, clientSyncService);
         oidcRouter
                 .route(HttpMethod.POST, "/register")
                 .consumes(MediaType.APPLICATION_JSON)
@@ -223,7 +215,8 @@ public class OIDCProvider extends AbstractService<ProtocolProvider> implements P
                 .handler(dynamicClientRegistrationEndpoint);
 
         // Dynamic Client Configuration
-        OAuth2AuthHandler dynamicClientAccessAuthHandler = OAuth2AuthHandler.create(oAuth2AuthProvider, Scope.DCR_ADMIN.getKey());
+        OAuth2AuthHandler dynamicClientAccessAuthHandler =
+                OAuth2AuthHandler.create(oAuth2AuthProvider, Scope.DCR_ADMIN.getKey());
         dynamicClientAccessAuthHandler.extractRawToken(true);
         dynamicClientAccessAuthHandler.extractToken(true);
         dynamicClientAccessAuthHandler.extractClient(true);
@@ -231,45 +224,55 @@ public class OIDCProvider extends AbstractService<ProtocolProvider> implements P
         dynamicClientAccessAuthHandler.selfResource(true, CLIENT_ID, Scope.DCR.getKey());
         dynamicClientAccessAuthHandler.offlineVerification(true);
 
-        DynamicClientAccessHandler dynamicClientAccessHandler = new DynamicClientAccessHandler(domain);
-        DynamicClientAccessTokenHandler dynamicClientAccessTokenHandler = new DynamicClientAccessTokenHandler();
-        DynamicClientAccessEndpoint dynamicClientAccessEndpoint = new DynamicClientAccessEndpoint(dcrService, clientSyncService);
+        DynamicClientAccessHandler dynamicClientAccessHandler =
+                new DynamicClientAccessHandler(domain);
+        DynamicClientAccessTokenHandler dynamicClientAccessTokenHandler =
+                new DynamicClientAccessTokenHandler();
+        DynamicClientAccessEndpoint dynamicClientAccessEndpoint =
+                new DynamicClientAccessEndpoint(dcrService, clientSyncService);
         oidcRouter
-                .route(HttpMethod.GET, "/register/:"+CLIENT_ID)
+                .route(HttpMethod.GET, "/register/:" + CLIENT_ID)
                 .handler(dynamicClientAccessHandler)
                 .handler(dynamicClientAccessAuthHandler)
                 .handler(dynamicClientAccessTokenHandler)
                 .handler(dynamicClientAccessEndpoint::read);
         oidcRouter
-                .route(HttpMethod.PATCH, "/register/:"+CLIENT_ID)
+                .route(HttpMethod.PATCH, "/register/:" + CLIENT_ID)
                 .consumes(MediaType.APPLICATION_JSON)
                 .handler(dynamicClientAccessHandler)
                 .handler(dynamicClientAccessAuthHandler)
                 .handler(dynamicClientAccessTokenHandler)
                 .handler(dynamicClientAccessEndpoint::patch);
         oidcRouter
-                .route(HttpMethod.PUT, "/register/:"+CLIENT_ID)
+                .route(HttpMethod.PUT, "/register/:" + CLIENT_ID)
                 .consumes(MediaType.APPLICATION_JSON)
                 .handler(dynamicClientAccessHandler)
                 .handler(dynamicClientAccessAuthHandler)
                 .handler(dynamicClientAccessTokenHandler)
                 .handler(dynamicClientAccessEndpoint::update);
         oidcRouter
-                .route(HttpMethod.DELETE, "/register/:"+CLIENT_ID)
+                .route(HttpMethod.DELETE, "/register/:" + CLIENT_ID)
                 .handler(dynamicClientAccessHandler)
                 .handler(dynamicClientAccessAuthHandler)
                 .handler(dynamicClientAccessTokenHandler)
                 .handler(dynamicClientAccessEndpoint::delete);
         oidcRouter
-                .route(HttpMethod.POST, "/register/:"+CLIENT_ID+"/renew_secret")
+                .route(HttpMethod.POST, "/register/:" + CLIENT_ID + "/renew_secret")
                 .handler(dynamicClientAccessHandler)
                 .handler(dynamicClientAccessAuthHandler)
                 .handler(dynamicClientAccessTokenHandler)
                 .handler(dynamicClientAccessEndpoint::renewClientSecret);
 
         // client auth handler
-        final String certificateHeader = environment.getProperty(ConstantKeys.HTTP_SSL_CERTIFICATE_HEADER);
-        final Handler<RoutingContext> clientAuthHandler = ClientAuthHandler.create(clientSyncService, clientAssertionService, jwkService, domain, certificateHeader);
+        final String certificateHeader =
+                environment.getProperty(ConstantKeys.HTTP_SSL_CERTIFICATE_HEADER);
+        final Handler<RoutingContext> clientAuthHandler =
+                ClientAuthHandler.create(
+                        clientSyncService,
+                        clientAssertionService,
+                        jwkService,
+                        domain,
+                        certificateHeader);
 
         // Request object registration
         oidcRouter

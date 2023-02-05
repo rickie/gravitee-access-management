@@ -1,19 +1,22 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.model;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.PasswordSettings;
@@ -22,6 +25,7 @@ import io.gravitee.am.model.application.ApplicationOAuthSettings;
 import io.gravitee.am.model.application.ApplicationSettings;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.exception.InvalidParameterException;
+
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -29,11 +33,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -80,7 +79,6 @@ public class PatchApplicationTest {
         assertEquals(NEW_NAME, updatedApp.getSettings().getOauth().getClientName());
     }
 
-
     @Test
     public void getRequiredPermissions() {
 
@@ -88,19 +86,27 @@ public class PatchApplicationTest {
         assertEquals(Collections.emptySet(), patchApplication.getRequiredPermissions());
 
         patchApplication.setName(Optional.of("patchName"));
-        assertEquals(new HashSet<>(Arrays.asList(Permission.APPLICATION_SETTINGS)), patchApplication.getRequiredPermissions());
+        assertEquals(
+                new HashSet<>(Arrays.asList(Permission.APPLICATION_SETTINGS)),
+                patchApplication.getRequiredPermissions());
 
         patchApplication = new PatchApplication();
         patchApplication.setDescription(Optional.of("patchDescription"));
-        assertEquals(new HashSet<>(Arrays.asList(Permission.APPLICATION_SETTINGS)), patchApplication.getRequiredPermissions());
+        assertEquals(
+                new HashSet<>(Arrays.asList(Permission.APPLICATION_SETTINGS)),
+                patchApplication.getRequiredPermissions());
 
         patchApplication = new PatchApplication();
         patchApplication.setEnabled(Optional.of(true));
-        assertEquals(new HashSet<>(Arrays.asList(Permission.APPLICATION_SETTINGS)), patchApplication.getRequiredPermissions());
+        assertEquals(
+                new HashSet<>(Arrays.asList(Permission.APPLICATION_SETTINGS)),
+                patchApplication.getRequiredPermissions());
 
         patchApplication = new PatchApplication();
         patchApplication.setTemplate(Optional.of(true));
-        assertEquals(new HashSet<>(Arrays.asList(Permission.APPLICATION_SETTINGS)), patchApplication.getRequiredPermissions());
+        assertEquals(
+                new HashSet<>(Arrays.asList(Permission.APPLICATION_SETTINGS)),
+                patchApplication.getRequiredPermissions());
 
         patchApplication = new PatchApplication();
         var patchAppIdp = new PatchApplicationIdentityProvider();
@@ -108,32 +114,46 @@ public class PatchApplicationTest {
         patchAppIdp.setIdentity("patchIdentity");
         var patchAppIdps = Optional.of(Set.of(patchAppIdp));
         patchApplication.setIdentityProviders(patchAppIdps);
-        assertEquals(new HashSet<>(Arrays.asList(Permission.APPLICATION_IDENTITY_PROVIDER)), patchApplication.getRequiredPermissions());
+        assertEquals(
+                new HashSet<>(Arrays.asList(Permission.APPLICATION_IDENTITY_PROVIDER)),
+                patchApplication.getRequiredPermissions());
 
         patchApplication = new PatchApplication();
         patchApplication.setFactors(Optional.of(Collections.singleton("patchFactor")));
-        assertEquals(new HashSet<>(Arrays.asList(Permission.APPLICATION_FACTOR)), patchApplication.getRequiredPermissions());
+        assertEquals(
+                new HashSet<>(Arrays.asList(Permission.APPLICATION_FACTOR)),
+                patchApplication.getRequiredPermissions());
 
         patchApplication = new PatchApplication();
         patchApplication.setCertificate(Optional.of("patchCertificate"));
-        assertEquals(new HashSet<>(Arrays.asList(Permission.APPLICATION_CERTIFICATE)), patchApplication.getRequiredPermissions());
+        assertEquals(
+                new HashSet<>(Arrays.asList(Permission.APPLICATION_CERTIFICATE)),
+                patchApplication.getRequiredPermissions());
 
         patchApplication = new PatchApplication();
         patchApplication.setMetadata(Optional.of(Collections.emptyMap()));
-        assertEquals(new HashSet<>(Arrays.asList(Permission.APPLICATION_SETTINGS)), patchApplication.getRequiredPermissions());
+        assertEquals(
+                new HashSet<>(Arrays.asList(Permission.APPLICATION_SETTINGS)),
+                patchApplication.getRequiredPermissions());
 
         patchApplication = new PatchApplication();
         PatchApplicationSettings patchApplicationSettings = new PatchApplicationSettings();
         patchApplication.setSettings(Optional.of(patchApplicationSettings));
         assertEquals(Collections.emptySet(), patchApplication.getRequiredPermissions());
         patchApplicationSettings.setOauth(Optional.of(new PatchApplicationOAuthSettings()));
-        assertEquals(new HashSet<>(Arrays.asList(Permission.APPLICATION_OPENID)), patchApplication.getRequiredPermissions());
+        assertEquals(
+                new HashSet<>(Arrays.asList(Permission.APPLICATION_OPENID)),
+                patchApplication.getRequiredPermissions());
         patchApplicationSettings.setOauth(Optional.empty());
         patchApplicationSettings.setAccount(Optional.of(new AccountSettings()));
-        assertEquals(new HashSet<>(Arrays.asList(Permission.APPLICATION_SETTINGS)), patchApplication.getRequiredPermissions());
+        assertEquals(
+                new HashSet<>(Arrays.asList(Permission.APPLICATION_SETTINGS)),
+                patchApplication.getRequiredPermissions());
         patchApplicationSettings.setAccount(Optional.empty());
         patchApplicationSettings.setAdvanced(Optional.of(new PatchApplicationAdvancedSettings()));
-        assertEquals(new HashSet<>(Arrays.asList(Permission.APPLICATION_SETTINGS)), patchApplication.getRequiredPermissions());
+        assertEquals(
+                new HashSet<>(Arrays.asList(Permission.APPLICATION_SETTINGS)),
+                patchApplication.getRequiredPermissions());
 
         // Check multiple permissions.
         patchApplication = new PatchApplication();
@@ -145,14 +165,20 @@ public class PatchApplicationTest {
         patchApplicationSettings.setOauth(Optional.of(new PatchApplicationOAuthSettings()));
         patchApplication.setSettings(Optional.of(patchApplicationSettings));
 
-        assertEquals(new HashSet<>(Arrays.asList(Permission.APPLICATION_SETTINGS, Permission.APPLICATION_OPENID, Permission.APPLICATION_IDENTITY_PROVIDER,
-                Permission.APPLICATION_CERTIFICATE, Permission.APPLICATION_FACTOR)), patchApplication.getRequiredPermissions());
+        assertEquals(
+                new HashSet<>(
+                        Arrays.asList(
+                                Permission.APPLICATION_SETTINGS,
+                                Permission.APPLICATION_OPENID,
+                                Permission.APPLICATION_IDENTITY_PROVIDER,
+                                Permission.APPLICATION_CERTIFICATE,
+                                Permission.APPLICATION_FACTOR)),
+                patchApplication.getRequiredPermissions());
     }
-
 
     @Test
     public void testPatchWithPasswordPolicy() {
-        //Build patcher
+        // Build patcher
         PatchPasswordSettings pwdPolicyPatcher = new PatchPasswordSettings();
         pwdPolicyPatcher.setOldPasswords(Optional.of((short) 24));
         pwdPolicyPatcher.setPasswordHistoryEnabled(Optional.of(true));
@@ -167,10 +193,10 @@ public class PatchApplicationTest {
         appSettings.setPasswordSettings(new PasswordSettings());
         toPatch.setSettings(appSettings);
 
-        //apply patch
+        // apply patch
         Application result = patch.patch(toPatch);
 
-        //check.
+        // check.
         assertNotNull("was expecting a domain", result);
         assertNotNull(result.getPasswordSettings());
         assertTrue(result.getPasswordSettings().isPasswordHistoryEnabled());
@@ -179,7 +205,7 @@ public class PatchApplicationTest {
 
     @Test(expected = InvalidParameterException.class)
     public void testPatchWithPasswordPolicy_missingOldPassword() {
-        //Build patcher
+        // Build patcher
         PatchPasswordSettings pwdPolicyPatcher = new PatchPasswordSettings();
         pwdPolicyPatcher.setPasswordHistoryEnabled(Optional.of(true));
 
@@ -193,13 +219,13 @@ public class PatchApplicationTest {
         appSettings.setPasswordSettings(new PasswordSettings());
         toPatch.setSettings(appSettings);
 
-        //apply patch
+        // apply patch
         patch.patch(toPatch);
     }
 
     @Test(expected = InvalidParameterException.class)
     public void testPatchWithPasswordPolicy_outOfRange_min_OldPassword() {
-        //Build patcher
+        // Build patcher
         PatchPasswordSettings pwdPolicyPatcher = new PatchPasswordSettings();
         pwdPolicyPatcher.setOldPasswords(Optional.of((short) 0));
         pwdPolicyPatcher.setPasswordHistoryEnabled(Optional.of(true));
@@ -214,13 +240,13 @@ public class PatchApplicationTest {
         appSettings.setPasswordSettings(new PasswordSettings());
         toPatch.setSettings(appSettings);
 
-        //apply patch
+        // apply patch
         patch.patch(toPatch);
     }
 
     @Test(expected = InvalidParameterException.class)
     public void testPatchWithPasswordPolicy_outOfRange_max_OldPassword() {
-        //Build patcher
+        // Build patcher
         PatchPasswordSettings pwdPolicyPatcher = new PatchPasswordSettings();
         pwdPolicyPatcher.setOldPasswords(Optional.of((short) 25));
         pwdPolicyPatcher.setPasswordHistoryEnabled(Optional.of(true));
@@ -235,8 +261,7 @@ public class PatchApplicationTest {
         appSettings.setPasswordSettings(new PasswordSettings());
         toPatch.setSettings(appSettings);
 
-        //apply patch
+        // apply patch
         patch.patch(toPatch);
     }
-
 }

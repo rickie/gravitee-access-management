@@ -1,20 +1,22 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.gravitee.am.gateway.handler.root.resources.handler.loginattempt;
+
+import static io.gravitee.am.common.utils.ConstantKeys.USERNAME_PARAM_KEY;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.auth.idp.IdentityProviderManager;
@@ -28,6 +30,7 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.service.LoginAttemptService;
 import io.gravitee.am.service.UserActivityService;
 import io.reactivex.Maybe;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,10 +39,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.*;
 
-import static io.gravitee.am.common.utils.ConstantKeys.USERNAME_PARAM_KEY;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Rémi SULTAN (remi.sultan at graviteesource.com)
  * @author GraviteeSource Team
@@ -47,14 +46,11 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class LoginAttemptHandlerTest {
 
-    @Mock
-    private IdentityProviderManager identityProviderManager;
+    @Mock private IdentityProviderManager identityProviderManager;
 
-    @Mock
-    private LoginAttemptService loginAttemptService;
+    @Mock private LoginAttemptService loginAttemptService;
 
-    @Mock
-    private UserActivityService userActivityService;
+    @Mock private UserActivityService userActivityService;
 
     private Domain domain;
     private Client client;
@@ -79,17 +75,19 @@ public class LoginAttemptHandlerTest {
         client = new Client();
         client.setId(UUID.randomUUID().toString());
         client.setClientId(UUID.randomUUID().toString());
-        client.setIdentityProviders(getApplicationIdentityProviders(internal.getId(), external.getId()));
+        client.setIdentityProviders(
+                getApplicationIdentityProviders(internal.getId(), external.getId()));
 
         final LoginAttempt attempts = new LoginAttempt();
         attempts.setAttempts(5);
         doReturn(Maybe.just(attempts)).when(loginAttemptService).checkAccount(any(), any());
 
         spyRoutingContext = spy(new SpyRoutingContext());
-        loginAttemptHandler = new LoginAttemptHandler(domain, identityProviderManager, loginAttemptService, userActivityService);
+        loginAttemptHandler =
+                new LoginAttemptHandler(
+                        domain, identityProviderManager, loginAttemptService, userActivityService);
         doNothing().when(spyRoutingContext).next();
     }
-
 
     @Test
     public void mustDoNextNoLoginAttemptApplied_noClient() {
@@ -139,7 +137,7 @@ public class LoginAttemptHandlerTest {
         client.setMfaSettings(mfaSettings);
 
         loginAttemptHandler.handle(spyRoutingContext);
-        //Necessary so the reactive consumer is consumed
+        // Necessary so the reactive consumer is consumed
         Thread.sleep(1000);
         verify(spyRoutingContext, times(1)).next();
     }
@@ -151,18 +149,21 @@ public class LoginAttemptHandlerTest {
         doReturn(true).when(userActivityService).canSaveUserActivity();
 
         loginAttemptHandler.handle(spyRoutingContext);
-        //Necessary so the reactive consumer is consumed
+        // Necessary so the reactive consumer is consumed
         Thread.sleep(1000);
         verify(spyRoutingContext, times(1)).next();
     }
 
-    private SortedSet<ApplicationIdentityProvider> getApplicationIdentityProviders(String... identities) {
+    private SortedSet<ApplicationIdentityProvider> getApplicationIdentityProviders(
+            String... identities) {
         var set = new TreeSet<ApplicationIdentityProvider>();
-        Arrays.stream(identities).forEach(identity -> {
-            var patchAppIdp = new ApplicationIdentityProvider();
-            patchAppIdp.setIdentity(identity);
-            set.add(patchAppIdp);
-        });
+        Arrays.stream(identities)
+                .forEach(
+                        identity -> {
+                            var patchAppIdp = new ApplicationIdentityProvider();
+                            patchAppIdp.setIdentity(identity);
+                            set.add(patchAppIdp);
+                        });
         return set;
     }
 }

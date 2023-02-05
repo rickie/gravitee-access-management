@@ -1,25 +1,23 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.model;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 import java.util.List;
 import java.util.Objects;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  * @author Florent CHAMFROY (florent.chamfroy at graviteesource.com)
@@ -28,6 +26,7 @@ import java.util.Objects;
 public class UpdateOrganization {
 
     private String id;
+
     @NotNull
     @Size(min = 1)
     private String name;
@@ -35,7 +34,7 @@ public class UpdateOrganization {
     private String description;
 
     private List<String> domainRestrictions;
-    
+
     public String getId() {
         return id;
     }
@@ -73,8 +72,7 @@ public class UpdateOrganization {
         if (this == o) return true;
         if (!(o instanceof UpdateOrganization)) return false;
         UpdateOrganization that = (UpdateOrganization) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(name, that.name);
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name);
     }
 
     @Override
@@ -84,11 +82,19 @@ public class UpdateOrganization {
 
     @Override
     public String toString() {
-        return "UpdateOrganizationEntity{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", domain restrictions='" + domainRestrictions + '\'' +
-                '}';
+        return "UpdateOrganizationEntity{"
+                + "id='"
+                + id
+                + '\''
+                + ", name='"
+                + name
+                + '\''
+                + ", description='"
+                + description
+                + '\''
+                + ", domain restrictions='"
+                + domainRestrictions
+                + '\''
+                + '}';
     }
 }

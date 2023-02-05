@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.service.impl.commands;
+
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.model.Installation;
 import io.gravitee.am.repository.exceptions.TechnicalException;
@@ -25,7 +26,9 @@ import io.gravitee.cockpit.api.command.installation.InstallationPayload;
 import io.gravitee.cockpit.api.command.installation.InstallationReply;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import junit.framework.TestCase;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,9 +36,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
-
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -48,8 +48,7 @@ public class InstallationCommandHandlerTest extends TestCase {
     private static final String CUSTOM_KEY = "customKey";
     private static final String INSTALLATION_ID = "installation#1";
 
-    @Mock
-    private InstallationService installationService;
+    @Mock private InstallationService installationService;
 
     public InstallationCommandHandler cut;
 
@@ -75,12 +74,16 @@ public class InstallationCommandHandlerTest extends TestCase {
         installationPayload.setStatus("ACCEPTED");
 
         when(installationService.getOrInitialize()).thenReturn(Single.just(installation));
-        when(installationService.setAdditionalInformation(anyMap())).thenAnswer(i -> Single.just(installation));
+        when(installationService.setAdditionalInformation(anyMap()))
+                .thenAnswer(i -> Single.just(installation));
 
         TestObserver<InstallationReply> obs = cut.handle(command).test();
 
         obs.awaitTerminalEvent();
-        obs.assertValue(reply -> reply.getCommandId().equals(command.getId()) && reply.getCommandStatus().equals(CommandStatus.SUCCEEDED));
+        obs.assertValue(
+                reply ->
+                        reply.getCommandId().equals(command.getId())
+                                && reply.getCommandStatus().equals(CommandStatus.SUCCEEDED));
 
         final HashMap<String, String> expectedAdditionalInfos = new HashMap<>();
         expectedAdditionalInfos.put(CUSTOM_KEY, CUSTOM_VALUE);
@@ -101,11 +104,15 @@ public class InstallationCommandHandlerTest extends TestCase {
         installationPayload.setStatus("ACCEPTED");
 
         when(installationService.getOrInitialize()).thenReturn(Single.just(installation));
-        when(installationService.setAdditionalInformation(anyMap())).thenReturn(Single.error(new TechnicalException()));
+        when(installationService.setAdditionalInformation(anyMap()))
+                .thenReturn(Single.error(new TechnicalException()));
 
         TestObserver<InstallationReply> obs = cut.handle(command).test();
 
         obs.awaitTerminalEvent();
-        obs.assertValue(reply -> reply.getCommandId().equals(command.getId()) && reply.getCommandStatus().equals(CommandStatus.ERROR));
+        obs.assertValue(
+                reply ->
+                        reply.getCommandId().equals(command.getId())
+                                && reply.getCommandStatus().equals(CommandStatus.ERROR));
     }
 }

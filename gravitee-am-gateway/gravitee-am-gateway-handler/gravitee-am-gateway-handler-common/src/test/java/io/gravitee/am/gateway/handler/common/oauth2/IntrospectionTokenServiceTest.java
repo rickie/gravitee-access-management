@@ -1,23 +1,23 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.oauth2;
 
-import io.gravitee.am.common.jwt.JWT;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.exception.jwt.JWTException;
 import io.gravitee.am.common.exception.oauth2.InvalidTokenException;
+import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
 import io.gravitee.am.gateway.handler.common.oauth2.impl.IntrospectionTokenServiceImpl;
@@ -27,6 +27,7 @@ import io.gravitee.am.repository.oauth2.model.AccessToken;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -37,8 +38,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
-import static org.mockito.Mockito.*;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -47,16 +46,14 @@ import static org.mockito.Mockito.*;
 public class IntrospectionTokenServiceTest {
 
     @InjectMocks
-    private IntrospectionTokenService introspectionTokenService = new IntrospectionTokenServiceImpl();
+    private IntrospectionTokenService introspectionTokenService =
+            new IntrospectionTokenServiceImpl();
 
-    @Mock
-    private JWTService jwtService;
+    @Mock private JWTService jwtService;
 
-    @Mock
-    private ClientSyncService clientService;
+    @Mock private ClientSyncService clientService;
 
-    @Mock
-    private AccessTokenRepository accessTokenRepository;
+    @Mock private AccessTokenRepository accessTokenRepository;
 
     @Test
     public void shouldIntrospect_validToken_offline_verification() {
@@ -69,7 +66,8 @@ public class IntrospectionTokenServiceTest {
         client.setClientId("client-id");
 
         when(jwtService.decode(token)).thenReturn(Single.just(jwt));
-        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).thenReturn(Maybe.just(client));
+        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud()))
+                .thenReturn(Maybe.just(client));
         when(jwtService.decodeAndVerify(token, client)).thenReturn(Single.just(jwt));
 
         TestObserver testObserver = introspectionTokenService.introspect(token, true).test();
@@ -95,7 +93,8 @@ public class IntrospectionTokenServiceTest {
         accessToken.setExpireAt(new Date(Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli()));
 
         when(jwtService.decode(token)).thenReturn(Single.just(jwt));
-        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).thenReturn(Maybe.just(client));
+        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud()))
+                .thenReturn(Maybe.just(client));
         when(jwtService.decodeAndVerify(token, client)).thenReturn(Single.just(jwt));
         when(accessTokenRepository.findByToken(jwt.getJti())).thenReturn(Maybe.just(accessToken));
 
@@ -117,7 +116,8 @@ public class IntrospectionTokenServiceTest {
         client.setClientId("client-id");
 
         when(jwtService.decode(token)).thenReturn(Single.just(jwt));
-        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).thenReturn(Maybe.just(client));
+        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud()))
+                .thenReturn(Maybe.just(client));
         when(jwtService.decodeAndVerify(token, client)).thenReturn(Single.just(jwt));
 
         TestObserver testObserver = introspectionTokenService.introspect(token, false).test();
@@ -139,8 +139,10 @@ public class IntrospectionTokenServiceTest {
         client.setClientId("client-id");
 
         when(jwtService.decode(token)).thenReturn(Single.just(jwt));
-        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).thenReturn(Maybe.just(client));
-        when(jwtService.decodeAndVerify(token, client)).thenReturn(Single.error(new JWTException("invalid token")));
+        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud()))
+                .thenReturn(Maybe.just(client));
+        when(jwtService.decodeAndVerify(token, client))
+                .thenReturn(Single.error(new JWTException("invalid token")));
 
         TestObserver testObserver = introspectionTokenService.introspect(token, false).test();
         testObserver.assertError(InvalidTokenException.class);
@@ -159,7 +161,8 @@ public class IntrospectionTokenServiceTest {
         client.setClientId("client-id");
 
         when(jwtService.decode(token)).thenReturn(Single.just(jwt));
-        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).thenReturn(Maybe.just(client));
+        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud()))
+                .thenReturn(Maybe.just(client));
         when(jwtService.decodeAndVerify(token, client)).thenReturn(Single.just(jwt));
         when(accessTokenRepository.findByToken(jwt.getJti())).thenReturn(Maybe.empty());
 
@@ -183,7 +186,8 @@ public class IntrospectionTokenServiceTest {
         accessToken.setExpireAt(new Date(Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli()));
 
         when(jwtService.decode(token)).thenReturn(Single.just(jwt));
-        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).thenReturn(Maybe.just(client));
+        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud()))
+                .thenReturn(Maybe.just(client));
         when(jwtService.decodeAndVerify(token, client)).thenReturn(Single.just(jwt));
         when(accessTokenRepository.findByToken(jwt.getJti())).thenReturn(Maybe.just(accessToken));
 

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.vertx.web.auth.handler.impl;
@@ -64,76 +62,94 @@ public class OAuth2AuthHandlerImpl implements OAuth2AuthHandler {
 
     @Override
     public void handle(RoutingContext context) {
-        parseAuthorization(context, parseHandler -> {
-            if (parseHandler.failed()) {
-                processException(context, parseHandler.cause());
-                return;
-            }
-
-            final String jwtToken = parseHandler.result();
-
-            // set raw token to the current context
-            if (extractRawToken) {
-                context.put(ConstantKeys.RAW_TOKEN_CONTEXT_KEY, jwtToken);
-            }
-
-            oAuth2AuthProvider.decodeToken(jwtToken, offlineVerification, handler -> {
-                if (handler.failed()) {
-                    processException(context, handler.cause());
-                    return;
-                }
-
-                OAuth2AuthResponse response = handler.result();
-                JWT token = response.getToken();
-                Client client = response.getClient();
-
-                // set token to the current context
-                if (extractToken) {
-                    context.put(ConstantKeys.TOKEN_CONTEXT_KEY, token);
-                }
-
-                // set client to the current context
-                if (extractClient) {
-                    context.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-                }
-
-                // check if current subject can access its own resources
-                if (selfResource) {
-                    final String resourceId = context.request().getParam(resourceParameter);
-                    if (resourceId != null && resourceId.equals(token.getSub())) {
-                        if (resourceRequiredScope == null || token.hasScope(resourceRequiredScope)) {
-                            context.next();
-                            return;
-                        }
-                    }
-                }
-
-                if (forceEndUserToken) {
-                    if(token.getSub().equals(token.getAud())) {
-                        // token for end user must not contain clientId as subject
-                        processException(context, new InvalidTokenException("The access token was not issued for an End-User"));
+        parseAuthorization(
+                context,
+                parseHandler -> {
+                    if (parseHandler.failed()) {
+                        processException(context, parseHandler.cause());
                         return;
                     }
-                }
 
-                if (forceClientToken) {
-                    if(!token.getSub().equals(token.getAud())) {
-                        // token for end user must not contain clientId as subject
-                        processException(context, new InvalidTokenException("The access token was not issued for a Client"));
-                        return;
-                    }
-                }
+                    final String jwtToken = parseHandler.result();
 
-                // check required scope
-                if (requiredScope != null) {
-                    if (!token.hasScope(requiredScope)) {
-                        processException(context, new InsufficientScopeException("Invalid access token scopes. The access token should have at least '"+ requiredScope +"' scope"));
-                        return;
+                    // set raw token to the current context
+                    if (extractRawToken) {
+                        context.put(ConstantKeys.RAW_TOKEN_CONTEXT_KEY, jwtToken);
                     }
-                }
-                context.next();
-            });
-        });
+
+                    oAuth2AuthProvider.decodeToken(
+                            jwtToken,
+                            offlineVerification,
+                            handler -> {
+                                if (handler.failed()) {
+                                    processException(context, handler.cause());
+                                    return;
+                                }
+
+                                OAuth2AuthResponse response = handler.result();
+                                JWT token = response.getToken();
+                                Client client = response.getClient();
+
+                                // set token to the current context
+                                if (extractToken) {
+                                    context.put(ConstantKeys.TOKEN_CONTEXT_KEY, token);
+                                }
+
+                                // set client to the current context
+                                if (extractClient) {
+                                    context.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                                }
+
+                                // check if current subject can access its own resources
+                                if (selfResource) {
+                                    final String resourceId =
+                                            context.request().getParam(resourceParameter);
+                                    if (resourceId != null && resourceId.equals(token.getSub())) {
+                                        if (resourceRequiredScope == null
+                                                || token.hasScope(resourceRequiredScope)) {
+                                            context.next();
+                                            return;
+                                        }
+                                    }
+                                }
+
+                                if (forceEndUserToken) {
+                                    if (token.getSub().equals(token.getAud())) {
+                                        // token for end user must not contain clientId as subject
+                                        processException(
+                                                context,
+                                                new InvalidTokenException(
+                                                        "The access token was not issued for an End-User"));
+                                        return;
+                                    }
+                                }
+
+                                if (forceClientToken) {
+                                    if (!token.getSub().equals(token.getAud())) {
+                                        // token for end user must not contain clientId as subject
+                                        processException(
+                                                context,
+                                                new InvalidTokenException(
+                                                        "The access token was not issued for a Client"));
+                                        return;
+                                    }
+                                }
+
+                                // check required scope
+                                if (requiredScope != null) {
+                                    if (!token.hasScope(requiredScope)) {
+                                        processException(
+                                                context,
+                                                new InsufficientScopeException(
+                                                        "Invalid access token scopes. The access token should have at least '"
+                                                                + requiredScope
+                                                                + "' scope"));
+                                        return;
+                                    }
+                                }
+                                context.next();
+                            });
+                });
     }
 
     public void extractRawToken(boolean extractRawToken) {
@@ -172,7 +188,8 @@ public class OAuth2AuthHandlerImpl implements OAuth2AuthHandler {
 
     private void parseAuthorization(RoutingContext context, Handler<AsyncResult<String>> handler) {
         final HttpServerRequest request = context.request();
-        final String authorization = request.headers().get(io.vertx.core.http.HttpHeaders.AUTHORIZATION);
+        final String authorization =
+                request.headers().get(io.vertx.core.http.HttpHeaders.AUTHORIZATION);
         String authToken = null;
         try {
             if (authorization != null) {
@@ -180,7 +197,10 @@ public class OAuth2AuthHandlerImpl implements OAuth2AuthHandler {
                 int idx = authorization.indexOf(' ');
 
                 if (idx <= 0) {
-                    handler.handle(Future.failedFuture(new InvalidRequestException("The access token must be sent using the Authorization header field")));
+                    handler.handle(
+                            Future.failedFuture(
+                                    new InvalidRequestException(
+                                            "The access token must be sent using the Authorization header field")));
                     return;
                 }
 
@@ -200,7 +220,7 @@ public class OAuth2AuthHandlerImpl implements OAuth2AuthHandler {
             }
 
             handler.handle(Future.succeededFuture(authToken));
-        }  catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             handler.handle(Future.failedFuture(e));
         }
     }

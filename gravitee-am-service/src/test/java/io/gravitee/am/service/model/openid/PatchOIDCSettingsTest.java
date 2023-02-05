@@ -1,30 +1,29 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.model.openid;
 
+import static org.junit.Assert.*;
+
 import io.gravitee.am.model.oidc.CIBASettings;
 import io.gravitee.am.model.oidc.ClientRegistrationSettings;
 import io.gravitee.am.model.oidc.OIDCSettings;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.Optional;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -35,20 +34,22 @@ public class PatchOIDCSettingsTest {
 
     @Test
     public void testPatchToNullValue() {
-        //Build patcher
+        // Build patcher
         PatchOIDCSettings nullSettings = new PatchOIDCSettings();
 
-        //apply patch on null object
+        // apply patch on null object
         OIDCSettings result = nullSettings.patch(null);
 
         assertNotNull(result);
         assertNotNull(result.getClientRegistrationSettings());
-        assertFalse("should be disabled by default", result.getClientRegistrationSettings().isDynamicClientRegistrationEnabled());
+        assertFalse(
+                "should be disabled by default",
+                result.getClientRegistrationSettings().isDynamicClientRegistrationEnabled());
     }
 
     @Test
     public void testPatchToCIBA() {
-        //Build patcher
+        // Build patcher
         PatchOIDCSettings patchOIDCSettings = new PatchOIDCSettings();
         PatchCIBASettings patchCiba = new PatchCIBASettings();
         patchCiba.setEnabled(Optional.of(true));
@@ -59,52 +60,63 @@ public class PatchOIDCSettingsTest {
         final CIBASettings cibaSettings = new CIBASettings();
         cibaSettings.setEnabled(false);
         settings.setCibaSettings(cibaSettings);
-        assertFalse("CIBA settings shall be false before update", settings.getCibaSettings().isEnabled());
+        assertFalse(
+                "CIBA settings shall be false before update",
+                settings.getCibaSettings().isEnabled());
 
-        //apply patch on null object
+        // apply patch on null object
         OIDCSettings result = patchOIDCSettings.patch(settings);
 
         assertNotNull(result);
         assertNotNull(result.getCibaSettings());
-        assertTrue("CIBA settings shall be true after update", result.getCibaSettings().isEnabled());
+        assertTrue(
+                "CIBA settings shall be true after update", result.getCibaSettings().isEnabled());
     }
 
     @Test
     public void testPatchToEmptyValue() {
-        //Build patcher
+        // Build patcher
         PatchOIDCSettings emptySettings = new PatchOIDCSettings();
         emptySettings.setClientRegistrationSettings(Optional.empty());
 
-        //apply patch to empty object
+        // apply patch to empty object
         OIDCSettings result = emptySettings.patch(new OIDCSettings());
 
         assertNotNull(result);
         assertNotNull(result.getClientRegistrationSettings());
-        assertFalse("should be disabled by default", result.getClientRegistrationSettings().isDynamicClientRegistrationEnabled());
+        assertFalse(
+                "should be disabled by default",
+                result.getClientRegistrationSettings().isDynamicClientRegistrationEnabled());
     }
 
     @Test
     public void testPatchSettingsToEmptyValue() {
-        //Build patcher
+        // Build patcher
         PatchOIDCSettings patcher = new PatchOIDCSettings();
         PatchClientRegistrationSettings dcrPatcher = new PatchClientRegistrationSettings();
         dcrPatcher.setDynamicClientRegistrationEnabled(Optional.of(true));
         dcrPatcher.setAllowLocalhostRedirectUri(Optional.of(true));
         patcher.setClientRegistrationSettings(Optional.of(dcrPatcher));
 
-        //apply patch
+        // apply patch
         OIDCSettings result = patcher.patch(new OIDCSettings());
 
         assertNotNull(result);
         assertNotNull(result.getClientRegistrationSettings());
-        assertTrue("should be enabled",result.getClientRegistrationSettings().isDynamicClientRegistrationEnabled());
-        assertTrue("should be enabled",result.getClientRegistrationSettings().isAllowLocalhostRedirectUri());
-        assertFalse("should be disabled by default", result.getClientRegistrationSettings().isOpenDynamicClientRegistrationEnabled());
+        assertTrue(
+                "should be enabled",
+                result.getClientRegistrationSettings().isDynamicClientRegistrationEnabled());
+        assertTrue(
+                "should be enabled",
+                result.getClientRegistrationSettings().isAllowLocalhostRedirectUri());
+        assertFalse(
+                "should be disabled by default",
+                result.getClientRegistrationSettings().isOpenDynamicClientRegistrationEnabled());
     }
 
     @Test
     public void testPatchEmtpySettings() {
-        //Build object to patch
+        // Build object to patch
         ClientRegistrationSettings dcrSettings = new ClientRegistrationSettings();
         dcrSettings.setDynamicClientRegistrationEnabled(true);
         dcrSettings.setOpenDynamicClientRegistrationEnabled(false);
@@ -114,7 +126,7 @@ public class PatchOIDCSettingsTest {
         OIDCSettings toPatch = new OIDCSettings();
         toPatch.setClientRegistrationSettings(dcrSettings);
 
-        //Build patcher
+        // Build patcher
         PatchOIDCSettings patcher = new PatchOIDCSettings();
         PatchClientRegistrationSettings dcrPatcher = new PatchClientRegistrationSettings();
         dcrPatcher.setDynamicClientRegistrationEnabled(Optional.of(false));
@@ -124,7 +136,7 @@ public class PatchOIDCSettingsTest {
         dcrPatcher.setAllowWildCardRedirectUri(Optional.of(false));
         patcher.setClientRegistrationSettings(Optional.of(dcrPatcher));
 
-        //apply patch
+        // apply patch
         OIDCSettings result = patcher.patch(toPatch);
 
         assertNotNull(result);

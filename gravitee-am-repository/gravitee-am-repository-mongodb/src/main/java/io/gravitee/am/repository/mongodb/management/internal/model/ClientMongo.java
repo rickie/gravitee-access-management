@@ -1,22 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management.internal.model;
 
-
 import io.gravitee.am.repository.mongodb.common.model.Auditable;
+
 import org.bson.Document;
 import org.bson.codecs.pojo.annotations.BsonId;
 
@@ -30,8 +28,7 @@ import java.util.Set;
  */
 public class ClientMongo extends Auditable {
 
-    @BsonId
-    private String id;
+    @BsonId private String id;
 
     private String clientId;
 
@@ -99,11 +96,11 @@ public class ClientMongo extends Auditable {
 
     private List<String> scopes;
 
-    private String softwareId; //Should be UUID
+    private String softwareId; // Should be UUID
 
     private String softwareVersion;
 
-    private String softwareStatement; //Should be JWT
+    private String softwareStatement; // Should be JWT
 
     private String registrationAccessToken;
 
@@ -131,14 +128,10 @@ public class ClientMongo extends Auditable {
 
     private String tlsClientAuthSanEmail;
 
-    /**
-     * Security domain associated to the client
-     */
+    /** Security domain associated to the client */
     private String domain;
 
-    /**
-     * Client enabled.
-     */
+    /** Client enabled. */
     private boolean enabled;
 
     private Set<String> identities;
@@ -147,9 +140,7 @@ public class ClientMongo extends Auditable {
 
     private boolean enhanceScopesWithUserPermissions;
 
-    /**
-     * Map codec support is planned for version 3.7 jira.mongodb.org issue: JAVA-2695
-     */
+    /** Map codec support is planned for version 3.7 jira.mongodb.org issue: JAVA-2695 */
     private Document scopeApprovals;
 
     private AccountSettingsMongo accountSettings;

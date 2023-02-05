@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.model.AuthenticationDeviceNotifier;
 import io.gravitee.am.model.ReferenceType;
@@ -32,15 +33,13 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -50,22 +49,21 @@ import static org.mockito.Mockito.*;
 public class AuthenticationDeviceNotifierServiceTest {
 
     @InjectMocks
-    private AuthenticationDeviceNotifierService authDeviceNotifierService = new AuthenticationDeviceNotifierServiceImpl();
+    private AuthenticationDeviceNotifierService authDeviceNotifierService =
+            new AuthenticationDeviceNotifierServiceImpl();
 
-    @Mock
-    private EventService eventService;
+    @Mock private EventService eventService;
 
-    @Mock
-    private AuthenticationDeviceNotifierRepository authDeviceNotifierRepository;
+    @Mock private AuthenticationDeviceNotifierRepository authDeviceNotifierRepository;
 
-    @Mock
-    private AuditService auditService;
+    @Mock private AuditService auditService;
 
-    private final static String DOMAIN = "domain1";
+    private static final String DOMAIN = "domain1";
 
     @Test
     public void shouldFindById() {
-        when(authDeviceNotifierRepository.findById("auth-dev-notifier")).thenReturn(Maybe.just(new AuthenticationDeviceNotifier()));
+        when(authDeviceNotifierRepository.findById("auth-dev-notifier"))
+                .thenReturn(Maybe.just(new AuthenticationDeviceNotifier()));
         TestObserver testObserver = authDeviceNotifierService.findById("auth-dev-notifier").test();
 
         testObserver.awaitTerminalEvent();
@@ -85,7 +83,8 @@ public class AuthenticationDeviceNotifierServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(authDeviceNotifierRepository.findById("auth-dev-notifier")).thenReturn(Maybe.error(TechnicalException::new));
+        when(authDeviceNotifierRepository.findById("auth-dev-notifier"))
+                .thenReturn(Maybe.error(TechnicalException::new));
         TestObserver testObserver = new TestObserver();
         authDeviceNotifierService.findById("auth-dev-notifier").subscribe(testObserver);
 
@@ -95,8 +94,10 @@ public class AuthenticationDeviceNotifierServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(authDeviceNotifierRepository.findByReference(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(new AuthenticationDeviceNotifier()));
-        TestSubscriber<AuthenticationDeviceNotifier> testSubscriber = authDeviceNotifierService.findByDomain(DOMAIN).test();
+        when(authDeviceNotifierRepository.findByReference(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.just(new AuthenticationDeviceNotifier()));
+        TestSubscriber<AuthenticationDeviceNotifier> testSubscriber =
+                authDeviceNotifierService.findByDomain(DOMAIN).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -106,7 +107,8 @@ public class AuthenticationDeviceNotifierServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(authDeviceNotifierRepository.findByReference(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.error(TechnicalException::new));
+        when(authDeviceNotifierRepository.findByReference(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.error(TechnicalException::new));
 
         TestSubscriber testSubscriber = authDeviceNotifierService.findByDomain(DOMAIN).test();
 
@@ -116,11 +118,14 @@ public class AuthenticationDeviceNotifierServiceTest {
 
     @Test
     public void shouldCreate() {
-        NewAuthenticationDeviceNotifier newAuthenticationDeviceNotifier = Mockito.mock(NewAuthenticationDeviceNotifier.class);
-        when(authDeviceNotifierRepository.create(any(AuthenticationDeviceNotifier.class))).thenReturn(Single.just(new AuthenticationDeviceNotifier()));
+        NewAuthenticationDeviceNotifier newAuthenticationDeviceNotifier =
+                Mockito.mock(NewAuthenticationDeviceNotifier.class);
+        when(authDeviceNotifierRepository.create(any(AuthenticationDeviceNotifier.class)))
+                .thenReturn(Single.just(new AuthenticationDeviceNotifier()));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = authDeviceNotifierService.create(DOMAIN, newAuthenticationDeviceNotifier).test();
+        TestObserver testObserver =
+                authDeviceNotifierService.create(DOMAIN, newAuthenticationDeviceNotifier).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -133,11 +138,15 @@ public class AuthenticationDeviceNotifierServiceTest {
 
     @Test
     public void shouldCreate_technicalException() {
-        NewAuthenticationDeviceNotifier newAuthenticationDeviceNotifier = Mockito.mock(NewAuthenticationDeviceNotifier.class);
-        when(authDeviceNotifierRepository.create(any())).thenReturn(Single.error(TechnicalException::new));
+        NewAuthenticationDeviceNotifier newAuthenticationDeviceNotifier =
+                Mockito.mock(NewAuthenticationDeviceNotifier.class);
+        when(authDeviceNotifierRepository.create(any()))
+                .thenReturn(Single.error(TechnicalException::new));
 
         TestObserver<AuthenticationDeviceNotifier> testObserver = new TestObserver<>();
-        authDeviceNotifierService.create(DOMAIN, newAuthenticationDeviceNotifier).subscribe(testObserver);
+        authDeviceNotifierService
+                .create(DOMAIN, newAuthenticationDeviceNotifier)
+                .subscribe(testObserver);
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -148,13 +157,19 @@ public class AuthenticationDeviceNotifierServiceTest {
 
     @Test
     public void shouldUpdate() {
-        UpdateAuthenticationDeviceNotifier updateAuthenticationDeviceNotifier = Mockito.mock(UpdateAuthenticationDeviceNotifier.class);
+        UpdateAuthenticationDeviceNotifier updateAuthenticationDeviceNotifier =
+                Mockito.mock(UpdateAuthenticationDeviceNotifier.class);
         when(updateAuthenticationDeviceNotifier.getName()).thenReturn("auth-dev-notifier");
-        when(authDeviceNotifierRepository.findById("auth-dev-notifier")).thenReturn(Maybe.just(new AuthenticationDeviceNotifier()));
-        when(authDeviceNotifierRepository.update(any(AuthenticationDeviceNotifier.class))).thenReturn(Single.just(new AuthenticationDeviceNotifier()));
+        when(authDeviceNotifierRepository.findById("auth-dev-notifier"))
+                .thenReturn(Maybe.just(new AuthenticationDeviceNotifier()));
+        when(authDeviceNotifierRepository.update(any(AuthenticationDeviceNotifier.class)))
+                .thenReturn(Single.just(new AuthenticationDeviceNotifier()));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = authDeviceNotifierService.update(DOMAIN, "auth-dev-notifier", updateAuthenticationDeviceNotifier).test();
+        TestObserver testObserver =
+                authDeviceNotifierService
+                        .update(DOMAIN, "auth-dev-notifier", updateAuthenticationDeviceNotifier)
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -167,15 +182,21 @@ public class AuthenticationDeviceNotifierServiceTest {
 
     @Test
     public void shouldUpdate_technicalException() {
-        UpdateAuthenticationDeviceNotifier updateAuthenticationDeviceNotifier = Mockito.mock(UpdateAuthenticationDeviceNotifier.class);
-        when(authDeviceNotifierRepository.findById("auth-dev-notifier")).thenReturn(Maybe.error(TechnicalException::new));
+        UpdateAuthenticationDeviceNotifier updateAuthenticationDeviceNotifier =
+                Mockito.mock(UpdateAuthenticationDeviceNotifier.class);
+        when(authDeviceNotifierRepository.findById("auth-dev-notifier"))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
-        TestObserver testObserver = authDeviceNotifierService.update(DOMAIN, "auth-dev-notifier", updateAuthenticationDeviceNotifier).test();
+        TestObserver testObserver =
+                authDeviceNotifierService
+                        .update(DOMAIN, "auth-dev-notifier", updateAuthenticationDeviceNotifier)
+                        .test();
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
 
         verify(authDeviceNotifierRepository).findById(anyString());
-        verify(authDeviceNotifierRepository, never()).update(any(AuthenticationDeviceNotifier.class));
+        verify(authDeviceNotifierRepository, never())
+                .update(any(AuthenticationDeviceNotifier.class));
         verify(auditService, never()).report(any(AuthDeviceNotifierAuditBuilder.class));
     }
 
@@ -183,7 +204,8 @@ public class AuthenticationDeviceNotifierServiceTest {
     public void shouldDelete_notAuthenticationDeviceNotifier() {
         when(authDeviceNotifierRepository.findById("auth-dev-notifier")).thenReturn(Maybe.empty());
 
-        TestObserver testObserver = authDeviceNotifierService.delete(DOMAIN, "auth-dev-notifier").test();
+        TestObserver testObserver =
+                authDeviceNotifierService.delete(DOMAIN, "auth-dev-notifier").test();
 
         testObserver.assertError(AuthenticationDeviceNotifierNotFoundException.class);
         testObserver.assertNotComplete();
@@ -194,9 +216,11 @@ public class AuthenticationDeviceNotifierServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(authDeviceNotifierRepository.findById("auth-dev-notifier")).thenReturn(Maybe.error(TechnicalException::new));
+        when(authDeviceNotifierRepository.findById("auth-dev-notifier"))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
-        TestObserver testObserver = authDeviceNotifierService.delete(DOMAIN, "auth-dev-notifier").test();
+        TestObserver testObserver =
+                authDeviceNotifierService.delete(DOMAIN, "auth-dev-notifier").test();
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -206,11 +230,14 @@ public class AuthenticationDeviceNotifierServiceTest {
     public void shouldDelete() {
         AuthenticationDeviceNotifier deviceNotifier = new AuthenticationDeviceNotifier();
         deviceNotifier.setId("deviceNotifier-id");
-        when(authDeviceNotifierRepository.findById(deviceNotifier.getId())).thenReturn(Maybe.just(deviceNotifier));
-        when(authDeviceNotifierRepository.delete(deviceNotifier.getId())).thenReturn(Completable.complete());
+        when(authDeviceNotifierRepository.findById(deviceNotifier.getId()))
+                .thenReturn(Maybe.just(deviceNotifier));
+        when(authDeviceNotifierRepository.delete(deviceNotifier.getId()))
+                .thenReturn(Completable.complete());
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = authDeviceNotifierService.delete(DOMAIN, deviceNotifier.getId()).test();
+        TestObserver testObserver =
+                authDeviceNotifierService.delete(DOMAIN, deviceNotifier.getId()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();

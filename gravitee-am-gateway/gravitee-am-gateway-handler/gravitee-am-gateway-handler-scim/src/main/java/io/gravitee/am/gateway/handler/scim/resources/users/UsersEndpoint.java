@@ -1,21 +1,22 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.scim.resources.users;
 
+import static io.gravitee.am.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.scim.Schema;
 import io.gravitee.am.common.scim.filter.Filter;
@@ -39,8 +40,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import static io.gravitee.am.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -70,7 +69,8 @@ public class UsersEndpoint extends AbstractUserEndpoint {
         }
         // Non-negative integer. Specifies the desired  results per page, e.g., 10.
         // A negative value SHALL be interpreted as "0".
-        // A value of "0"  indicates that no resource results are to be returned except for "totalResults".
+        // A value of "0"  indicates that no resource results are to be returned except for
+        // "totalResults".
         try {
             final String count = context.request().getParam("count");
             size = Integer.min(Integer.valueOf(count), MAX_ITEMS_PER_PAGE);
@@ -90,55 +90,57 @@ public class UsersEndpoint extends AbstractUserEndpoint {
         }
 
         // user service use 0-based index
-        userService.list(filter, page - 1, size, location(context.request()))
+        userService
+                .list(filter, page - 1, size, location(context.request()))
                 .subscribe(
-                        users -> context.response()
-                                .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
-                                .putHeader(HttpHeaders.PRAGMA, "no-cache")
-                                .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(users)),
+                        users ->
+                                context.response()
+                                        .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+                                        .putHeader(HttpHeaders.PRAGMA, "no-cache")
+                                        .putHeader(
+                                                HttpHeaders.CONTENT_TYPE,
+                                                MediaType.APPLICATION_JSON)
+                                        .end(
+                                                objectMapper
+                                                        .writerWithDefaultPrettyPrinter()
+                                                        .writeValueAsString(users)),
                         context::fail);
     }
 
     /**
-     * To router new resources, clients send HTTP POST requests to the resource endpoint, such as "/Users".
+     * To router new resources, clients send HTTP POST requests to the resource endpoint, such as
+     * "/Users".
      *
-     * The server SHALL process attributes according to the following
-     *    mutability rules:
+     * <p>The server SHALL process attributes according to the following mutability rules:
      *
-     *      In the request body, attributes whose mutability is "readOnly"
-     *       (see Sections 2.2 and 7 of [RFC7643]) SHALL be ignored.
+     * <p>In the request body, attributes whose mutability is "readOnly" (see Sections 2.2 and 7 of
+     * [RFC7643]) SHALL be ignored.
      *
-     *    o  Attributes whose mutability is "readWrite" (see Section 2.2 of
-     *       [RFC7643]) and that are omitted from the request body MAY be
-     *       assumed to be not asserted by the client.  The service provider
-     *       MAY assign a default value to non-asserted attributes in the final
-     *       resource representation.
+     * <p>o Attributes whose mutability is "readWrite" (see Section 2.2 of [RFC7643]) and that are
+     * omitted from the request body MAY be assumed to be not asserted by the client. The service
+     * provider MAY assign a default value to non-asserted attributes in the final resource
+     * representation.
      *
-     *    o  Service providers MAY take into account whether or not a client
-     *       has access to all of the resource's attributes when deciding
-     *       whether or not non-asserted attributes should be defaulted.
+     * <p>o Service providers MAY take into account whether or not a client has access to all of the
+     * resource's attributes when deciding whether or not non-asserted attributes should be
+     * defaulted.
      *
-     *    o  Clients that intend to override existing or server-defaulted
-     *       values for attributes MAY specify "null" for a single-valued
-     *       attribute or an empty array "[]" for a multi-valued attribute to
-     *       clear all values.
+     * <p>o Clients that intend to override existing or server-defaulted values for attributes MAY
+     * specify "null" for a single-valued attribute or an empty array "[]" for a multi-valued
+     * attribute to clear all values.
      *
-     * When the service provider successfully creates the new resource, an
-     *    HTTP response SHALL be returned with HTTP status code 201 (Created).
-     *    The response body SHOULD contain the service provider's
-     *    representation of the newly created resource.  The URI of the created
-     *    resource SHALL include, in the HTTP "Location" header and the HTTP
-     *    body, a JSON representation [RFC7159] with the attribute
-     *    "meta.location".
+     * <p>When the service provider successfully creates the new resource, an HTTP response SHALL be
+     * returned with HTTP status code 201 (Created). The response body SHOULD contain the service
+     * provider's representation of the newly created resource. The URI of the created resource
+     * SHALL include, in the HTTP "Location" header and the HTTP body, a JSON representation
+     * [RFC7159] with the attribute "meta.location".
      *
-     * If the service provider determines that the creation of the requested
-     *    resource conflicts with existing resources (e.g., a "User" resource
-     *    with a duplicate "userName"), the service provider MUST return HTTP
-     *    status code 409 (Conflict) with a "scimType" error code of
-     *    "uniqueness", as per Section 3.12.
+     * <p>If the service provider determines that the creation of the requested resource conflicts
+     * with existing resources (e.g., a "User" resource with a duplicate "userName"), the service
+     * provider MUST return HTTP status code 409 (Conflict) with a "scimType" error code of
+     * "uniqueness", as per Section 3.12.
      *
-     * See <a href="https://tools.ietf.org/html/rfc7644#section-3.3">3.3. Creating Resources</a>
+     * <p>See <a href="https://tools.ietf.org/html/rfc7644#section-3.3">3.3. Creating Resources</a>
      */
     public void create(RoutingContext context) {
         try {
@@ -150,7 +152,10 @@ public class UsersEndpoint extends AbstractUserEndpoint {
 
             // determine the User resource type via the schemas value
             final Map<String, Object> payload = Json.decodeValue(body, Map.class);
-            final List<String> schemas = (List<String>) Optional.ofNullable(payload.get("schemas")).orElse(Collections.emptyList());
+            final List<String> schemas =
+                    (List<String>)
+                            Optional.ofNullable(payload.get("schemas"))
+                                    .orElse(Collections.emptyList());
 
             final User user = evaluateUser(schemas, body);
 
@@ -160,7 +165,8 @@ public class UsersEndpoint extends AbstractUserEndpoint {
                 return;
             }
 
-            // schemas field is REQUIRED and MUST contain valid values and MUST not contain duplicate values
+            // schemas field is REQUIRED and MUST contain valid values and MUST not contain
+            // duplicate values
             try {
                 checkSchemas(user.getSchemas(), Schema.supportedSchemas());
             } catch (Exception ex) {
@@ -172,19 +178,35 @@ public class UsersEndpoint extends AbstractUserEndpoint {
             final String source = userSource(context);
             final JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
             final String baseUrl = location(context.request());
-            userService.get(accessToken.getSub(), baseUrl)
+            userService
+                    .get(accessToken.getSub(), baseUrl)
                     .map(scimUser -> new DefaultUser(UserMapper.convert(scimUser)))
                     .map(Optional::ofNullable)
                     .switchIfEmpty(Maybe.just(Optional.empty()))
-                    .flatMapSingle(optPrincipal -> userService.create(user, source, baseUrl, optPrincipal.orElse(null), context.get(CLIENT_CONTEXT_KEY)))
+                    .flatMapSingle(
+                            optPrincipal ->
+                                    userService.create(
+                                            user,
+                                            source,
+                                            baseUrl,
+                                            optPrincipal.orElse(null),
+                                            context.get(CLIENT_CONTEXT_KEY)))
                     .subscribe(
-                            user1 -> context.response()
-                                    .setStatusCode(201)
-                                    .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
-                                    .putHeader(HttpHeaders.PRAGMA, "no-cache")
-                                    .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                    .putHeader(HttpHeaders.LOCATION, user1.getMeta().getLocation())
-                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(user1)),
+                            user1 ->
+                                    context.response()
+                                            .setStatusCode(201)
+                                            .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+                                            .putHeader(HttpHeaders.PRAGMA, "no-cache")
+                                            .putHeader(
+                                                    HttpHeaders.CONTENT_TYPE,
+                                                    MediaType.APPLICATION_JSON)
+                                            .putHeader(
+                                                    HttpHeaders.LOCATION,
+                                                    user1.getMeta().getLocation())
+                                            .end(
+                                                    objectMapper
+                                                            .writerWithDefaultPrettyPrinter()
+                                                            .writeValueAsString(user1)),
                             context::fail);
         } catch (DecodeException ex) {
             context.fail(new InvalidSyntaxException("Unable to parse body message", ex));

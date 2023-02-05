@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.model;
@@ -29,7 +27,7 @@ public class PatchPasswordSettings {
 
     public static final int MAX_PASSWORD_HISTORY = 24;
     public static final int MIN_PASSWORD_HISTORY = 1;
-    
+
     private Optional<Boolean> inherited;
     private Optional<Integer> minLength;
     private Optional<Integer> maxLength;
@@ -111,7 +109,8 @@ public class PatchPasswordSettings {
         return excludeUserProfileInfoInPassword;
     }
 
-    public void setExcludeUserProfileInfoInPassword(Optional<Boolean> excludeUserProfileInfoInPassword) {
+    public void setExcludeUserProfileInfoInPassword(
+            Optional<Boolean> excludeUserProfileInfoInPassword) {
         this.excludeUserProfileInfoInPassword = excludeUserProfileInfoInPassword;
     }
 
@@ -141,7 +140,10 @@ public class PatchPasswordSettings {
 
     public PasswordSettings patch(PasswordSettings _toPatch) {
         // create new object for audit purpose (patch json result)
-        PasswordSettings toPatch = Optional.ofNullable(_toPatch).map(PasswordSettings::new).orElseGet(PasswordSettings::new);
+        PasswordSettings toPatch =
+                Optional.ofNullable(_toPatch)
+                        .map(PasswordSettings::new)
+                        .orElseGet(PasswordSettings::new);
         SetterUtils.safeSet(toPatch::setInherited, this.inherited);
         SetterUtils.safeSet(toPatch::setMinLength, this.minLength);
         SetterUtils.safeSet(toPatch::setMaxLength, this.maxLength);
@@ -149,23 +151,36 @@ public class PatchPasswordSettings {
         SetterUtils.safeSet(toPatch::setIncludeSpecialCharacters, this.includeSpecialCharacters);
         SetterUtils.safeSet(toPatch::setLettersInMixedCase, this.lettersInMixedCase);
         SetterUtils.safeSet(toPatch::setMaxConsecutiveLetters, this.maxConsecutiveLetters);
-        SetterUtils.safeSet(toPatch::setExcludePasswordsInDictionary, this.excludePasswordsInDictionary);
-        SetterUtils.safeSet(toPatch::setExcludeUserProfileInfoInPassword, this.excludeUserProfileInfoInPassword);
+        SetterUtils.safeSet(
+                toPatch::setExcludePasswordsInDictionary, this.excludePasswordsInDictionary);
+        SetterUtils.safeSet(
+                toPatch::setExcludeUserProfileInfoInPassword,
+                this.excludeUserProfileInfoInPassword);
         SetterUtils.safeSet(toPatch::setExpiryDuration, this.expiryDuration);
         SetterUtils.safeSet(toPatch::setPasswordHistoryEnabled, this.passwordHistoryEnabled);
         SetterUtils.safeSet(toPatch::setOldPasswords, this.oldPasswords);
 
-        if (toPatch.isPasswordHistoryEnabled() && (toPatch.getOldPasswords() == null || toPatch.getOldPasswords() > MAX_PASSWORD_HISTORY || toPatch.getOldPasswords() < MIN_PASSWORD_HISTORY)) {
-            throw new InvalidParameterException("Number of old passwords must be within the range  ["+MIN_PASSWORD_HISTORY+", "+MAX_PASSWORD_HISTORY+"]");
+        if (toPatch.isPasswordHistoryEnabled()
+                && (toPatch.getOldPasswords() == null
+                        || toPatch.getOldPasswords() > MAX_PASSWORD_HISTORY
+                        || toPatch.getOldPasswords() < MIN_PASSWORD_HISTORY)) {
+            throw new InvalidParameterException(
+                    "Number of old passwords must be within the range  ["
+                            + MIN_PASSWORD_HISTORY
+                            + ", "
+                            + MAX_PASSWORD_HISTORY
+                            + "]");
         }
 
         if (toPatch.getMinLength() != null) {
-            if (toPatch.getMinLength() <=0) {
-                throw new InvalidParameterException("Min password length must be greater than zero");
+            if (toPatch.getMinLength() <= 0) {
+                throw new InvalidParameterException(
+                        "Min password length must be greater than zero");
             }
 
             if (toPatch.getMaxLength() != null && toPatch.getMinLength() > toPatch.getMaxLength()) {
-                throw new InvalidParameterException("Min password length must be inferior to max password length");
+                throw new InvalidParameterException(
+                        "Min password length must be inferior to max password length");
             }
         }
 

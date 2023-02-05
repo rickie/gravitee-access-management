@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.oauth2.api;
@@ -20,6 +18,7 @@ import io.gravitee.am.repository.oauth2.AbstractOAuthTest;
 import io.gravitee.am.repository.oidc.api.CibaAuthRequestRepository;
 import io.gravitee.am.repository.oidc.model.CibaAuthRequest;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -34,8 +33,7 @@ import java.util.Set;
  */
 public class CibaAuthRequestRepositoryTest extends AbstractOAuthTest {
 
-    @Autowired
-    private CibaAuthRequestRepository repository;
+    @Autowired private CibaAuthRequestRepository repository;
 
     @Test
     public void shouldNotFindById() {
@@ -71,7 +69,8 @@ public class CibaAuthRequestRepositoryTest extends AbstractOAuthTest {
 
         repository.create(authRequest).test().awaitTerminalEvent();
 
-        TestObserver<CibaAuthRequest> observer = repository.findByExternalId(authRequest.getExternalTrxId()).test();
+        TestObserver<CibaAuthRequest> observer =
+                repository.findByExternalId(authRequest.getExternalTrxId()).test();
 
         observer.awaitTerminalEvent();
 
@@ -106,7 +105,10 @@ public class CibaAuthRequestRepositoryTest extends AbstractOAuthTest {
 
         observer.assertComplete();
         observer.assertValueCount(1);
-        observer.assertValue(req -> req.getStatus().equals("SUCCESS") && req.getDeviceNotifierId().equals("notifierId"));
+        observer.assertValue(
+                req ->
+                        req.getStatus().equals("SUCCESS")
+                                && req.getDeviceNotifierId().equals("notifierId"));
         observer.assertNoErrors();
     }
 
@@ -148,8 +150,9 @@ public class CibaAuthRequestRepositoryTest extends AbstractOAuthTest {
         authRequest.setSubject("subjectvalue");
         authRequest.setClientId("clientid");
         authRequest.setDeviceNotifierId("notifierid");
-        authRequest.setExternalTrxId("adtrxid"+id);
-        authRequest.setExternalInformation(Map.of("key1", "value1", "key2", Arrays.asList("a", "b")));
+        authRequest.setExternalTrxId("adtrxid" + id);
+        authRequest.setExternalInformation(
+                Map.of("key1", "value1", "key2", Arrays.asList("a", "b")));
         return authRequest;
     }
 
@@ -158,19 +161,18 @@ public class CibaAuthRequestRepositoryTest extends AbstractOAuthTest {
         final String id = RandomString.generate();
         CibaAuthRequest authRequest = buildCibaAuthRequest(id);
 
-        TestObserver<CibaAuthRequest> observer = repository
-                .create(authRequest)
-                .ignoreElement()
-                .andThen(repository.findById(id))
-                .ignoreElement()
-                .andThen(repository.delete(id))
-                .andThen(repository.findById(id))
-                .test();
+        TestObserver<CibaAuthRequest> observer =
+                repository
+                        .create(authRequest)
+                        .ignoreElement()
+                        .andThen(repository.findById(id))
+                        .ignoreElement()
+                        .andThen(repository.delete(id))
+                        .andThen(repository.findById(id))
+                        .test();
 
         observer.awaitTerminalEvent();
         observer.assertNoValues();
         observer.assertNoErrors();
     }
-
-
 }

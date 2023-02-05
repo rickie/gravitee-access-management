@@ -1,23 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.LoginAttempt;
 import io.gravitee.am.repository.management.api.LoginAttemptRepository;
@@ -27,24 +29,24 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import javax.annotation.PostConstruct;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class MongoLoginAttemptRepository extends AbstractManagementMongoRepository implements LoginAttemptRepository {
+public class MongoLoginAttemptRepository extends AbstractManagementMongoRepository
+        implements LoginAttemptRepository {
 
     private static final String FIELD_IDP = "identityProvider";
     private static final String FIELD_USERNAME = "username";
@@ -53,35 +55,54 @@ public class MongoLoginAttemptRepository extends AbstractManagementMongoReposito
 
     @PostConstruct
     public void init() {
-        loginAttemptsCollection = mongoOperations.getCollection("login_attempts", LoginAttemptMongo.class);
+        loginAttemptsCollection =
+                mongoOperations.getCollection("login_attempts", LoginAttemptMongo.class);
         super.init(loginAttemptsCollection);
-        super.createIndex(loginAttemptsCollection, new Document(FIELD_DOMAIN, 1).append(FIELD_CLIENT, 1).append(FIELD_USERNAME, 1));
+        super.createIndex(
+                loginAttemptsCollection,
+                new Document(FIELD_DOMAIN, 1).append(FIELD_CLIENT, 1).append(FIELD_USERNAME, 1));
 
         // expire after index
-        super.createIndex(loginAttemptsCollection, new Document(FIELD_RESET_TIME, 1), new IndexOptions().expireAfter(0L, TimeUnit.SECONDS));
+        super.createIndex(
+                loginAttemptsCollection,
+                new Document(FIELD_RESET_TIME, 1),
+                new IndexOptions().expireAfter(0L, TimeUnit.SECONDS));
     }
 
     @Override
     public Maybe<LoginAttempt> findById(String id) {
-        return Observable.fromPublisher(loginAttemptsCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return Observable.fromPublisher(loginAttemptsCollection.find(eq(FIELD_ID, id)).first())
+                .firstElement()
+                .map(this::convert);
     }
 
     @Override
     public Maybe<LoginAttempt> findByCriteria(LoginAttemptCriteria criteria) {
-        return Observable.fromPublisher(loginAttemptsCollection.find(query(criteria)).first()).firstElement().map(this::convert);
+        return Observable.fromPublisher(loginAttemptsCollection.find(query(criteria)).first())
+                .firstElement()
+                .map(this::convert);
     }
 
     @Override
     public Single<LoginAttempt> create(LoginAttempt item) {
         LoginAttemptMongo loginAttempt = convert(item);
-        loginAttempt.setId(loginAttempt.getId() == null ? RandomString.generate() : loginAttempt.getId());
-        return Single.fromPublisher(loginAttemptsCollection.insertOne(loginAttempt)).flatMap(success -> { item.setId(loginAttempt.getId()); return Single.just(item); });
+        loginAttempt.setId(
+                loginAttempt.getId() == null ? RandomString.generate() : loginAttempt.getId());
+        return Single.fromPublisher(loginAttemptsCollection.insertOne(loginAttempt))
+                .flatMap(
+                        success -> {
+                            item.setId(loginAttempt.getId());
+                            return Single.just(item);
+                        });
     }
 
     @Override
     public Single<LoginAttempt> update(LoginAttempt item) {
         LoginAttemptMongo loginAttempt = convert(item);
-        return Single.fromPublisher(loginAttemptsCollection.replaceOne(eq(FIELD_ID, loginAttempt.getId()), loginAttempt)).flatMap(success -> Single.just(item));
+        return Single.fromPublisher(
+                        loginAttemptsCollection.replaceOne(
+                                eq(FIELD_ID, loginAttempt.getId()), loginAttempt))
+                .flatMap(success -> Single.just(item));
     }
 
     @Override

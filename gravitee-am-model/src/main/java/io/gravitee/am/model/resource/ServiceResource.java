@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.model.resource;
@@ -24,9 +22,9 @@ import java.util.Date;
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
- *
- * A ServiceResource defines settings for a given media (ex: smtp configuration, SMS platform credentials...)
- * This is useful to avoid duplicate settings when multiple AM entities needs the same configuration.
+ *     <p>A ServiceResource defines settings for a given media (ex: smtp configuration, SMS platform
+ *     credentials...) This is useful to avoid duplicate settings when multiple AM entities needs
+ *     the same configuration.
  */
 public class ServiceResource implements Resource {
 
@@ -48,8 +46,7 @@ public class ServiceResource implements Resource {
     @ApiModelProperty(dataType = "java.lang.Long")
     private Date updatedAt;
 
-    public ServiceResource() {
-    }
+    public ServiceResource() {}
 
     public ServiceResource(ServiceResource other) {
         this.id = other.id;
@@ -61,8 +58,6 @@ public class ServiceResource implements Resource {
         this.createdAt = new Date(other.getCreatedAt().getTime());
         this.updatedAt = new Date(other.getUpdatedAt().getTime());
     }
-
-
 
     @Override
     public String getId() {

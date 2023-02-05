@@ -1,22 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.RateLimit;
 import io.gravitee.am.model.ReferenceType;
@@ -27,23 +29,23 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import javax.annotation.PostConstruct;
 
 /**
  * @author Ashraful Hasan (ashraful.hasan at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class MongoRateLimitRepository extends AbstractManagementMongoRepository implements RateLimitRepository {
+public class MongoRateLimitRepository extends AbstractManagementMongoRepository
+        implements RateLimitRepository {
     private static final String RATE_LIMIT = "rate_limit";
     private static final String FIELD_FACTOR_ID = "factorId";
 
@@ -53,34 +55,43 @@ public class MongoRateLimitRepository extends AbstractManagementMongoRepository 
     public void init() {
         rateLimitCollection = mongoOperations.getCollection(RATE_LIMIT, RateLimitMongo.class);
         super.init(rateLimitCollection);
-        super.createIndex(rateLimitCollection, new Document(FIELD_USER_ID, 1)
-                .append(FIELD_CLIENT, 1)
-                .append(FIELD_FACTOR_ID,1));
+        super.createIndex(
+                rateLimitCollection,
+                new Document(FIELD_USER_ID, 1).append(FIELD_CLIENT, 1).append(FIELD_FACTOR_ID, 1));
     }
 
     @Override
     public Maybe<RateLimit> findById(String id) {
-        return Observable.fromPublisher(rateLimitCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return Observable.fromPublisher(rateLimitCollection.find(eq(FIELD_ID, id)).first())
+                .firstElement()
+                .map(this::convert);
     }
 
     @Override
     public Maybe<RateLimit> findByCriteria(RateLimitCriteria criteria) {
-        return Observable.fromPublisher(rateLimitCollection.find(query(criteria)).first()).firstElement().map(this::convert);
+        return Observable.fromPublisher(rateLimitCollection.find(query(criteria)).first())
+                .firstElement()
+                .map(this::convert);
     }
 
     @Override
     public Single<RateLimit> create(RateLimit item) {
         RateLimitMongo rateLimitMongo = convert(item);
-        return Single.fromPublisher(rateLimitCollection.insertOne(rateLimitMongo)).flatMap(success -> {
-            item.setId(rateLimitMongo.getId());
-            return Single.just(item);
-        });
+        return Single.fromPublisher(rateLimitCollection.insertOne(rateLimitMongo))
+                .flatMap(
+                        success -> {
+                            item.setId(rateLimitMongo.getId());
+                            return Single.just(item);
+                        });
     }
 
     @Override
     public Single<RateLimit> update(RateLimit item) {
         RateLimitMongo rateLimitMongo = convert(item);
-        return Single.fromPublisher(rateLimitCollection.replaceOne(eq(FIELD_ID, rateLimitMongo.getId()), rateLimitMongo)).flatMap(success -> Single.just(item));
+        return Single.fromPublisher(
+                        rateLimitCollection.replaceOne(
+                                eq(FIELD_ID, rateLimitMongo.getId()), rateLimitMongo))
+                .flatMap(success -> Single.just(item));
     }
 
     @Override
@@ -100,7 +111,11 @@ public class MongoRateLimitRepository extends AbstractManagementMongoRepository 
 
     @Override
     public Completable deleteByDomain(String domainId, ReferenceType referenceType) {
-        return Completable.fromPublisher(rateLimitCollection.deleteMany(and(eq(FIELD_REFERENCE_ID, domainId), eq(FIELD_REFERENCE_TYPE, referenceType.name()))));
+        return Completable.fromPublisher(
+                rateLimitCollection.deleteMany(
+                        and(
+                                eq(FIELD_REFERENCE_ID, domainId),
+                                eq(FIELD_REFERENCE_TYPE, referenceType.name()))));
     }
 
     private Bson query(RateLimitCriteria criteria) {
@@ -147,7 +162,8 @@ public class MongoRateLimitRepository extends AbstractManagementMongoRepository 
         }
 
         final RateLimitMongo rateLimitMongo = new RateLimitMongo();
-        rateLimitMongo.setId(rateLimit.getId() != null ? rateLimit.getId() : RandomString.generate());
+        rateLimitMongo.setId(
+                rateLimit.getId() != null ? rateLimit.getId() : RandomString.generate());
         rateLimitMongo.setUserId(rateLimit.getUserId());
         rateLimitMongo.setClient(rateLimit.getClient());
         rateLimitMongo.setFactorId(rateLimit.getFactorId());

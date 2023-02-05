@@ -1,32 +1,31 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.root.resources.handler.user;
+
+import static io.gravitee.am.common.utils.ConstantKeys.ERROR_PARAM_KEY;
 
 import io.gravitee.am.gateway.handler.common.vertx.utils.RequestUtils;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
-
-import static io.gravitee.am.common.utils.ConstantKeys.ERROR_PARAM_KEY;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -49,11 +48,13 @@ public class UserBodyRequestParseHandler extends UserRequestHandler {
             context.fail(405); // Must be a POST
         } else {
             if (!req.isExpectMultipart()) {
-                throw new IllegalStateException("Form body not parsed - do you forget to include a BodyHandler?");
+                throw new IllegalStateException(
+                        "Form body not parsed - do you forget to include a BodyHandler?");
             }
             // check required parameters
             MultiMap params = req.formAttributes();
-            Optional<String> missingParameter = lookForMissingParameters(context, params, this.requiredParams);
+            Optional<String> missingParameter =
+                    lookForMissingParameters(context, params, this.requiredParams);
 
             if (missingParameter.isPresent()) {
                 MultiMap queryParams = RequestUtils.getCleanedQueryParams(context.request());
@@ -65,16 +66,22 @@ public class UserBodyRequestParseHandler extends UserRequestHandler {
         }
     }
 
-    protected Optional<String> lookForMissingParameters(RoutingContext context, MultiMap params, List<String> requiredParams) {
-        Optional<String> missingParameter = requiredParams.stream().filter(param -> {
-            String paramValue = params.get(param);
-            if (paramValue == null) {
-                logger.warn("No {} provided in form - did you forget to include a BodyHandler?", param);
-                return true;
-            }
-            return false;
-        }).findFirst();
+    protected Optional<String> lookForMissingParameters(
+            RoutingContext context, MultiMap params, List<String> requiredParams) {
+        Optional<String> missingParameter =
+                requiredParams.stream()
+                        .filter(
+                                param -> {
+                                    String paramValue = params.get(param);
+                                    if (paramValue == null) {
+                                        logger.warn(
+                                                "No {} provided in form - did you forget to include a BodyHandler?",
+                                                param);
+                                        return true;
+                                    }
+                                    return false;
+                                })
+                        .findFirst();
         return missingParameter;
     }
-
 }

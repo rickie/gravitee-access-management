@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.preview;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 import io.gravitee.am.management.handlers.management.api.authentication.view.TemplateResolver;
 import io.gravitee.am.management.handlers.management.api.model.PreviewRequest;
@@ -35,6 +35,7 @@ import io.gravitee.am.service.impl.I18nDictionaryService;
 import io.gravitee.am.service.theme.ThemeResolution;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,8 +47,6 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import java.util.Locale;
 import java.util.Optional;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
@@ -55,89 +54,122 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 @Component
 public class PreviewService implements InitializingBean {
 
-    @Autowired
-    private DomainService domainService;
+    @Autowired private DomainService domainService;
 
-    @Autowired
-    private ThemeService themeService;
+    @Autowired private ThemeService themeService;
 
-    @Autowired
-    private FormService formService;
+    @Autowired private FormService formService;
 
-    @Autowired
-    private I18nDictionaryService i18nDictionaryService;
+    @Autowired private I18nDictionaryService i18nDictionaryService;
 
-    @Autowired
-    private TemplateEngine templateEngine;
+    @Autowired private TemplateEngine templateEngine;
 
-    @Autowired
-    private TemplateResolver templateResolver;
+    @Autowired private TemplateResolver templateResolver;
 
     @Value("${templates.path:#{systemProperties['gravitee.home']}/templates}")
     private String templatesDirectory;
 
     private GraviteeMessageResolver graviteeMessageResolver;
 
-    private final DynamicDictionaryProvider domainBasedDictionaryProvider = new ThreadLocalDomainDictionaryProvider();
+    private final DynamicDictionaryProvider domainBasedDictionaryProvider =
+            new ThreadLocalDomainDictionaryProvider();
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        final FileSystemDictionaryProvider fileSystemDictionaryProvider = new FileSystemDictionaryProvider(templatesDirectory.endsWith("/") ? templatesDirectory + "i18n/" : templatesDirectory + "/i18n/");
+        final FileSystemDictionaryProvider fileSystemDictionaryProvider =
+                new FileSystemDictionaryProvider(
+                        templatesDirectory.endsWith("/")
+                                ? templatesDirectory + "i18n/"
+                                : templatesDirectory + "/i18n/");
         if (this.templateEngine instanceof SpringTemplateEngine) {
-            this.graviteeMessageResolver = new SpringGraviteeMessageSource(fileSystemDictionaryProvider, domainBasedDictionaryProvider);
-            ((SpringTemplateEngine) this.templateEngine).setMessageSource((MessageSource) this.graviteeMessageResolver);
+            this.graviteeMessageResolver =
+                    new SpringGraviteeMessageSource(
+                            fileSystemDictionaryProvider, domainBasedDictionaryProvider);
+            ((SpringTemplateEngine) this.templateEngine)
+                    .setMessageSource((MessageSource) this.graviteeMessageResolver);
         } else {
-            this.graviteeMessageResolver = new GraviteeMessageResolver(fileSystemDictionaryProvider, domainBasedDictionaryProvider);
+            this.graviteeMessageResolver =
+                    new GraviteeMessageResolver(
+                            fileSystemDictionaryProvider, domainBasedDictionaryProvider);
             this.templateEngine.addMessageResolver(this.graviteeMessageResolver);
         }
     }
 
-    public Maybe<PreviewResponse> previewDomainForm(String domainId, PreviewRequest previewRequest, Locale locale) {
+    public Maybe<PreviewResponse> previewDomainForm(
+            String domainId, PreviewRequest previewRequest, Locale locale) {
         if (!isNullOrEmpty(previewRequest.getTemplate())) {
             try {
                 Template.parse(previewRequest.getTemplate());
             } catch (IllegalArgumentException e) {
-                return Maybe.error(new PreviewException("Invalid template ['" + previewRequest.getTemplate() +"']"));
+                return Maybe.error(
+                        new PreviewException(
+                                "Invalid template ['" + previewRequest.getTemplate() + "']"));
             }
         }
 
         // evaluate the request content. If null, load the default template
-        var contentLookUp = Maybe.just(Optional.ofNullable(previewRequest.getContent()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .switchIfEmpty(Maybe.defer(() -> formService.getDefaultByDomainAndTemplate(domainId, previewRequest.getTemplate()).map(Form::getContent).toMaybe()));
+        var contentLookUp =
+                Maybe.just(Optional.ofNullable(previewRequest.getContent()))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .switchIfEmpty(
+                                Maybe.defer(
+                                        () ->
+                                                formService
+                                                        .getDefaultByDomainAndTemplate(
+                                                                domainId,
+                                                                previewRequest.getTemplate())
+                                                        .map(Form::getContent)
+                                                        .toMaybe()));
 
-        return this.themeService.validate(previewRequest.getTheme())
-                .andThen(domainService.findById(domainId)
-                        .flatMap(domain ->
-                                contentLookUp.map(content -> {
-                                    previewRequest.setContent(content);
-                                    return new PreviewBuilder(templateEngine, templateResolver)
-                                            .withDomain(domain)
-                                            .withRequest(previewRequest);
-                                })
-                        )
-                        .flatMap(builder -> loadTheme(domainId, previewRequest.getTheme()).map(builder::withTheme))
-                        .flatMap(builder -> loadDictionaries(builder.getDomain())
-                                .toSingleDefault(locale)
-                                .toMaybe()
-                                .filter(this.graviteeMessageResolver::isSupported)
-                                // TODO fallback to default domain language when implemented (GH#8067)
-                                .switchIfEmpty(Maybe.just(Locale.ENGLISH))
-                                .map(builder::withLocale))
-                        .map(PreviewBuilder::buildPreview));
+        return this.themeService
+                .validate(previewRequest.getTheme())
+                .andThen(
+                        domainService
+                                .findById(domainId)
+                                .flatMap(
+                                        domain ->
+                                                contentLookUp.map(
+                                                        content -> {
+                                                            previewRequest.setContent(content);
+                                                            return new PreviewBuilder(
+                                                                            templateEngine,
+                                                                            templateResolver)
+                                                                    .withDomain(domain)
+                                                                    .withRequest(previewRequest);
+                                                        }))
+                                .flatMap(
+                                        builder ->
+                                                loadTheme(domainId, previewRequest.getTheme())
+                                                        .map(builder::withTheme))
+                                .flatMap(
+                                        builder ->
+                                                loadDictionaries(builder.getDomain())
+                                                        .toSingleDefault(locale)
+                                                        .toMaybe()
+                                                        .filter(
+                                                                this.graviteeMessageResolver
+                                                                        ::isSupported)
+                                                        // TODO fallback to default domain language
+                                                        // when implemented (GH#8067)
+                                                        .switchIfEmpty(Maybe.just(Locale.ENGLISH))
+                                                        .map(builder::withLocale))
+                                .map(PreviewBuilder::buildPreview));
     }
 
     private Maybe<ThemeResolution> loadTheme(String domainId, Theme overrideTheme) {
-        return this.themeService.findByReference(ReferenceType.DOMAIN, domainId)
-                .switchIfEmpty(Maybe.fromCallable(() -> {
-                    final Theme defaultTheme = new Theme();
-                    defaultTheme.setPrimaryTextColorHex("#000000");
-                    defaultTheme.setPrimaryButtonColorHex("#6A4FF7");
-                    defaultTheme.setSecondaryTextColorHex("#000000");
-                    defaultTheme.setSecondaryButtonColorHex("#DAD3FD");
-                    return defaultTheme;
-                }))
+        return this.themeService
+                .findByReference(ReferenceType.DOMAIN, domainId)
+                .switchIfEmpty(
+                        Maybe.fromCallable(
+                                () -> {
+                                    final Theme defaultTheme = new Theme();
+                                    defaultTheme.setPrimaryTextColorHex("#000000");
+                                    defaultTheme.setPrimaryButtonColorHex("#6A4FF7");
+                                    defaultTheme.setSecondaryTextColorHex("#000000");
+                                    defaultTheme.setSecondaryButtonColorHex("#DAD3FD");
+                                    return defaultTheme;
+                                }))
                 .map(theme -> merge(theme, overrideTheme))
                 .map(themeService::sanitize)
                 .map(ThemeResolution::build);
@@ -174,10 +206,13 @@ public class PreviewService implements InitializingBean {
     }
 
     private Completable loadDictionaries(Domain domain) {
-        return this.i18nDictionaryService.findAll(ReferenceType.DOMAIN, domain.getId())
-                .map(dict -> {
-                    this.graviteeMessageResolver.updateDictionary(dict);
-                    return dict;
-                }).ignoreElements();
+        return this.i18nDictionaryService
+                .findAll(ReferenceType.DOMAIN, domain.getId())
+                .map(
+                        dict -> {
+                            this.graviteeMessageResolver.updateDictionary(dict);
+                            return dict;
+                        })
+                .ignoreElements();
     }
 }

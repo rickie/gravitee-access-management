@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.service.granter;
@@ -42,6 +40,7 @@ import io.gravitee.am.service.ResourceService;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -59,57 +58,45 @@ public class CompositeTokenGranter implements TokenGranter, InitializingBean {
     private ConcurrentMap<String, TokenGranter> tokenGranters = new ConcurrentHashMap<>();
     private TokenRequestResolver tokenRequestResolver = new TokenRequestResolver();
 
-    @Autowired
-    private Domain domain;
+    @Autowired private Domain domain;
 
-    @Autowired
-    private TokenService tokenService;
+    @Autowired private TokenService tokenService;
 
-    @Autowired
-    private JWTService jwtService;
+    @Autowired private JWTService jwtService;
 
-    @Autowired
-    private UserAuthenticationManager userAuthenticationManager;
+    @Autowired private UserAuthenticationManager userAuthenticationManager;
 
-    @Autowired
-    private AuthorizationCodeService authorizationCodeService;
+    @Autowired private AuthorizationCodeService authorizationCodeService;
 
-    @Autowired
-    private PermissionTicketService permissionTicketService;
+    @Autowired private PermissionTicketService permissionTicketService;
 
-    @Autowired
-    private ResourceService resourceService;
+    @Autowired private ResourceService resourceService;
 
-    @Autowired
-    private RulesEngine rulesEngine;
+    @Autowired private RulesEngine rulesEngine;
 
-    @Autowired
-    private ExecutionContextFactory executionContextFactory;
+    @Autowired private ExecutionContextFactory executionContextFactory;
 
-    @Autowired
-    private AuthenticationFlowContextService authenticationFlowContextService;
+    @Autowired private AuthenticationFlowContextService authenticationFlowContextService;
 
-    @Autowired
-    private Environment environment;
+    @Autowired private Environment environment;
 
-    @Autowired
-    private ScopeManager scopeManager;
+    @Autowired private ScopeManager scopeManager;
 
-    @Autowired
-    private AuthenticationRequestService authenticationRequestService;
+    @Autowired private AuthenticationRequestService authenticationRequestService;
 
-    public CompositeTokenGranter() { }
+    public CompositeTokenGranter() {}
 
     @Override
     public Single<Token> grant(TokenRequest tokenRequest, Client client) {
-        return Observable
-                .fromIterable(tokenGranters.values())
+        return Observable.fromIterable(tokenGranters.values())
                 .filter(tokenGranter -> tokenGranter.handle(tokenRequest.getGrantType(), client))
                 .firstElement()
-                .switchIfEmpty(Maybe.error(new UnsupportedGrantTypeException("Unsupported grant type: " + tokenRequest.getGrantType())))
+                .switchIfEmpty(
+                        Maybe.error(
+                                new UnsupportedGrantTypeException(
+                                        "Unsupported grant type: " + tokenRequest.getGrantType())))
                 .flatMapSingle(tokenGranter -> tokenGranter.grant(tokenRequest, client));
     }
-
 
     public void addTokenGranter(String tokenGranterId, TokenGranter tokenGranter) {
         Objects.requireNonNull(tokenGranterId);
@@ -129,11 +116,44 @@ public class CompositeTokenGranter implements TokenGranter, InitializingBean {
     @Override
     public void afterPropertiesSet() {
         this.tokenRequestResolver.setScopeManager(this.scopeManager);
-        addTokenGranter(GrantType.CLIENT_CREDENTIALS, new ClientCredentialsTokenGranter(tokenRequestResolver, tokenService));
-        addTokenGranter(GrantType.PASSWORD, new ResourceOwnerPasswordCredentialsTokenGranter(tokenRequestResolver, tokenService,userAuthenticationManager));
-        addTokenGranter(GrantType.AUTHORIZATION_CODE, new AuthorizationCodeTokenGranter(tokenRequestResolver, tokenService, authorizationCodeService, userAuthenticationManager, authenticationFlowContextService, environment));
-        addTokenGranter(GrantType.REFRESH_TOKEN, new RefreshTokenGranter(tokenRequestResolver, tokenService, userAuthenticationManager));
-        addTokenGranter(GrantType.UMA, new UMATokenGranter(tokenService, userAuthenticationManager, permissionTicketService, resourceService, jwtService, domain, rulesEngine, executionContextFactory));
-        addTokenGranter(GrantType.CIBA_GRANT_TYPE, new CibaTokenGranter(tokenRequestResolver, tokenService, userAuthenticationManager, authenticationRequestService, domain));
+        addTokenGranter(
+                GrantType.CLIENT_CREDENTIALS,
+                new ClientCredentialsTokenGranter(tokenRequestResolver, tokenService));
+        addTokenGranter(
+                GrantType.PASSWORD,
+                new ResourceOwnerPasswordCredentialsTokenGranter(
+                        tokenRequestResolver, tokenService, userAuthenticationManager));
+        addTokenGranter(
+                GrantType.AUTHORIZATION_CODE,
+                new AuthorizationCodeTokenGranter(
+                        tokenRequestResolver,
+                        tokenService,
+                        authorizationCodeService,
+                        userAuthenticationManager,
+                        authenticationFlowContextService,
+                        environment));
+        addTokenGranter(
+                GrantType.REFRESH_TOKEN,
+                new RefreshTokenGranter(
+                        tokenRequestResolver, tokenService, userAuthenticationManager));
+        addTokenGranter(
+                GrantType.UMA,
+                new UMATokenGranter(
+                        tokenService,
+                        userAuthenticationManager,
+                        permissionTicketService,
+                        resourceService,
+                        jwtService,
+                        domain,
+                        rulesEngine,
+                        executionContextFactory));
+        addTokenGranter(
+                GrantType.CIBA_GRANT_TYPE,
+                new CibaTokenGranter(
+                        tokenRequestResolver,
+                        tokenService,
+                        userAuthenticationManager,
+                        authenticationRequestService,
+                        domain));
     }
 }

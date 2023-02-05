@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.uma.resources.endpoint;
+
+import static io.gravitee.am.gateway.handler.uma.constants.UMAConstants.*;
+import static io.gravitee.am.gateway.handler.uma.constants.UMAConstants.RESOURCE_REGISTRATION_PATH;
 
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.jwt.JWT;
@@ -37,10 +38,9 @@ import io.vertx.reactivex.ext.web.RoutingContext;
 
 import java.util.Arrays;
 
-import static io.gravitee.am.gateway.handler.uma.constants.UMAConstants.*;
-import static io.gravitee.am.gateway.handler.uma.constants.UMAConstants.RESOURCE_REGISTRATION_PATH;
-
 /**
+ *
+ *
  * <pre>
  * A URI that allows the resource server to redirect an end-user resource owner to a specific user interface within the authorization server where the resource owner
  * can immediately set or modify access policies subsequent to the resource registration action just completed.
@@ -66,18 +66,24 @@ public class ResourceAccessPoliciesEndpoint {
         final Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         final String resource = context.request().getParam(RESOURCE_ID);
 
-        resourceService.findAccessPolicies(domain.getId(), client.getId(), accessToken.getSub(), resource)
+        resourceService
+                .findAccessPolicies(domain.getId(), client.getId(), accessToken.getSub(), resource)
                 .map(AccessPolicy::getId)
                 .toList()
                 .subscribe(
-                        response -> context.response()
-                                .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
-                                .putHeader(HttpHeaders.PRAGMA, "no-cache")
-                                .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                .setStatusCode(response.isEmpty() ? HttpStatusCode.NO_CONTENT_204 : HttpStatusCode.OK_200)
-                                .end(Json.encodePrettily(response))
-                        , error -> context.fail(error)
-                );
+                        response ->
+                                context.response()
+                                        .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+                                        .putHeader(HttpHeaders.PRAGMA, "no-cache")
+                                        .putHeader(
+                                                HttpHeaders.CONTENT_TYPE,
+                                                MediaType.APPLICATION_JSON)
+                                        .setStatusCode(
+                                                response.isEmpty()
+                                                        ? HttpStatusCode.NO_CONTENT_204
+                                                        : HttpStatusCode.OK_200)
+                                        .end(Json.encodePrettily(response)),
+                        error -> context.fail(error));
     }
 
     public void create(RoutingContext context) {
@@ -90,18 +96,26 @@ public class ResourceAccessPoliciesEndpoint {
         AccessPolicy accessPolicy = extractRequest(context);
 
         // store the access policy
-        resourceService.createAccessPolicy(accessPolicy, domain.getId(), client.getId(), accessToken.getSub(), resource)
+        resourceService
+                .createAccessPolicy(
+                        accessPolicy,
+                        domain.getId(),
+                        client.getId(),
+                        accessToken.getSub(),
+                        resource)
                 .subscribe(
                         p ->
-                            context.response()
-                                    .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
-                                    .putHeader(HttpHeaders.PRAGMA, "no-cache")
-                                    .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                    .putHeader(HttpHeaders.LOCATION, resourceLocation(basePath, p))
-                                    .setStatusCode(HttpStatusCode.CREATED_201)
-                                    .end(Json.encodePrettily(p))
-                        , error -> context.fail(error)
-                );
+                                context.response()
+                                        .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+                                        .putHeader(HttpHeaders.PRAGMA, "no-cache")
+                                        .putHeader(
+                                                HttpHeaders.CONTENT_TYPE,
+                                                MediaType.APPLICATION_JSON)
+                                        .putHeader(
+                                                HttpHeaders.LOCATION, resourceLocation(basePath, p))
+                                        .setStatusCode(HttpStatusCode.CREATED_201)
+                                        .end(Json.encodePrettily(p)),
+                        error -> context.fail(error));
     }
 
     public void get(RoutingContext context) {
@@ -110,16 +124,24 @@ public class ResourceAccessPoliciesEndpoint {
         final String resource = context.request().getParam(RESOURCE_ID);
         final String accessPolicyId = context.request().getParam(POLICY_ID);
 
-        resourceService.findAccessPolicy(domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicyId)
+        resourceService
+                .findAccessPolicy(
+                        domain.getId(),
+                        client.getId(),
+                        accessToken.getSub(),
+                        resource,
+                        accessPolicyId)
                 .switchIfEmpty(Single.error(new AccessPolicyNotFoundException(accessPolicyId)))
                 .subscribe(
-                        response -> context.response()
-                                .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
-                                .putHeader(HttpHeaders.PRAGMA, "no-cache")
-                                .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                .end(Json.encodePrettily(response))
-                        , error -> context.fail(error)
-                );
+                        response ->
+                                context.response()
+                                        .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+                                        .putHeader(HttpHeaders.PRAGMA, "no-cache")
+                                        .putHeader(
+                                                HttpHeaders.CONTENT_TYPE,
+                                                MediaType.APPLICATION_JSON)
+                                        .end(Json.encodePrettily(response)),
+                        error -> context.fail(error));
     }
 
     public void update(RoutingContext context) {
@@ -132,15 +154,24 @@ public class ResourceAccessPoliciesEndpoint {
         AccessPolicy accessPolicy = extractRequest(context);
 
         // update the access policy
-        resourceService.updateAccessPolicy(accessPolicy, domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicyId)
+        resourceService
+                .updateAccessPolicy(
+                        accessPolicy,
+                        domain.getId(),
+                        client.getId(),
+                        accessToken.getSub(),
+                        resource,
+                        accessPolicyId)
                 .subscribe(
-                        response -> context.response()
-                                .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
-                                .putHeader(HttpHeaders.PRAGMA, "no-cache")
-                                .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                .end(Json.encodePrettily(response))
-                        , error -> context.fail(error)
-                );
+                        response ->
+                                context.response()
+                                        .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+                                        .putHeader(HttpHeaders.PRAGMA, "no-cache")
+                                        .putHeader(
+                                                HttpHeaders.CONTENT_TYPE,
+                                                MediaType.APPLICATION_JSON)
+                                        .end(Json.encodePrettily(response)),
+                        error -> context.fail(error));
     }
 
     public void delete(RoutingContext context) {
@@ -149,16 +180,24 @@ public class ResourceAccessPoliciesEndpoint {
         final String resource = context.request().getParam(RESOURCE_ID);
         final String accessPolicy = context.request().getParam(POLICY_ID);
 
-        resourceService.deleteAccessPolicy(domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicy)
+        resourceService
+                .deleteAccessPolicy(
+                        domain.getId(),
+                        client.getId(),
+                        accessToken.getSub(),
+                        resource,
+                        accessPolicy)
                 .subscribe(
-                        () -> context.response()
-                                .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
-                                .putHeader(HttpHeaders.PRAGMA, "no-cache")
-                                .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                .setStatusCode(HttpStatusCode.NO_CONTENT_204)
-                                .end()
-                        , error -> context.fail(error)
-                );
+                        () ->
+                                context.response()
+                                        .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+                                        .putHeader(HttpHeaders.PRAGMA, "no-cache")
+                                        .putHeader(
+                                                HttpHeaders.CONTENT_TYPE,
+                                                MediaType.APPLICATION_JSON)
+                                        .setStatusCode(HttpStatusCode.NO_CONTENT_204)
+                                        .end(),
+                        error -> context.fail(error));
     }
 
     private AccessPolicy extractRequest(RoutingContext context) {
@@ -166,15 +205,19 @@ public class ResourceAccessPoliciesEndpoint {
             // get body request
             JsonObject body = context.getBodyAsJson();
             // check missing values
-            Arrays.asList("name", "type", "description", "condition").forEach(key -> {
-                if (!body.containsKey(key)) {
-                    throw new InvalidRequestException("["+ key +": must not be null]");
-                }
-            });
+            Arrays.asList("name", "type", "description", "condition")
+                    .forEach(
+                            key -> {
+                                if (!body.containsKey(key)) {
+                                    throw new InvalidRequestException(
+                                            "[" + key + ": must not be null]");
+                                }
+                            });
             // check type value
             AccessPolicyType accessPolicyType = AccessPolicyType.fromString(body.getString("type"));
             // check condition value
-            AccessPolicyCondition condition = body.getJsonObject("condition").mapTo(accessPolicyType.getConditionClazz());
+            AccessPolicyCondition condition =
+                    body.getJsonObject("condition").mapTo(accessPolicyType.getConditionClazz());
             // create access policy object
             AccessPolicy accessPolicy = new AccessPolicy();
             accessPolicy.setType(accessPolicyType);

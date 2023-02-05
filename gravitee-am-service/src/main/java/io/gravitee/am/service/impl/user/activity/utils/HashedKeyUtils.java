@@ -1,29 +1,28 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.gravitee.am.service.impl.user.activity.utils;
 
-import io.gravitee.am.service.impl.user.activity.configuration.UserActivityConfiguration.Algorithm;
-import java.nio.charset.StandardCharsets;
-import java.util.regex.Pattern;
+import static org.apache.commons.codec.digest.Sha2Crypt.sha256Crypt;
+import static org.apache.commons.codec.digest.Sha2Crypt.sha512Crypt;
 
 import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.codec.digest.Sha2Crypt.sha256Crypt;
-import static org.apache.commons.codec.digest.Sha2Crypt.sha512Crypt;
+
+import io.gravitee.am.service.impl.user.activity.configuration.UserActivityConfiguration.Algorithm;
+
+import java.nio.charset.StandardCharsets;
+import java.util.regex.Pattern;
 
 /**
  * @author Rémi SULTAN (remi.sultan at graviteesource.com)
@@ -43,14 +42,19 @@ public class HashedKeyUtils {
         return getHash(algorithm, userId, salt, userIdBytes);
     }
 
-    private static String getHash(Algorithm algorithm, String userId, String salt, byte[] userIdBytes) {
+    private static String getHash(
+            Algorithm algorithm, String userId, String salt, byte[] userIdBytes) {
         switch (algorithm) {
             case SHA256:
-                return sha256Crypt(userIdBytes, ofNullable(salt).map(s -> SHA256_PREFIX + s).orElse(null)).replaceAll(
-                        Pattern.quote(SHA256_PREFIX) + "(.*)" + "\\$", "");
+                return sha256Crypt(
+                                userIdBytes,
+                                ofNullable(salt).map(s -> SHA256_PREFIX + s).orElse(null))
+                        .replaceAll(Pattern.quote(SHA256_PREFIX) + "(.*)" + "\\$", "");
             case SHA512:
-                return sha512Crypt(userIdBytes, ofNullable(salt).map(s -> SHA512_PREFIX + s).orElse(null)).replaceAll(
-                        Pattern.quote(SHA512_PREFIX) + "(.*)" + "\\$", "");
+                return sha512Crypt(
+                                userIdBytes,
+                                ofNullable(salt).map(s -> SHA512_PREFIX + s).orElse(null))
+                        .replaceAll(Pattern.quote(SHA512_PREFIX) + "(.*)" + "\\$", "");
             default:
                 return userId;
         }

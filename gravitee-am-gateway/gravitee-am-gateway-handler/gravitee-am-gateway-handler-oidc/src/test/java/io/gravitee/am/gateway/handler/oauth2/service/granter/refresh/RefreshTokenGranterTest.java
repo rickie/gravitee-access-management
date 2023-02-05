@@ -1,22 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.service.granter.refresh;
 
-import io.gravitee.am.common.oauth2.GrantType;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
+import io.gravitee.am.common.oauth2.GrantType;
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidGrantException;
 import io.gravitee.am.gateway.handler.oauth2.service.request.OAuth2Request;
 import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequest;
@@ -28,6 +31,7 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.util.LinkedMultiValueMap;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -37,11 +41,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -49,14 +48,11 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class RefreshTokenGranterTest {
 
-    @InjectMocks
-    private RefreshTokenGranter granter = new RefreshTokenGranter();
+    @InjectMocks private RefreshTokenGranter granter = new RefreshTokenGranter();
 
-    @Mock
-    private TokenRequest tokenRequest;
+    @Mock private TokenRequest tokenRequest;
 
-    @Mock
-    private TokenService tokenService;
+    @Mock private TokenService tokenService;
 
     @Test
     public void shouldGenerateAnAccessToken() {
@@ -66,7 +62,7 @@ public class RefreshTokenGranterTest {
 
         Client client = new Client();
         client.setClientId("my-client-id");
-        client.setAuthorizedGrantTypes(Arrays.asList(new String[]{"refresh_token"}));
+        client.setAuthorizedGrantTypes(Arrays.asList(new String[] {"refresh_token"}));
 
         OAuth2Request oAuth2Request = new OAuth2Request();
         oAuth2Request.setClientId(client.getClientId());
@@ -79,7 +75,8 @@ public class RefreshTokenGranterTest {
         when(tokenRequest.createOAuth2Request()).thenReturn(oAuth2Request);
 
         when(tokenService.create(any(), any(), any())).thenReturn(Single.just(accessToken));
-        when(tokenService.refresh(refreshToken, tokenRequest, client)).thenReturn(Single.just(new RefreshToken(refreshToken)));
+        when(tokenService.refresh(refreshToken, tokenRequest, client))
+                .thenReturn(Single.just(new RefreshToken(refreshToken)));
 
         TestObserver<Token> testObserver = granter.grant(tokenRequest, client).test();
         testObserver.assertComplete();
@@ -107,11 +104,12 @@ public class RefreshTokenGranterTest {
 
         Client client = new Client();
         client.setClientId("my-client-id");
-        client.setAuthorizedGrantTypes(Arrays.asList(new String[]{"refresh_token"}));
+        client.setAuthorizedGrantTypes(Arrays.asList(new String[] {"refresh_token"}));
 
         when(tokenRequest.parameters()).thenReturn(parameters);
 
-        when(tokenService.refresh(refreshToken, tokenRequest, client)).thenReturn(Single.error(new InvalidGrantException()));
+        when(tokenService.refresh(refreshToken, tokenRequest, client))
+                .thenReturn(Single.error(new InvalidGrantException()));
 
         granter.grant(tokenRequest, client).test().assertError(InvalidGrantException.class);
     }
@@ -124,7 +122,7 @@ public class RefreshTokenGranterTest {
 
         Client client = new Client();
         client.setClientId("my-client-id");
-        client.setAuthorizedGrantTypes(Arrays.asList(new String[]{"refresh_token"}));
+        client.setAuthorizedGrantTypes(Arrays.asList(new String[] {"refresh_token"}));
         client.setDisableRefreshTokenRotation(true);
 
         OAuth2Request oAuth2Request = new OAuth2Request();
@@ -137,9 +135,12 @@ public class RefreshTokenGranterTest {
         when(tokenRequest.parameters()).thenReturn(parameters);
         when(tokenRequest.createOAuth2Request()).thenReturn(oAuth2Request);
 
-        ArgumentCaptor<OAuth2Request> oAuth2RequestArgumentCaptor = ArgumentCaptor.forClass(OAuth2Request.class);
-        when(tokenService.create(oAuth2RequestArgumentCaptor.capture(), any(), any())).thenReturn(Single.just(accessToken));
-        when(tokenService.refresh(refreshToken, tokenRequest, client)).thenReturn(Single.just(new RefreshToken(refreshToken)));
+        ArgumentCaptor<OAuth2Request> oAuth2RequestArgumentCaptor =
+                ArgumentCaptor.forClass(OAuth2Request.class);
+        when(tokenService.create(oAuth2RequestArgumentCaptor.capture(), any(), any()))
+                .thenReturn(Single.just(accessToken));
+        when(tokenService.refresh(refreshToken, tokenRequest, client))
+                .thenReturn(Single.just(new RefreshToken(refreshToken)));
 
         TestObserver<Token> testObserver = granter.grant(tokenRequest, client).test();
         testObserver.assertComplete();

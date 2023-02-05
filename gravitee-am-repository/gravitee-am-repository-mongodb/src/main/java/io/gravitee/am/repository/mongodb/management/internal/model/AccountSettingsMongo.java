@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management.internal.model;
@@ -103,7 +101,8 @@ public class AccountSettingsMongo {
         return completeRegistrationWhenResetPassword;
     }
 
-    public void setCompleteRegistrationWhenResetPassword(boolean completeRegistrationWhenResetPassword) {
+    public void setCompleteRegistrationWhenResetPassword(
+            boolean completeRegistrationWhenResetPassword) {
         this.completeRegistrationWhenResetPassword = completeRegistrationWhenResetPassword;
     }
 
@@ -135,7 +134,8 @@ public class AccountSettingsMongo {
         return defaultIdentityProviderForRegistration;
     }
 
-    public void setDefaultIdentityProviderForRegistration(String defaultIdentityProviderForRegistration) {
+    public void setDefaultIdentityProviderForRegistration(
+            String defaultIdentityProviderForRegistration) {
         this.defaultIdentityProviderForRegistration = defaultIdentityProviderForRegistration;
     }
 
@@ -159,8 +159,10 @@ public class AccountSettingsMongo {
         return deletePasswordlessDevicesAfterResetPassword;
     }
 
-    public void setDeletePasswordlessDevicesAfterResetPassword(boolean deletePasswordlessDevicesAfterResetPassword) {
-        this.deletePasswordlessDevicesAfterResetPassword = deletePasswordlessDevicesAfterResetPassword;
+    public void setDeletePasswordlessDevicesAfterResetPassword(
+            boolean deletePasswordlessDevicesAfterResetPassword) {
+        this.deletePasswordlessDevicesAfterResetPassword =
+                deletePasswordlessDevicesAfterResetPassword;
     }
 
     public boolean isUseBotDetection() {
@@ -191,7 +193,8 @@ public class AccountSettingsMongo {
         return resetPasswordCustomFormFields;
     }
 
-    public void setResetPasswordCustomFormFields(List<FormFieldMongo> resetPasswordCustomFormFields) {
+    public void setResetPasswordCustomFormFields(
+            List<FormFieldMongo> resetPasswordCustomFormFields) {
         this.resetPasswordCustomFormFields = resetPasswordCustomFormFields;
     }
 
@@ -215,7 +218,8 @@ public class AccountSettingsMongo {
         return mfaChallengeAttemptsDetectionEnabled;
     }
 
-    public void setMfaChallengeAttemptsDetectionEnabled(boolean mfaChallengeAttemptsDetectionEnabled) {
+    public void setMfaChallengeAttemptsDetectionEnabled(
+            boolean mfaChallengeAttemptsDetectionEnabled) {
         this.mfaChallengeAttemptsDetectionEnabled = mfaChallengeAttemptsDetectionEnabled;
     }
 
@@ -239,7 +243,8 @@ public class AccountSettingsMongo {
         return mfaChallengeSendRecoverAccountEmail;
     }
 
-    public void setMfaChallengeSendRecoverAccountEmail(boolean mfaChallengeSendRecoverAccountEmail) {
+    public void setMfaChallengeSendRecoverAccountEmail(
+            boolean mfaChallengeSendRecoverAccountEmail) {
         this.mfaChallengeSendRecoverAccountEmail = mfaChallengeSendRecoverAccountEmail;
     }
 
@@ -250,29 +255,37 @@ public class AccountSettingsMongo {
         accountSettings.setMaxLoginAttempts(getMaxLoginAttempts());
         accountSettings.setLoginAttemptsResetTime(getLoginAttemptsResetTime());
         accountSettings.setAccountBlockedDuration(getAccountBlockedDuration());
-        accountSettings.setCompleteRegistrationWhenResetPassword(isCompleteRegistrationWhenResetPassword());
+        accountSettings.setCompleteRegistrationWhenResetPassword(
+                isCompleteRegistrationWhenResetPassword());
         accountSettings.setAutoLoginAfterRegistration(isAutoLoginAfterRegistration());
         accountSettings.setRedirectUriAfterRegistration(getRedirectUriAfterRegistration());
         accountSettings.setDynamicUserRegistration(isDynamicUserRegistration());
-        accountSettings.setDefaultIdentityProviderForRegistration(getDefaultIdentityProviderForRegistration());
+        accountSettings.setDefaultIdentityProviderForRegistration(
+                getDefaultIdentityProviderForRegistration());
         accountSettings.setAutoLoginAfterResetPassword(isAutoLoginAfterResetPassword());
         accountSettings.setRedirectUriAfterResetPassword(getRedirectUriAfterResetPassword());
         accountSettings.setSendRecoverAccountEmail(isSendRecoverAccountEmail());
-        accountSettings.setDeletePasswordlessDevicesAfterResetPassword(isDeletePasswordlessDevicesAfterResetPassword());
+        accountSettings.setDeletePasswordlessDevicesAfterResetPassword(
+                isDeletePasswordlessDevicesAfterResetPassword());
         accountSettings.setBotDetectionPlugin(getBotDetectionPlugin());
         accountSettings.setUseBotDetection(isUseBotDetection());
         accountSettings.setResetPasswordConfirmIdentity(isResetPasswordConfirmIdentity());
         accountSettings.setResetPasswordCustomForm(isResetPasswordCustomForm());
         if (this.resetPasswordCustomFormFields != null) {
-            accountSettings.setResetPasswordCustomFormFields(this.resetPasswordCustomFormFields.stream().map(FormFieldMongo::convert).collect(Collectors.toList()));
+            accountSettings.setResetPasswordCustomFormFields(
+                    this.resetPasswordCustomFormFields.stream()
+                            .map(FormFieldMongo::convert)
+                            .collect(Collectors.toList()));
         } else {
             accountSettings.setResetPasswordCustomFormFields(null);
         }
         accountSettings.setResetPasswordInvalidateTokens(isResetPasswordInvalidateTokens());
-        accountSettings.setMfaChallengeAttemptsDetectionEnabled(isMfaChallengeAttemptsDetectionEnabled());
+        accountSettings.setMfaChallengeAttemptsDetectionEnabled(
+                isMfaChallengeAttemptsDetectionEnabled());
         accountSettings.setMfaChallengeMaxAttempts(getMfaChallengeMaxAttempts());
         accountSettings.setMfaChallengeAttemptsResetTime(getMfaChallengeAttemptsResetTime());
-        accountSettings.setMfaChallengeSendVerifyAlertEmail(isMfaChallengeSendRecoverAccountEmail());
+        accountSettings.setMfaChallengeSendVerifyAlertEmail(
+                isMfaChallengeSendRecoverAccountEmail());
 
         return accountSettings;
     }
@@ -283,33 +296,53 @@ public class AccountSettingsMongo {
         }
         AccountSettingsMongo accountSettingsMongo = new AccountSettingsMongo();
         accountSettingsMongo.setInherited(accountSettings.isInherited());
-        accountSettingsMongo.setLoginAttemptsDetectionEnabled(accountSettings.isLoginAttemptsDetectionEnabled());
+        accountSettingsMongo.setLoginAttemptsDetectionEnabled(
+                accountSettings.isLoginAttemptsDetectionEnabled());
         accountSettingsMongo.setMaxLoginAttempts(accountSettings.getMaxLoginAttempts());
         accountSettingsMongo.setLoginAttemptsResetTime(accountSettings.getLoginAttemptsResetTime());
         accountSettingsMongo.setAccountBlockedDuration(accountSettings.getAccountBlockedDuration());
-        accountSettingsMongo.setCompleteRegistrationWhenResetPassword(accountSettings.isCompleteRegistrationWhenResetPassword());
-        accountSettingsMongo.setAutoLoginAfterRegistration(accountSettings.isAutoLoginAfterRegistration());
-        accountSettingsMongo.setRedirectUriAfterRegistration(accountSettings.getRedirectUriAfterRegistration());
-        accountSettingsMongo.setDynamicUserRegistration(accountSettings.isDynamicUserRegistration());
-        accountSettingsMongo.setDefaultIdentityProviderForRegistration(accountSettings.getDefaultIdentityProviderForRegistration());
-        accountSettingsMongo.setAutoLoginAfterResetPassword(accountSettings.isAutoLoginAfterResetPassword());
-        accountSettingsMongo.setRedirectUriAfterResetPassword(accountSettings.getRedirectUriAfterResetPassword());
-        accountSettingsMongo.setSendRecoverAccountEmail(accountSettings.isSendRecoverAccountEmail());
-        accountSettingsMongo.setDeletePasswordlessDevicesAfterResetPassword(accountSettings.isDeletePasswordlessDevicesAfterResetPassword());
+        accountSettingsMongo.setCompleteRegistrationWhenResetPassword(
+                accountSettings.isCompleteRegistrationWhenResetPassword());
+        accountSettingsMongo.setAutoLoginAfterRegistration(
+                accountSettings.isAutoLoginAfterRegistration());
+        accountSettingsMongo.setRedirectUriAfterRegistration(
+                accountSettings.getRedirectUriAfterRegistration());
+        accountSettingsMongo.setDynamicUserRegistration(
+                accountSettings.isDynamicUserRegistration());
+        accountSettingsMongo.setDefaultIdentityProviderForRegistration(
+                accountSettings.getDefaultIdentityProviderForRegistration());
+        accountSettingsMongo.setAutoLoginAfterResetPassword(
+                accountSettings.isAutoLoginAfterResetPassword());
+        accountSettingsMongo.setRedirectUriAfterResetPassword(
+                accountSettings.getRedirectUriAfterResetPassword());
+        accountSettingsMongo.setSendRecoverAccountEmail(
+                accountSettings.isSendRecoverAccountEmail());
+        accountSettingsMongo.setDeletePasswordlessDevicesAfterResetPassword(
+                accountSettings.isDeletePasswordlessDevicesAfterResetPassword());
         accountSettingsMongo.setBotDetectionPlugin(accountSettings.getBotDetectionPlugin());
         accountSettingsMongo.setUseBotDetection(accountSettings.isUseBotDetection());
-        accountSettingsMongo.setResetPasswordConfirmIdentity(accountSettings.isResetPasswordConfirmIdentity());
-        accountSettingsMongo.setResetPasswordCustomForm(accountSettings.isResetPasswordCustomForm());
+        accountSettingsMongo.setResetPasswordConfirmIdentity(
+                accountSettings.isResetPasswordConfirmIdentity());
+        accountSettingsMongo.setResetPasswordCustomForm(
+                accountSettings.isResetPasswordCustomForm());
         if (accountSettings.getResetPasswordCustomFormFields() != null) {
-            accountSettingsMongo.setResetPasswordCustomFormFields(accountSettings.getResetPasswordCustomFormFields().stream().map(FormFieldMongo::convert).collect(Collectors.toList()));
+            accountSettingsMongo.setResetPasswordCustomFormFields(
+                    accountSettings.getResetPasswordCustomFormFields().stream()
+                            .map(FormFieldMongo::convert)
+                            .collect(Collectors.toList()));
         } else {
             accountSettingsMongo.setResetPasswordCustomFormFields(null);
         }
-        accountSettingsMongo.setResetPasswordInvalidateTokens(accountSettings.isResetPasswordInvalidateTokens());
-        accountSettingsMongo.setMfaChallengeAttemptsDetectionEnabled(accountSettings.isMfaChallengeAttemptsDetectionEnabled());
-        accountSettingsMongo.setMfaChallengeMaxAttempts(accountSettings.getMfaChallengeMaxAttempts());
-        accountSettingsMongo.setMfaChallengeAttemptsResetTime(accountSettings.getMfaChallengeAttemptsResetTime());
-        accountSettingsMongo.setMfaChallengeSendRecoverAccountEmail(accountSettings.isMfaChallengeSendVerifyAlertEmail());
+        accountSettingsMongo.setResetPasswordInvalidateTokens(
+                accountSettings.isResetPasswordInvalidateTokens());
+        accountSettingsMongo.setMfaChallengeAttemptsDetectionEnabled(
+                accountSettings.isMfaChallengeAttemptsDetectionEnabled());
+        accountSettingsMongo.setMfaChallengeMaxAttempts(
+                accountSettings.getMfaChallengeMaxAttempts());
+        accountSettingsMongo.setMfaChallengeAttemptsResetTime(
+                accountSettings.getMfaChallengeAttemptsResetTime());
+        accountSettingsMongo.setMfaChallengeSendRecoverAccountEmail(
+                accountSettings.isMfaChallengeSendVerifyAlertEmail());
         return accountSettingsMongo;
     }
 }

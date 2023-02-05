@@ -1,19 +1,21 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.root.resources.handler.login;
+
+import static io.gravitee.am.common.utils.ConstantKeys.SOCIAL_PROVIDER_CONTEXT_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.USERNAME_PARAM_KEY;
+import static io.gravitee.am.gateway.handler.root.resources.handler.login.LoginSocialAuthenticationHandler.SOCIAL_AUTHORIZE_URL_CONTEXT_KEY;
 
 import io.gravitee.am.common.oidc.Parameters;
 import io.gravitee.am.common.utils.ConstantKeys;
@@ -23,23 +25,17 @@ import io.gravitee.am.identityprovider.api.SimpleAuthenticationContext;
 import io.gravitee.am.model.IdentityProvider;
 import io.gravitee.am.model.oidc.Client;
 import io.vertx.reactivex.ext.web.RoutingContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static io.gravitee.am.common.utils.ConstantKeys.USERNAME_PARAM_KEY;
-import static io.gravitee.am.gateway.handler.root.resources.handler.login.LoginSocialAuthenticationHandler.SOCIAL_AUTHORIZE_URL_CONTEXT_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.SOCIAL_PROVIDER_CONTEXT_KEY;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class LoginSelectionRuleHandler extends LoginAbstractHandler  {
+public class LoginSelectionRuleHandler extends LoginAbstractHandler {
     private final boolean fromIdentifierFirstLogin;
 
     public LoginSelectionRuleHandler(boolean fromIdentifierFirstLogin) {
@@ -52,26 +48,42 @@ public class LoginSelectionRuleHandler extends LoginAbstractHandler  {
 
         List<IdentityProvider> socialProviders = routingContext.get(SOCIAL_PROVIDER_CONTEXT_KEY);
         if ((socialProviders != null && !socialProviders.isEmpty())
-                && (client.getIdentityProviders() != null && !client.getIdentityProviders().isEmpty())) {
+                && (client.getIdentityProviders() != null
+                        && !client.getIdentityProviders().isEmpty())) {
 
-        var socialProviderMap = socialProviders.stream().collect(Collectors.toMap(
-                    IdentityProvider::getId, Function.identity()
-            ));
+            var socialProviderMap =
+                    socialProviders.stream()
+                            .collect(
+                                    Collectors.toMap(IdentityProvider::getId, Function.identity()));
 
-            var context = new SimpleAuthenticationContext(new VertxHttpServerRequest(routingContext.request().getDelegate()), routingContext.data());
+            var context =
+                    new SimpleAuthenticationContext(
+                            new VertxHttpServerRequest(routingContext.request().getDelegate()),
+                            routingContext.data());
             var templateEngine = context.getTemplateEngine();
-            var identityProvider = client.getIdentityProviders().stream()
-                    .filter(appIdp -> socialProviderMap.containsKey(appIdp.getIdentity()))
-                    .filter(appIdp -> evaluateIdPSelectionRule(appIdp, socialProviderMap.get(appIdp.getIdentity()), templateEngine))
-                    .findFirst();
+            var identityProvider =
+                    client.getIdentityProviders().stream()
+                            .filter(appIdp -> socialProviderMap.containsKey(appIdp.getIdentity()))
+                            .filter(
+                                    appIdp ->
+                                            evaluateIdPSelectionRule(
+                                                    appIdp,
+                                                    socialProviderMap.get(appIdp.getIdentity()),
+                                                    templateEngine))
+                            .findFirst();
 
             if (identityProvider.isPresent()) {
                 Map<String, String> urls = routingContext.get(SOCIAL_AUTHORIZE_URL_CONTEXT_KEY);
-                UriBuilder uriBuilder = UriBuilder.fromHttpUrl(urls.get(identityProvider.get().getIdentity()));
+                UriBuilder uriBuilder =
+                        UriBuilder.fromHttpUrl(urls.get(identityProvider.get().getIdentity()));
 
                 if (fromIdentifierFirstLogin) {
-                    // encode login_hint parameter for external provider (Azure AD replace the '+' sign by a space ' ')
-                    uriBuilder.addParameter(Parameters.LOGIN_HINT, UriBuilder.encodeURIComponent(routingContext.request().getParam(USERNAME_PARAM_KEY)));
+                    // encode login_hint parameter for external provider (Azure AD replace the '+'
+                    // sign by a space ' ')
+                    uriBuilder.addParameter(
+                            Parameters.LOGIN_HINT,
+                            UriBuilder.encodeURIComponent(
+                                    routingContext.request().getParam(USERNAME_PARAM_KEY)));
                 }
 
                 doRedirect(routingContext, uriBuilder.buildString());

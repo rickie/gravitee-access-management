@@ -1,28 +1,30 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.endpoint;
 
+import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.oauth2.GrantType;
 import io.gravitee.am.common.oauth2.ResponseType;
 import io.gravitee.am.common.oidc.ResponseMode;
+import io.gravitee.am.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
-import io.gravitee.am.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
 import io.gravitee.am.gateway.handler.oauth2.resources.endpoint.authorization.AuthorizationEndpoint;
 import io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization.*;
@@ -51,6 +53,7 @@ import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.handler.SessionHandler;
 import io.vertx.reactivex.ext.web.sstore.LocalSessionStore;
 import io.vertx.reactivex.ext.web.templ.thymeleaf.ThymeleafTemplateEngine;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -63,10 +66,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 
-import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -76,81 +75,83 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     private static final String CLIENT_CONTEXT_KEY = "client";
 
-    @Mock
-    private Flow flow;
+    @Mock private Flow flow;
 
-    @Mock
-    private Domain domain;
+    @Mock private Domain domain;
 
-    @Mock
-    private ClientSyncService clientSyncService;
+    @Mock private ClientSyncService clientSyncService;
 
-    @Mock
-    private OpenIDDiscoveryService openIDDiscoveryService;
+    @Mock private OpenIDDiscoveryService openIDDiscoveryService;
 
-    @Mock
-    private JWTService jwtService;
+    @Mock private JWTService jwtService;
 
-    @Mock
-    private JWEService jweService;
+    @Mock private JWEService jweService;
 
-    @Mock
-    private ThymeleafTemplateEngine thymeleafTemplateEngine;
+    @Mock private ThymeleafTemplateEngine thymeleafTemplateEngine;
 
-    @Mock
-    private PushedAuthorizationRequestService parService;
+    @Mock private PushedAuthorizationRequestService parService;
 
-    @Mock
-    private ScopeManager scopeManager;
+    @Mock private ScopeManager scopeManager;
 
-    @Mock
-    private Environment environment;
+    @Mock private Environment environment;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
 
-        AuthorizationEndpoint authorizationEndpointHandler = new AuthorizationEndpoint(flow, thymeleafTemplateEngine, parService);
+        AuthorizationEndpoint authorizationEndpointHandler =
+                new AuthorizationEndpoint(flow, thymeleafTemplateEngine, parService);
 
         // set openid provider service
         OpenIDProviderMetadata openIDProviderMetadata = new OpenIDProviderMetadata();
-        openIDProviderMetadata.setResponseTypesSupported(Arrays.asList(ResponseType.CODE,
-                ResponseType.TOKEN,
-                io.gravitee.am.common.oidc.ResponseType.CODE_ID_TOKEN,
-                io.gravitee.am.common.oidc.ResponseType.CODE_TOKEN,
-                io.gravitee.am.common.oidc.ResponseType.CODE_ID_TOKEN_TOKEN,
-                io.gravitee.am.common.oidc.ResponseType.ID_TOKEN_TOKEN,
-                io.gravitee.am.common.oidc.ResponseType.ID_TOKEN));
+        openIDProviderMetadata.setResponseTypesSupported(
+                Arrays.asList(
+                        ResponseType.CODE,
+                        ResponseType.TOKEN,
+                        io.gravitee.am.common.oidc.ResponseType.CODE_ID_TOKEN,
+                        io.gravitee.am.common.oidc.ResponseType.CODE_TOKEN,
+                        io.gravitee.am.common.oidc.ResponseType.CODE_ID_TOKEN_TOKEN,
+                        io.gravitee.am.common.oidc.ResponseType.ID_TOKEN_TOKEN,
+                        io.gravitee.am.common.oidc.ResponseType.ID_TOKEN));
 
-        openIDProviderMetadata.setResponseModesSupported(Arrays.asList(
-                io.gravitee.am.common.oauth2.ResponseMode.QUERY,
-                io.gravitee.am.common.oauth2.ResponseMode.FRAGMENT,
-                ResponseMode.QUERY_JWT,
-                ResponseMode.FRAGMENT_JWT,
-                ResponseMode.JWT));
+        openIDProviderMetadata.setResponseModesSupported(
+                Arrays.asList(
+                        io.gravitee.am.common.oauth2.ResponseMode.QUERY,
+                        io.gravitee.am.common.oauth2.ResponseMode.FRAGMENT,
+                        ResponseMode.QUERY_JWT,
+                        ResponseMode.FRAGMENT_JWT,
+                        ResponseMode.JWT));
 
-        when(openIDDiscoveryService.getConfiguration(anyString())).thenReturn(openIDProviderMetadata);
-        when(environment.getProperty("authorization.code.validity", Integer.class, 60000)).thenReturn(60000);
+        when(openIDDiscoveryService.getConfiguration(anyString()))
+                .thenReturn(openIDProviderMetadata);
+        when(environment.getProperty("authorization.code.validity", Integer.class, 60000))
+                .thenReturn(60000);
 
         // set technical routes
         SessionHandler sessionHandler = SessionHandler.create(LocalSessionStore.create(vertx));
-        router.route().order(-1)
+        router.route()
+                .order(-1)
                 .handler(sessionHandler)
-                .handler(routingContext -> {
-                    routingContext.put(CONTEXT_PATH, "/test");
-                    routingContext.next();
-                });
+                .handler(
+                        routingContext -> {
+                            routingContext.put(CONTEXT_PATH, "/test");
+                            routingContext.next();
+                        });
 
         // set Authorization endpoint routes
         router.route(HttpMethod.GET, "/oauth/authorize")
-                .handler(new AuthorizationRequestParseProviderConfigurationHandler(openIDDiscoveryService))
+                .handler(
+                        new AuthorizationRequestParseProviderConfigurationHandler(
+                                openIDDiscoveryService))
                 .handler(new AuthorizationRequestParseRequiredParametersHandler())
                 .handler(new AuthorizationRequestParseClientHandler(clientSyncService))
                 .handler(new AuthorizationRequestParseParametersHandler(domain))
                 .handler(new AuthorizationRequestResolveHandler(scopeManager))
                 .handler(authorizationEndpointHandler);
         router.route()
-                .failureHandler(new AuthorizationRequestFailureHandler(openIDDiscoveryService, jwtService, jweService, environment));
+                .failureHandler(
+                        new AuthorizationRequestFailureHandler(
+                                openIDDiscoveryService, jwtService, jweService, environment));
 
         when(parService.deleteRequestUri(any())).thenReturn(Completable.complete());
     }
@@ -171,9 +172,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertTrue(location.contains("http://localhost:9999/callback?error=access_denied"));
+                    assertTrue(
+                            location.contains(
+                                    "http://localhost:9999/callback?error=access_denied"));
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -194,7 +199,9 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                     assertNotNull(location);
                     assertEquals("http://localhost:9999/callback?error=access_denied", location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -213,28 +220,40 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         authorizationResponse.setRedirectUri(authorizationRequest.getRedirectUri());
         ((AuthorizationCodeResponse) authorizationResponse).setCode("test-code");
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(new io.gravitee.am.model.User())));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(new io.gravitee.am.model.User())));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
         when(flow.run(any(), any(), any())).thenReturn(Single.just(authorizationResponse));
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(CLIENT_CONTEXT_KEY, client);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(CLIENT_CONTEXT_KEY, client);
+                            routingContext.next();
+                        });
 
         testRequest(
-                HttpMethod.GET, "/oauth/authorize?response_type=code&client_id=client-id&redirect_uri=http://localhost:9999/callback&scope=",
+                HttpMethod.GET,
+                "/oauth/authorize?response_type=code&client_id=client-id&redirect_uri=http://localhost:9999/callback&scope=",
                 null,
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
                     assertEquals("http://localhost:9999/callback?code=test-code", location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -245,10 +264,16 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(new io.gravitee.am.model.User())));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(new io.gravitee.am.model.User())));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
 
@@ -259,9 +284,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertEquals("http://localhost:9999/callback?error=invalid_scope&error_description=Invalid+scope%2528s%2529%253A+unknown", location);
+                    assertEquals(
+                            "http://localhost:9999/callback?error=invalid_scope&error_description=Invalid+scope%2528s%2529%253A+unknown",
+                            location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -284,13 +313,18 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertTrue(location.contains("/test/oauth/error?client_id=client-id&error=invalid_request&error_description=A+redirect_uri+must+be+supplied"));
+                    assertTrue(
+                            location.contains(
+                                    "/test/oauth/error?client_id=client-id&error=invalid_request&error_description=A+redirect_uri+must+be+supplied"));
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
-    public void shouldNotInvokeAuthorizationEndpoint_emptyRedirectUri_clientHasSeveralRedirectUris() throws Exception {
+    public void shouldNotInvokeAuthorizationEndpoint_emptyRedirectUri_clientHasSeveralRedirectUris()
+            throws Exception {
         final Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
@@ -310,9 +344,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertTrue(location.contains("/test/oauth/error?client_id=client-id&error=invalid_request&error_description=Unable+to+find+suitable+redirect_uri%252C+a+redirect_uri+must+be+supplied"));
+                    assertTrue(
+                            location.contains(
+                                    "/test/oauth/error?client_id=client-id&error=invalid_request&error_description=Unable+to+find+suitable+redirect_uri%252C+a+redirect_uri+must+be+supplied"));
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -321,7 +359,8 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
-        client.setRedirectUris(Collections.singletonList("http://localhost:9999/authorize/callback"));
+        client.setRedirectUris(
+                Collections.singletonList("http://localhost:9999/authorize/callback"));
 
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setApproved(true);
@@ -337,23 +376,30 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertTrue(location.contains("/test/oauth/error?client_id=client-id&error=redirect_uri_mismatch&error_description=The+redirect_uri+%255B+http%253A%252F%252Flocalhost%253A9999%252Fwrong%252Fcallback+%255D+MUST+match+the+registered+callback+URL+for+this+application"));
+                    assertTrue(
+                            location.contains(
+                                    "/test/oauth/error?client_id=client-id&error=redirect_uri_mismatch&error_description=The+redirect_uri+%255B+http%253A%252F%252Flocalhost%253A9999%252Fwrong%252Fcallback+%255D+MUST+match+the+registered+callback+URL+for+this+application"));
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
-    public void shouldNotInvokeAuthorizationEndpoint_mismatchRedirectUri_strictMatching() throws Exception {
+    public void shouldNotInvokeAuthorizationEndpoint_mismatchRedirectUri_strictMatching()
+            throws Exception {
         final Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
-        client.setRedirectUris(Collections.singletonList("http://localhost:9999/authorize/callback"));
+        client.setRedirectUris(
+                Collections.singletonList("http://localhost:9999/authorize/callback"));
 
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setApproved(true);
         authorizationRequest.setResponseType(ResponseType.CODE);
-        authorizationRequest.setRedirectUri("http://localhost:9999/authorize/callback?param=param1");
+        authorizationRequest.setRedirectUri(
+                "http://localhost:9999/authorize/callback?param=param1");
 
         when(domain.isRedirectUriStrictMatching()).thenReturn(true);
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
@@ -365,9 +411,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertTrue(location.contains("/test/oauth/error?client_id=client-id&error=redirect_uri_mismatch&error_description=The+redirect_uri+%255B+http%253A%252F%252Flocalhost%253A9999%252Fauthorize%252Fcallback%253Fparam%253Dparam1+%255D+MUST+match+the+registered+callback+URL+for+this+application"));
+                    assertTrue(
+                            location.contains(
+                                    "/test/oauth/error?client_id=client-id&error=redirect_uri_mismatch&error_description=The+redirect_uri+%255B+http%253A%252F%252Flocalhost%253A9999%252Fauthorize%252Fcallback%253Fparam%253Dparam1+%255D+MUST+match+the+registered+callback+URL+for+this+application"));
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -378,21 +428,29 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
-        client.setRedirectUris(Collections.singletonList("http://localhost:9999/authorize/callback"));
+        client.setRedirectUris(
+                Collections.singletonList("http://localhost:9999/authorize/callback"));
 
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setApproved(true);
         authorizationRequest.setResponseType(ResponseType.CODE);
-        authorizationRequest.setRedirectUri("http://localhost:9999/authorize/callback?param=param1");
+        authorizationRequest.setRedirectUri(
+                "http://localhost:9999/authorize/callback?param=param1");
 
         AuthorizationResponse authorizationResponse = new AuthorizationCodeResponse();
         authorizationResponse.setRedirectUri(authorizationRequest.getRedirectUri());
         ((AuthorizationCodeResponse) authorizationResponse).setCode("test-code");
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(user)));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(user)));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
         when(flow.run(any(), any(), any())).thenReturn(Single.just(authorizationResponse));
@@ -404,9 +462,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertEquals("http://localhost:9999/authorize/callback?param=param1&code=test-code", location);
+                    assertEquals(
+                            "http://localhost:9999/authorize/callback?param=param1&code=test-code",
+                            location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -424,9 +486,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertTrue(location.contains("/test/oauth/error?client_id=client-id&error=invalid_request&error_description=Parameter+%255Bresponse_type%255D+is+included+more+than+once"));
+                    assertTrue(
+                            location.contains(
+                                    "/test/oauth/error?client_id=client-id&error=invalid_request&error_description=Parameter+%255Bresponse_type%255D+is+included+more+than+once"));
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -447,10 +513,16 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         authorizationResponse.setRedirectUri(authorizationRequest.getRedirectUri());
         ((AuthorizationCodeResponse) authorizationResponse).setCode("test-code");
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(user)));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(user)));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
         when(flow.run(any(), any(), any())).thenReturn(Single.just(authorizationResponse));
@@ -464,7 +536,9 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                     assertNotNull(location);
                     assertEquals("http://localhost:9999/callback?code=test-code", location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -486,10 +560,16 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         authorizationResponse.setRedirectUri(authorizationRequest.getRedirectUri());
         ((ImplicitResponse) authorizationResponse).setAccessToken(accessToken);
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(new io.gravitee.am.model.User())));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(new io.gravitee.am.model.User())));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
 
@@ -500,9 +580,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertEquals("http://localhost:9999/callback#error=unauthorized_client&error_description=Client+should+have+response_type.", location);
+                    assertEquals(
+                            "http://localhost:9999/callback#error=unauthorized_client&error_description=Client+should+have+response_type.",
+                            location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -524,10 +608,16 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         authorizationResponse.setRedirectUri(authorizationRequest.getRedirectUri());
         ((ImplicitResponse) authorizationResponse).setAccessToken(accessToken);
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(new io.gravitee.am.model.User())));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(new io.gravitee.am.model.User())));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
 
@@ -538,9 +628,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertEquals("http://localhost:9999/callback#error=unauthorized_client&error_description=Client+should+have+all+requested+response_type", location);
+                    assertEquals(
+                            "http://localhost:9999/callback#error=unauthorized_client&error_description=Client+should+have+all+requested+response_type",
+                            location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -563,10 +657,16 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         authorizationResponse.setRedirectUri(authorizationRequest.getRedirectUri());
         ((ImplicitResponse) authorizationResponse).setAccessToken(accessToken);
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(new io.gravitee.am.model.User())));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(new io.gravitee.am.model.User())));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
         when(flow.run(any(), any(), any())).thenReturn(Single.just(authorizationResponse));
@@ -578,9 +678,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertEquals("http://localhost:9999/callback#access_token=token&token_type=bearer&expires_in=0", location);
+                    assertEquals(
+                            "http://localhost:9999/callback#access_token=token&token_type=bearer&expires_in=0",
+                            location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -592,10 +696,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(CLIENT_CONTEXT_KEY, client);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(CLIENT_CONTEXT_KEY, client);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.GET,
@@ -604,9 +711,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertEquals("http://localhost:9999/callback?error=login_required&error_description=Login+required", location);
+                    assertEquals(
+                            "http://localhost:9999/callback?error=login_required&error_description=Login+required",
+                            location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -622,12 +733,19 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
 
-        router.route().order(-1).handler(routingContext -> {
-            io.gravitee.am.model.User endUser = new io.gravitee.am.model.User();
-            endUser.setLoggedAt(new Date(System.currentTimeMillis()-24*60*60*1000));
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(endUser)));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            io.gravitee.am.model.User endUser = new io.gravitee.am.model.User();
+                            endUser.setLoggedAt(
+                                    new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000));
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(endUser)));
+                            routingContext.next();
+                        });
 
         // user is logged since yesterday, he must be redirected to the login page
         testRequest(
@@ -639,7 +757,9 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                     assertNotNull(location);
                     assertEquals("http://localhost:9999/callback?error=access_denied", location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -655,13 +775,20 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
 
-        router.route().order(-1).handler(routingContext -> {
-            io.gravitee.am.model.User endUser = new io.gravitee.am.model.User();
-            endUser.setLoggedAt(new Date(System.currentTimeMillis()-24*60*60*1000));
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(endUser)));
-            routingContext.put(CLIENT_CONTEXT_KEY, client);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            io.gravitee.am.model.User endUser = new io.gravitee.am.model.User();
+                            endUser.setLoggedAt(
+                                    new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000));
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(endUser)));
+                            routingContext.put(CLIENT_CONTEXT_KEY, client);
+                            routingContext.next();
+                        });
 
         // user is logged since yesterday, he must be redirected to the login page
         testRequest(
@@ -671,9 +798,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertEquals("http://localhost:9999/callback?error=login_required&error_description=Login+required", location);
+                    assertEquals(
+                            "http://localhost:9999/callback?error=login_required&error_description=Login+required",
+                            location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -692,16 +823,21 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         authorizationResponse.setRedirectUri(authorizationRequest.getRedirectUri());
         ((AuthorizationCodeResponse) authorizationResponse).setCode("test-code");
 
-        router.route().order(-1).handler(routingContext -> {
-            io.gravitee.am.model.User endUser = new io.gravitee.am.model.User();
-            endUser.setLoggedAt(new Date(System.currentTimeMillis()- 60*1000));
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(new io.gravitee.am.model.User())));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            io.gravitee.am.model.User endUser = new io.gravitee.am.model.User();
+                            endUser.setLoggedAt(new Date(System.currentTimeMillis() - 60 * 1000));
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(new io.gravitee.am.model.User())));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
         when(flow.run(any(), any(), any())).thenReturn(Single.just(authorizationResponse));
-
 
         // user is logged for 1 min, the max_age is big enough to validate the request
         testRequest(
@@ -713,11 +849,15 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                     assertNotNull(location);
                     assertEquals("http://localhost:9999/callback?code=test-code", location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
-    public void shouldNotInvokeAuthorizationEndpoint_noUser_code_challenge_method_without_code_challenge() throws Exception {
+    public void
+            shouldNotInvokeAuthorizationEndpoint_noUser_code_challenge_method_without_code_challenge()
+                    throws Exception {
         final Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
@@ -725,10 +865,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(CLIENT_CONTEXT_KEY, client);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(CLIENT_CONTEXT_KEY, client);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.GET,
@@ -737,13 +880,18 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertEquals("http://localhost:9999/callback?error=invalid_request&error_description=Missing+parameter%253A+code_challenge", location);
+                    assertEquals(
+                            "http://localhost:9999/callback?error=invalid_request&error_description=Missing+parameter%253A+code_challenge",
+                            location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
-    public void shouldNotInvokeAuthorizationEndpoint_noUser_invalid_code_challenge_method() throws Exception {
+    public void shouldNotInvokeAuthorizationEndpoint_noUser_invalid_code_challenge_method()
+            throws Exception {
         final Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
@@ -751,10 +899,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(CLIENT_CONTEXT_KEY, client);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(CLIENT_CONTEXT_KEY, client);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.GET,
@@ -763,13 +914,18 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertEquals("http://localhost:9999/callback?error=invalid_request&error_description=Invalid+parameter%253A+code_challenge_method", location);
+                    assertEquals(
+                            "http://localhost:9999/callback?error=invalid_request&error_description=Invalid+parameter%253A+code_challenge_method",
+                            location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
-    public void shouldNotInvokeAuthorizationEndpoint_noUser_invalid_code_challenge() throws Exception {
+    public void shouldNotInvokeAuthorizationEndpoint_noUser_invalid_code_challenge()
+            throws Exception {
         final Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
@@ -777,10 +933,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(CLIENT_CONTEXT_KEY, client);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(CLIENT_CONTEXT_KEY, client);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.GET,
@@ -789,13 +948,18 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertEquals("http://localhost:9999/callback?error=invalid_request&error_description=Invalid+parameter%253A+code_challenge", location);
+                    assertEquals(
+                            "http://localhost:9999/callback?error=invalid_request&error_description=Invalid+parameter%253A+code_challenge",
+                            location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
-    public void shouldNotInvokeAuthorizationEndpoint_noUser_code_challenge_valid_plain() throws Exception {
+    public void shouldNotInvokeAuthorizationEndpoint_noUser_code_challenge_valid_plain()
+            throws Exception {
         final Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
@@ -810,10 +974,16 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         authorizationResponse.setRedirectUri(authorizationRequest.getRedirectUri());
         ((AuthorizationCodeResponse) authorizationResponse).setCode("test-code");
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(new io.gravitee.am.model.User())));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(new io.gravitee.am.model.User())));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
         when(flow.run(any(), any(), any())).thenReturn(Single.just(authorizationResponse));
@@ -827,11 +997,14 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                     assertNotNull(location);
                     assertEquals("http://localhost:9999/callback?code=test-code", location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
-    public void shouldNotInvokeAuthorizationEndpoint_noUser_code_challenge_valid_s256() throws Exception {
+    public void shouldNotInvokeAuthorizationEndpoint_noUser_code_challenge_valid_s256()
+            throws Exception {
         final Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
@@ -846,14 +1019,20 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         authorizationResponse.setRedirectUri(authorizationRequest.getRedirectUri());
         ((AuthorizationCodeResponse) authorizationResponse).setCode("test-code");
 
-
-        router.route().order(-1).handler(new Handler<RoutingContext>() {
-            @Override
-            public void handle(RoutingContext routingContext) {
-                routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(new io.gravitee.am.model.User())));
-                routingContext.next();
-            }
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        new Handler<RoutingContext>() {
+                            @Override
+                            public void handle(RoutingContext routingContext) {
+                                routingContext.setUser(
+                                        new User(
+                                                new io.gravitee.am.gateway.handler.common.vertx.web
+                                                        .auth.user.User(
+                                                        new io.gravitee.am.model.User())));
+                                routingContext.next();
+                            }
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
         when(flow.run(any(), any(), any())).thenReturn(Single.just(authorizationResponse));
@@ -867,7 +1046,9 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                     assertNotNull(location);
                     assertEquals("http://localhost:9999/callback?code=test-code", location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -880,10 +1061,16 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(new io.gravitee.am.model.User())));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(new io.gravitee.am.model.User())));
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.GET,
@@ -894,7 +1081,9 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                     assertNotNull(location);
                     assertEquals("http://localhost:9999/callback?error=access_denied", location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -914,11 +1103,19 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         authorizationResponse.setRedirectUri(authorizationRequest.getRedirectUri());
         ((AuthorizationCodeResponse) authorizationResponse).setCode("test-code");
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.session().put(ConstantKeys.USER_LOGIN_COMPLETED_KEY, true);
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(new io.gravitee.am.model.User())));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext
+                                    .session()
+                                    .put(ConstantKeys.USER_LOGIN_COMPLETED_KEY, true);
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(new io.gravitee.am.model.User())));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
         when(flow.run(any(), any(), any())).thenReturn(Single.just(authorizationResponse));
@@ -932,7 +1129,9 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                     assertNotNull(location);
                     assertEquals("http://localhost:9999/callback?code=test-code", location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -952,11 +1151,19 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         authorizationResponse.setRedirectUri(authorizationRequest.getRedirectUri());
         ((AuthorizationCodeResponse) authorizationResponse).setCode("test-code");
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.session().put(ConstantKeys.USER_LOGIN_COMPLETED_KEY, true);
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(new io.gravitee.am.model.User())));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext
+                                    .session()
+                                    .put(ConstantKeys.USER_LOGIN_COMPLETED_KEY, true);
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(new io.gravitee.am.model.User())));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
         when(flow.run(any(), any(), any())).thenReturn(Single.just(authorizationResponse));
@@ -970,7 +1177,9 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                     assertNotNull(location);
                     assertEquals("http://localhost:9999/callback?code=test-code", location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -990,11 +1199,19 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         authorizationResponse.setRedirectUri(authorizationRequest.getRedirectUri());
         ((AuthorizationCodeResponse) authorizationResponse).setCode("test-code");
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.session().put(ConstantKeys.USER_LOGIN_COMPLETED_KEY, true);
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(new io.gravitee.am.model.User())));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext
+                                    .session()
+                                    .put(ConstantKeys.USER_LOGIN_COMPLETED_KEY, true);
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(new io.gravitee.am.model.User())));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
         when(flow.run(any(), any(), any())).thenReturn(Single.just(authorizationResponse));
@@ -1008,7 +1225,9 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                     assertNotNull(location);
                     assertEquals("http://localhost:9999/callback?code=test-code", location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -1022,9 +1241,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertTrue(location.contains("/test/oauth/error?client_id=client-id&error=invalid_request&error_description=No+client+found+for+client_id+client-id"));
+                    assertTrue(
+                            location.contains(
+                                    "/test/oauth/error?client_id=client-id&error=invalid_request&error_description=No+client+found+for+client_id+client-id"));
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -1043,9 +1266,13 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertTrue(location.contains("error=invalid_request&error_description=Missing+parameter%253A+nonce+is+required+for+Implicit+and+Hybrid+Flow"));
-                    },
-                HttpStatusCode.FOUND_302, "Found", null);
+                    assertTrue(
+                            location.contains(
+                                    "error=invalid_request&error_description=Missing+parameter%253A+nonce+is+required+for+Implicit+and+Hybrid+Flow"));
+                },
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -1064,61 +1291,97 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertTrue(location.contains("error=invalid_request&error_description=Missing+parameter%253A+nonce+is+required+for+Implicit+and+Hybrid+Flow"));
+                    assertTrue(
+                            location.contains(
+                                    "error=invalid_request&error_description=Missing+parameter%253A+nonce+is+required+for+Implicit+and+Hybrid+Flow"));
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
     public void shouldInvokeAuthorizationEndpoint_hybridFlow_code_IDToken() throws Exception {
-        shouldInvokeAuthorizationEndpoint_hybridFlow(io.gravitee.am.common.oidc.ResponseType.CODE_ID_TOKEN, "code=test-code&id_token=test-id-token", null, "test-id-token");
+        shouldInvokeAuthorizationEndpoint_hybridFlow(
+                io.gravitee.am.common.oidc.ResponseType.CODE_ID_TOKEN,
+                "code=test-code&id_token=test-id-token",
+                null,
+                "test-id-token");
     }
 
     @Test
     public void shouldInvokeAuthorizationEndpoint_hybridFlow_code_token() throws Exception {
         Token accessToken = new AccessToken("token");
-        shouldInvokeAuthorizationEndpoint_hybridFlow(io.gravitee.am.common.oidc.ResponseType.CODE_TOKEN, "code=test-code&access_token=token&token_type=bearer&expires_in=0", accessToken, null);
+        shouldInvokeAuthorizationEndpoint_hybridFlow(
+                io.gravitee.am.common.oidc.ResponseType.CODE_TOKEN,
+                "code=test-code&access_token=token&token_type=bearer&expires_in=0",
+                accessToken,
+                null);
     }
 
     @Test
     public void shouldInvokeAuthorizationEndpoint_hybridFlow_code_IDToken_token() throws Exception {
         Token accessToken = new AccessToken("token");
-        ((AccessToken) accessToken).setAdditionalInformation(Collections.singletonMap("id_token", "test-id-token"));
-        shouldInvokeAuthorizationEndpoint_hybridFlow(io.gravitee.am.common.oidc.ResponseType.CODE_ID_TOKEN_TOKEN, "code=test-code&access_token=token&token_type=bearer&expires_in=0&id_token=test-id-token", accessToken, null);
+        ((AccessToken) accessToken)
+                .setAdditionalInformation(Collections.singletonMap("id_token", "test-id-token"));
+        shouldInvokeAuthorizationEndpoint_hybridFlow(
+                io.gravitee.am.common.oidc.ResponseType.CODE_ID_TOKEN_TOKEN,
+                "code=test-code&access_token=token&token_type=bearer&expires_in=0&id_token=test-id-token",
+                accessToken,
+                null);
     }
 
     @Test
     public void shouldInvokeAuthorizationEndpoint_implicitFlow_IDToken() throws Exception {
-        shouldInvokeAuthorizationEndpoint_implicitFlow(io.gravitee.am.common.oidc.ResponseType.ID_TOKEN, "id_token=test-id-token", null, "test-id-token");
+        shouldInvokeAuthorizationEndpoint_implicitFlow(
+                io.gravitee.am.common.oidc.ResponseType.ID_TOKEN,
+                "id_token=test-id-token",
+                null,
+                "test-id-token");
     }
 
     @Test
     public void shouldInvokeAuthorizationEndpoint_implicitFlow_IDToken_token() throws Exception {
         Token accessToken = new AccessToken("token");
-        ((AccessToken) accessToken).setAdditionalInformation(Collections.singletonMap("id_token", "test-id-token"));
-        shouldInvokeAuthorizationEndpoint_implicitFlow(io.gravitee.am.common.oidc.ResponseType.ID_TOKEN_TOKEN, "access_token=token&token_type=bearer&expires_in=0&id_token=test-id-token", accessToken, null);
+        ((AccessToken) accessToken)
+                .setAdditionalInformation(Collections.singletonMap("id_token", "test-id-token"));
+        shouldInvokeAuthorizationEndpoint_implicitFlow(
+                io.gravitee.am.common.oidc.ResponseType.ID_TOKEN_TOKEN,
+                "access_token=token&token_type=bearer&expires_in=0&id_token=test-id-token",
+                accessToken,
+                null);
     }
 
     @Test
     public void shouldInvokeAuthorizationEndpoint_implicitFlow_token() throws Exception {
         Token accessToken = new AccessToken("token");
-        shouldInvokeAuthorizationEndpoint_implicitFlow(ResponseType.TOKEN, "access_token=token&token_type=bearer&expires_in=0", accessToken, null);
+        shouldInvokeAuthorizationEndpoint_implicitFlow(
+                ResponseType.TOKEN,
+                "access_token=token&token_type=bearer&expires_in=0",
+                accessToken,
+                null);
     }
 
-    private void shouldInvokeAuthorizationEndpoint_hybridFlow(String responseType, String expectedCallback, Token accessToken, String idToken) throws Exception {
+    private void shouldInvokeAuthorizationEndpoint_hybridFlow(
+            String responseType, String expectedCallback, Token accessToken, String idToken)
+            throws Exception {
         final Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
-        client.setAuthorizedGrantTypes(Arrays.asList(GrantType.AUTHORIZATION_CODE,GrantType.IMPLICIT));
-        client.setResponseTypes(Arrays.asList(ResponseType.CODE,ResponseType.TOKEN, io.gravitee.am.common.oidc.ResponseType.ID_TOKEN));
+        client.setAuthorizedGrantTypes(
+                Arrays.asList(GrantType.AUTHORIZATION_CODE, GrantType.IMPLICIT));
+        client.setResponseTypes(
+                Arrays.asList(
+                        ResponseType.CODE,
+                        ResponseType.TOKEN,
+                        io.gravitee.am.common.oidc.ResponseType.ID_TOKEN));
 
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setApproved(true);
         authorizationRequest.setResponseType(responseType);
         authorizationRequest.setRedirectUri("http://localhost:9999/callback");
-
 
         AuthorizationResponse authorizationResponse = new HybridResponse();
         authorizationResponse.setRedirectUri(authorizationRequest.getRedirectUri());
@@ -1130,10 +1393,16 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
             ((HybridResponse) authorizationResponse).setIdToken(idToken);
         }
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(new io.gravitee.am.model.User())));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(new io.gravitee.am.model.User())));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
         when(flow.run(any(), any(), any())).thenReturn(Single.just(authorizationResponse));
@@ -1147,10 +1416,14 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                     assertNotNull(location);
                     assertEquals("http://localhost:9999/callback#" + expectedCallback, location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
-    private void shouldInvokeAuthorizationEndpoint_implicitFlow(String responseType, String expectedCallback, Token accessToken, String idToken) throws Exception {
+    private void shouldInvokeAuthorizationEndpoint_implicitFlow(
+            String responseType, String expectedCallback, Token accessToken, String idToken)
+            throws Exception {
         final Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
@@ -1175,24 +1448,34 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         }
         authorizationResponse.setRedirectUri(authorizationRequest.getRedirectUri());
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(new io.gravitee.am.model.User())));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(new io.gravitee.am.model.User())));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
         when(flow.run(any(), any(), any())).thenReturn(Single.just(authorizationResponse));
 
         testRequest(
                 HttpMethod.GET,
-                "/oauth/authorize?response_type="+responseType.replaceAll("\\s","%20")+"&client_id=client-id&nonce=123&redirect_uri=http://localhost:9999/callback",
+                "/oauth/authorize?response_type="
+                        + responseType.replaceAll("\\s", "%20")
+                        + "&client_id=client-id&nonce=123&redirect_uri=http://localhost:9999/callback",
                 null,
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
                     assertEquals("http://localhost:9999/callback#" + expectedCallback, location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -1214,16 +1497,22 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         authorizationResponse.setRedirectUri(authorizationRequest.getRedirectUri());
         authorizationResponse.setCode("test-code");
 
-        JWTAuthorizationCodeResponse jwtAuthorizationCodeResponse = new JWTAuthorizationCodeResponse(authorizationResponse);
+        JWTAuthorizationCodeResponse jwtAuthorizationCodeResponse =
+                new JWTAuthorizationCodeResponse(authorizationResponse);
         jwtAuthorizationCodeResponse.setResponseType(authorizationRequest.getResponseType());
         jwtAuthorizationCodeResponse.setResponseMode(authorizationRequest.getResponseMode());
         jwtAuthorizationCodeResponse.setToken("my-jwt");
 
-
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(user)));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(user)));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
         when(flow.run(any(), any(), any())).thenReturn(Single.just(jwtAuthorizationCodeResponse));
@@ -1237,7 +1526,9 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                     assertNotNull(location);
                     assertEquals("http://localhost:9999/callback?response=my-jwt", location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -1258,15 +1549,22 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         AuthorizationCodeResponse authorizationResponse = new AuthorizationCodeResponse();
         authorizationResponse.setRedirectUri(authorizationRequest.getRedirectUri());
         authorizationResponse.setCode("test-code");
-        JWTAuthorizationCodeResponse jwtAuthorizationCodeResponse = new JWTAuthorizationCodeResponse(authorizationResponse);
+        JWTAuthorizationCodeResponse jwtAuthorizationCodeResponse =
+                new JWTAuthorizationCodeResponse(authorizationResponse);
         jwtAuthorizationCodeResponse.setResponseType(authorizationRequest.getResponseType());
         jwtAuthorizationCodeResponse.setResponseMode(authorizationRequest.getResponseMode());
         jwtAuthorizationCodeResponse.setToken("my-jwt");
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(user)));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(user)));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
         when(flow.run(any(), any(), any())).thenReturn(Single.just(jwtAuthorizationCodeResponse));
@@ -1280,29 +1578,37 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                     assertNotNull(location);
                     assertEquals("http://localhost:9999/callback#response=my-jwt", location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
-    public void shouldNotInvokeAuthorizationEndpoint_mismatchRedirectUri_responseModeQueryJWT() throws Exception {
+    public void shouldNotInvokeAuthorizationEndpoint_mismatchRedirectUri_responseModeQueryJWT()
+            throws Exception {
         final Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
-        client.setRedirectUris(Collections.singletonList("http://localhost:9999/authorize/callback"));
+        client.setRedirectUris(
+                Collections.singletonList("http://localhost:9999/authorize/callback"));
 
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setApproved(true);
         authorizationRequest.setResponseType(ResponseType.CODE);
         authorizationRequest.setRedirectUri("http://localhost:9999/wrong/callback");
 
-        when(jwtService.encodeAuthorization(any(JWT.class), eq(client))).thenReturn(Single.just("my-jwt"));
-        when(jweService.encryptAuthorization(anyString(), eq(client))).then(new Answer<Single<String>>() {
-            @Override
-            public Single<String> answer(InvocationOnMock invocation) throws Throwable {
-                return Single.just((String) invocation.getArguments()[0]);
-            }
-        });
+        when(jwtService.encodeAuthorization(any(JWT.class), eq(client)))
+                .thenReturn(Single.just("my-jwt"));
+        when(jweService.encryptAuthorization(anyString(), eq(client)))
+                .then(
+                        new Answer<Single<String>>() {
+                            @Override
+                            public Single<String> answer(InvocationOnMock invocation)
+                                    throws Throwable {
+                                return Single.just((String) invocation.getArguments()[0]);
+                            }
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
 
@@ -1315,7 +1621,9 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                     assertNotNull(location);
                     assertTrue(location.contains("/test/oauth/error?response="));
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
@@ -1326,10 +1634,16 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
         client.setForcePKCE(true);
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.setUser(new User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(new io.gravitee.am.model.User())));
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.setUser(
+                                    new User(
+                                            new io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                    .user.User(new io.gravitee.am.model.User())));
+                            routingContext.next();
+                        });
 
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
 
@@ -1340,13 +1654,18 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertEquals("http://localhost:9999/callback?error=invalid_request&error_description=Missing+parameter%253A+code_challenge", location);
+                    assertEquals(
+                            "http://localhost:9999/callback?error=invalid_request&error_description=Missing+parameter%253A+code_challenge",
+                            location);
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 
     @Test
-    public void shouldNotInvokeAuthorizationEndpoint_invalidFormatRequest_withRedirectUri() throws Exception {
+    public void shouldNotInvokeAuthorizationEndpoint_invalidFormatRequest_withRedirectUri()
+            throws Exception {
         final Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
@@ -1359,8 +1678,12 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
                 resp -> {
                     String location = resp.headers().get("location");
                     assertNotNull(location);
-                    assertTrue(location.endsWith("/test/oauth/error?client_id=client-id&error=invalid_request&error_description=Parameter+%255Bresponse_type%255D+is+included+more+than+once"));
+                    assertTrue(
+                            location.endsWith(
+                                    "/test/oauth/error?client_id=client-id&error=invalid_request&error_description=Parameter+%255Bresponse_type%255D+is+included+more+than+once"));
                 },
-                HttpStatusCode.FOUND_302, "Found", null);
+                HttpStatusCode.FOUND_302,
+                "Found",
+                null);
     }
 }

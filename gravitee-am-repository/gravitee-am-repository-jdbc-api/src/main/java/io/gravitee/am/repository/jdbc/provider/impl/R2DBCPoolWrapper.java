@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.provider.impl;
@@ -21,6 +19,7 @@ import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryMetadata;
+
 import org.reactivestreams.Publisher;
 
 import java.io.Closeable;
@@ -31,7 +30,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class R2DBCPoolWrapper implements ClientWrapper<ConnectionFactory>, ConnectionFactory, Closeable {
+public class R2DBCPoolWrapper
+        implements ClientWrapper<ConnectionFactory>, ConnectionFactory, Closeable {
 
     private final R2DBCConnectionConfiguration configuration;
     private final ConnectionFactoryProvider connectionFactoryProvider;
@@ -45,7 +45,8 @@ public class R2DBCPoolWrapper implements ClientWrapper<ConnectionFactory>, Conne
         this.configuration = null;
     }
 
-    public R2DBCPoolWrapper(R2DBCConnectionConfiguration configuration, ConnectionFactory connectionFactory) {
+    public R2DBCPoolWrapper(
+            R2DBCConnectionConfiguration configuration, ConnectionFactory connectionFactory) {
         this.configuration = configuration;
         this.connectionFactory = connectionFactory;
         this.connectionFactoryProvider = null;
@@ -90,26 +91,38 @@ public class R2DBCPoolWrapper implements ClientWrapper<ConnectionFactory>, Conne
     }
 
     public String getJdbcDriver() {
-        return this.connectionFactoryProvider != null ? this.connectionFactoryProvider.getJdbcDriver() : this.configuration.getProtocol();
+        return this.connectionFactoryProvider != null
+                ? this.connectionFactoryProvider.getJdbcDriver()
+                : this.configuration.getProtocol();
     }
 
     public String getJdbcDatabase() {
-        return this.connectionFactoryProvider != null ? this.connectionFactoryProvider.getJdbcDatabase() : this.configuration.getDatabase();
+        return this.connectionFactoryProvider != null
+                ? this.connectionFactoryProvider.getJdbcDatabase()
+                : this.configuration.getDatabase();
     }
 
     public String getJdbcHostname() {
-        return this.connectionFactoryProvider != null ? this.connectionFactoryProvider.getJdbcHostname() : this.configuration.getHost();
+        return this.connectionFactoryProvider != null
+                ? this.connectionFactoryProvider.getJdbcHostname()
+                : this.configuration.getHost();
     }
 
     public String getJdbcPort() {
-        return this.connectionFactoryProvider != null ? this.connectionFactoryProvider.getJdbcPort() : Integer.toString(this.configuration.getPort());
+        return this.connectionFactoryProvider != null
+                ? this.connectionFactoryProvider.getJdbcPort()
+                : Integer.toString(this.configuration.getPort());
     }
 
     public String getJdbcUsername() {
-        return this.connectionFactoryProvider != null ? this.connectionFactoryProvider.getJdbcUsername() : this.configuration.getUser();
+        return this.connectionFactoryProvider != null
+                ? this.connectionFactoryProvider.getJdbcUsername()
+                : this.configuration.getUser();
     }
 
     public String getJdbcPassword() {
-        return this.connectionFactoryProvider != null ? this.connectionFactoryProvider.getJdbcPassword() : this.configuration.getPassword();
+        return this.connectionFactoryProvider != null
+                ? this.connectionFactoryProvider.getJdbcPassword()
+                : this.configuration.getPassword();
     }
 }

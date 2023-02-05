@@ -1,23 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import io.gravitee.am.model.Organization;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -26,17 +28,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class OrganizationRepositoryTest extends AbstractManagementTest {
 
-    @Autowired
-    private OrganizationRepository organizationRepository;
+    @Autowired private OrganizationRepository organizationRepository;
 
     @Test
     public void testFindById() {
@@ -50,9 +48,11 @@ public class OrganizationRepositoryTest extends AbstractManagementTest {
         organization.setHrids(Arrays.asList("Hrid1", "Hrid2"));
 
         // TODO: find another way to inject data in DB. Avoid to rely on class under test for that.
-        Organization organizationCreated = organizationRepository.create(organization).blockingGet();
+        Organization organizationCreated =
+                organizationRepository.create(organization).blockingGet();
 
-        TestObserver<Organization> obs = organizationRepository.findById(organizationCreated.getId()).test();
+        TestObserver<Organization> obs =
+                organizationRepository.findById(organizationCreated.getId()).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -61,7 +61,8 @@ public class OrganizationRepositoryTest extends AbstractManagementTest {
         obs.assertValue(o -> o.getName().equals(organization.getName()));
         obs.assertValue(o -> o.getDescription().equals(organization.getDescription()));
         obs.assertValue(o -> o.getIdentities().containsAll(organization.getIdentities()));
-        obs.assertValue(o -> o.getDomainRestrictions().containsAll(organization.getDomainRestrictions()));
+        obs.assertValue(
+                o -> o.getDomainRestrictions().containsAll(organization.getDomainRestrictions()));
         obs.assertValue(o -> o.getHrids().containsAll(organization.getHrids()));
     }
 
@@ -98,13 +99,15 @@ public class OrganizationRepositoryTest extends AbstractManagementTest {
         organization.setDomainRestrictions(Arrays.asList("ValueDom1", "ValueDom2"));
         organization.setHrids(Arrays.asList("Hrid1", "Hrid2"));
 
-        Organization organizationCreated = organizationRepository.create(organization).blockingGet();
+        Organization organizationCreated =
+                organizationRepository.create(organization).blockingGet();
 
         Organization organizationUpdated = new Organization();
         organizationUpdated.setId(organizationCreated.getId());
         organizationUpdated.setName("testNameUpdated");
         organizationUpdated.setIdentities(Arrays.asList("ValueIdp3", "ValueIdp4"));
-        organizationUpdated.setDomainRestrictions(Arrays.asList("ValueDom2", "ValueDom3", "ValueDom4"));
+        organizationUpdated.setDomainRestrictions(
+                Arrays.asList("ValueDom2", "ValueDom3", "ValueDom4"));
         organizationUpdated.setHrids(Arrays.asList("Hrid2", "Hrid3", "Hrid4"));
 
         TestObserver<Organization> obs = organizationRepository.update(organizationUpdated).test();
@@ -112,9 +115,15 @@ public class OrganizationRepositoryTest extends AbstractManagementTest {
 
         obs.assertComplete();
         obs.assertNoErrors();
-        obs.assertValue(o -> o.getName().equals(organizationUpdated.getName()) && o.getId().equals(organizationCreated.getId()));
+        obs.assertValue(
+                o ->
+                        o.getName().equals(organizationUpdated.getName())
+                                && o.getId().equals(organizationCreated.getId()));
         obs.assertValue(o -> o.getIdentities().containsAll(organizationUpdated.getIdentities()));
-        obs.assertValue(o -> o.getDomainRestrictions().containsAll(organizationUpdated.getDomainRestrictions()));
+        obs.assertValue(
+                o ->
+                        o.getDomainRestrictions()
+                                .containsAll(organizationUpdated.getDomainRestrictions()));
         obs.assertValue(o -> o.getHrids().containsAll(organizationUpdated.getHrids()));
     }
 
@@ -129,7 +138,8 @@ public class OrganizationRepositoryTest extends AbstractManagementTest {
         organization.setDomainRestrictions(Arrays.asList("ValueDom1", "ValueDom2"));
         organization.setHrids(Arrays.asList("Hrid1", "Hrid2"));
 
-        Organization organizationCreated = organizationRepository.create(organization).blockingGet();
+        Organization organizationCreated =
+                organizationRepository.create(organization).blockingGet();
 
         assertNotNull(organizationRepository.findById(organizationCreated.getId()).blockingGet());
 
@@ -160,10 +170,16 @@ public class OrganizationRepositoryTest extends AbstractManagementTest {
         organization2.setDomainRestrictions(Arrays.asList("ValueDom3", "ValueDom4"));
         organization2.setHrids(Arrays.asList("Hrid3", "Hrid4"));
 
-        Organization organizationCreated = organizationRepository.create(organization).blockingGet();
-        Organization organizationCreated2 = organizationRepository.create(organization2).blockingGet();
+        Organization organizationCreated =
+                organizationRepository.create(organization).blockingGet();
+        Organization organizationCreated2 =
+                organizationRepository.create(organization2).blockingGet();
 
-        TestObserver<List<Organization>> obs = organizationRepository.findByHrids(Collections.singletonList("Hrid1")).toList().test();
+        TestObserver<List<Organization>> obs =
+                organizationRepository
+                        .findByHrids(Collections.singletonList("Hrid1"))
+                        .toList()
+                        .test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();

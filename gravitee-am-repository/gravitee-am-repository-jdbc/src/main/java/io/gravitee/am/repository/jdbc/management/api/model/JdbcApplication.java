@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.management.api.model;
@@ -27,8 +25,7 @@ import java.time.LocalDateTime;
  */
 @Table("applications")
 public class JdbcApplication {
-    @Id
-    private String id;
+    @Id private String id;
     private String name;
     private String type;
     private String description;
@@ -37,18 +34,31 @@ public class JdbcApplication {
     private boolean enabled;
     private boolean template;
     private String certificate;
+
     @Column("created_at")
     private LocalDateTime createdAt;
+
     @Column("updated_at")
     private LocalDateTime updatedAt;
     // JSON
     private String metadata;
     private String settings;
 
-    public JdbcApplication() {
-    }
+    public JdbcApplication() {}
 
-    public JdbcApplication(String id, String name, String type, String description, String domain, boolean enabled, boolean template, String certificate, LocalDateTime createdAt, LocalDateTime updatedAt, String metadata, String settings) {
+    public JdbcApplication(
+            String id,
+            String name,
+            String type,
+            String description,
+            String domain,
+            boolean enabled,
+            boolean template,
+            String certificate,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt,
+            String metadata,
+            String settings) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -163,9 +173,12 @@ public class JdbcApplication {
     public static class Identity {
         @Column("application_id")
         private String applicationId;
+
         private String identity;
+
         @Column("selection_rule")
         private String selectionRule;
+
         private int priority;
 
         public String getApplicationId() {
@@ -197,6 +210,7 @@ public class JdbcApplication {
     public static class Grant {
         @Column("application_id")
         private String applicationId;
+
         @Column("grant_type")
         private String grant;
 
@@ -221,6 +235,7 @@ public class JdbcApplication {
     public static class Factor {
         @Column("application_id")
         private String applicationId;
+
         private String factor;
 
         public String getApplicationId() {
@@ -244,9 +259,12 @@ public class JdbcApplication {
     public static class ScopeSettings {
         @Column("application_id")
         private String applicationId;
+
         private String scope;
+
         @Column("is_default")
         private boolean defaultScope;
+
         @Column("scope_approval")
         private Integer scopeApproval;
 

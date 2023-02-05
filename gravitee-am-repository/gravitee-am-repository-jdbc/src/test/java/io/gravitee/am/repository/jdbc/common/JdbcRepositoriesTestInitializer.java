@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.common;
@@ -20,6 +18,7 @@ import io.gravitee.am.repository.jdbc.common.dialect.DatabaseDialectHelper;
 import io.r2dbc.spi.ConnectionFactory;
 import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Service;
@@ -34,13 +33,12 @@ import java.util.Set;
 @Service
 public class JdbcRepositoriesTestInitializer implements RepositoriesTestInitializer {
 
-    @Autowired
-    protected ConnectionFactory connectionFactory;
+    @Autowired protected ConnectionFactory connectionFactory;
 
-    @Autowired
-    protected DatabaseDialectHelper dialect;
+    @Autowired protected DatabaseDialectHelper dialect;
 
-    public JdbcRepositoriesTestInitializer(ConnectionFactory connectionFactory, DatabaseDialectHelper dialect) {
+    public JdbcRepositoriesTestInitializer(
+            ConnectionFactory connectionFactory, DatabaseDialectHelper dialect) {
         this.connectionFactory = connectionFactory;
         this.dialect = dialect;
     }
@@ -128,11 +126,19 @@ public class JdbcRepositoriesTestInitializer implements RepositoriesTestInitiali
         tables.add("rate_limit");
         tables.add("verify_attempt");
 
-        io.r2dbc.spi.Connection connection = Flowable.fromPublisher(connectionFactory.create()).blockingFirst();
+        io.r2dbc.spi.Connection connection =
+                Flowable.fromPublisher(connectionFactory.create()).blockingFirst();
         connection.beginTransaction();
-        tables.stream().forEach(table -> {
-            Flowable.fromPublisher(connection.createStatement("delete from " + table).execute()).subscribeOn(Schedulers.single()).blockingSubscribe();
-        });
+        tables.stream()
+                .forEach(
+                        table -> {
+                            Flowable.fromPublisher(
+                                            connection
+                                                    .createStatement("delete from " + table)
+                                                    .execute())
+                                    .subscribeOn(Schedulers.single())
+                                    .blockingSubscribe();
+                        });
         connection.commitTransaction();
         connection.close();
     }

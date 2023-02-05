@@ -1,24 +1,30 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oidc.service.clientregistration;
+
+import static io.gravitee.am.gateway.handler.oidc.service.clientregistration.impl.DynamicClientRegistrationServiceImpl.*;
+
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.oauth2.GrantType;
 import io.gravitee.am.common.oidc.CIBADeliveryMode;
@@ -53,8 +59,10 @@ import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.ext.web.client.HttpRequest;
 import io.vertx.reactivex.ext.web.client.HttpResponse;
 import io.vertx.reactivex.ext.web.client.WebClient;
+
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,12 +80,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static io.gravitee.am.gateway.handler.oidc.service.clientregistration.impl.DynamicClientRegistrationServiceImpl.*;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
  * @author GraviteeSource Team
@@ -87,47 +89,36 @@ public class DynamicClientRegistrationServiceTest {
 
     public static final String DUMMY_JWKS_URI = "https://somewhere/jwks";
     public static final String DUMMY_REDIRECTURI = "https://redirecturi";
+
     @InjectMocks
-    private DynamicClientRegistrationService dcrService = new DynamicClientRegistrationServiceImpl();
+    private DynamicClientRegistrationService dcrService =
+            new DynamicClientRegistrationServiceImpl();
 
-    @Mock
-    private OpenIDDiscoveryService openIDDiscoveryService;
+    @Mock private OpenIDDiscoveryService openIDDiscoveryService;
 
-    @Mock
-    private OpenIDProviderMetadata openIDProviderMetadata;
+    @Mock private OpenIDProviderMetadata openIDProviderMetadata;
 
-    @Mock
-    private IdentityProviderService identityProviderService;
+    @Mock private IdentityProviderService identityProviderService;
 
-    @Mock
-    private CertificateService certificateService;
+    @Mock private CertificateService certificateService;
 
-    @Mock
-    private JWKService jwkService;
+    @Mock private JWKService jwkService;
 
-    @Mock
-    private JWSService jwsService;
+    @Mock private JWSService jwsService;
 
-    @Mock
-    private JWTService jwtService;
+    @Mock private JWTService jwtService;
 
-    @Mock
-    public WebClient webClient;
+    @Mock public WebClient webClient;
 
-    @Mock
-    public ClientService clientService;
+    @Mock public ClientService clientService;
 
-    @Mock
-    private Domain domain;
+    @Mock private Domain domain;
 
-    @Mock
-    private FormService formService;
+    @Mock private FormService formService;
 
-    @Mock
-    private EmailTemplateService emailTemplateService;
+    @Mock private EmailTemplateService emailTemplateService;
 
-    @Mock
-    private Environment environment;
+    @Mock private Environment environment;
 
     private static final String DOMAIN_ID = "domain";
     private static final String BASE_PATH = "";
@@ -141,29 +132,50 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.getId()).thenReturn(DOMAIN_ID);
         when(identityProviderService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.empty());
         when(certificateService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.empty());
-        when(openIDProviderMetadata.getRegistrationEndpoint()).thenReturn("https://issuer/register");
+        when(openIDProviderMetadata.getRegistrationEndpoint())
+                .thenReturn("https://issuer/register");
         when(openIDDiscoveryService.getConfiguration(BASE_PATH)).thenReturn(openIDProviderMetadata);
         when(openIDProviderMetadata.getIssuer()).thenReturn("https://issuer");
         when(jwtService.encode(any(JWT.class), any(Client.class))).thenReturn(Single.just("jwt"));
 
-        when(clientService.create(any())).thenAnswer(i -> {
-            Client res = i.getArgument(0);
-            res.setId(ID_TARGET);
-            return Single.just(res);
-        });
+        when(clientService.create(any()))
+                .thenAnswer(
+                        i -> {
+                            Client res = i.getArgument(0);
+                            res.setId(ID_TARGET);
+                            return Single.just(res);
+                        });
         when(clientService.update(any())).thenAnswer(i -> Single.just(i.getArgument(0)));
         when(clientService.delete(any())).thenReturn(Completable.complete());
-        when(clientService.renewClientSecret(any(), any())).thenAnswer(i -> {
-            Client toRenew = new Client();
-            toRenew.setClientSecret("secretRenewed");
-            return Single.just(toRenew);
-        });
+        when(clientService.renewClientSecret(any(), any()))
+                .thenAnswer(
+                        i -> {
+                            Client toRenew = new Client();
+                            toRenew.setClientSecret("secretRenewed");
+                            return Single.just(toRenew);
+                        });
 
         when(domain.useFapiBrazilProfile()).thenReturn(false);
-        when(environment.getProperty(OPENID_DCR_ACCESS_TOKEN_VALIDITY, Integer.class, Client.DEFAULT_ACCESS_TOKEN_VALIDITY_SECONDS)).thenReturn(Client.DEFAULT_REFRESH_TOKEN_VALIDITY_SECONDS);
-        when(environment.getProperty(OPENID_DCR_ACCESS_TOKEN_VALIDITY, Integer.class, FAPI_OPENBANKING_BRAZIL_DEFAULT_ACCESS_TOKEN_VALIDITY)).thenReturn(FAPI_OPENBANKING_BRAZIL_DEFAULT_ACCESS_TOKEN_VALIDITY);
-        when(environment.getProperty(OPENID_DCR_REFRESH_TOKEN_VALIDITY, Integer.class, Client.DEFAULT_REFRESH_TOKEN_VALIDITY_SECONDS)).thenReturn(1000);
-        when(environment.getProperty(OPENID_DCR_ID_TOKEN_VALIDITY, Integer.class, Client.DEFAULT_ID_TOKEN_VALIDITY_SECONDS)).thenReturn(1100);
+        when(environment.getProperty(
+                        OPENID_DCR_ACCESS_TOKEN_VALIDITY,
+                        Integer.class,
+                        Client.DEFAULT_ACCESS_TOKEN_VALIDITY_SECONDS))
+                .thenReturn(Client.DEFAULT_REFRESH_TOKEN_VALIDITY_SECONDS);
+        when(environment.getProperty(
+                        OPENID_DCR_ACCESS_TOKEN_VALIDITY,
+                        Integer.class,
+                        FAPI_OPENBANKING_BRAZIL_DEFAULT_ACCESS_TOKEN_VALIDITY))
+                .thenReturn(FAPI_OPENBANKING_BRAZIL_DEFAULT_ACCESS_TOKEN_VALIDITY);
+        when(environment.getProperty(
+                        OPENID_DCR_REFRESH_TOKEN_VALIDITY,
+                        Integer.class,
+                        Client.DEFAULT_REFRESH_TOKEN_VALIDITY_SECONDS))
+                .thenReturn(1000);
+        when(environment.getProperty(
+                        OPENID_DCR_ID_TOKEN_VALIDITY,
+                        Integer.class,
+                        Client.DEFAULT_ID_TOKEN_VALIDITY_SECONDS))
+                .thenReturn(1100);
     }
 
     @Test
@@ -176,9 +188,12 @@ public class DynamicClientRegistrationServiceTest {
 
     @Test
     public void create_missingRedirectUri() {
-        TestObserver<Client> testObserver = dcrService.create(new DynamicClientRegistrationRequest(), BASE_PATH).test();
+        TestObserver<Client> testObserver =
+                dcrService.create(new DynamicClientRegistrationRequest(), BASE_PATH).test();
         testObserver.assertError(InvalidRedirectUriException.class);
-        testObserver.assertErrorMessage("Missing or invalid redirect_uris.");//redirect_uri metadata can be null but is mandatory
+        testObserver.assertErrorMessage(
+                "Missing or invalid redirect_uris."); // redirect_uri metadata can be null but is
+        // mandatory
         testObserver.assertNotComplete();
     }
 
@@ -200,14 +215,14 @@ public class DynamicClientRegistrationServiceTest {
         request.setClientName(Optional.of(clientName));
         request.setRedirectUris(Optional.empty());
 
-
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertComplete().assertNoErrors();
-        testObserver.assertValue(client -> this.defaultAssertion(client) &&
-                client.getClientName().equals(clientName) &&
-                client.getIdentityProviders() == null &&
-                client.getCertificate() == null
-        );
+        testObserver.assertValue(
+                client ->
+                        this.defaultAssertion(client)
+                                && client.getClientName().equals(clientName)
+                                && client.getIdentityProviders() == null
+                                && client.getCertificate() == null);
         verify(clientService, times(1)).create(any());
     }
 
@@ -215,7 +230,8 @@ public class DynamicClientRegistrationServiceTest {
     public void create_applyDefaultIdentiyProvider() {
         IdentityProvider identityProvider = Mockito.mock(IdentityProvider.class);
         when(identityProvider.getId()).thenReturn("identity-provider-id-123");
-        when(identityProviderService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.just(identityProvider));
+        when(identityProviderService.findByDomain(DOMAIN_ID))
+                .thenReturn(Flowable.just(identityProvider));
 
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
@@ -223,9 +239,15 @@ public class DynamicClientRegistrationServiceTest {
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(client -> defaultAssertion(client) &&
-                client.getIdentityProviders().stream().anyMatch(appIdp -> appIdp.getIdentity().equals("identity-provider-id-123"))
-        );
+        testObserver.assertValue(
+                client ->
+                        defaultAssertion(client)
+                                && client.getIdentityProviders().stream()
+                                        .anyMatch(
+                                                appIdp ->
+                                                        appIdp.getIdentity()
+                                                                .equals(
+                                                                        "identity-provider-id-123")));
     }
 
     @Test
@@ -240,7 +262,10 @@ public class DynamicClientRegistrationServiceTest {
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(client -> defaultAssertion(client) && client.getCertificate().equals("certificate-id-123"));
+        testObserver.assertValue(
+                client ->
+                        defaultAssertion(client)
+                                && client.getCertificate().equals("certificate-id-123"));
     }
 
     @Test
@@ -257,8 +282,9 @@ public class DynamicClientRegistrationServiceTest {
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        //scope is not allowed, so expecting to erase scope (no scope)
-        testObserver.assertValue(client -> this.defaultAssertion(client) && client.getScopeSettings() == null);
+        // scope is not allowed, so expecting to erase scope (no scope)
+        testObserver.assertValue(
+                client -> this.defaultAssertion(client) && client.getScopeSettings() == null);
     }
 
     @Test
@@ -276,11 +302,14 @@ public class DynamicClientRegistrationServiceTest {
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(client -> this.defaultAssertion(client) &&
-                client.getScopeSettings().size() == 2 &&
-                client.getScopeSettings().stream().map(ApplicationScopeSettings::getScope).collect(Collectors.toList())
-                        .containsAll(Arrays.asList("phone", "email"))
-        );
+        testObserver.assertValue(
+                client ->
+                        this.defaultAssertion(client)
+                                && client.getScopeSettings().size() == 2
+                                && client.getScopeSettings().stream()
+                                        .map(ApplicationScopeSettings::getScope)
+                                        .collect(Collectors.toList())
+                                        .containsAll(Arrays.asList("phone", "email")));
     }
 
     @Test
@@ -297,11 +326,17 @@ public class DynamicClientRegistrationServiceTest {
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(client -> this.defaultAssertion(client) &&
-                client.getScopeSettings().size() == 1 &&
-                !client.getScopeSettings()
-                        .stream().filter(setting -> setting.getScope().equalsIgnoreCase("openid")).findFirst().isEmpty()
-        );
+        testObserver.assertValue(
+                client ->
+                        this.defaultAssertion(client)
+                                && client.getScopeSettings().size() == 1
+                                && !client.getScopeSettings().stream()
+                                        .filter(
+                                                setting ->
+                                                        setting.getScope()
+                                                                .equalsIgnoreCase("openid"))
+                                        .findFirst()
+                                        .isEmpty());
     }
 
     @Test
@@ -317,11 +352,14 @@ public class DynamicClientRegistrationServiceTest {
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(client -> this.defaultAssertion(client) &&
-                client.getScopeSettings().size() == 3 &&
-                client.getScopeSettings().stream().map(ApplicationScopeSettings::getScope).collect(Collectors.toList())
-                        .containsAll(Arrays.asList("openid", "not", "allowed"))
-        );
+        testObserver.assertValue(
+                client ->
+                        this.defaultAssertion(client)
+                                && client.getScopeSettings().size() == 3
+                                && client.getScopeSettings().stream()
+                                        .map(ApplicationScopeSettings::getScope)
+                                        .collect(Collectors.toList())
+                                        .containsAll(Arrays.asList("openid", "not", "allowed")));
     }
 
     @Test
@@ -336,11 +374,14 @@ public class DynamicClientRegistrationServiceTest {
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(client -> this.defaultAssertion(client) &&
-                client.getScopeSettings().size() == 2 &&
-                client.getScopeSettings().stream().map(ApplicationScopeSettings::getScope).collect(Collectors.toList())
-                        .containsAll(Arrays.asList("phone", "email"))
-        );
+        testObserver.assertValue(
+                client ->
+                        this.defaultAssertion(client)
+                                && client.getScopeSettings().size() == 2
+                                && client.getScopeSettings().stream()
+                                        .map(ApplicationScopeSettings::getScope)
+                                        .collect(Collectors.toList())
+                                        .containsAll(Arrays.asList("phone", "email")));
     }
 
     @Test
@@ -423,7 +464,8 @@ public class DynamicClientRegistrationServiceTest {
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertError(InvalidClientMetadataException.class);
-        testObserver.assertErrorMessage("When userinfo_encrypted_response_enc is included, userinfo_encrypted_response_alg MUST also be provided");
+        testObserver.assertErrorMessage(
+                "When userinfo_encrypted_response_enc is included, userinfo_encrypted_response_alg MUST also be provided");
         testObserver.assertNotComplete();
     }
 
@@ -449,7 +491,10 @@ public class DynamicClientRegistrationServiceTest {
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(client -> defaultAssertion(client) && client.getUserinfoEncryptedResponseEnc() != null);
+        testObserver.assertValue(
+                client ->
+                        defaultAssertion(client)
+                                && client.getUserinfoEncryptedResponseEnc() != null);
     }
 
     @Test
@@ -484,7 +529,8 @@ public class DynamicClientRegistrationServiceTest {
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertError(InvalidClientMetadataException.class);
-        testObserver.assertErrorMessage("When id_token_encrypted_response_enc is included, id_token_encrypted_response_alg MUST also be provided");
+        testObserver.assertErrorMessage(
+                "When id_token_encrypted_response_enc is included, id_token_encrypted_response_alg MUST also be provided");
         testObserver.assertNotComplete();
     }
 
@@ -510,7 +556,10 @@ public class DynamicClientRegistrationServiceTest {
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(client -> defaultAssertion(client) && client.getIdTokenEncryptedResponseEnc() != null);
+        testObserver.assertValue(
+                client ->
+                        defaultAssertion(client)
+                                && client.getIdTokenEncryptedResponseEnc() != null);
     }
 
     @Test
@@ -523,7 +572,9 @@ public class DynamicClientRegistrationServiceTest {
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
         assertTrue("Should have only one exception", testObserver.errorCount() == 1);
-        assertTrue("Unexpected start of error message", testObserver.errors().get(0).getMessage().startsWith("request_uris:"));
+        assertTrue(
+                "Unexpected start of error message",
+                testObserver.errors().get(0).getMessage().startsWith("request_uris:"));
     }
 
     @Test
@@ -536,7 +587,13 @@ public class DynamicClientRegistrationServiceTest {
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
         assertTrue("Should have only one exception", testObserver.errorCount() == 1);
-        assertTrue("Unexpected start of error message", testObserver.errors().get(0).getMessage().equals("Missing TLS parameter for tls_client_auth."));
+        assertTrue(
+                "Unexpected start of error message",
+                testObserver
+                        .errors()
+                        .get(0)
+                        .getMessage()
+                        .equals("Missing TLS parameter for tls_client_auth."));
     }
 
     @Test
@@ -551,20 +608,34 @@ public class DynamicClientRegistrationServiceTest {
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
         assertTrue("Should have only one exception", testObserver.errorCount() == 1);
-        assertTrue("Unexpected start of error message", testObserver.errors().get(0).getMessage().equals("The tls_client_auth must use exactly one of the TLS parameters."));
+        assertTrue(
+                "Unexpected start of error message",
+                testObserver
+                        .errors()
+                        .get(0)
+                        .getMessage()
+                        .equals("The tls_client_auth must use exactly one of the TLS parameters."));
     }
 
     @Test
     public void create_invalidSelfSignedClient_noJWKS() {
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
-        request.setTokenEndpointAuthMethod(Optional.of(ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH));
+        request.setTokenEndpointAuthMethod(
+                Optional.of(ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH));
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
         assertTrue("Should have only one exception", testObserver.errorCount() == 1);
-        assertTrue("Unexpected start of error message", testObserver.errors().get(0).getMessage().equals("The self_signed_tls_client_auth requires at least a jwks or a valid jwks_uri."));
+        assertTrue(
+                "Unexpected start of error message",
+                testObserver
+                        .errors()
+                        .get(0)
+                        .getMessage()
+                        .equals(
+                                "The self_signed_tls_client_auth requires at least a jwks or a valid jwks_uri."));
     }
 
     @Test
@@ -572,7 +643,8 @@ public class DynamicClientRegistrationServiceTest {
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
         request.setJwks(Optional.of(new JWKSet()));
-        request.setTokenEndpointAuthMethod(Optional.of(ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH));
+        request.setTokenEndpointAuthMethod(
+                Optional.of(ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH));
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
@@ -588,34 +660,44 @@ public class DynamicClientRegistrationServiceTest {
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(client -> defaultAssertion(client) && client.getRequestUris().contains("https://valid/request/uri"));
+        testObserver.assertValue(
+                client ->
+                        defaultAssertion(client)
+                                && client.getRequestUris().contains("https://valid/request/uri"));
     }
-
 
     @Test
     public void create_sectorIdentifierUriBadFormat() {
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
-        request.setSectorIdentifierUri(Optional.of("blabla"));//fail due to invalid url
+        request.setSectorIdentifierUri(Optional.of("blabla")); // fail due to invalid url
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
         assertTrue("Should have only one exception", testObserver.errorCount() == 1);
-        assertTrue("Unexpected start of error message", testObserver.errors().get(0).getMessage().startsWith("sector_identifier_uri:"));
+        assertTrue(
+                "Unexpected start of error message",
+                testObserver.errors().get(0).getMessage().startsWith("sector_identifier_uri:"));
     }
 
     @Test
     public void create_sectorIdentifierUriNottHttps() {
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
-        request.setSectorIdentifierUri(Optional.of("http://something"));//fail due to invalid url
+        request.setSectorIdentifierUri(Optional.of("http://something")); // fail due to invalid url
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
         assertTrue("Should have only one exception", testObserver.errorCount() == 1);
-        assertTrue("Unexpected start of error message", testObserver.errors().get(0).getMessage().startsWith("Scheme must be https for sector_identifier_uri"));
+        assertTrue(
+                "Unexpected start of error message",
+                testObserver
+                        .errors()
+                        .get(0)
+                        .getMessage()
+                        .startsWith("Scheme must be https for sector_identifier_uri"));
     }
 
     @Test
@@ -623,7 +705,7 @@ public class DynamicClientRegistrationServiceTest {
         final String sectorUri = "https://sector/uri";
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
-        request.setSectorIdentifierUri(Optional.of(sectorUri));//fail due to invalid url
+        request.setSectorIdentifierUri(Optional.of(sectorUri)); // fail due to invalid url
         HttpRequest<Buffer> httpRequest = Mockito.mock(HttpRequest.class);
         HttpResponse httpResponse = Mockito.mock(HttpResponse.class);
 
@@ -634,7 +716,13 @@ public class DynamicClientRegistrationServiceTest {
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
         assertTrue("Should have only one exception", testObserver.errorCount() == 1);
-        assertTrue("Unexpected start of error message", testObserver.errors().get(0).getMessage().startsWith("Unable to parse sector_identifier_uri"));
+        assertTrue(
+                "Unexpected start of error message",
+                testObserver
+                        .errors()
+                        .get(0)
+                        .getMessage()
+                        .startsWith("Unable to parse sector_identifier_uri"));
     }
 
     @Test
@@ -642,7 +730,7 @@ public class DynamicClientRegistrationServiceTest {
         final String sectorUri = "https://sector/uri";
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.of(Arrays.asList("https://graviee.io/callback")));
-        request.setSectorIdentifierUri(Optional.of(sectorUri));//fail due to invalid url
+        request.setSectorIdentifierUri(Optional.of(sectorUri)); // fail due to invalid url
         HttpRequest<Buffer> httpRequest = Mockito.mock(HttpRequest.class);
         HttpResponse httpResponse = Mockito.mock(HttpResponse.class);
 
@@ -683,7 +771,8 @@ public class DynamicClientRegistrationServiceTest {
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertError(InvalidClientMetadataException.class);
-        testObserver.assertErrorMessage("The jwks_uri and jwks parameters MUST NOT be used together.");
+        testObserver.assertErrorMessage(
+                "The jwks_uri and jwks parameters MUST NOT be used together.");
         testObserver.assertNotComplete();
     }
 
@@ -712,7 +801,8 @@ public class DynamicClientRegistrationServiceTest {
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(client -> defaultAssertion(client) && client.getJwksUri().equals("something"));
+        testObserver.assertValue(
+                client -> defaultAssertion(client) && client.getJwksUri().equals("something"));
     }
 
     @Test
@@ -724,11 +814,12 @@ public class DynamicClientRegistrationServiceTest {
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(client -> client.getRedirectUris() == null &&
-                client.getAuthorizedGrantTypes().size() == 1 &&
-                client.getAuthorizedGrantTypes().contains("client_credentials") &&
-                client.getResponseTypes().isEmpty()
-        );
+        testObserver.assertValue(
+                client ->
+                        client.getRedirectUris() == null
+                                && client.getAuthorizedGrantTypes().size() == 1
+                                && client.getAuthorizedGrantTypes().contains("client_credentials")
+                                && client.getResponseTypes().isEmpty());
     }
 
     @Test
@@ -741,12 +832,13 @@ public class DynamicClientRegistrationServiceTest {
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(client -> client.getRedirectUris().contains("https://graviee.io/callback") &&
-                client.getAuthorizedGrantTypes().size() == 1 &&
-                client.getAuthorizedGrantTypes().contains("implicit") &&
-                client.getResponseTypes().size() == 1 &&
-                client.getResponseTypes().contains("token")
-        );
+        testObserver.assertValue(
+                client ->
+                        client.getRedirectUris().contains("https://graviee.io/callback")
+                                && client.getAuthorizedGrantTypes().size() == 1
+                                && client.getAuthorizedGrantTypes().contains("implicit")
+                                && client.getResponseTypes().size() == 1
+                                && client.getResponseTypes().contains("token"));
     }
 
     private boolean defaultAssertion(Client client) {
@@ -756,17 +848,26 @@ public class DynamicClientRegistrationServiceTest {
         assertNull("expecting no redirect_uris", client.getRedirectUris());
 
         assertEquals("Domain is wrong", DOMAIN_ID, client.getDomain());
-        assertEquals("registration uri is wrong", "https://issuer/register" + "/" + client.getClientId(), client.getRegistrationClientUri());
+        assertEquals(
+                "registration uri is wrong",
+                "https://issuer/register" + "/" + client.getClientId(),
+                client.getRegistrationClientUri());
         assertEquals("registration token is wrong", "jwt", client.getRegistrationAccessToken());
         assertEquals("should be default value \"web\"", "web", client.getApplicationType());
 
-        assertTrue("should be default value \"code\"", client.getResponseTypes().size() == 1 && client.getResponseTypes().contains("code"));
+        assertTrue(
+                "should be default value \"code\"",
+                client.getResponseTypes().size() == 1
+                        && client.getResponseTypes().contains("code"));
         return true;
     }
 
     @Test
     public void patch_noRedirectUriMetadata() {
-        TestObserver<Client> testObserver = dcrService.patch(new Client(), new DynamicClientRegistrationRequest(), BASE_PATH).test();
+        TestObserver<Client> testObserver =
+                dcrService
+                        .patch(new Client(), new DynamicClientRegistrationRequest(), BASE_PATH)
+                        .test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         verify(clientService, times(1)).update(any());
@@ -780,18 +881,27 @@ public class DynamicClientRegistrationServiceTest {
 
         when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
 
-        TestObserver<Client> testObserver = dcrService.patch(new Client(), request, BASE_PATH).test();
+        TestObserver<Client> testObserver =
+                dcrService.patch(new Client(), request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(client -> client.getJwksUri().equals("something") && client.getRedirectUris().size() == 1);
+        testObserver.assertValue(
+                client ->
+                        client.getJwksUri().equals("something")
+                                && client.getRedirectUris().size() == 1);
         verify(clientService, times(1)).update(any());
     }
 
     @Test
     public void update_missingRedirectUri() {
-        TestObserver<Client> testObserver = dcrService.update(new Client(), new DynamicClientRegistrationRequest(), BASE_PATH).test();
+        TestObserver<Client> testObserver =
+                dcrService
+                        .update(new Client(), new DynamicClientRegistrationRequest(), BASE_PATH)
+                        .test();
         testObserver.assertError(InvalidRedirectUriException.class);
-        testObserver.assertErrorMessage("Missing or invalid redirect_uris.");//redirect_uri metadata can be null but is mandatory
+        testObserver.assertErrorMessage(
+                "Missing or invalid redirect_uris."); // redirect_uri metadata can be null but is
+        // mandatory
         testObserver.assertNotComplete();
     }
 
@@ -801,10 +911,14 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.of(Arrays.asList()));
         request.setApplicationType(Optional.of("something"));
 
-        TestObserver<Client> testObserver = dcrService.update(new Client(), request, BASE_PATH).test();
+        TestObserver<Client> testObserver =
+                dcrService.update(new Client(), request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(client -> client.getApplicationType().equals("something") && client.getRedirectUris().isEmpty());
+        testObserver.assertValue(
+                client ->
+                        client.getApplicationType().equals("something")
+                                && client.getRedirectUris().isEmpty());
         verify(clientService, times(1)).update(any());
     }
 
@@ -888,24 +1002,27 @@ public class DynamicClientRegistrationServiceTest {
         request.setSoftwareId(Optional.of(ID_SOURCE));
         request.setApplicationType(Optional.of("app"));
 
-        when(formService.copyFromClient(DOMAIN_ID, ID_SOURCE, ID_TARGET)).thenReturn(Single.just(Collections.emptyList()));
-        when(emailTemplateService.copyFromClient(DOMAIN_ID, ID_SOURCE, ID_TARGET)).thenReturn(Flowable.empty());
+        when(formService.copyFromClient(DOMAIN_ID, ID_SOURCE, ID_TARGET))
+                .thenReturn(Single.just(Collections.emptyList()));
+        when(emailTemplateService.copyFromClient(DOMAIN_ID, ID_SOURCE, ID_TARGET))
+                .thenReturn(Flowable.empty());
         when(domain.isDynamicClientRegistrationTemplateEnabled()).thenReturn(true);
         when(clientService.findById("123")).thenReturn(Maybe.just(template));
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertComplete().assertNoErrors();
-        testObserver.assertValue(client ->
-                client.getId().equals("abc") &&
-                        client.getApplicationType().equals("app") &&
-                        client.getClientId() != null &&
-                        !client.getClientId().equals("shouldBeReplaced") &&
-                        client.getRedirectUris() == null &&
-                        client.getClientName().equals(ClientServiceImpl.DEFAULT_CLIENT_NAME) &&
-                        client.getClientSecret() == null &&
-                        client.getJwks() == null &&
-                        client.getSectorIdentifierUri() == null
-        );
+        testObserver.assertValue(
+                client ->
+                        client.getId().equals("abc")
+                                && client.getApplicationType().equals("app")
+                                && client.getClientId() != null
+                                && !client.getClientId().equals("shouldBeReplaced")
+                                && client.getRedirectUris() == null
+                                && client.getClientName()
+                                        .equals(ClientServiceImpl.DEFAULT_CLIENT_NAME)
+                                && client.getClientSecret() == null
+                                && client.getJwks() == null
+                                && client.getSectorIdentifierUri() == null);
         verify(clientService, times(1)).create(any());
     }
 
@@ -929,7 +1046,10 @@ public class DynamicClientRegistrationServiceTest {
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        testObserver.assertValue(client -> client.getAuthorizationSignedResponseAlg().equals(JWSAlgorithm.RS256.getName()));
+        testObserver.assertValue(
+                client ->
+                        client.getAuthorizationSignedResponseAlg()
+                                .equals(JWSAlgorithm.RS256.getName()));
         verify(clientService, times(1)).create(any());
     }
 
@@ -963,11 +1083,13 @@ public class DynamicClientRegistrationServiceTest {
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
         request.setRequestObjectEncryptionAlg(null);
-        request.setRequestObjectEncryptionEnc(Optional.of(JWAlgorithmUtils.getDefaultRequestObjectEnc()));
+        request.setRequestObjectEncryptionEnc(
+                Optional.of(JWAlgorithmUtils.getDefaultRequestObjectEnc()));
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertError(InvalidClientMetadataException.class);
-        testObserver.assertErrorMessage("When request_object_encryption_enc is included, request_object_encryption_alg MUST also be provided");
+        testObserver.assertErrorMessage(
+                "When request_object_encryption_enc is included, request_object_encryption_alg MUST also be provided");
         testObserver.assertNotComplete();
     }
 
@@ -976,7 +1098,8 @@ public class DynamicClientRegistrationServiceTest {
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
         request.setRequestObjectEncryptionAlg(Optional.of("unknownKeyAlg"));
-        request.setRequestObjectEncryptionEnc(Optional.of(JWAlgorithmUtils.getDefaultRequestObjectEnc()));
+        request.setRequestObjectEncryptionEnc(
+                Optional.of(JWAlgorithmUtils.getDefaultRequestObjectEnc()));
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertError(InvalidClientMetadataException.class);
@@ -989,7 +1112,8 @@ public class DynamicClientRegistrationServiceTest {
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
         request.setRequestObjectEncryptionAlg(Optional.of(JWEAlgorithm.RSA_OAEP_256.getName()));
-        request.setRequestObjectEncryptionEnc(Optional.of(JWAlgorithmUtils.getDefaultRequestObjectEnc()));
+        request.setRequestObjectEncryptionEnc(
+                Optional.of(JWAlgorithmUtils.getDefaultRequestObjectEnc()));
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
@@ -1017,11 +1141,13 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setRequireParRequest(Optional.of(false));
         request.setRequestObjectEncryptionAlg(Optional.of(JWEAlgorithm.RSA_OAEP_256.getName()));
-        request.setRequestObjectEncryptionEnc(Optional.of(JWAlgorithmUtils.getDefaultRequestObjectEnc()));
+        request.setRequestObjectEncryptionEnc(
+                Optional.of(JWAlgorithmUtils.getDefaultRequestObjectEnc()));
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertError(InvalidClientMetadataException.class);
-        testObserver.assertErrorMessage("Request object must be encrypted using RSA-OAEP with A256GCM");
+        testObserver.assertErrorMessage(
+                "Request object must be encrypted using RSA-OAEP with A256GCM");
         testObserver.assertNotComplete();
     }
 
@@ -1035,11 +1161,15 @@ public class DynamicClientRegistrationServiceTest {
         request.setSoftwareStatement(Optional.of("jws"));
 
         when(domain.useFapiBrazilProfile()).thenReturn(true);
-        when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(null);
+        when(environment.getProperty(
+                        DynamicClientRegistrationServiceImpl
+                                .FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI))
+                .thenReturn(null);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertError(InvalidClientMetadataException.class);
-        testObserver.assertErrorMessage("No jwks_uri for OpenBanking Directory, unable to validate software_statement");
+        testObserver.assertErrorMessage(
+                "No jwks_uri for OpenBanking Directory, unable to validate software_statement");
         testObserver.assertNotComplete();
     }
 
@@ -1052,10 +1182,14 @@ public class DynamicClientRegistrationServiceTest {
         request.setRequestObjectEncryptionEnc(Optional.of(EncryptionMethod.A256GCM.getName()));
 
         final RSAKey rsaKey = generateRSAKey();
-        request.setSoftwareStatement(Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.RS256, Instant.now())));
+        request.setSoftwareStatement(
+                Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.RS256, Instant.now())));
 
         when(domain.useFapiBrazilProfile()).thenReturn(true);
-        when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
+        when(environment.getProperty(
+                        DynamicClientRegistrationServiceImpl
+                                .FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI))
+                .thenReturn(DUMMY_JWKS_URI);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertError(InvalidClientMetadataException.class);
@@ -1072,13 +1206,22 @@ public class DynamicClientRegistrationServiceTest {
         request.setRequestObjectEncryptionEnc(Optional.of(EncryptionMethod.A256GCM.getName()));
 
         final RSAKey rsaKey = generateRSAKey();
-        request.setSoftwareStatement(Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now().minus(6, ChronoUnit.MINUTES))));
+        request.setSoftwareStatement(
+                Optional.of(
+                        generateSoftwareStatement(
+                                rsaKey,
+                                JWSAlgorithm.PS256,
+                                Instant.now().minus(6, ChronoUnit.MINUTES))));
 
         when(domain.useFapiBrazilProfile()).thenReturn(true);
-        when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
+        when(environment.getProperty(
+                        DynamicClientRegistrationServiceImpl
+                                .FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI))
+                .thenReturn(DUMMY_JWKS_URI);
 
         when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKey(any(), any()))
+                .thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(false);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
@@ -1096,13 +1239,22 @@ public class DynamicClientRegistrationServiceTest {
         request.setRequestObjectEncryptionEnc(Optional.of(EncryptionMethod.A256GCM.getName()));
 
         final RSAKey rsaKey = generateRSAKey();
-        request.setSoftwareStatement(Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now().minus(6, ChronoUnit.MINUTES))));
+        request.setSoftwareStatement(
+                Optional.of(
+                        generateSoftwareStatement(
+                                rsaKey,
+                                JWSAlgorithm.PS256,
+                                Instant.now().minus(6, ChronoUnit.MINUTES))));
 
         when(domain.useFapiBrazilProfile()).thenReturn(true);
-        when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
+        when(environment.getProperty(
+                        DynamicClientRegistrationServiceImpl
+                                .FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI))
+                .thenReturn(DUMMY_JWKS_URI);
 
         when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKey(any(), any()))
+                .thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
@@ -1123,13 +1275,18 @@ public class DynamicClientRegistrationServiceTest {
         request.setJwks(Optional.of(jwkSet));
 
         final RSAKey rsaKey = generateRSAKey();
-        request.setSoftwareStatement(Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
+        request.setSoftwareStatement(
+                Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
 
         when(domain.useFapiBrazilProfile()).thenReturn(true);
-        when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
+        when(environment.getProperty(
+                        DynamicClientRegistrationServiceImpl
+                                .FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI))
+                .thenReturn(DUMMY_JWKS_URI);
 
         when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKey(any(), any()))
+                .thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
@@ -1147,13 +1304,18 @@ public class DynamicClientRegistrationServiceTest {
         request.setRequestObjectEncryptionEnc(Optional.of(EncryptionMethod.A256GCM.getName()));
 
         final RSAKey rsaKey = generateRSAKey();
-        request.setSoftwareStatement(Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
+        request.setSoftwareStatement(
+                Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
 
         when(domain.useFapiBrazilProfile()).thenReturn(true);
-        when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
+        when(environment.getProperty(
+                        DynamicClientRegistrationServiceImpl
+                                .FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI))
+                .thenReturn(DUMMY_JWKS_URI);
 
         when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKey(any(), any()))
+                .thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
@@ -1172,13 +1334,18 @@ public class DynamicClientRegistrationServiceTest {
         request.setJwksUri(Optional.of("https://invalid"));
 
         final RSAKey rsaKey = generateRSAKey();
-        request.setSoftwareStatement(Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
+        request.setSoftwareStatement(
+                Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
 
         when(domain.useFapiBrazilProfile()).thenReturn(true);
-        when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
+        when(environment.getProperty(
+                        DynamicClientRegistrationServiceImpl
+                                .FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI))
+                .thenReturn(DUMMY_JWKS_URI);
 
         when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKey(any(), any()))
+                .thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
@@ -1199,13 +1366,18 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
 
         final RSAKey rsaKey = generateRSAKey();
-        request.setSoftwareStatement(Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
+        request.setSoftwareStatement(
+                Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
 
         when(domain.useFapiBrazilProfile()).thenReturn(true);
-        when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
+        when(environment.getProperty(
+                        DynamicClientRegistrationServiceImpl
+                                .FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI))
+                .thenReturn(DUMMY_JWKS_URI);
 
         when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKey(any(), any()))
+                .thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
@@ -1226,18 +1398,24 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.of(Arrays.asList("https://invalid")));
 
         final RSAKey rsaKey = generateRSAKey();
-        request.setSoftwareStatement(Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
+        request.setSoftwareStatement(
+                Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
 
         when(domain.useFapiBrazilProfile()).thenReturn(true);
-        when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
+        when(environment.getProperty(
+                        DynamicClientRegistrationServiceImpl
+                                .FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI))
+                .thenReturn(DUMMY_JWKS_URI);
 
         when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKey(any(), any()))
+                .thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertError(InvalidClientMetadataException.class);
-        testObserver.assertErrorMessage("redirect_uris contains unknown uri from software_statement");
+        testObserver.assertErrorMessage(
+                "redirect_uris contains unknown uri from software_statement");
         testObserver.assertNotComplete();
     }
 
@@ -1259,18 +1437,24 @@ public class DynamicClientRegistrationServiceTest {
         request.setTlsClientAuthSanUri(Optional.empty());
 
         final RSAKey rsaKey = generateRSAKey();
-        request.setSoftwareStatement(Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
+        request.setSoftwareStatement(
+                Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
 
         when(domain.useFapiBrazilProfile()).thenReturn(true);
-        when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
+        when(environment.getProperty(
+                        DynamicClientRegistrationServiceImpl
+                                .FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI))
+                .thenReturn(DUMMY_JWKS_URI);
 
         when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKey(any(), any()))
+                .thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertError(InvalidClientMetadataException.class);
-        testObserver.assertErrorMessage("tls_client_auth_subject_dn is required with tls_client_auth as client authentication method");
+        testObserver.assertErrorMessage(
+                "tls_client_auth_subject_dn is required with tls_client_auth as client authentication method");
         testObserver.assertNotComplete();
     }
 
@@ -1287,30 +1471,42 @@ public class DynamicClientRegistrationServiceTest {
         request.setTokenEndpointAuthMethod(Optional.of(ClientAuthenticationMethod.TLS_CLIENT_AUTH));
         request.setTlsClientAuthSubjectDn(Optional.of("Subject DN"));
         request.setTlsClientAuthSanEmail(Optional.empty());
-        // request.setTlsClientAuthSanDns(Optional.empty()); // DO NOT provide, empty should be present at the end
-        // request.setTlsClientAuthSanIp(Optional.empty()); // DO NOT provide it, empty should be present at the end
+        // request.setTlsClientAuthSanDns(Optional.empty()); // DO NOT provide, empty should be
+        // present at the end
+        // request.setTlsClientAuthSanIp(Optional.empty()); // DO NOT provide it, empty should be
+        // present at the end
         request.setTlsClientAuthSanUri(Optional.empty());
 
         assertNull(request.getTlsClientAuthSanDns());
         assertNull(request.getTlsClientAuthSanIp());
 
         final RSAKey rsaKey = generateRSAKey();
-        request.setSoftwareStatement(Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
+        request.setSoftwareStatement(
+                Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
 
         when(domain.useFapiBrazilProfile()).thenReturn(true);
-        when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
+        when(environment.getProperty(
+                        DynamicClientRegistrationServiceImpl
+                                .FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI))
+                .thenReturn(DUMMY_JWKS_URI);
 
         when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKey(any(), any()))
+                .thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
 
-        verify(clientService).create(argThat(client -> client.getAccessTokenValiditySeconds() == FAPI_OPENBANKING_BRAZIL_DEFAULT_ACCESS_TOKEN_VALIDITY
-                && client.getRefreshTokenValiditySeconds() == 1000
-                && client.getIdTokenValiditySeconds() == 1100));
+        verify(clientService)
+                .create(
+                        argThat(
+                                client ->
+                                        client.getAccessTokenValiditySeconds()
+                                                        == FAPI_OPENBANKING_BRAZIL_DEFAULT_ACCESS_TOKEN_VALIDITY
+                                                && client.getRefreshTokenValiditySeconds() == 1000
+                                                && client.getIdTokenValiditySeconds() == 1100));
 
         assertNotNull(request.getTlsClientAuthSanDns());
         assertTrue(request.getTlsClientAuthSanDns().isEmpty());
@@ -1330,7 +1526,8 @@ public class DynamicClientRegistrationServiceTest {
         request.setGrantTypes(Optional.of(List.of(GrantType.CIBA_GRANT_TYPE)));
 
         request.setBackchannelAuthRequestSignAlg(Optional.of(JWSAlgorithm.RS256.getName()));
-        request.setBackchannelClientNotificationEndpoint(Optional.of("https://127.0.0..1/ciba/notif"));
+        request.setBackchannelClientNotificationEndpoint(
+                Optional.of("https://127.0.0..1/ciba/notif"));
         request.setBackchannelTokenDeliveryMode(Optional.of(CIBADeliveryMode.POLL));
 
         when(domain.useCiba()).thenReturn(true);
@@ -1344,9 +1541,21 @@ public class DynamicClientRegistrationServiceTest {
         testObserver.assertComplete();
 
         testObserver.assertValue(client -> !client.getBackchannelUserCodeParameter());
-        testObserver.assertValue(client -> client.getBackchannelAuthRequestSignAlg() != null && client.getBackchannelAuthRequestSignAlg().equals(JWSAlgorithm.RS256.getName()));
-        testObserver.assertValue(client -> client.getBackchannelClientNotificationEndpoint() != null && client.getBackchannelClientNotificationEndpoint().equals("https://127.0.0..1/ciba/notif"));
-        testObserver.assertValue(client -> client.getBackchannelTokenDeliveryMode() != null && client.getBackchannelTokenDeliveryMode().equals(CIBADeliveryMode.POLL));
+        testObserver.assertValue(
+                client ->
+                        client.getBackchannelAuthRequestSignAlg() != null
+                                && client.getBackchannelAuthRequestSignAlg()
+                                        .equals(JWSAlgorithm.RS256.getName()));
+        testObserver.assertValue(
+                client ->
+                        client.getBackchannelClientNotificationEndpoint() != null
+                                && client.getBackchannelClientNotificationEndpoint()
+                                        .equals("https://127.0.0..1/ciba/notif"));
+        testObserver.assertValue(
+                client ->
+                        client.getBackchannelTokenDeliveryMode() != null
+                                && client.getBackchannelTokenDeliveryMode()
+                                        .equals(CIBADeliveryMode.POLL));
     }
 
     @Test
@@ -1361,7 +1570,8 @@ public class DynamicClientRegistrationServiceTest {
         request.setGrantTypes(Optional.of(List.of(GrantType.CIBA_GRANT_TYPE)));
 
         request.setBackchannelAuthRequestSignAlg(Optional.of(JWSAlgorithm.RS256.getName()));
-        request.setBackchannelClientNotificationEndpoint(Optional.of("https://127.0.0..1/ciba/notif"));
+        request.setBackchannelClientNotificationEndpoint(
+                Optional.of("https://127.0.0..1/ciba/notif"));
         request.setBackchannelTokenDeliveryMode(Optional.of("invalid"));
 
         when(domain.useCiba()).thenReturn(true);
@@ -1387,7 +1597,8 @@ public class DynamicClientRegistrationServiceTest {
         request.setGrantTypes(Optional.of(List.of(GrantType.CIBA_GRANT_TYPE)));
 
         request.setBackchannelAuthRequestSignAlg(Optional.of(JWSAlgorithm.RS256.getName()));
-        request.setBackchannelClientNotificationEndpoint(Optional.of("https://127.0.0..1/ciba/notif"));
+        request.setBackchannelClientNotificationEndpoint(
+                Optional.of("https://127.0.0..1/ciba/notif"));
 
         request.setBackchannelTokenDeliveryMode(null);
 
@@ -1403,12 +1614,11 @@ public class DynamicClientRegistrationServiceTest {
     }
 
     private RSAKey generateRSAKey() throws Exception {
-        return new RSAKeyGenerator(2048)
-                .keyID("123")
-                .generate();
+        return new RSAKeyGenerator(2048).keyID("123").generate();
     }
 
-    private String generateSoftwareStatement(RSAKey rsaJWK, JWSAlgorithm jwsAlg, Instant iat) throws Exception {
+    private String generateSoftwareStatement(RSAKey rsaJWK, JWSAlgorithm jwsAlg, Instant iat)
+            throws Exception {
         JWSSigner signer = new RSASSASigner(rsaJWK);
 
         final JSONObject jsonObject = new JSONObject();
@@ -1418,13 +1628,13 @@ public class DynamicClientRegistrationServiceTest {
         redirectUris.add(DUMMY_REDIRECTURI);
         jsonObject.put("software_redirect_uris", redirectUris);
 
-        JWSObject jwsObject = new JWSObject(
-                new JWSHeader.Builder(jwsAlg).keyID(rsaJWK.getKeyID()).build(),
-                new Payload(jsonObject));
+        JWSObject jwsObject =
+                new JWSObject(
+                        new JWSHeader.Builder(jwsAlg).keyID(rsaJWK.getKeyID()).build(),
+                        new Payload(jsonObject));
 
         jwsObject.sign(signer);
 
         return jwsObject.serialize();
     }
-
 }

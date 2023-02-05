@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.manager.theme;
@@ -26,6 +24,7 @@ import io.gravitee.am.repository.management.api.ThemeRepository;
 import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -38,33 +37,38 @@ import java.util.concurrent.ConcurrentMap;
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class ThemeManager extends AbstractService<ThemeManager> implements InitializingBean, EventListener<ThemeEvent, Payload> {
+public class ThemeManager extends AbstractService<ThemeManager>
+        implements InitializingBean, EventListener<ThemeEvent, Payload> {
 
     private static final Logger logger = LoggerFactory.getLogger(ThemeManager.class);
     private ConcurrentMap<String, Theme> domainThemes = new ConcurrentHashMap<>();
 
-    @Autowired
-    private ThemeRepository themeRepository;
+    @Autowired private ThemeRepository themeRepository;
 
-    @Autowired
-    private Domain domain;
+    @Autowired private Domain domain;
 
-    @Autowired
-    private EventManager eventManager;
+    @Autowired private EventManager eventManager;
 
-    @Autowired
-    private DomainBasedThemeResolver domainBasedThemeResolver;
+    @Autowired private DomainBasedThemeResolver domainBasedThemeResolver;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         logger.info("Initializing themes for domain {}", domain.getName());
-        themeRepository.findByReference(ReferenceType.DOMAIN, domain.getId())
+        themeRepository
+                .findByReference(ReferenceType.DOMAIN, domain.getId())
                 .subscribe(
                         theme -> {
                             update(theme);
-                            logger.info("Theme {} loaded for domain {}", theme.getId(), domain.getName());
+                            logger.info(
+                                    "Theme {} loaded for domain {}",
+                                    theme.getId(),
+                                    domain.getName());
                         },
-                        error -> logger.error("Unable to initialize themes for domain {}", domain.getName(), error),
+                        error ->
+                                logger.error(
+                                        "Unable to initialize themes for domain {}",
+                                        domain.getName(),
+                                        error),
                         () -> logger.debug("No theme found for domain {}", domain.getName()));
     }
 
@@ -86,8 +90,8 @@ public class ThemeManager extends AbstractService<ThemeManager> implements Initi
 
     @Override
     public void onEvent(Event<ThemeEvent, Payload> event) {
-        if (event.content().getReferenceType() == ReferenceType.DOMAIN &&
-                domain.getId().equals(event.content().getReferenceId())) {
+        if (event.content().getReferenceType() == ReferenceType.DOMAIN
+                && domain.getId().equals(event.content().getReferenceId())) {
             switch (event.type()) {
                 case DEPLOY:
                 case UPDATE:
@@ -102,14 +106,22 @@ public class ThemeManager extends AbstractService<ThemeManager> implements Initi
 
     private void update(String id, ThemeEvent event) {
         final String eventType = event.toString().toLowerCase();
-        logger.info("Domain {} has received {} theme event for {}", domain.getName(), eventType, id);
-        themeRepository.findById(id)
+        logger.info(
+                "Domain {} has received {} theme event for {}", domain.getName(), eventType, id);
+        themeRepository
+                .findById(id)
                 .subscribe(
                         theme -> {
                             update(theme);
-                            logger.info("Theme {} {}d for domain {}", id, eventType, domain.getName());
+                            logger.info(
+                                    "Theme {} {}d for domain {}", id, eventType, domain.getName());
                         },
-                        error -> logger.error("Unable to {} theme for domain {}", eventType, domain.getName(), error),
+                        error ->
+                                logger.error(
+                                        "Unable to {} theme for domain {}",
+                                        eventType,
+                                        domain.getName(),
+                                        error),
                         () -> logger.error("No theme found with id {}", id));
     }
 

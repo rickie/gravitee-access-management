@@ -1,25 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.authentication.csrf;
 
 import io.gravitee.am.common.jwt.JWT;
+import io.gravitee.am.common.utils.SecureRandomString;
 import io.gravitee.am.jwt.JWTBuilder;
 import io.gravitee.am.jwt.JWTParser;
-import io.gravitee.am.common.utils.SecureRandomString;
 import io.gravitee.am.management.handlers.management.api.authentication.provider.generator.JWTGenerator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +29,12 @@ import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.WebUtils;
 
+import java.time.Instant;
+import java.util.UUID;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.time.Instant;
-import java.util.UUID;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -53,8 +53,7 @@ public class CookieCsrfSignedTokenRepository implements CsrfTokenRepository {
 
     public static final String DEFAULT_CSRF_HEADER_NAME = "X-Xsrf-Token";
 
-    @Autowired
-    private JWTGenerator jwtGenerator;
+    @Autowired private JWTGenerator jwtGenerator;
 
     @Autowired
     @Qualifier("managementJwtBuilder")
@@ -73,19 +72,20 @@ public class CookieCsrfSignedTokenRepository implements CsrfTokenRepository {
         }
 
         UUID token = UUID.randomUUID();
-        return new DefaultCsrfToken(DEFAULT_CSRF_HEADER_NAME, DEFAULT_CSRF_PARAMETER_NAME, token.toString());
+        return new DefaultCsrfToken(
+                DEFAULT_CSRF_HEADER_NAME, DEFAULT_CSRF_PARAMETER_NAME, token.toString());
     }
 
     @Override
-    public void saveToken(CsrfToken token, HttpServletRequest request,
-                          HttpServletResponse response) {
+    public void saveToken(
+            CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
 
-        if(request.getAttribute(DEFAULT_CSRF_COOKIE_NAME) != null) {
+        if (request.getAttribute(DEFAULT_CSRF_COOKIE_NAME) != null) {
             // Token already persisted in cookie.
             return;
         }
 
-        if(token == null) {
+        if (token == null) {
             // Null token means delete it.
             response.addCookie(jwtGenerator.generateCookie(DEFAULT_CSRF_COOKIE_NAME, null, true));
             return;
@@ -100,7 +100,8 @@ public class CookieCsrfSignedTokenRepository implements CsrfTokenRepository {
             jwt.put(TOKEN_CLAIM, tokenValue);
             String encodedToken = jwtBuilder.sign(jwt);
 
-            Cookie cookie = jwtGenerator.generateCookie(DEFAULT_CSRF_COOKIE_NAME, encodedToken, true);
+            Cookie cookie =
+                    jwtGenerator.generateCookie(DEFAULT_CSRF_COOKIE_NAME, encodedToken, true);
             response.addCookie(cookie);
             request.setAttribute(DEFAULT_CSRF_COOKIE_NAME, true);
         } catch (Exception ex) {
@@ -126,7 +127,8 @@ public class CookieCsrfSignedTokenRepository implements CsrfTokenRepository {
             if (!StringUtils.hasLength(token)) {
                 return null;
             }
-            return new DefaultCsrfToken(DEFAULT_CSRF_HEADER_NAME, DEFAULT_CSRF_PARAMETER_NAME, token);
+            return new DefaultCsrfToken(
+                    DEFAULT_CSRF_HEADER_NAME, DEFAULT_CSRF_PARAMETER_NAME, token);
         } catch (Exception ex) {
             LOGGER.error("Unable to verify CSRF token", ex);
         }

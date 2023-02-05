@@ -1,21 +1,22 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.*;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.alert.AlertNotifier;
@@ -23,21 +24,22 @@ import io.gravitee.am.repository.management.api.AlertNotifierRepository;
 import io.gravitee.am.repository.management.api.search.AlertNotifierCriteria;
 import io.gravitee.am.repository.mongodb.management.internal.model.AlertNotifierMongo;
 import io.reactivex.*;
+
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mongodb.client.model.Filters.*;
+import javax.annotation.PostConstruct;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class MongoAlertNotifierRepository extends AbstractManagementMongoRepository implements AlertNotifierRepository {
+public class MongoAlertNotifierRepository extends AbstractManagementMongoRepository
+        implements AlertNotifierRepository {
 
     private MongoCollection<AlertNotifierMongo> collection;
 
@@ -56,15 +58,21 @@ public class MongoAlertNotifierRepository extends AbstractManagementMongoReposit
 
     @Override
     public Flowable<AlertNotifier> findAll(ReferenceType referenceType, String referenceId) {
-        Bson eqReference = and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId));
+        Bson eqReference =
+                and(
+                        eq(FIELD_REFERENCE_TYPE, referenceType.name()),
+                        eq(FIELD_REFERENCE_ID, referenceId));
 
-        return Flowable.fromPublisher(collection.find(eqReference))
-                .map(this::convert);
+        return Flowable.fromPublisher(collection.find(eqReference)).map(this::convert);
     }
 
     @Override
-    public Flowable<AlertNotifier> findByCriteria(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria) {
-        Bson eqReference = and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId));
+    public Flowable<AlertNotifier> findByCriteria(
+            ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria) {
+        Bson eqReference =
+                and(
+                        eq(FIELD_REFERENCE_TYPE, referenceType.name()),
+                        eq(FIELD_REFERENCE_ID, referenceId));
 
         List<Bson> filters = new ArrayList<>();
         if (criteria.isEnabled().isPresent()) {
@@ -84,18 +92,22 @@ public class MongoAlertNotifierRepository extends AbstractManagementMongoReposit
     @Override
     public Single<AlertNotifier> create(AlertNotifier item) {
         var alertNotifier = convert(item);
-        alertNotifier.setId(alertNotifier.getId() == null ? RandomString.generate() : alertNotifier.getId());
+        alertNotifier.setId(
+                alertNotifier.getId() == null ? RandomString.generate() : alertNotifier.getId());
         return Single.fromPublisher(collection.insertOne(alertNotifier))
-                .flatMap(success -> {
-                    item.setId(alertNotifier.getId());
-                    return Single.just(item);
-                });
+                .flatMap(
+                        success -> {
+                            item.setId(alertNotifier.getId());
+                            return Single.just(item);
+                        });
     }
 
     @Override
     public Single<AlertNotifier> update(AlertNotifier alertNotifier) {
         AlertNotifierMongo alertNotifierMongo = convert(alertNotifier);
-        return Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, alertNotifierMongo.getId()), alertNotifierMongo))
+        return Single.fromPublisher(
+                        collection.replaceOne(
+                                eq(FIELD_ID, alertNotifierMongo.getId()), alertNotifierMongo))
                 .flatMap(updateResult -> Single.just(alertNotifier));
     }
 
@@ -110,7 +122,10 @@ public class MongoAlertNotifierRepository extends AbstractManagementMongoReposit
         alertNotifier.setId(alertNotifierMongo.getId());
         alertNotifier.setName(alertNotifierMongo.getName());
         alertNotifier.setEnabled(alertNotifierMongo.isEnabled());
-        alertNotifier.setReferenceType(alertNotifierMongo.getReferenceType() == null ? null : ReferenceType.valueOf(alertNotifierMongo.getReferenceType()));
+        alertNotifier.setReferenceType(
+                alertNotifierMongo.getReferenceType() == null
+                        ? null
+                        : ReferenceType.valueOf(alertNotifierMongo.getReferenceType()));
         alertNotifier.setReferenceId(alertNotifierMongo.getReferenceId());
         alertNotifier.setType(alertNotifierMongo.getType());
         alertNotifier.setConfiguration(alertNotifierMongo.getConfiguration());
@@ -126,7 +141,10 @@ public class MongoAlertNotifierRepository extends AbstractManagementMongoReposit
         alertNotifierMongo.setId(alertNotifier.getId());
         alertNotifierMongo.setName(alertNotifier.getName());
         alertNotifierMongo.setEnabled(alertNotifier.isEnabled());
-        alertNotifierMongo.setReferenceType(alertNotifier.getReferenceType() == null ? null : alertNotifier.getReferenceType().name());
+        alertNotifierMongo.setReferenceType(
+                alertNotifier.getReferenceType() == null
+                        ? null
+                        : alertNotifier.getReferenceType().name());
         alertNotifierMongo.setReferenceId(alertNotifier.getReferenceId());
         alertNotifierMongo.setType(alertNotifier.getType());
         alertNotifierMongo.setConfiguration(alertNotifier.getConfiguration());

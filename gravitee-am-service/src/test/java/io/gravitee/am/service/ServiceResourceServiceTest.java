@@ -1,21 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.gravitee.am.model.Factor;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.event.Event;
@@ -34,6 +37,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -43,10 +47,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Date;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
@@ -54,26 +54,22 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceResourceServiceTest {
 
-    @InjectMocks
-    private ServiceResourceService resourceService = new ServiceResourceServiceImpl();
+    @InjectMocks private ServiceResourceService resourceService = new ServiceResourceServiceImpl();
 
-    @Mock
-    private EventService eventService;
+    @Mock private EventService eventService;
 
-    @Mock
-    private FactorService factorService;
+    @Mock private FactorService factorService;
 
-    @Mock
-    private ServiceResourceRepository resourceRepository;
+    @Mock private ServiceResourceRepository resourceRepository;
 
-    @Mock
-    private AuditService auditService;
+    @Mock private AuditService auditService;
 
-    private final static String DOMAIN = "domain1";
+    private static final String DOMAIN = "domain1";
 
     @Test
     public void shouldFindById() {
-        when(resourceRepository.findById("my-resource")).thenReturn(Maybe.just(new ServiceResource()));
+        when(resourceRepository.findById("my-resource"))
+                .thenReturn(Maybe.just(new ServiceResource()));
         TestObserver testObserver = resourceService.findById("my-resource").test();
 
         testObserver.awaitTerminalEvent();
@@ -95,7 +91,8 @@ public class ServiceResourceServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(resourceRepository.findByReference(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(new ServiceResource()));
+        when(resourceRepository.findByReference(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.just(new ServiceResource()));
         TestSubscriber<ServiceResource> testObserver = resourceService.findByDomain(DOMAIN).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
@@ -123,13 +120,22 @@ public class ServiceResourceServiceTest {
                 .thenReturn(Single.just(record));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver<ServiceResource> testObserver = resourceService.create(DOMAIN, resource, null).test();
+        TestObserver<ServiceResource> testObserver =
+                resourceService.create(DOMAIN, resource, null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValueCount(1);
 
-        verify(auditService, never()).report(argThat(auditBuilder -> auditBuilder.build(new ObjectMapper()).getOutcome().getStatus().equals("SUCCESS")));
+        verify(auditService, never())
+                .report(
+                        argThat(
+                                auditBuilder ->
+                                        auditBuilder
+                                                .build(new ObjectMapper())
+                                                .getOutcome()
+                                                .getStatus()
+                                                .equals("SUCCESS")));
     }
 
     @Test
@@ -142,12 +148,21 @@ public class ServiceResourceServiceTest {
         when(resourceRepository.create(argThat(bean -> bean.getName().equals(resource.getName()))))
                 .thenReturn(Single.error(new TechnicalException()));
 
-        TestObserver<ServiceResource> testObserver = resourceService.create(DOMAIN, resource, null).test();
+        TestObserver<ServiceResource> testObserver =
+                resourceService.create(DOMAIN, resource, null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNoValues();
 
-        verify(auditService, never()).report(argThat(auditBuilder -> auditBuilder.build(new ObjectMapper()).getOutcome().getStatus().equals("FAILURE")));
+        verify(auditService, never())
+                .report(
+                        argThat(
+                                auditBuilder ->
+                                        auditBuilder
+                                                .build(new ObjectMapper())
+                                                .getOutcome()
+                                                .getStatus()
+                                                .equals("FAILURE")));
     }
 
     @Test
@@ -167,23 +182,40 @@ public class ServiceResourceServiceTest {
         record.setUpdatedAt(new Date());
 
         when(resourceRepository.findById(record.getId())).thenReturn(Maybe.just(record));
-        when(resourceRepository.update(argThat(bean -> bean.getId().equals(record.getId())))).thenReturn(Single.just(record));
+        when(resourceRepository.update(argThat(bean -> bean.getId().equals(record.getId()))))
+                .thenReturn(Single.just(record));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver<ServiceResource> testObserver = resourceService.update(DOMAIN, record.getId(), resource, null).test();
+        TestObserver<ServiceResource> testObserver =
+                resourceService.update(DOMAIN, record.getId(), resource, null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValueCount(1);
 
-        verify(auditService, never()).report(argThat(auditBuilder -> auditBuilder.build(new ObjectMapper()).getOutcome().getStatus().equals("SUCCESS")));
+        verify(auditService, never())
+                .report(
+                        argThat(
+                                auditBuilder ->
+                                        auditBuilder
+                                                .build(new ObjectMapper())
+                                                .getOutcome()
+                                                .getStatus()
+                                                .equals("SUCCESS")));
     }
 
     @Test
     public void shouldUpdate_returnNotFound() {
         when(resourceRepository.findById(any())).thenReturn(Maybe.empty());
 
-        TestObserver<ServiceResource> testObserver = resourceService.update(DOMAIN, UUID.randomUUID().toString(), new UpdateServiceResource(), null).test();
+        TestObserver<ServiceResource> testObserver =
+                resourceService
+                        .update(
+                                DOMAIN,
+                                UUID.randomUUID().toString(),
+                                new UpdateServiceResource(),
+                                null)
+                        .test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(ServiceResourceNotFoundException.class);
 
@@ -196,7 +228,8 @@ public class ServiceResourceServiceTest {
     public void shouldDelete_returnNotFound() {
         when(resourceRepository.findById(any())).thenReturn(Maybe.empty());
 
-        TestObserver<Void> testObserver = resourceService.delete(DOMAIN, UUID.randomUUID().toString(), null).test();
+        TestObserver<Void> testObserver =
+                resourceService.delete(DOMAIN, UUID.randomUUID().toString(), null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(ServiceResourceNotFoundException.class);
 
@@ -212,17 +245,26 @@ public class ServiceResourceServiceTest {
         record.setReferenceType(ReferenceType.DOMAIN);
         record.setCreatedAt(new Date());
         record.setUpdatedAt(new Date());
-        
+
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
         when(resourceRepository.findById(record.getId())).thenReturn(Maybe.just(record));
         when(resourceRepository.delete(record.getId())).thenReturn(Completable.complete());
         when(factorService.findByDomain(DOMAIN)).thenReturn(Flowable.empty());
 
-        TestObserver<Void> testObserver = resourceService.delete(DOMAIN, record.getId(), null).test();
+        TestObserver<Void> testObserver =
+                resourceService.delete(DOMAIN, record.getId(), null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
 
-        verify(auditService).report(argThat(auditBuilder -> auditBuilder.build(new ObjectMapper()).getOutcome().getStatus().equals("SUCCESS")));
+        verify(auditService)
+                .report(
+                        argThat(
+                                auditBuilder ->
+                                        auditBuilder
+                                                .build(new ObjectMapper())
+                                                .getOutcome()
+                                                .getStatus()
+                                                .equals("SUCCESS")));
     }
 
     @Test
@@ -240,7 +282,8 @@ public class ServiceResourceServiceTest {
         factor.setConfiguration("{\"ref\": \"" + record.getId() + "\"}");
         when(factorService.findByDomain(DOMAIN)).thenReturn(Flowable.just(factor));
 
-        TestObserver<Void> testObserver = resourceService.delete(DOMAIN, record.getId(), null).test();
+        TestObserver<Void> testObserver =
+                resourceService.delete(DOMAIN, record.getId(), null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(ServiceResourceCurrentlyUsedException.class);
 
