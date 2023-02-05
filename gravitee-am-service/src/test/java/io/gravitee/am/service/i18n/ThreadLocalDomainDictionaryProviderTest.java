@@ -55,9 +55,9 @@ public class ThreadLocalDomainDictionaryProviderTest extends AbstractDynamicDict
                         .getProperty("key")
                         .equals("value"));
 
-        final ExecutorService executorService = Executors.newSingleThreadExecutor();
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
         try {
-            final Future<String> future =
+            Future<String> future =
                     executorService.submit(
                             () -> {
                                 I18nDictionary localI18nDictionary = new I18nDictionary();

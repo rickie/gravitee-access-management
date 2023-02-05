@@ -52,8 +52,8 @@ public class AuthorizationRequestResolverTest {
 
     @Test
     public void shouldNotResolveAuthorizationRequest_unknownScope() {
-        final String scope = "read";
-        final String redirectUri = "http://localhost:8080/callback";
+        String scope = "read";
+        String redirectUri = "http://localhost:8080/callback";
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setScopes(Collections.singleton(scope));
         authorizationRequest.setRedirectUri(redirectUri);
@@ -67,7 +67,7 @@ public class AuthorizationRequestResolverTest {
 
     @Test
     public void shouldResolveAuthorizationRequest_emptyScope() {
-        final String redirectUri = "http://localhost:8080/callback";
+        String redirectUri = "http://localhost:8080/callback";
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setRedirectUri(redirectUri);
         Client client = new Client();
@@ -80,7 +80,7 @@ public class AuthorizationRequestResolverTest {
 
     @Test
     public void shouldResolveAuthorizationRequest_openIdScope() {
-        final String redirectUri = "http://localhost:8080/callback";
+        String redirectUri = "http://localhost:8080/callback";
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setScopes(Set.of("openid"));
         authorizationRequest.setRedirectUri(redirectUri);
@@ -98,8 +98,8 @@ public class AuthorizationRequestResolverTest {
 
     @Test
     public void shouldResolveAuthorizationRequest_noRequestedScope() {
-        final String scope = "read";
-        final String redirectUri = "http://localhost:8080/callback";
+        String scope = "read";
+        String redirectUri = "http://localhost:8080/callback";
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setRedirectUri(redirectUri);
         Client client = new Client();
@@ -117,8 +117,8 @@ public class AuthorizationRequestResolverTest {
 
     @Test
     public void shouldResolveAuthorizationRequest_invalidScope() {
-        final String scope = "read";
-        final String redirectUri = "http://localhost:8080/callback";
+        String scope = "read";
+        String redirectUri = "http://localhost:8080/callback";
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setScopes(Collections.singleton(scope));
         authorizationRequest.setRedirectUri(redirectUri);
@@ -135,10 +135,10 @@ public class AuthorizationRequestResolverTest {
 
     @Test
     public void shouldResolveAuthorizationRequest_ParameterizedScope() {
-        final String scope = "read";
-        final String redirectUri = "http://localhost:8080/callback";
+        String scope = "read";
+        String redirectUri = "http://localhost:8080/callback";
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
-        final String parameterizedScope = scope + ":36fc67776";
+        String parameterizedScope = scope + ":36fc67776";
         authorizationRequest.setScopes(Collections.singleton(parameterizedScope));
         authorizationRequest.setRedirectUri(redirectUri);
         Client client = new Client();
@@ -155,8 +155,8 @@ public class AuthorizationRequestResolverTest {
 
     @Test
     public void shouldResolveAuthorizationRequest_invalidScope_withUser() {
-        final String scope = "read";
-        final String redirectUri = "http://localhost:8080/callback";
+        String scope = "read";
+        String redirectUri = "http://localhost:8080/callback";
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setScopes(Collections.singleton(scope));
         authorizationRequest.setRedirectUri(redirectUri);
@@ -178,9 +178,9 @@ public class AuthorizationRequestResolverTest {
 
     @Test
     public void shouldResolveAuthorizationRequest_userPermissionsRequestedAll() {
-        final String scope = "read";
-        final List<String> userScopes = Arrays.asList("user1", "user2", "user3");
-        final String redirectUri = "http://localhost:8080/callback";
+        String scope = "read";
+        List<String> userScopes = Arrays.asList("user1", "user2", "user3");
+        String redirectUri = "http://localhost:8080/callback";
 
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setRedirectUri(redirectUri);
@@ -219,9 +219,9 @@ public class AuthorizationRequestResolverTest {
 
     @Test
     public void shouldResolveAuthorizationRequest_userPermissionsRequestedAny() {
-        final String scope = "read";
-        final List<String> userScopes = Arrays.asList("user1", "user2", "user3");
-        final String redirectUri = "http://localhost:8080/callback";
+        String scope = "read";
+        List<String> userScopes = Arrays.asList("user1", "user2", "user3");
+        String redirectUri = "http://localhost:8080/callback";
 
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setRedirectUri(redirectUri);
@@ -258,9 +258,9 @@ public class AuthorizationRequestResolverTest {
 
     @Test
     public void shouldResolveAuthorizationRequest_userPermissionsRequestedAny_LegacyMode() {
-        final String scope = "read";
-        final List<String> userScopes = Arrays.asList("user1", "user2", "user3");
-        final String redirectUri = "http://localhost:8080/callback";
+        String scope = "read";
+        List<String> userScopes = Arrays.asList("user1", "user2", "user3");
+        String redirectUri = "http://localhost:8080/callback";
 
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setRedirectUri(redirectUri);
@@ -298,9 +298,9 @@ public class AuthorizationRequestResolverTest {
 
     @Test
     public void shouldResolveAuthorizationRequest_userPermissionsRequestedNone() {
-        final String scope = "read";
-        final List<String> userScopes = Arrays.asList("user1", "user2", "user3");
-        final String redirectUri = "http://localhost:8080/callback";
+        String scope = "read";
+        List<String> userScopes = Arrays.asList("user1", "user2", "user3");
+        String redirectUri = "http://localhost:8080/callback";
 
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setRedirectUri(redirectUri);
@@ -337,9 +337,9 @@ public class AuthorizationRequestResolverTest {
 
     @Test
     public void shouldResolveAuthorizationRequest_userPermissionsRequestedNone_legacyMode() {
-        final String scope = "read";
-        final List<String> userScopes = Arrays.asList("user1", "user2", "user3");
-        final String redirectUri = "http://localhost:8080/callback";
+        String scope = "read";
+        List<String> userScopes = Arrays.asList("user1", "user2", "user3");
+        String redirectUri = "http://localhost:8080/callback";
 
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setRedirectUri(redirectUri);

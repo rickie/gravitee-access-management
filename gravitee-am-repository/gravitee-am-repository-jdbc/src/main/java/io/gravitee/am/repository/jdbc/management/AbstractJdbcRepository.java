@@ -91,7 +91,7 @@ public abstract class AbstractJdbcRepository {
             String table, List<String> columns, List<String> whereClauseColumns) {
         StringBuffer buffer = new StringBuffer("UPDATE " + table + " SET ");
         for (int i = 0; i < columns.size(); ++i) {
-            final String colName = columns.get(i);
+            String colName = columns.get(i);
             buffer.append(databaseDialectHelper.toSql(SqlIdentifier.quoted(colName)));
             buffer.append(" = :");
             buffer.append(colName);
@@ -101,7 +101,7 @@ public abstract class AbstractJdbcRepository {
         }
         buffer.append(" WHERE ");
         for (int i = 0; i < whereClauseColumns.size(); ++i) {
-            final String colName = whereClauseColumns.get(i);
+            String colName = whereClauseColumns.get(i);
             buffer.append(databaseDialectHelper.toSql(SqlIdentifier.quoted(colName)));
             buffer.append(" = :");
             buffer.append(colName);

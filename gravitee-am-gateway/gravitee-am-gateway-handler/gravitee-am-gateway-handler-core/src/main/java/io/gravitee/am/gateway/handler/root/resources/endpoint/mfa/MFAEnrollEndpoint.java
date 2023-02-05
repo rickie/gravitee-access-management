@@ -97,17 +97,16 @@ public class MFAEnrollEndpoint extends AbstractEndpoint implements Handler<Routi
                 return;
             }
 
-            final io.gravitee.am.model.User endUser =
+            io.gravitee.am.model.User endUser =
                     ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
                                     routingContext.user().getDelegate())
                             .getUser();
-            final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-            final Map<io.gravitee.am.model.Factor, FactorProvider> factors = getFactors(client);
+            Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+            Map<io.gravitee.am.model.Factor, FactorProvider> factors = getFactors(client);
 
             // Create post action url.
-            final MultiMap queryParams =
-                    RequestUtils.getCleanedQueryParams(routingContext.request());
-            final String action =
+            MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
+            String action =
                     UriBuilderRequest.resolveProxyRequest(
                             routingContext.request(),
                             routingContext.request().path(),
@@ -170,7 +169,7 @@ public class MFAEnrollEndpoint extends AbstractEndpoint implements Handler<Routi
      * @return list of Factor object
      */
     private List<Factor> factorsToRender(List<Factor> factors) {
-        final String factorType = "RECOVERY CODE";
+        String factorType = "RECOVERY CODE";
         return factors.stream()
                 .filter(factor -> !factor.factorType.equals(factorType))
                 .collect(Collectors.toList());
@@ -186,16 +185,15 @@ public class MFAEnrollEndpoint extends AbstractEndpoint implements Handler<Routi
 
     private void saveEnrollment(RoutingContext routingContext) {
         MultiMap params = routingContext.request().formAttributes();
-        final Boolean acceptEnrollment =
-                Boolean.valueOf(params.get(ConstantKeys.USER_MFA_ENROLLMENT));
-        final String factorId = params.get(ConstantKeys.MFA_ENROLLMENT_FACTOR_ID);
-        final String sharedSecret = params.get(ConstantKeys.MFA_ENROLLMENT_SHARED_SECRET);
-        final String phoneNumber = params.get(ConstantKeys.MFA_ENROLLMENT_PHONE);
-        final String emailAddress = params.get(ConstantKeys.MFA_ENROLLMENT_EMAIL);
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        Boolean acceptEnrollment = Boolean.valueOf(params.get(ConstantKeys.USER_MFA_ENROLLMENT));
+        String factorId = params.get(ConstantKeys.MFA_ENROLLMENT_FACTOR_ID);
+        String sharedSecret = params.get(ConstantKeys.MFA_ENROLLMENT_SHARED_SECRET);
+        String phoneNumber = params.get(ConstantKeys.MFA_ENROLLMENT_PHONE);
+        String emailAddress = params.get(ConstantKeys.MFA_ENROLLMENT_EMAIL);
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
         if (!acceptEnrollment) {
-            final User endUser =
+            User endUser =
                     ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
                                     routingContext.user().getDelegate())
                             .getUser();
@@ -213,7 +211,7 @@ public class MFAEnrollEndpoint extends AbstractEndpoint implements Handler<Routi
             return;
         }
 
-        final Map<io.gravitee.am.model.Factor, FactorProvider> factors = getFactors(client);
+        Map<io.gravitee.am.model.Factor, FactorProvider> factors = getFactors(client);
         Optional<Map.Entry<io.gravitee.am.model.Factor, FactorProvider>> optFactor =
                 factors.entrySet().stream()
                         .filter(factor -> factorId.equals(factor.getKey().getId()))
@@ -252,8 +250,8 @@ public class MFAEnrollEndpoint extends AbstractEndpoint implements Handler<Routi
     }
 
     private void redirectToAuthorize(RoutingContext routingContext) {
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
-        final String returnURL = getReturnUrl(routingContext, queryParams);
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
+        String returnURL = getReturnUrl(routingContext, queryParams);
         doRedirect(routingContext.response(), returnURL);
     }
 

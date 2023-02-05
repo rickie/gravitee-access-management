@@ -34,12 +34,12 @@ public class CertificateResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetCertificate() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String certificateId = "certificate-id";
-        final Certificate mockCertificate = new Certificate();
+        String certificateId = "certificate-id";
+        Certificate mockCertificate = new Certificate();
         mockCertificate.setId(certificateId);
         mockCertificate.setName("certificate-name");
         mockCertificate.setDomain(domainId);
@@ -47,7 +47,7 @@ public class CertificateResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.just(mockCertificate)).when(certificateService).findById(certificateId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("certificates")
@@ -56,23 +56,23 @@ public class CertificateResourceTest extends JerseySpringTest {
                         .get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Certificate certificate = readEntity(response, Certificate.class);
+        Certificate certificate = readEntity(response, Certificate.class);
         assertEquals(domainId, certificate.getDomain());
         assertEquals(certificateId, certificate.getId());
     }
 
     @Test
     public void shouldGetCertificate_notFound() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String certificateId = "certificate-id";
+        String certificateId = "certificate-id";
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.empty()).when(certificateService).findById(certificateId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("certificates")
@@ -84,12 +84,12 @@ public class CertificateResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetCertificate_domainNotFound() {
-        final String domainId = "domain-id";
-        final String certificateId = "certificate-id";
+        String domainId = "domain-id";
+        String certificateId = "certificate-id";
 
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("certificates")
@@ -101,12 +101,12 @@ public class CertificateResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetCertificate_wrongDomain() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String certificateId = "certificate-id";
-        final Certificate mockCertificate = new Certificate();
+        String certificateId = "certificate-id";
+        Certificate mockCertificate = new Certificate();
         mockCertificate.setId(certificateId);
         mockCertificate.setName("certificate-name");
         mockCertificate.setDomain("wrong-domain");
@@ -114,7 +114,7 @@ public class CertificateResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.just(mockCertificate)).when(certificateService).findById(certificateId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("certificates")

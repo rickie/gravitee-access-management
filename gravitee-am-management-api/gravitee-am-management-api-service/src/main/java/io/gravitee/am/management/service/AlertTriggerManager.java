@@ -124,7 +124,7 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
 
     void onDomainEvent(Event<DomainEvent, ?> event) {
 
-        final Payload payload = (Payload) event.content();
+        Payload payload = (Payload) event.content();
         domainService
                 .findById(payload.getReferenceId())
                 .flatMapPublisher(this::prepareAETriggers)
@@ -145,7 +145,7 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
 
     void onAlertTriggerEvent(Event<AlertTriggerEvent, ?> event) {
         LOGGER.debug("Received alert trigger event {}", event);
-        final Payload payload = (Payload) event.content();
+        Payload payload = (Payload) event.content();
         domainService
                 .findById(payload.getReferenceId())
                 .flatMapPublisher(
@@ -171,8 +171,8 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
     void onAlertNotifierEvent(Event<AlertNotifierEvent, ?> event) {
         LOGGER.debug("Received alert notifier event {}", event);
 
-        final Payload payload = (Payload) event.content();
-        final AlertTriggerCriteria alertTriggerCriteria = new AlertTriggerCriteria();
+        Payload payload = (Payload) event.content();
+        AlertTriggerCriteria alertTriggerCriteria = new AlertTriggerCriteria();
         alertTriggerCriteria.setEnabled(true);
         alertTriggerCriteria.setAlertNotifierIds(Collections.singletonList(payload.getId()));
 
@@ -222,7 +222,7 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
     }
 
     private Flowable<Trigger> prepareAETrigger(Domain domain, AlertTrigger alertTrigger) {
-        final AlertNotifierCriteria alertNotifierCriteria = new AlertNotifierCriteria();
+        AlertNotifierCriteria alertNotifierCriteria = new AlertNotifierCriteria();
         alertNotifierCriteria.setEnabled(true);
         alertNotifierCriteria.setIds(alertTrigger.getAlertNotifiers());
 

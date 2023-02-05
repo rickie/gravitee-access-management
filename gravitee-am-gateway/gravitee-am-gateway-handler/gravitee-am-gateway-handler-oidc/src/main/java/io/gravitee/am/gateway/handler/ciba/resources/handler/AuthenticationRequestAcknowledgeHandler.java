@@ -64,11 +64,11 @@ public class AuthenticationRequestAcknowledgeHandler implements Handler<RoutingC
 
     @Override
     public void handle(RoutingContext context) {
-        final CibaAuthenticationRequest authRequest = context.get(CIBA_AUTH_REQUEST_KEY);
+        CibaAuthenticationRequest authRequest = context.get(CIBA_AUTH_REQUEST_KEY);
         if (authRequest != null) {
-            final Client client = context.get(CLIENT_CONTEXT_KEY);
+            Client client = context.get(CLIENT_CONTEXT_KEY);
 
-            final List<CIBASettingNotifier> deviceNotifiers =
+            List<CIBASettingNotifier> deviceNotifiers =
                     this.domain.getOidc().getCibaSettings().getDeviceNotifiers();
             if (CollectionUtils.isEmpty(deviceNotifiers)) {
                 LOGGER.warn(
@@ -81,25 +81,25 @@ public class AuthenticationRequestAcknowledgeHandler implements Handler<RoutingC
             // as a first implementation, we only manage a single notifier
             // in future release we may manage multiple one and select the right one
             // base one context information.
-            final String authDeviceNotifierId = deviceNotifiers.get(0).getId();
+            String authDeviceNotifierId = deviceNotifiers.get(0).getId();
 
             if (authRequest.getId() == null) {
-                final String authReqId = SecureRandomString.generate();
+                String authReqId = SecureRandomString.generate();
                 authRequest.setId(authReqId);
             }
 
             LOGGER.debug("CIBA Authentication Request linked to auth_req_id '{}'", authRequest);
 
-            final int expiresIn =
+            int expiresIn =
                     authRequest.getRequestedExpiry() != null
                             ? authRequest.getRequestedExpiry()
                             : domain.getOidc().getCibaSettings().getAuthReqExpiry();
-            final String externalTrxId = SecureRandomString.generate();
+            String externalTrxId = SecureRandomString.generate();
 
             // Forge a state token to validate the callback response
             JWT jwt = new JWT();
             jwt.setIss(client.getDomain());
-            final Instant now = Instant.now();
+            Instant now = Instant.now();
             jwt.setIat(now.getEpochSecond());
             jwt.setExp(now.plusSeconds(expiresIn).getEpochSecond());
             jwt.setAud(client.getClientId());
@@ -113,7 +113,7 @@ public class AuthenticationRequestAcknowledgeHandler implements Handler<RoutingC
                                             .register(authRequest, client)
                                             .flatMap(
                                                     req -> {
-                                                        final ADNotificationRequest adRequest =
+                                                        ADNotificationRequest adRequest =
                                                                 new ADNotificationRequest();
                                                         adRequest.setExpiresIn(expiresIn);
                                                         adRequest.setAcrValues(

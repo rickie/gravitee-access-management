@@ -45,17 +45,17 @@ public class FapiConsentResourceApiHandler implements Handler<RoutingContext> {
     @Override
     public void handle(RoutingContext routingContext) {
         try {
-            final Optional<X509Certificate> x509Certificate =
+            Optional<X509Certificate> x509Certificate =
                     CertUtils.extractPeerCertificate(routingContext);
             if (x509Certificate.isEmpty())
                 throw new MissingArgumentException("PeerCertificate is missing");
             String thumbprint256 = getThumbprint(x509Certificate.get(), "SHA-256");
 
-            final String auth = routingContext.request().getHeader(HttpHeaders.AUTHORIZATION);
+            String auth = routingContext.request().getHeader(HttpHeaders.AUTHORIZATION);
             if (auth != null && auth.startsWith("Bearer ")) {
 
                 String jwtString = auth.replaceFirst("Bearer ", "");
-                final JsonObject jwt = JWT.parse(jwtString).getJsonObject("payload");
+                JsonObject jwt = JWT.parse(jwtString).getJsonObject("payload");
 
                 if (jwt.containsKey("cnf")
                         && thumbprint256.equals(jwt.getJsonObject("cnf").getString("x5t#S256"))) {
@@ -69,7 +69,7 @@ public class FapiConsentResourceApiHandler implements Handler<RoutingContext> {
 
                     response.put("data", new JsonObject(data));
                     // response ok
-                    final int statusCode = 200;
+                    int statusCode = 200;
                     routingContext
                             .response()
                             .putHeader("content-type", "application/json")

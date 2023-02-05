@@ -55,7 +55,7 @@ public class MariaDBDialect extends AbstractDialect {
                         .getEpochSecond();
 
         // Use sequence generator to create Virtual table
-        final long intervalInSeconds = criteria.interval() / 1000;
+        long intervalInSeconds = criteria.interval() / 1000;
         String query =
                 "WITH time_buckets AS (\n"
                         + "SELECT (seq * "

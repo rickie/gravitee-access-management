@@ -71,7 +71,7 @@ public class MFARecoveryCodeEndpointTest extends RxWebTestBase {
 
         client = new Client();
         client.setClientId(UUID.randomUUID().toString());
-        final User user = new User();
+        User user = new User();
         setFactorsFor(user);
         mfaRecoveryCodeEndpoint =
                 new MFARecoveryCodeEndpoint(
@@ -110,15 +110,14 @@ public class MFARecoveryCodeEndpointTest extends RxWebTestBase {
         return routingContext -> {
             doAnswer(
                             answer -> {
-                                final List<String> recoveryCodes =
-                                        routingContext.get("recoveryCodes");
+                                List<String> recoveryCodes = routingContext.get("recoveryCodes");
                                 Assert.assertNotNull(
                                         "context should have recovery codes", recoveryCodes);
                                 assertEquals(
                                         "there should be 3 recovery codes",
                                         3,
                                         recoveryCodes.size());
-                                final List<String> expected = Arrays.asList("one", "two", "three");
+                                List<String> expected = Arrays.asList("one", "two", "three");
                                 assertThat(recoveryCodes, is(expected));
 
                                 routingContext.next();
@@ -132,7 +131,7 @@ public class MFARecoveryCodeEndpointTest extends RxWebTestBase {
     }
 
     private void setFactorsFor(User user) {
-        final EnrolledFactor enrolledFactor = new EnrolledFactor();
+        EnrolledFactor enrolledFactor = new EnrolledFactor();
         enrolledFactor.setSecurity(createFactorSecurityWithRecoveryCode());
         user.setFactors(Arrays.asList(new EnrolledFactor(), enrolledFactor));
     }

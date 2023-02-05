@@ -70,7 +70,7 @@ public class ApplicationEmailResource extends AbstractResource {
             @PathParam("application") String application,
             @PathParam("email") String email,
             @ApiParam(name = "email", required = true) @Valid @NotNull UpdateEmail updateEmail,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId,
@@ -111,7 +111,7 @@ public class ApplicationEmailResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("application") String application,
             @PathParam("email") String email,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId,

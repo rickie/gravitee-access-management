@@ -131,7 +131,7 @@ public class IdentityProviderManagerImpl
             String identityProviderId,
             String organizationId,
             IdentityProviderEvent identityProviderEvent) {
-        final String eventType = identityProviderEvent.toString().toLowerCase();
+        String eventType = identityProviderEvent.toString().toLowerCase();
         logger.info(
                 "Organization {} has received {} identity provider event for {}",
                 organizationId,
@@ -226,7 +226,7 @@ public class IdentityProviderManagerImpl
      * @return true if the IDP has never been deployed or if the deployed version is not up to date
      */
     private boolean needDeployment(IdentityProvider provider) {
-        final IdentityProvider deployedProvider = this.identities.get(provider.getId());
+        IdentityProvider deployedProvider = this.identities.get(provider.getId());
         return (deployedProvider == null
                 || deployedProvider.getUpdatedAt().before(provider.getUpdatedAt()));
     }

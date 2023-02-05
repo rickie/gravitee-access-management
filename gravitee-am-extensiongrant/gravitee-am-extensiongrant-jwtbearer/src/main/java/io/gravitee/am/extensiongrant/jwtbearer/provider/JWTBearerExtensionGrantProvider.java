@@ -94,8 +94,8 @@ public class JWTBearerExtensionGrantProvider implements ExtensionGrantProvider, 
     }
 
     public User createUser(JWT jwt) {
-        final String sub = jwt.getSub();
-        final String username =
+        String sub = jwt.getSub();
+        String username =
                 jwt.containsKey(StandardClaims.PREFERRED_USERNAME)
                         ? jwt.get(StandardClaims.PREFERRED_USERNAME).toString()
                         : sub;
@@ -158,7 +158,7 @@ public class JWTBearerExtensionGrantProvider implements ExtensionGrantProvider, 
      * @return RSAPublicKey
      */
     private static RSAPublicKey parseSSHPublicKey(String encKey) {
-        final byte[] PREFIX = new byte[] {0, 0, 0, 7, 's', 's', 'h', '-', 'r', 's', 'a'};
+        byte[] PREFIX = new byte[] {0, 0, 0, 7, 's', 's', 'h', '-', 'r', 's', 'a'};
         ByteArrayInputStream in =
                 new ByteArrayInputStream(
                         Base64.getDecoder().decode(StandardCharsets.UTF_8.encode(encKey)).array());

@@ -51,22 +51,22 @@ public abstract class AbstractRequestResolver<R extends OAuth2Request> {
      * @return the oauth 2.0 request
      */
     protected Single<R> resolveAuthorizedScopes(R request, Client client, User endUser) {
-        final Set<String> requestScopes = request.getScopes();
+        Set<String> requestScopes = request.getScopes();
         Set<String> clientResolvedScopes = new HashSet<>();
         Set<String> resolvedScopes = new HashSet<>();
         Set<String> invalidScopes = new HashSet<>();
         // client scopes
         if (client.getScopeSettings() != null && !client.getScopeSettings().isEmpty()) {
-            final List<String> clientScopes =
+            List<String> clientScopes =
                     client.getScopeSettings().stream()
                             .map(ApplicationScopeSettings::getScope)
                             .collect(Collectors.toList());
-            final List<String> defaultScopes =
+            List<String> defaultScopes =
                     client.getScopeSettings().stream()
                             .filter(ApplicationScopeSettings::isDefaultScope)
                             .map(ApplicationScopeSettings::getScope)
                             .collect(Collectors.toList());
-            final List<String> parameterizedScopes =
+            List<String> parameterizedScopes =
                     this.scopeManager == null
                             ? new ArrayList<>()
                             : client.getScopeSettings().stream()

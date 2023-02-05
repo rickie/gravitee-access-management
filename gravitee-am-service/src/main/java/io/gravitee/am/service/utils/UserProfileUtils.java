@@ -51,7 +51,7 @@ public class UserProfileUtils {
     public static Locale preferredLanguage(User user, Locale preferredLanguage) {
         if (user != null) {
             if (!Strings.isNullOrEmpty(user.getPreferredLanguage())) {
-                final var locale = user.getPreferredLanguage();
+                var locale = user.getPreferredLanguage();
                 var localeParts = locale.replace("-", "_").split("_");
                 preferredLanguage =
                         localeParts.length == 1
@@ -60,8 +60,7 @@ public class UserProfileUtils {
             } else if (user.getAdditionalInformation() != null
                     && !Strings.isNullOrEmpty(
                             (String) user.getAdditionalInformation().get(StandardClaims.LOCALE))) {
-                final var locale =
-                        (String) user.getAdditionalInformation().get(StandardClaims.LOCALE);
+                var locale = (String) user.getAdditionalInformation().get(StandardClaims.LOCALE);
                 var localeParts = locale.replace("-", "_").split("_");
                 preferredLanguage =
                         localeParts.length == 1
