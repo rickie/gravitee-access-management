@@ -58,9 +58,9 @@ public class MemberResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("member") String membershipId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_MEMBER, Acl.DELETE)

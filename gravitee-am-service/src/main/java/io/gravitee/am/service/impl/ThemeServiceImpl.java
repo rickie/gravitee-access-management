@@ -100,7 +100,7 @@ public class ThemeServiceImpl implements ThemeService {
         theme.setSecondaryButtonColorHex(newTheme.getSecondaryButtonColorHex());
         theme.setSecondaryTextColorHex(newTheme.getSecondaryTextColorHex());
 
-        final Date now = new Date();
+        Date now = new Date();
         theme.setCreatedAt(now);
         theme.setUpdatedAt(now);
 
@@ -213,7 +213,7 @@ public class ThemeServiceImpl implements ThemeService {
                                                 "ReferenceType can not be updated"));
                             }
 
-                            final Date now = new Date();
+                            Date now = new Date();
                             updatedTheme.setUpdatedAt(now);
                             updatedTheme.setCreatedAt(existingTheme.getCreatedAt());
 

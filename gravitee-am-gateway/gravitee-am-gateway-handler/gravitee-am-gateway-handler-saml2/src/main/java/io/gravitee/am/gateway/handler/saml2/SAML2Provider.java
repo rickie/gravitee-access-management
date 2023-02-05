@@ -58,7 +58,7 @@ public class SAML2Provider extends AbstractService<ProtocolProvider> implements 
 
     private void startSAML2Protocol() {
         // Create the SAML 2.0 router
-        final Router saml2Router = Router.router(vertx);
+        Router saml2Router = Router.router(vertx);
 
         // SP Metadata endpoint
         saml2Router

@@ -68,7 +68,7 @@ public class CookieSettingsMongo {
         if (sessionSettings == null) {
             return null;
         }
-        final SessionSettingsMongo sessionSettingsMongo = new SessionSettingsMongo();
+        SessionSettingsMongo sessionSettingsMongo = new SessionSettingsMongo();
         sessionSettingsMongo.setPersistent(sessionSettings.isPersistent());
         return sessionSettingsMongo;
     }

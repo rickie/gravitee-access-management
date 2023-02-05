@@ -48,8 +48,7 @@ public class BotDetectionPluginResource {
             value = "Get a Bot Detection plugin",
             notes = "There is no particular permission needed. User must be authenticated.")
     public void get(
-            @PathParam("botDetection") String botDetectionId,
-            @Suspended final AsyncResponse response) {
+            @PathParam("botDetection") String botDetectionId, @Suspended AsyncResponse response) {
 
         pluginService
                 .findById(botDetectionId)
@@ -65,8 +64,7 @@ public class BotDetectionPluginResource {
             value = "Get a Bot Detection plugin's schema",
             notes = "There is no particular permission needed. User must be authenticated.")
     public void getSchema(
-            @PathParam("botDetection") String botDetection,
-            @Suspended final AsyncResponse response) {
+            @PathParam("botDetection") String botDetection, @Suspended AsyncResponse response) {
 
         // Check that the authenticator exists
         pluginService

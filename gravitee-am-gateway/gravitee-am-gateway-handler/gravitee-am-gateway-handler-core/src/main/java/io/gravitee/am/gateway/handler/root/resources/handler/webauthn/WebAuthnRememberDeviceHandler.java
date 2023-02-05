@@ -52,7 +52,7 @@ public class WebAuthnRememberDeviceHandler implements Handler<RoutingContext> {
         }
 
         // if webauthn remember device is disabled, continue
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         LoginSettings loginSettings = LoginSettings.getInstance(domain, client);
         if (loginSettings == null
                 || !loginSettings.isPasswordlessEnabled()
@@ -62,13 +62,13 @@ public class WebAuthnRememberDeviceHandler implements Handler<RoutingContext> {
         }
 
         // if no user, continue
-        final User user = routingContext.user();
+        User user = routingContext.user();
         if (user == null) {
             routingContext.fail(401);
             return;
         }
 
-        final io.gravitee.am.model.User endUser =
+        io.gravitee.am.model.User endUser =
                 ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
                                 user.getDelegate())
                         .getUser();

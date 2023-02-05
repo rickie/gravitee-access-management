@@ -196,12 +196,12 @@ public class OAuth2Provider extends AbstractService<ProtocolProvider> implements
 
     private void initRouter() {
         // Create the OAuth 2.0 router
-        final Router oauth2Router = Router.router(vertx);
+        Router oauth2Router = Router.router(vertx);
 
         // client auth handler
-        final String certificateHeader =
+        String certificateHeader =
                 environment.getProperty(ConstantKeys.HTTP_SSL_CERTIFICATE_HEADER);
-        final Handler<RoutingContext> clientAuthHandler =
+        Handler<RoutingContext> clientAuthHandler =
                 ClientAuthHandler.create(
                         clientSyncService,
                         clientAssertionService,

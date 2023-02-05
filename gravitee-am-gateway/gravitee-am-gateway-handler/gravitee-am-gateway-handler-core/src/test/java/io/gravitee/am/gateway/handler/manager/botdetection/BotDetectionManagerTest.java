@@ -64,14 +64,14 @@ public class BotDetectionManagerTest {
 
     @Test
     public void shouldGetTemplateVariables_Domain() {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
 
-        final AccountSettings accountSettings = new AccountSettings();
+        AccountSettings accountSettings = new AccountSettings();
         accountSettings.setUseBotDetection(true);
         accountSettings.setBotDetectionPlugin(BOT_DETECTION_PLUGIN);
         domain.setAccountSettings(accountSettings);
 
-        final Client client = new Client();
+        Client client = new Client();
 
         Map<String, Object> variables = cut.getTemplateVariables(domain, client);
         assertNotNull(variables);
@@ -88,14 +88,14 @@ public class BotDetectionManagerTest {
 
     @Test
     public void shouldGetTemplateVariables_App() {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
 
-        final AccountSettings domainAccountSettings = new AccountSettings();
+        AccountSettings domainAccountSettings = new AccountSettings();
         domainAccountSettings.setUseBotDetection(false);
         domain.setAccountSettings(domainAccountSettings);
 
-        final Client client = new Client();
-        final AccountSettings appAccountSettings = new AccountSettings();
+        Client client = new Client();
+        AccountSettings appAccountSettings = new AccountSettings();
         appAccountSettings.setInherited(false);
         appAccountSettings.setUseBotDetection(true);
         appAccountSettings.setBotDetectionPlugin(BOT_DETECTION_PLUGIN);
@@ -116,15 +116,15 @@ public class BotDetectionManagerTest {
 
     @Test
     public void shouldNotGetTemplateVariables_AppDisabled() {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
 
-        final AccountSettings accountSettings = new AccountSettings();
+        AccountSettings accountSettings = new AccountSettings();
         accountSettings.setUseBotDetection(true);
         accountSettings.setBotDetectionPlugin(BOT_DETECTION_PLUGIN);
         domain.setAccountSettings(accountSettings);
 
-        final Client client = new Client();
-        final AccountSettings appAccountSettings = new AccountSettings();
+        Client client = new Client();
+        AccountSettings appAccountSettings = new AccountSettings();
         appAccountSettings.setUseBotDetection(false);
         appAccountSettings.setInherited(false);
         client.setAccountSettings(appAccountSettings);

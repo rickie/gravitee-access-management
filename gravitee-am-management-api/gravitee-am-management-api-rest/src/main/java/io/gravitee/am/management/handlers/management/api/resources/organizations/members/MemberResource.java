@@ -53,8 +53,8 @@ public class MemberResource extends AbstractResource {
     public void removeMember(
             @PathParam("organizationId") String organizationId,
             @PathParam("member") String membershipId,
-            @Suspended final AsyncResponse response) {
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

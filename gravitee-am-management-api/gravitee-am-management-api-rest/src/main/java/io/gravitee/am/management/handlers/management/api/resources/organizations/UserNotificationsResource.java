@@ -63,14 +63,14 @@ public class UserNotificationsResource extends AbstractResource {
                 responseContainer = "list"),
         @ApiResponse(code = 500, message = "Internal server error")
     })
-    public void listNotifications(@Suspended final AsyncResponse response) {
+    public void listNotifications(@Suspended AsyncResponse response) {
         // All users have rights to read notifications
         if (!isAuthenticated()) {
             response.resume(new ForbiddenException());
             return;
         }
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
         notificationService
                 .listAllNotifications(authenticatedUser, UserNotificationStatus.UNREAD)
                 .map(this::filterNotificationData)
@@ -80,8 +80,7 @@ public class UserNotificationsResource extends AbstractResource {
     }
 
     private UserNotificationContent filterNotificationData(UserNotification notification) {
-        final UserNotificationContent filteredNotification =
-                new UserNotificationContent(notification);
+        UserNotificationContent filteredNotification = new UserNotificationContent(notification);
         try {
             Map<String, String> content = mapper.readValue(notification.getMessage(), Map.class);
             filteredNotification.setTitle(content.get("title"));
@@ -104,15 +103,14 @@ public class UserNotificationsResource extends AbstractResource {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     public void markAsRead(
-            @PathParam("notificationId") String notificationId,
-            @Suspended final AsyncResponse response) {
+            @PathParam("notificationId") String notificationId, @Suspended AsyncResponse response) {
         // All users have rights to read notifications
         if (!isAuthenticated()) {
             response.resume(new ForbiddenException());
             return;
         }
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
         notificationService
                 .markAsRead(authenticatedUser, notificationId)
                 .subscribe(() -> response.resume(Response.noContent()), response::resume);

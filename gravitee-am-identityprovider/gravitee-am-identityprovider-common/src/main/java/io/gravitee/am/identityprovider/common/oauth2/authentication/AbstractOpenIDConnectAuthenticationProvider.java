@@ -173,7 +173,7 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider
     protected Maybe<Token> authenticate(Authentication authentication) {
         // implicit flow, retrieve the hashValue of the URL (#access_token=....&token_type=...)
         if (AuthenticationFlow.IMPLICIT_FLOW.equals(authenticationFlow())) {
-            final String hashValue =
+            String hashValue =
                     authentication
                             .getContext()
                             .request()
@@ -210,7 +210,7 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider
 
         // authorization code flow, exchange code for an access token
         // prepare body request parameters
-        final String authorizationCode =
+        String authorizationCode =
                 authentication
                         .getContext()
                         .request()
@@ -221,8 +221,8 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider
             return Maybe.error(new BadCredentialsException("Missing authorization code"));
         }
 
-        final List<NameValuePair> urlParameters = new ArrayList<>();
-        final HttpRequest<Buffer> tokenRequest =
+        List<NameValuePair> urlParameters = new ArrayList<>();
+        HttpRequest<Buffer> tokenRequest =
                 getClient().postAbs(getConfiguration().getAccessTokenUri());
 
         if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.equals(
@@ -349,7 +349,7 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider
                         "An public key resolver must be supply to verify the ID Token");
             }
 
-            final SignatureAlgorithm signature =
+            SignatureAlgorithm signature =
                     (getConfiguration().getSignatureAlgorithm() == null)
                             ? SignatureAlgorithm.RS256
                             : getConfiguration().getSignatureAlgorithm();
@@ -362,7 +362,7 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider
                         new RemoteJWKSourceResolver(getConfiguration().getResolverParameter()));
             } else {
                 // get the corresponding key processor
-                final String resolverParameter = getConfiguration().getResolverParameter();
+                String resolverParameter = getConfiguration().getResolverParameter();
                 switch (signature) {
                     case RS256:
                     case RS384:

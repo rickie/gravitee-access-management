@@ -194,7 +194,7 @@ public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
     protected final String operatorConverter(FilterCriteria criteria) {
         String result = " ";
         if (criteria.getOperator() != null) {
-            final String operator = criteria.getOperator().toLowerCase().trim();
+            String operator = criteria.getOperator().toLowerCase().trim();
             switch (operator) {
                 case "and":
                     result = " AND ";
@@ -244,7 +244,7 @@ public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
         }
 
         String result = criteria.getFilterValue();
-        final String operator = criteria.getOperator().toLowerCase().trim();
+        String operator = criteria.getOperator().toLowerCase().trim();
         switch (operator) {
             case "co":
                 result = "%" + result + "%";

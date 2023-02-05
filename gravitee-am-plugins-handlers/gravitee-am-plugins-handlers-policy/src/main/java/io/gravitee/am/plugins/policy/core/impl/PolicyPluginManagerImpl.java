@@ -213,7 +213,7 @@ public class PolicyPluginManagerImpl implements PolicyPluginManager {
         return constructor;
     }
 
-    private static Predicate<Member> withParametersAssignableFrom(final Class... types) {
+    private static Predicate<Member> withParametersAssignableFrom(Class... types) {
         return input -> {
             if (input != null) {
                 Class<?>[] parameterTypes = parameterTypes(input);

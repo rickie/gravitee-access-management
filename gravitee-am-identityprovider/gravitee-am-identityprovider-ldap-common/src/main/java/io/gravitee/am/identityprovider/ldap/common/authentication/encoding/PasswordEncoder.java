@@ -22,7 +22,7 @@ import org.ldaptive.LdapException;
  */
 public interface PasswordEncoder {
 
-    byte[] digestCredential(final Credential credential) throws LdapException;
+    byte[] digestCredential(Credential credential) throws LdapException;
 
     String getPasswordSchemeLabel();
 }

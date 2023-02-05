@@ -169,7 +169,7 @@ public class OrganizationUserServiceTest {
         when(passwordService.isValid(any())).thenReturn(true);
         when(commonUserService.findByUsernameAndSource(any(), any(), anyString(), anyString()))
                 .thenReturn(Maybe.empty());
-        final UserProvider provider = mock(UserProvider.class);
+        UserProvider provider = mock(UserProvider.class);
         when(identityProviderManager.getUserProvider(any())).thenReturn(Maybe.just(provider));
         when(provider.create(any()))
                 .thenReturn(Single.just(mock(io.gravitee.am.identityprovider.api.User.class)));
@@ -486,7 +486,7 @@ public class OrganizationUserServiceTest {
 
     @Test
     public void shouldNotResetPassword_MissingPwd() {
-        final TestObserver<Void> testObserver =
+        TestObserver<Void> testObserver =
                 organizationUserService.resetPassword("org#1", new User(), null, null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(InvalidPasswordException.class);
@@ -495,7 +495,7 @@ public class OrganizationUserServiceTest {
     @Test
     public void shouldNotResetPassword_invalidPwd() {
         when(passwordService.isValid(anyString())).thenReturn(false);
-        final TestObserver<Void> testObserver =
+        TestObserver<Void> testObserver =
                 organizationUserService.resetPassword("org#1", new User(), "simple", null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(InvalidPasswordException.class);
@@ -505,13 +505,13 @@ public class OrganizationUserServiceTest {
     public void shouldResetPassword() {
         when(passwordService.isValid(anyString())).thenReturn(true);
 
-        final User user = new User();
+        User user = new User();
         user.setUsername("username");
         user.setSource("gravitee");
 
         when(commonUserService.update(any())).thenReturn(Single.just(user));
 
-        final TestObserver<Void> testObserver =
+        TestObserver<Void> testObserver =
                 organizationUserService.resetPassword("org#1", user, "Test123!", null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
@@ -523,11 +523,11 @@ public class OrganizationUserServiceTest {
     public void shouldNotResetPassword_InvalidSource() {
         when(passwordService.isValid(anyString())).thenReturn(true);
 
-        final User user = new User();
+        User user = new User();
         user.setUsername("username");
         user.setSource("invalid");
 
-        final TestObserver<Void> testObserver =
+        TestObserver<Void> testObserver =
                 organizationUserService.resetPassword("org#1", user, "Test123!", null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(InvalidUserException.class);

@@ -69,7 +69,7 @@ public class AlertEventProcessor extends AbstractService {
 
         try {
             this.environmentId = domain.getReferenceId();
-            final io.gravitee.am.model.Environment domainEnv =
+            io.gravitee.am.model.Environment domainEnv =
                     environmentService.findById(environmentId).blockingGet();
             this.organizationId = domainEnv.getOrganizationId();
         } catch (Exception e) {
@@ -95,10 +95,10 @@ public class AlertEventProcessor extends AbstractService {
     private void onAuthenticationEvent(
             Event<AuthenticationEvent, AuthenticationDetails> eventItem) {
 
-        final AuthenticationDetails authenticationDetails = eventItem.content();
+        AuthenticationDetails authenticationDetails = eventItem.content();
 
         // TODO: event date should be owned by the event itself ?
-        final DefaultEvent.Builder eventBuilder =
+        DefaultEvent.Builder eventBuilder =
                 io.gravitee.alert.api.event.Event.at(System.currentTimeMillis())
                         .type(TYPE_AUTHENTICATION)
                         .context(CONTEXT_NODE_ID, node.id())
@@ -116,14 +116,14 @@ public class AlertEventProcessor extends AbstractService {
                         .property(PROPERTY_ENVIRONMENT, environmentId);
 
         if (authenticationDetails.getPrincipal().getContext() != null) {
-            final Map<String, Object> attributes =
+            Map<String, Object> attributes =
                     authenticationDetails.getPrincipal().getContext().attributes();
             if (attributes != null) {
                 eventBuilder.property(PROPERTY_IP, attributes.get("ip_address"));
                 eventBuilder.property(PROPERTY_USER_AGENT, attributes.get("user_agent"));
             }
 
-            final Request request = authenticationDetails.getPrincipal().getContext().request();
+            Request request = authenticationDetails.getPrincipal().getContext().request();
             if (request != null) {
                 eventBuilder.property(PROPERTY_TRANSACTION_ID, request.transactionId());
             }

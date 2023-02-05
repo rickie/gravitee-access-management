@@ -45,8 +45,8 @@ public class AuthorizationRequestResolver extends AbstractRequestResolver<Author
      */
     public Single<AuthorizationRequest> resolveRedirectUri(
             AuthorizationRequest authorizationRequest, Client client) {
-        final String requestedRedirectUri = authorizationRequest.getRedirectUri();
-        final List<String> registeredClientRedirectUris = client.getRedirectUris();
+        String requestedRedirectUri = authorizationRequest.getRedirectUri();
+        List<String> registeredClientRedirectUris = client.getRedirectUris();
         // no redirect_uri parameter supplied, return the first client registered redirect uri
         if (requestedRedirectUri == null || requestedRedirectUri.isEmpty()) {
             authorizationRequest.setRedirectUri(registeredClientRedirectUris.iterator().next());
