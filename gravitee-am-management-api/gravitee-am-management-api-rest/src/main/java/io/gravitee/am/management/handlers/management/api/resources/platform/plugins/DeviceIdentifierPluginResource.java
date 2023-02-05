@@ -49,7 +49,7 @@ public class DeviceIdentifierPluginResource {
             notes = "There is no particular permission needed. User must be authenticated.")
     public void get(
             @PathParam("deviceIdentifier") String deviceIdentifierId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         deviceIdentifierPluginService
                 .findById(deviceIdentifierId)
@@ -67,7 +67,7 @@ public class DeviceIdentifierPluginResource {
             notes = "There is no particular permission needed. User must be authenticated.")
     public void getSchema(
             @PathParam("deviceIdentifier") String deviceIdentifierId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
         deviceIdentifierPluginService
                 .findById(deviceIdentifierId)
                 .flatMap(__ -> deviceIdentifierPluginService.getSchema(deviceIdentifierId))

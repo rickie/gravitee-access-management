@@ -46,25 +46,25 @@ public class GroupsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetGroups() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Group mockGroup = new Group();
+        Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
         mockGroup.setReferenceId(domainId);
 
-        final Group mockGroup2 = new Group();
+        Group mockGroup2 = new Group();
         mockGroup2.setId("group-id-2");
         mockGroup2.setReferenceId(domainId);
 
-        final List<Group> groups = Arrays.asList(mockGroup, mockGroup2);
-        final Page<User> pagedUsers = new Page(groups, 0, 2);
+        List<Group> groups = Arrays.asList(mockGroup, mockGroup2);
+        Page<User> pagedUsers = new Page(groups, 0, 2);
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Single.just(pagedUsers)).when(groupService).findByDomain(domainId, 0, 10);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("groups")
@@ -75,25 +75,25 @@ public class GroupsResourceTest extends JerseySpringTest {
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Map entity = readEntity(response, Map.class);
+        Map entity = readEntity(response, Map.class);
         assertTrue(((List) entity.get("data")).size() == 2);
     }
 
     @Test
     public void shouldGetGroups_technicalManagementException() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
         doReturn(Maybe.error(new TechnicalManagementException("error occurs")))
                 .when(domainService)
                 .findById(domainId);
 
-        final Response response = target("domains").path(domainId).path("groups").request().get();
+        Response response = target("domains").path(domainId).path("groups").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
 
     @Test
     public void shouldCreate() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         NewGroup newGroup = new NewGroup();
@@ -105,7 +105,7 @@ public class GroupsResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Single.just(group)).when(groupService).create(any(), any(), any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("groups")

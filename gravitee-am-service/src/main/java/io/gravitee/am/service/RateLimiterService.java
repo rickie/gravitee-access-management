@@ -40,7 +40,7 @@ public interface RateLimiterService {
 
     default void calculateAndSetTokenLeft(
             RateLimit rateLimit, String timeUnit, int timePeriod, int limit) {
-        final int consumeOne = 1;
+        int consumeOne = 1;
         long now = Instant.now().toEpochMilli();
         long lastRequested = rateLimit.getUpdatedAt().toInstant().toEpochMilli();
         long timeElapsed = now - lastRequested;

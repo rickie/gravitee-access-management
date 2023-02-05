@@ -60,31 +60,31 @@ public class UsersResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetUsers() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final User mockUser = new User();
+        User mockUser = new User();
         mockUser.setId("user-id-1");
         mockUser.setUsername("username-1");
         mockUser.setReferenceType(ReferenceType.DOMAIN);
         mockUser.setReferenceId(domainId);
 
-        final User mockUser2 = new User();
+        User mockUser2 = new User();
         mockUser2.setId("domain-id-2");
         mockUser2.setUsername("username-2");
         mockUser2.setReferenceType(ReferenceType.DOMAIN);
         mockUser2.setReferenceId(domainId);
 
-        final Set<User> users = new HashSet<>(Arrays.asList(mockUser, mockUser2));
-        final Page<User> pagedUsers = new Page<>(users, 0, 2);
+        Set<User> users = new HashSet<>(Arrays.asList(mockUser, mockUser2));
+        Page<User> pagedUsers = new Page<>(users, 0, 2);
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Single.just(pagedUsers))
                 .when(userService)
                 .findAll(ReferenceType.DOMAIN, domainId, 0, 10);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("users")
@@ -98,24 +98,24 @@ public class UsersResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetOrganizationUsers() {
-        final String organizationId = "DEFAULT";
+        String organizationId = "DEFAULT";
 
-        final User mockUser = new User();
+        User mockUser = new User();
         mockUser.setId("user-id-1");
         mockUser.setUsername("username-1");
         mockUser.setReferenceType(ReferenceType.ORGANIZATION);
         mockUser.setReferenceId(organizationId);
 
-        final User mockUser2 = new User();
+        User mockUser2 = new User();
         mockUser2.setId("domain-id-2");
         mockUser2.setUsername("username-2");
         mockUser2.setReferenceType(ReferenceType.ORGANIZATION);
         mockUser2.setReferenceId(organizationId);
 
-        final Set<User> users = new HashSet<>(Arrays.asList(mockUser, mockUser2));
-        final Page<User> pagedUsers = new Page<>(users, 0, 2);
+        Set<User> users = new HashSet<>(Arrays.asList(mockUser, mockUser2));
+        Page<User> pagedUsers = new Page<>(users, 0, 2);
 
-        final Map<Permission, Set<Acl>> permissions =
+        Map<Permission, Set<Acl>> permissions =
                 Maps.<Permission, Set<Acl>>builder()
                         .put(Permission.ORGANIZATION_USER, Sets.newHashSet(Acl.LIST))
                         .build();
@@ -126,7 +126,7 @@ public class UsersResourceTest extends JerseySpringTest {
                 .when(organizationUserService)
                 .findAll(ReferenceType.ORGANIZATION, organizationId, 0, 10);
 
-        final Response response =
+        Response response =
                 target("organizations")
                         .path("DEFAULT")
                         .path("users")
@@ -140,13 +140,13 @@ public class UsersResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldNotSearchUsers_invalidFilter() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("users")
@@ -161,19 +161,19 @@ public class UsersResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetUsers_technicalManagementException() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
         doReturn(Maybe.error(new TechnicalManagementException("error occurs")))
                 .when(domainService)
                 .findById(domainId);
 
-        final Response response = target("domains").path(domainId).path("users").request().get();
+        Response response = target("domains").path(domainId).path("users").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
 
     @Test
     public void shouldNotCreate_invalid_identity_provider() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         NewUser newUser = new NewUser();
@@ -187,7 +187,7 @@ public class UsersResourceTest extends JerseySpringTest {
                 .when(userService)
                 .create(any(Domain.class), any(), any());
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("users").request().post(Entity.json(newUser));
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }
@@ -200,11 +200,11 @@ public class UsersResourceTest extends JerseySpringTest {
         when(organizationUserService.createGraviteeUser(any(), any(), any()))
                 .thenReturn(Single.just(new User()));
 
-        final NewUser entity = new NewUser();
+        NewUser entity = new NewUser();
         entity.setUsername("test");
         entity.setPassword("password");
         entity.setEmail("email@acme.fr");
-        final Response response =
+        Response response =
                 target("organizations")
                         .path(ORGANIZATION_DEFAULT)
                         .path("users")

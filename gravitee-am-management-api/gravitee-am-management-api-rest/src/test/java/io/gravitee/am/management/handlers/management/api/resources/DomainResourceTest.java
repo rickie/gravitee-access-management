@@ -68,7 +68,7 @@ public class DomainResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetDomain() {
 
-        final Domain mockDomain = buildDomainMock();
+        Domain mockDomain = buildDomainMock();
 
         doReturn(Single.just(true))
                 .when(permissionService)
@@ -78,10 +78,10 @@ public class DomainResourceTest extends JerseySpringTest {
                 .findAllPermissions(any(User.class), any(ReferenceType.class), anyString());
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(mockDomain.getId());
 
-        final Response response = target("domains").path(mockDomain.getId()).request().get();
+        Response response = target("domains").path(mockDomain.getId()).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Domain domain = readEntity(response, Domain.class);
+        Domain domain = readEntity(response, Domain.class);
         assertEquals(mockDomain.getId(), domain.getId());
         assertEquals(mockDomain.getName(), domain.getName());
         assertEquals(mockDomain.getDescription(), domain.getDescription());
@@ -101,7 +101,7 @@ public class DomainResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetFilteredDomain() {
 
-        final Domain mockDomain = buildDomainMock();
+        Domain mockDomain = buildDomainMock();
 
         doReturn(Single.just(true))
                 .when(permissionService)
@@ -114,10 +114,10 @@ public class DomainResourceTest extends JerseySpringTest {
                         anyString()); // only domain read permission
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(mockDomain.getId());
 
-        final Response response = target("domains").path(mockDomain.getId()).request().get();
+        Response response = target("domains").path(mockDomain.getId()).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Domain domain = readEntity(response, Domain.class);
+        Domain domain = readEntity(response, Domain.class);
         assertEquals(mockDomain.getId(), domain.getId());
         assertEquals(mockDomain.getName(), domain.getName());
         assertEquals(mockDomain.getDescription(), domain.getDescription());
@@ -136,34 +136,34 @@ public class DomainResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetDomain_notFound() {
-        final String domainId = "domain-id";
+        String domainId = "domain-id";
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
-        final Response response = target("domains").path(domainId).request().get();
+        Response response = target("domains").path(domainId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }
 
     @Test
     public void shouldGetDomain_forbidden() {
-        final String domainId = "domain-id";
+        String domainId = "domain-id";
 
         doReturn(Single.just(false))
                 .when(permissionService)
                 .hasPermission(any(User.class), any(PermissionAcls.class));
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
-        final Response response = target("domains").path(domainId).request().get();
+        Response response = target("domains").path(domainId).request().get();
         assertEquals(HttpStatusCode.FORBIDDEN_403, response.getStatus());
     }
 
     @Test
     public void shouldGetDomain_technicalManagementException() {
-        final String domainId = "domain-id";
+        String domainId = "domain-id";
         doReturn(Maybe.error(new TechnicalManagementException("error occurs")))
                 .when(domainService)
                 .findById(domainId);
 
-        final Response response = target("domains").path(domainId).request().get();
+        Response response = target("domains").path(domainId).request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
 
@@ -184,10 +184,10 @@ public class DomainResourceTest extends JerseySpringTest {
                 .when(domainService)
                 .patch(eq(mockDomain.getId()), any(PatchDomain.class), any(User.class));
 
-        final Response response = put(target("domains").path(mockDomain.getId()), patchDomain);
+        Response response = put(target("domains").path(mockDomain.getId()), patchDomain);
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Domain domain = readEntity(response, Domain.class);
+        Domain domain = readEntity(response, Domain.class);
         assertEquals(mockDomain.getId(), domain.getId());
         assertEquals(mockDomain.getName(), domain.getName());
         assertEquals(mockDomain.getDescription(), domain.getDescription());
@@ -231,10 +231,10 @@ public class DomainResourceTest extends JerseySpringTest {
                 .when(domainService)
                 .patch(eq(mockDomain.getId()), any(PatchDomain.class), any(User.class));
 
-        final Response response = put(target("domains").path(mockDomain.getId()), patchDomain);
+        Response response = put(target("domains").path(mockDomain.getId()), patchDomain);
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Domain domain = readEntity(response, Domain.class);
+        Domain domain = readEntity(response, Domain.class);
         assertEquals(mockDomain.getId(), domain.getId());
         assertEquals(mockDomain.getName(), domain.getName());
         assertEquals(mockDomain.getDescription(), domain.getDescription());
@@ -274,10 +274,10 @@ public class DomainResourceTest extends JerseySpringTest {
                 .when(domainService)
                 .patch(eq(mockDomain.getId()), any(PatchDomain.class), any(User.class));
 
-        final Response response = put(target("domains").path(mockDomain.getId()), patchDomain);
+        Response response = put(target("domains").path(mockDomain.getId()), patchDomain);
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Domain domain = readEntity(response, Domain.class);
+        Domain domain = readEntity(response, Domain.class);
         assertEquals(mockDomain.getId(), domain.getId());
         assertEquals(mockDomain.getName(), domain.getName());
         assertEquals(mockDomain.getDescription(), domain.getDescription());
@@ -296,7 +296,7 @@ public class DomainResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldUpdateDomain_forbidden() {
-        final String domainId = "domain-id";
+        String domainId = "domain-id";
 
         PatchDomain patchDomain = new PatchDomain();
         patchDomain.setDescription(Optional.of("New description"));
@@ -308,7 +308,7 @@ public class DomainResourceTest extends JerseySpringTest {
                 .when(domainService)
                 .patch(anyString(), any(PatchDomain.class), any(User.class));
 
-        final Response response = put(target("domains").path(domainId), patchDomain);
+        Response response = put(target("domains").path(domainId), patchDomain);
         assertEquals(HttpStatusCode.FORBIDDEN_403, response.getStatus());
     }
 
@@ -318,26 +318,26 @@ public class DomainResourceTest extends JerseySpringTest {
         // Empty patch should result in 400 bad request.
         PatchDomain patchDomain = new PatchDomain();
 
-        final Response response = put(target("domains").path("domain-id"), patchDomain);
+        Response response = put(target("domains").path("domain-id"), patchDomain);
         assertEquals(HttpStatusCode.BAD_REQUEST_400, response.getStatus());
     }
 
     @Test
     public void shouldGetEntrypoints_entrypoint1() {
 
-        final Entrypoint entrypoint = new Entrypoint();
+        Entrypoint entrypoint = new Entrypoint();
         entrypoint.setId(ENTRYPOINT_ID1);
         entrypoint.setName("entrypoint-1-name");
         entrypoint.setTags(Arrays.asList(TAG_ID2));
         entrypoint.setOrganizationId(ORGANIZATION_ID);
 
-        final Entrypoint entrypoint2 = new Entrypoint();
+        Entrypoint entrypoint2 = new Entrypoint();
         entrypoint2.setId(ENTRYPOINT_ID2);
         entrypoint2.setName("entrypoint-2-name");
         entrypoint2.setTags(Collections.emptyList());
         entrypoint2.setOrganizationId(ORGANIZATION_ID);
 
-        final Entrypoint defaultEntrypoint = new Entrypoint();
+        Entrypoint defaultEntrypoint = new Entrypoint();
         defaultEntrypoint.setId(ENTRYPOINT_ID_DEFAULT);
         defaultEntrypoint.setName("Default");
         defaultEntrypoint.setTags(Collections.emptyList());
@@ -353,7 +353,7 @@ public class DomainResourceTest extends JerseySpringTest {
                 .when(entrypointService)
                 .findAll(ORGANIZATION_ID);
 
-        final Response response =
+        Response response =
                 target("organizations")
                         .path(ORGANIZATION_ID)
                         .path("environments")
@@ -374,19 +374,19 @@ public class DomainResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetEntrypoints_default() {
 
-        final Entrypoint entrypoint = new Entrypoint();
+        Entrypoint entrypoint = new Entrypoint();
         entrypoint.setId(ENTRYPOINT_ID1);
         entrypoint.setName("entrypoint-1-name");
         entrypoint.setTags(Collections.emptyList());
         entrypoint.setOrganizationId(ORGANIZATION_ID);
 
-        final Entrypoint entrypoint2 = new Entrypoint();
+        Entrypoint entrypoint2 = new Entrypoint();
         entrypoint2.setId(ENTRYPOINT_ID2);
         entrypoint2.setName("entrypoint-2-name");
         entrypoint2.setTags(Collections.emptyList());
         entrypoint2.setOrganizationId(ORGANIZATION_ID);
 
-        final Entrypoint defaultEntrypoint = new Entrypoint();
+        Entrypoint defaultEntrypoint = new Entrypoint();
         defaultEntrypoint.setId(ENTRYPOINT_ID_DEFAULT);
         defaultEntrypoint.setName("Default");
         defaultEntrypoint.setTags(Collections.emptyList());
@@ -402,7 +402,7 @@ public class DomainResourceTest extends JerseySpringTest {
                 .when(entrypointService)
                 .findAll(ORGANIZATION_ID);
 
-        final Response response =
+        Response response =
                 target("organizations")
                         .path(ORGANIZATION_ID)
                         .path("environments")
@@ -423,19 +423,19 @@ public class DomainResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetEntrypoints_Entrypoint1And2() {
 
-        final Entrypoint entrypoint = new Entrypoint();
+        Entrypoint entrypoint = new Entrypoint();
         entrypoint.setId(ENTRYPOINT_ID1);
         entrypoint.setName("entrypoint-1-name");
         entrypoint.setTags(Arrays.asList(TAG_ID1));
         entrypoint.setOrganizationId(ORGANIZATION_ID);
 
-        final Entrypoint entrypoint2 = new Entrypoint();
+        Entrypoint entrypoint2 = new Entrypoint();
         entrypoint2.setId(ENTRYPOINT_ID2);
         entrypoint2.setName("entrypoint-2-name");
         entrypoint2.setTags(Arrays.asList(TAG_ID2));
         entrypoint2.setOrganizationId(ORGANIZATION_ID);
 
-        final Entrypoint defaultEntrypoint = new Entrypoint();
+        Entrypoint defaultEntrypoint = new Entrypoint();
         defaultEntrypoint.setId(ENTRYPOINT_ID_DEFAULT);
         defaultEntrypoint.setName("Default");
         defaultEntrypoint.setTags(Collections.emptyList());
@@ -451,7 +451,7 @@ public class DomainResourceTest extends JerseySpringTest {
                 .when(entrypointService)
                 .findAll(ORGANIZATION_ID);
 
-        final Response response =
+        Response response =
                 target("organizations")
                         .path(ORGANIZATION_ID)
                         .path("environments")
@@ -471,7 +471,7 @@ public class DomainResourceTest extends JerseySpringTest {
     }
 
     private Domain buildDomainMock() {
-        final Domain mockDomain = new Domain();
+        Domain mockDomain = new Domain();
         mockDomain.setId("domain-id");
         mockDomain.setName("domain-name");
         mockDomain.setDescription("description");

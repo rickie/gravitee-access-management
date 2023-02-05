@@ -79,14 +79,14 @@ public class CibaTokenGranterTest {
     public void shouldRejectRequest_MissingAuthReqId() {
         when(tokenRequest.parameters()).thenReturn(new LinkedMultiValueMap<>());
 
-        final TestObserver<Token> test = granter.grant(tokenRequest, mock(Client.class)).test();
+        TestObserver<Token> test = granter.grant(tokenRequest, mock(Client.class)).test();
         test.awaitTerminalEvent();
         test.assertError(InvalidRequestException.class);
     }
 
     @Test
     public void shouldRejectRequest_UnknownAuthReqId() {
-        final LinkedMultiValueMap<String, String> value = new LinkedMultiValueMap<>();
+        LinkedMultiValueMap<String, String> value = new LinkedMultiValueMap<>();
         value.add(Parameters.AUTH_REQ_ID, "unknown_req_id");
 
         when(tokenRequest.parameters()).thenReturn(value);
@@ -94,21 +94,21 @@ public class CibaTokenGranterTest {
                 .thenReturn(
                         Single.error(new AuthenticationRequestNotFoundException("unknown_req_id")));
 
-        final TestObserver<Token> test = granter.grant(tokenRequest, mock(Client.class)).test();
+        TestObserver<Token> test = granter.grant(tokenRequest, mock(Client.class)).test();
         test.awaitTerminalEvent();
         test.assertError(AuthenticationRequestNotFoundException.class);
     }
 
     @Test
     public void shouldRejectRequest_SlowDown() {
-        final LinkedMultiValueMap<String, String> value = new LinkedMultiValueMap<>();
+        LinkedMultiValueMap<String, String> value = new LinkedMultiValueMap<>();
         value.add(Parameters.AUTH_REQ_ID, "slow_down");
 
         when(tokenRequest.parameters()).thenReturn(value);
         when(authenticationRequestService.retrieve(any(), any()))
                 .thenReturn(Single.error(new SlowDownException()));
 
-        final TestObserver<Token> test = granter.grant(tokenRequest, mock(Client.class)).test();
+        TestObserver<Token> test = granter.grant(tokenRequest, mock(Client.class)).test();
         test.awaitTerminalEvent();
         test.assertError(SlowDownException.class);
     }

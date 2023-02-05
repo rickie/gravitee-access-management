@@ -22,7 +22,7 @@ public enum Type {
 
     private String type;
 
-    Type(final String type) {
+    Type(String type) {
         this.type = type;
     }
 

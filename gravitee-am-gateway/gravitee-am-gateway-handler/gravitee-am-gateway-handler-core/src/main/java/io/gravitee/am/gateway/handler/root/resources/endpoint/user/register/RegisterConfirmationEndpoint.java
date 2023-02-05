@@ -58,12 +58,12 @@ public class RegisterConfirmationEndpoint extends UserRequestHandler {
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final HttpServerRequest request = routingContext.request();
-        final String error = request.getParam(ConstantKeys.ERROR_PARAM_KEY);
-        final String errorDescription = request.getParam(ConstantKeys.ERROR_DESCRIPTION_PARAM_KEY);
-        final String success = request.getParam(ConstantKeys.SUCCESS_PARAM_KEY);
-        final String warning = request.getParam(ConstantKeys.WARNING_PARAM_KEY);
-        final String token = request.getParam(ConstantKeys.TOKEN_PARAM_KEY);
+        HttpServerRequest request = routingContext.request();
+        String error = request.getParam(ConstantKeys.ERROR_PARAM_KEY);
+        String errorDescription = request.getParam(ConstantKeys.ERROR_DESCRIPTION_PARAM_KEY);
+        String success = request.getParam(ConstantKeys.SUCCESS_PARAM_KEY);
+        String warning = request.getParam(ConstantKeys.WARNING_PARAM_KEY);
+        String token = request.getParam(ConstantKeys.TOKEN_PARAM_KEY);
         // add query params to context
         routingContext.put(ConstantKeys.ERROR_PARAM_KEY, error);
         routingContext.put(ConstantKeys.ERROR_DESCRIPTION_PARAM_KEY, errorDescription);
@@ -93,7 +93,7 @@ public class RegisterConfirmationEndpoint extends UserRequestHandler {
             return;
         }
 
-        final Map<String, String> actionParams =
+        Map<String, String> actionParams =
                 (client != null) ? Map.of(Parameters.CLIENT_ID, client.getClientId()) : Map.of();
         routingContext.put(
                 ConstantKeys.ACTION_KEY,

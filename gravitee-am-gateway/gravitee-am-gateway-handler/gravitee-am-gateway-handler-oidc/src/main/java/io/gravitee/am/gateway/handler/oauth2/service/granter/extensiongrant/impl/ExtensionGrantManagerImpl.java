@@ -143,7 +143,7 @@ public class ExtensionGrantManagerImpl extends AbstractService
 
     private void updateExtensionGrant(
             String extensionGrantId, ExtensionGrantEvent extensionGrantEvent) {
-        final String eventType = extensionGrantEvent.toString().toLowerCase();
+        String eventType = extensionGrantEvent.toString().toLowerCase();
         logger.info(
                 "Domain {} has received {} extension grant event for {}",
                 domain.getName(),
@@ -259,8 +259,7 @@ public class ExtensionGrantManagerImpl extends AbstractService
      *     up to date
      */
     private boolean needDeployment(ExtensionGrant extensionGrant) {
-        final ExtensionGrant deployedExtensionGrant =
-                this.extensionGrants.get(extensionGrant.getId());
+        ExtensionGrant deployedExtensionGrant = this.extensionGrants.get(extensionGrant.getId());
         return (deployedExtensionGrant == null
                 || deployedExtensionGrant.getUpdatedAt().before(extensionGrant.getUpdatedAt()));
     }

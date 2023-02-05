@@ -72,7 +72,7 @@ public class ReporterResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("reporter") String reporter,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ)
@@ -119,8 +119,8 @@ public class ReporterResource extends AbstractResource {
             @PathParam("reporter") String reporter,
             @ApiParam(name = "reporter", required = true) @Valid @NotNull
                     UpdateReporter updateReporter,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,
@@ -160,8 +160,8 @@ public class ReporterResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("reporter") String reporter,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ)
                 .andThen(

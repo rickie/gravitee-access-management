@@ -74,7 +74,7 @@ public class UserConsentResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("user") String user,
             @PathParam("consent") String consent,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)
                 .andThen(
@@ -120,8 +120,8 @@ public class UserConsentResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("user") String user,
             @PathParam("consent") String consent,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)

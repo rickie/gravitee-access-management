@@ -34,7 +34,7 @@ public class AuthenticationDeviceNotifierPluginResourceTest extends JerseySpring
 
     @Test
     public void shouldGetPlugin() {
-        final AuthenticationDeviceNotifierPlugin plugin = new AuthenticationDeviceNotifierPlugin();
+        AuthenticationDeviceNotifierPlugin plugin = new AuthenticationDeviceNotifierPlugin();
         plugin.setId("plugin-id");
         plugin.setName("plugin-name");
         plugin.setDescription("desc");
@@ -42,7 +42,7 @@ public class AuthenticationDeviceNotifierPluginResourceTest extends JerseySpring
 
         doReturn(Maybe.just(plugin)).when(authDeviceNotifierPluginService).findById("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("auth-device-notifiers")
@@ -54,12 +54,12 @@ public class AuthenticationDeviceNotifierPluginResourceTest extends JerseySpring
 
     @Test
     public void shouldGetPlugin_NotFound() {
-        final AuthenticationDeviceNotifierPlugin plugin = new AuthenticationDeviceNotifierPlugin();
+        AuthenticationDeviceNotifierPlugin plugin = new AuthenticationDeviceNotifierPlugin();
         plugin.setId("plugin-id");
 
         doReturn(Maybe.empty()).when(authDeviceNotifierPluginService).findById("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("auth-device-notifiers")
@@ -76,7 +76,7 @@ public class AuthenticationDeviceNotifierPluginResourceTest extends JerseySpring
                 .when(authDeviceNotifierPluginService)
                 .findById("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("auth-device-notifiers")
@@ -89,7 +89,7 @@ public class AuthenticationDeviceNotifierPluginResourceTest extends JerseySpring
 
     @Test
     public void shouldGetSchema() {
-        final AuthenticationDeviceNotifierPlugin plugin = new AuthenticationDeviceNotifierPlugin();
+        AuthenticationDeviceNotifierPlugin plugin = new AuthenticationDeviceNotifierPlugin();
         plugin.setId("plugin-id");
         plugin.setName("plugin-name");
         plugin.setDescription("desc");
@@ -98,7 +98,7 @@ public class AuthenticationDeviceNotifierPluginResourceTest extends JerseySpring
         doReturn(Maybe.just(plugin)).when(authDeviceNotifierPluginService).findById("plugin-id");
         doReturn(Maybe.just("{}")).when(authDeviceNotifierPluginService).getSchema("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("auth-device-notifiers")
@@ -112,7 +112,7 @@ public class AuthenticationDeviceNotifierPluginResourceTest extends JerseySpring
 
     @Test
     public void shouldGetSchema_PluginNotFound() {
-        final AuthenticationDeviceNotifierPlugin plugin = new AuthenticationDeviceNotifierPlugin();
+        AuthenticationDeviceNotifierPlugin plugin = new AuthenticationDeviceNotifierPlugin();
         plugin.setId("plugin-id");
         plugin.setName("plugin-name");
         plugin.setDescription("desc");
@@ -120,7 +120,7 @@ public class AuthenticationDeviceNotifierPluginResourceTest extends JerseySpring
 
         doReturn(Maybe.empty()).when(authDeviceNotifierPluginService).findById("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("auth-device-notifiers")
@@ -134,7 +134,7 @@ public class AuthenticationDeviceNotifierPluginResourceTest extends JerseySpring
 
     @Test
     public void shouldGetSchema_SchemaNotFound() {
-        final AuthenticationDeviceNotifierPlugin plugin = new AuthenticationDeviceNotifierPlugin();
+        AuthenticationDeviceNotifierPlugin plugin = new AuthenticationDeviceNotifierPlugin();
         plugin.setId("plugin-id");
         plugin.setName("plugin-name");
         plugin.setDescription("desc");
@@ -143,7 +143,7 @@ public class AuthenticationDeviceNotifierPluginResourceTest extends JerseySpring
         doReturn(Maybe.just(plugin)).when(authDeviceNotifierPluginService).findById("plugin-id");
         doReturn(Maybe.empty()).when(authDeviceNotifierPluginService).getSchema("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("auth-device-notifiers")
@@ -157,7 +157,7 @@ public class AuthenticationDeviceNotifierPluginResourceTest extends JerseySpring
 
     @Test
     public void shouldGetSchema_TechnicalException() {
-        final AuthenticationDeviceNotifierPlugin plugin = new AuthenticationDeviceNotifierPlugin();
+        AuthenticationDeviceNotifierPlugin plugin = new AuthenticationDeviceNotifierPlugin();
         plugin.setId("plugin-id");
         plugin.setName("plugin-name");
         plugin.setDescription("desc");
@@ -168,7 +168,7 @@ public class AuthenticationDeviceNotifierPluginResourceTest extends JerseySpring
                 .when(authDeviceNotifierPluginService)
                 .getSchema("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("auth-device-notifiers")

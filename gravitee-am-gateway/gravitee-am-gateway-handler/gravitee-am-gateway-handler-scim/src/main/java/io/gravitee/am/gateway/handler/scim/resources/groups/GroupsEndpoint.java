@@ -55,7 +55,7 @@ public class GroupsEndpoint extends AbstractGroupEndpoint {
         // The 1-based index of the first query result.
         // A value less than 1 SHALL be interpreted as 1.
         try {
-            final String startIndex = context.request().getParam("startIndex");
+            String startIndex = context.request().getParam("startIndex");
             page = Integer.valueOf(startIndex);
         } catch (Exception ex) {
         }
@@ -64,7 +64,7 @@ public class GroupsEndpoint extends AbstractGroupEndpoint {
         // A value of "0"  indicates that no resource results are to be returned except for
         // "totalResults".
         try {
-            final String count = context.request().getParam("count");
+            String count = context.request().getParam("count");
             size = Integer.min(Integer.valueOf(count), MAX_ITEMS_PER_PAGE);
         } catch (Exception ex) {
 
@@ -129,7 +129,7 @@ public class GroupsEndpoint extends AbstractGroupEndpoint {
                 context.fail(new InvalidSyntaxException("Unable to parse body message"));
                 return;
             }
-            final Group group = Json.decodeValue(context.getBodyAsString(), Group.class);
+            Group group = Json.decodeValue(context.getBodyAsString(), Group.class);
 
             // displayName is required
             if (group.getDisplayName() == null || group.getDisplayName().isEmpty()) {
@@ -145,8 +145,8 @@ public class GroupsEndpoint extends AbstractGroupEndpoint {
                 context.fail(ex);
                 return;
             }
-            final JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
-            final String baseUrl = location(context.request());
+            JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
+            String baseUrl = location(context.request());
             userService
                     .get(accessToken.getSub(), baseUrl)
                     .map(scimUser -> new DefaultUser(UserMapper.convert(scimUser)))

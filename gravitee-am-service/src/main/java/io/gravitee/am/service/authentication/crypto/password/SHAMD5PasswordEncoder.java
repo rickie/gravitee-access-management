@@ -43,13 +43,13 @@ public class SHAMD5PasswordEncoder extends SHAPasswordEncoder {
 
     @Override
     public boolean matches(CharSequence rawPassword, String encodedPassword) {
-        final String rawPasswordEncoded = md5PasswordEncoder.encode(rawPassword);
+        String rawPasswordEncoded = md5PasswordEncoder.encode(rawPassword);
         return shaPasswordEncoder.matches(rawPasswordEncoded, encodedPassword);
     }
 
     @Override
     public boolean matches(CharSequence rawPassword, String encodedPassword, byte[] salt) {
-        final String rawPasswordEncoded = md5PasswordEncoder.encode(rawPassword);
+        String rawPasswordEncoded = md5PasswordEncoder.encode(rawPassword);
         return shaPasswordEncoder.matches(rawPasswordEncoded, encodedPassword, salt);
     }
 

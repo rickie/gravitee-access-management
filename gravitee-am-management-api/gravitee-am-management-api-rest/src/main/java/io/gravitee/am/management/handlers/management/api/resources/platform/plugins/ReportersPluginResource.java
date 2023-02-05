@@ -46,7 +46,7 @@ public class ReportersPluginResource {
     @ApiOperation(
             value = "List reporter plugins",
             notes = "There is no particular permission needed. User must be authenticated.")
-    public void list(@Suspended final AsyncResponse response) {
+    public void list(@Suspended AsyncResponse response) {
 
         reporterPluginService
                 .findAll()

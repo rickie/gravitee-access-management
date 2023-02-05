@@ -257,7 +257,7 @@ public class RootProvider extends AbstractService<ProtocolProvider> implements P
         super.doStart();
 
         // create the root router
-        final Router rootRouter = Router.router(vertx);
+        Router rootRouter = Router.router(vertx);
 
         // body handler
         bodyHandler(rootRouter);
@@ -618,8 +618,8 @@ public class RootProvider extends AbstractService<ProtocolProvider> implements P
                 .handler(new RegisterConfirmationSubmissionEndpoint(userService, environment));
 
         // Forgot password route
-        final var forgotPasswordAccessHandler = new ForgotPasswordAccessHandler(domain);
-        final var resetPasswordFailureHandler = new ErrorHandler(PATH_RESET_PASSWORD);
+        var forgotPasswordAccessHandler = new ForgotPasswordAccessHandler(domain);
+        var resetPasswordFailureHandler = new ErrorHandler(PATH_RESET_PASSWORD);
         rootRouter
                 .route(HttpMethod.GET, PATH_FORGOT_PASSWORD)
                 .handler(clientRequestParseHandler)

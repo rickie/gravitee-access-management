@@ -53,7 +53,7 @@ public class TokenController {
         ServletOutputStream out = response.getOutputStream();
 
         // Connect user and get an enhanced principal with user information.
-        final User principal = authenticationService.onAuthenticationSuccess(authentication);
+        User principal = authenticationService.onAuthenticationSuccess(authentication);
 
         // generate token
         Map<String, Object> token = jwtGenerator.generateToken(principal);

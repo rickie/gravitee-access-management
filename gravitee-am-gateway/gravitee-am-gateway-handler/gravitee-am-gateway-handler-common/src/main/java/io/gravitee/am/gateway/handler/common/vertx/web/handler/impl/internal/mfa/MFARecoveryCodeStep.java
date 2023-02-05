@@ -44,11 +44,11 @@ public class MFARecoveryCodeStep extends MFAStep {
 
     @Override
     public void execute(RoutingContext routingContext, AuthenticationFlowChain flow) {
-        final User endUser =
+        User endUser =
                 ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
                                 routingContext.user().getDelegate())
                         .getUser();
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
         if (client.getFactors() == null || client.getFactors().isEmpty()) {
             flow.doNext(routingContext);

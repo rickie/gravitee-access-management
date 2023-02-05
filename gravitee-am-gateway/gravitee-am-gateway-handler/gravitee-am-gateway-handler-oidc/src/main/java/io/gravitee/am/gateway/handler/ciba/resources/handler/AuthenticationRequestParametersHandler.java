@@ -78,11 +78,10 @@ public class AuthenticationRequestParametersHandler implements Handler<RoutingCo
 
     @Override
     public void handle(RoutingContext context) {
-        final CibaAuthenticationRequest request = createCibaRequest(context);
+        CibaAuthenticationRequest request = createCibaRequest(context);
 
-        final OpenIDProviderMetadata openIDProviderMetadata =
-                context.get(PROVIDER_METADATA_CONTEXT_KEY);
-        final Client client = context.get(CLIENT_CONTEXT_KEY);
+        OpenIDProviderMetadata openIDProviderMetadata = context.get(PROVIDER_METADATA_CONTEXT_KEY);
+        Client client = context.get(CLIENT_CONTEXT_KEY);
 
         try {
             validateScopes(request);
@@ -128,7 +127,7 @@ public class AuthenticationRequestParametersHandler implements Handler<RoutingCo
     }
 
     private void validateHints(CibaAuthenticationRequest request) {
-        final long hints =
+        long hints =
                 Stream.of(
                                 request.getLoginHint(),
                                 request.getLoginHintToken(),

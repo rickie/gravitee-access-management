@@ -51,7 +51,7 @@ public class RSAJWKSourceResolver<C extends SecurityContext> implements JWKSourc
         return new ImmutableJWKSet<>(new JWKSet(jwk));
     }
 
-    private static RSAKey parse(final X509Certificate cert) {
+    private static RSAKey parse(X509Certificate cert) {
         if (!(cert.getPublicKey() instanceof RSAPublicKey)) {
             throw new IllegalStateException("The public key of the X.509 certificate is not RSA");
         }
