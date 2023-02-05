@@ -84,7 +84,7 @@ public class UMAProvider extends AbstractService<ProtocolProvider> implements Pr
     }
 
     private void initRouter() {
-        final Router umaRouter = Router.router(vertx);
+        Router umaRouter = Router.router(vertx);
 
         // UMA Provider configuration information endpoint
         Handler<RoutingContext> umaProviderConfigurationEndpoint =

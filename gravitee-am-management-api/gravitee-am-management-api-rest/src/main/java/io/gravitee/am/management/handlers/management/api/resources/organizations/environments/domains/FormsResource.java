@@ -82,7 +82,7 @@ public class FormsResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @NotNull @QueryParam("template") Template formTemplate,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FORM, Acl.READ)
                 .andThen(
@@ -112,10 +112,10 @@ public class FormsResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
-            @ApiParam(name = "form", required = true) @Valid @NotNull final NewForm newForm,
-            @Suspended final AsyncResponse response) {
+            @ApiParam(name = "form", required = true) @Valid @NotNull NewForm newForm,
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_FORM, Acl.CREATE)

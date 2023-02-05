@@ -48,7 +48,7 @@ public class DomainBasedDictionaryProvider implements DynamicDictionaryProvider 
 
     @Override
     public void loadDictionary(I18nDictionary i18nDictionary) {
-        final String locale = i18nDictionary.getLocale();
+        String locale = i18nDictionary.getLocale();
         Properties properties = new Properties();
         properties.putAll(i18nDictionary.getEntries());
         propertiesMap.put(locale, properties);

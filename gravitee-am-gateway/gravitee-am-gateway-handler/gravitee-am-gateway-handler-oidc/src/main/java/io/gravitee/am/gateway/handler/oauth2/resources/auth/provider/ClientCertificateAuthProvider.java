@@ -69,7 +69,7 @@ public class ClientCertificateAuthProvider implements ClientAuthProvider {
         // checks for an SSL
         // session or certificate provided through the Headers
         try {
-            final Optional<X509Certificate> peerCertificate =
+            Optional<X509Certificate> peerCertificate =
                     CertificateUtils.extractPeerCertificate(context, certificateHeader);
             if (peerCertificate.isPresent()
                             && (client.getTlsClientAuthSubjectDn() != null

@@ -48,7 +48,7 @@ public class ReactableExecutionContext implements MutableExecutionContext {
     private final MutableExecutionContext context;
 
     ReactableExecutionContext(
-            final MutableExecutionContext context, ApplicationContext applicationContext) {
+            MutableExecutionContext context, ApplicationContext applicationContext) {
         this.context = context;
         this.applicationContext = applicationContext;
 

@@ -77,9 +77,9 @@ public class JWTGenerator implements InitializingBean {
 
     @Autowired private Environment environment;
 
-    public Cookie generateCookie(final String name, final String value, final boolean httpOnly) {
+    public Cookie generateCookie(String name, String value, boolean httpOnly) {
 
-        final Cookie cookie = new Cookie(name, value);
+        Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(httpOnly);
         cookie.setSecure(
                 environment.getProperty(
@@ -95,20 +95,20 @@ public class JWTGenerator implements InitializingBean {
         return cookie;
     }
 
-    public Cookie generateCookie(final User user) {
+    public Cookie generateCookie(User user) {
         int expiresAfter =
                 environment.getProperty(
                         "jwt.expire-after", Integer.class, DEFAULT_JWT_EXPIRE_AFTER);
         Date expirationDate = new Date(System.currentTimeMillis() + expiresAfter * 1000);
         String jwtToken = generateToken(user, expirationDate);
 
-        final Cookie cookie = generateCookie(authCookieName, "Bearer " + jwtToken, true);
+        Cookie cookie = generateCookie(authCookieName, "Bearer " + jwtToken, true);
         cookie.setMaxAge(expiresAfter);
 
         return cookie;
     }
 
-    public Map<String, Object> generateToken(final User user) {
+    public Map<String, Object> generateToken(User user) {
         int expiresAfter =
                 environment.getProperty(
                         "jwt.expire-after", Integer.class, DEFAULT_JWT_EXPIRE_AFTER);
@@ -123,7 +123,7 @@ public class JWTGenerator implements InitializingBean {
         return token;
     }
 
-    private String generateToken(final User user, Date expirationDate) {
+    private String generateToken(User user, Date expirationDate) {
         try {
             JWT jwt = new JWT();
             jwt.setJti(SecureRandomString.generate());

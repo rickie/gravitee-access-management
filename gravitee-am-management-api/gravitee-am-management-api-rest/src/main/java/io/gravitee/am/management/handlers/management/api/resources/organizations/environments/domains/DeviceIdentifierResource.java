@@ -70,7 +70,7 @@ public class DeviceIdentifierResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("deviceIdentifier") String deviceIdentifierId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId,
@@ -126,8 +126,8 @@ public class DeviceIdentifierResource extends AbstractResource {
             @PathParam("deviceIdentifier") String deviceIdentifierId,
             @ApiParam(name = "deviceIdentifier", required = true) @Valid @NotNull
                     UpdateDeviceIdentifier updateBotDetection,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,
@@ -165,9 +165,9 @@ public class DeviceIdentifierResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("deviceIdentifier") String deviceIdentifierId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,

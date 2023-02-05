@@ -59,7 +59,7 @@ public class ThemeResourceTest extends JerseySpringTest {
     public void shouldNotGetTheme_UnknownDomain() {
         doReturn(Maybe.empty()).when(domainService).findById(DOMAIN_ID);
 
-        final Response response =
+        Response response =
                 target("domains").path(DOMAIN_ID).path("themes").path(THEME_ID).request().get();
 
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -70,7 +70,7 @@ public class ThemeResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(new Domain())).when(domainService).findById(DOMAIN_ID);
         doReturn(Maybe.empty()).when(themeService).getTheme(any(), eq(THEME_ID));
 
-        final Response response =
+        Response response =
                 target("domains").path(DOMAIN_ID).path("themes").path(THEME_ID).request().get();
 
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -80,7 +80,7 @@ public class ThemeResourceTest extends JerseySpringTest {
     public void shouldGetTheme() {
         doReturn(Maybe.just(new Domain())).when(domainService).findById(DOMAIN_ID);
 
-        final Theme theme = new Theme();
+        Theme theme = new Theme();
         theme.setId(THEME_ID);
         theme.setCss("css");
         theme.setFaviconUrl("favicon");
@@ -91,12 +91,12 @@ public class ThemeResourceTest extends JerseySpringTest {
         theme.setPrimaryTextColorHex("#787787");
         theme.setPrimaryButtonColorHex("#877787");
         theme.setSecondaryButtonColorHex("#799955");
-        final Date now = new Date();
+        Date now = new Date();
         theme.setCreatedAt(now);
         theme.setUpdatedAt(now);
         doReturn(Maybe.just(theme)).when(themeService).getTheme(any(), eq(THEME_ID));
 
-        final Response response =
+        Response response =
                 target("domains").path(DOMAIN_ID).path("themes").path(THEME_ID).request().get();
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -108,12 +108,12 @@ public class ThemeResourceTest extends JerseySpringTest {
     public void shouldNotUpdateTheme_UnknownDomain() {
         doReturn(Maybe.empty()).when(domainService).findById(DOMAIN_ID);
 
-        final ThemeEntity entity = new ThemeEntity();
+        ThemeEntity entity = new ThemeEntity();
         entity.setId(THEME_ID);
         entity.setReferenceId(DOMAIN_ID);
         entity.setReferenceType(ReferenceType.DOMAIN);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(DOMAIN_ID)
                         .path("themes")
@@ -131,12 +131,12 @@ public class ThemeResourceTest extends JerseySpringTest {
                 .when(themeService)
                 .update(any(), any(), any());
 
-        final ThemeEntity entity = new ThemeEntity();
+        ThemeEntity entity = new ThemeEntity();
         entity.setId(THEME_ID);
         entity.setReferenceId(DOMAIN_ID);
         entity.setReferenceType(ReferenceType.DOMAIN);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(DOMAIN_ID)
                         .path("themes")
@@ -149,12 +149,12 @@ public class ThemeResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldNotUpdateTheme_ThemeID_mismatch() {
-        final ThemeEntity entity = new ThemeEntity();
+        ThemeEntity entity = new ThemeEntity();
         entity.setId("invalid");
         entity.setReferenceId(DOMAIN_ID);
         entity.setReferenceType(ReferenceType.DOMAIN);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(DOMAIN_ID)
                         .path("themes")
@@ -167,12 +167,12 @@ public class ThemeResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldNotUpdateTheme_DomainID_mismatch() {
-        final ThemeEntity entity = new ThemeEntity();
+        ThemeEntity entity = new ThemeEntity();
         entity.setId(THEME_ID);
         entity.setReferenceId("invalid");
         entity.setReferenceType(ReferenceType.DOMAIN);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(DOMAIN_ID)
                         .path("themes")
@@ -185,12 +185,12 @@ public class ThemeResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldNotUpdateTheme_RefType_mismatch() {
-        final ThemeEntity entity = new ThemeEntity();
+        ThemeEntity entity = new ThemeEntity();
         entity.setId(THEME_ID);
         entity.setReferenceId(DOMAIN_ID);
         entity.setReferenceType(ReferenceType.APPLICATION);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(DOMAIN_ID)
                         .path("themes")
@@ -203,11 +203,11 @@ public class ThemeResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldUpdateTheme_acceptMissingIds() {
-        final ThemeEntity updateTheme = new ThemeEntity();
+        ThemeEntity updateTheme = new ThemeEntity();
         updateTheme.setCss("cssUpdate");
         updateTheme.setFaviconUrl("favicon");
 
-        final Theme theme = new Theme();
+        Theme theme = new Theme();
         theme.setId(THEME_ID);
         theme.setCss("css");
         theme.setFaviconUrl("favicon");
@@ -218,14 +218,14 @@ public class ThemeResourceTest extends JerseySpringTest {
         theme.setPrimaryTextColorHex("#787787");
         theme.setPrimaryButtonColorHex("#877787");
         theme.setSecondaryButtonColorHex("#799955");
-        final Date now = new Date();
+        Date now = new Date();
         theme.setCreatedAt(now);
         theme.setUpdatedAt(now);
 
         doReturn(Maybe.just(new Domain())).when(domainService).findById(DOMAIN_ID);
         doReturn(Single.just(theme)).when(themeService).update(any(), any(), any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(DOMAIN_ID)
                         .path("themes")
@@ -252,14 +252,14 @@ public class ThemeResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldUpdateTheme() {
-        final ThemeEntity updateTheme = new ThemeEntity();
+        ThemeEntity updateTheme = new ThemeEntity();
         updateTheme.setId(THEME_ID);
         updateTheme.setReferenceId(DOMAIN_ID);
         updateTheme.setReferenceType(ReferenceType.DOMAIN);
         updateTheme.setCss("cssUpdate");
         updateTheme.setFaviconUrl("favicon");
 
-        final Theme theme = new Theme();
+        Theme theme = new Theme();
         theme.setId(THEME_ID);
         theme.setCss("css");
         theme.setFaviconUrl("favicon");
@@ -270,14 +270,14 @@ public class ThemeResourceTest extends JerseySpringTest {
         theme.setPrimaryTextColorHex("#787787");
         theme.setPrimaryButtonColorHex("#877787");
         theme.setSecondaryButtonColorHex("#799955");
-        final Date now = new Date();
+        Date now = new Date();
         theme.setCreatedAt(now);
         theme.setUpdatedAt(now);
 
         doReturn(Maybe.just(new Domain())).when(domainService).findById(DOMAIN_ID);
         doReturn(Single.just(theme)).when(themeService).update(any(), any(), any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(DOMAIN_ID)
                         .path("themes")
@@ -306,7 +306,7 @@ public class ThemeResourceTest extends JerseySpringTest {
     public void shouldNoDeletedTheme_UnknownDomain() {
         doReturn(Maybe.empty()).when(domainService).findById(DOMAIN_ID);
 
-        final Response response =
+        Response response =
                 target("domains").path(DOMAIN_ID).path("themes").path(THEME_ID).request().delete();
 
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -317,14 +317,14 @@ public class ThemeResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(new Domain())).when(domainService).findById(DOMAIN_ID);
         doReturn(Completable.complete()).when(themeService).delete(any(), any(), any());
 
-        final Response response =
+        Response response =
                 target("domains").path(DOMAIN_ID).path("themes").path(THEME_ID).request().delete();
 
         assertEquals(HttpStatusCode.NO_CONTENT_204, response.getStatus());
     }
 
     private void assertSameEntity(Theme theme, Response response) {
-        final ThemeEntity entity = readEntity(response, ThemeEntity.class);
+        ThemeEntity entity = readEntity(response, ThemeEntity.class);
         assertNotNull(entity);
 
         assertEquals(theme.getId(), entity.getId());

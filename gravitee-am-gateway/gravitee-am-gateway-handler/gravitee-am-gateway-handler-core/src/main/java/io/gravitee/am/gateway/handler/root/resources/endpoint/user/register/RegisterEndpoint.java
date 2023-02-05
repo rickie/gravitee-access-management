@@ -91,7 +91,7 @@ public class RegisterEndpoint extends AbstractEndpoint implements Handler<Routin
                 optionalSettings.map(LoginSettings::isIdentifierFirstEnabled).orElse(false);
 
         MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
-        final String loginActionKey =
+        String loginActionKey =
                 routingContext.get(CONTEXT_PATH)
                         + (isIdentifierFirstEnabled
                                 ? IDENTIFIER_FIRST_LOGIN.redirectUri()
@@ -107,7 +107,7 @@ public class RegisterEndpoint extends AbstractEndpoint implements Handler<Routin
                 ConstantKeys.LOGIN_ACTION_KEY,
                 resolveProxyRequest(routingContext.request(), loginActionKey, queryParams, true));
 
-        final Map<String, Object> data = generateData(routingContext, domain, client);
+        Map<String, Object> data = generateData(routingContext, domain, client);
         data.putAll(botDetectionManager.getTemplateVariables(domain, client));
 
         // render the registration confirmation page

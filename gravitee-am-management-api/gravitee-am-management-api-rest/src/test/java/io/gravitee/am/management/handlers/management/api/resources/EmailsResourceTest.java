@@ -45,11 +45,11 @@ public class EmailsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetEmail() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Email mockEmail = new Email();
+        Email mockEmail = new Email();
         mockEmail.setId("email-1-id");
         mockEmail.setTemplate(Template.LOGIN.template());
         mockEmail.setReferenceType(ReferenceType.DOMAIN);
@@ -59,7 +59,7 @@ public class EmailsResourceTest extends JerseySpringTest {
                 .when(emailTemplateService)
                 .findByDomainAndTemplate(domainId, Template.LOGIN.template());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("emails")
@@ -68,18 +68,18 @@ public class EmailsResourceTest extends JerseySpringTest {
                         .get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Email responseEntity = readEntity(response, Email.class);
+        Email responseEntity = readEntity(response, Email.class);
         assertTrue(responseEntity.getId().equals("email-1-id"));
     }
 
     @Test
     public void shouldGetEmails_technicalManagementException() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
         doReturn(Maybe.error(new TechnicalManagementException("error occurs")))
                 .when(emailTemplateService)
                 .findByDomainAndTemplate(domainId, Template.LOGIN.template());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("emails")
@@ -92,8 +92,8 @@ public class EmailsResourceTest extends JerseySpringTest {
     @Test
     @Ignore
     public void shouldCreate() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         NewEmail newEmail = new NewEmail();
@@ -108,7 +108,7 @@ public class EmailsResourceTest extends JerseySpringTest {
                 .when(emailTemplateService)
                 .create(eq(domainId), any(), any(User.class));
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("emails")

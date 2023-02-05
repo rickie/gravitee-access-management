@@ -37,7 +37,7 @@ public class ExtensionGrantsPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldList() {
-        final ExtensionGrantPlugin extensionGrantPlugin = new ExtensionGrantPlugin();
+        ExtensionGrantPlugin extensionGrantPlugin = new ExtensionGrantPlugin();
         extensionGrantPlugin.setId("extensionGrant-plugin-id");
         extensionGrantPlugin.setName("extensionGrant-plugin-name");
 
@@ -45,7 +45,7 @@ public class ExtensionGrantsPluginResourceTest extends JerseySpringTest {
                 .when(extensionGrantPluginService)
                 .findAll();
 
-        final Response response =
+        Response response =
                 target("platform").path("plugins").path("extensionGrants").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
     }
@@ -56,7 +56,7 @@ public class ExtensionGrantsPluginResourceTest extends JerseySpringTest {
                 .when(extensionGrantPluginService)
                 .findAll();
 
-        final Response response =
+        Response response =
                 target("platform").path("plugins").path("extensionGrants").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }

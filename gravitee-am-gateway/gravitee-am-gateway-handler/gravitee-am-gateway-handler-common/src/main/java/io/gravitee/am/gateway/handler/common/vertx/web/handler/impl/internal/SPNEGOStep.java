@@ -37,8 +37,8 @@ public class SPNEGOStep extends AuthenticationFlowStep {
 
     @Override
     public void execute(RoutingContext routingContext, AuthenticationFlowChain flow) {
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final HttpServerRequest request = routingContext.request();
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        HttpServerRequest request = routingContext.request();
 
         // user already authenticated, continue
         if (routingContext.user() != null) {

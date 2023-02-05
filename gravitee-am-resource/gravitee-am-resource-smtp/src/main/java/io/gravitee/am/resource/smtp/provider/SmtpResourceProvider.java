@@ -69,7 +69,7 @@ public class SmtpResourceProvider implements EmailSenderProvider {
     }
 
     private JavaMailSender createJavaMail() {
-        final JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
+        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
         javaMailSender.setHost(configuration.getHost());
         try {
             javaMailSender.setPort(configuration.getPort());

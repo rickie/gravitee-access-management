@@ -40,18 +40,18 @@ public class UserFactorsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetUserFactors() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         EnrolledFactor enrolledFactor = new EnrolledFactor();
         enrolledFactor.setFactorId("factor-id");
 
-        final User mockUser = new User();
+        User mockUser = new User();
         mockUser.setId("user-id-1");
         mockUser.setFactors(Collections.singletonList(enrolledFactor));
 
-        final Factor mockFactor = new Factor();
+        Factor mockFactor = new Factor();
         mockFactor.setId("factor-id");
         mockFactor.setFactorType(FactorType.OTP);
         mockFactor.setName("OTP");
@@ -60,7 +60,7 @@ public class UserFactorsResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(mockUser)).when(userService).findById(mockUser.getId());
         doReturn(Maybe.just(mockFactor)).when(factorService).findById(enrolledFactor.getFactorId());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("users")
@@ -74,12 +74,12 @@ public class UserFactorsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetUserFactors_technicalManagementException() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
         doReturn(Maybe.error(new TechnicalManagementException("error occurs")))
                 .when(domainService)
                 .findById(domainId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("users")

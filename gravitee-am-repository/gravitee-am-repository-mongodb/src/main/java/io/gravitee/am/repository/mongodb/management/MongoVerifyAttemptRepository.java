@@ -121,7 +121,7 @@ public class MongoVerifyAttemptRepository extends AbstractManagementMongoReposit
     }
 
     private Bson query(VerifyAttemptCriteria criteria) {
-        final List<Bson> filters = new ArrayList<>();
+        List<Bson> filters = new ArrayList<>();
 
         if (criteria.client() != null && !criteria.client().isEmpty()) {
             filters.add(eq(FIELD_CLIENT, criteria.client()));
@@ -143,7 +143,7 @@ public class MongoVerifyAttemptRepository extends AbstractManagementMongoReposit
             return null;
         }
 
-        final VerifyAttempt verifyAttempt = new VerifyAttempt();
+        VerifyAttempt verifyAttempt = new VerifyAttempt();
         verifyAttempt.setId(rateLimitMongo.getId());
         verifyAttempt.setUserId(rateLimitMongo.getUserId());
         verifyAttempt.setFactorId(rateLimitMongo.getFactorId());
@@ -159,7 +159,7 @@ public class MongoVerifyAttemptRepository extends AbstractManagementMongoReposit
     }
 
     private VerifyAttemptMongo convert(VerifyAttempt verifyAttempt) {
-        final VerifyAttemptMongo verifyAttemptMongo = new VerifyAttemptMongo();
+        VerifyAttemptMongo verifyAttemptMongo = new VerifyAttemptMongo();
         verifyAttemptMongo.setId(
                 verifyAttempt.getId() != null ? verifyAttempt.getId() : RandomString.generate());
         verifyAttemptMongo.setUserId(verifyAttempt.getUserId());

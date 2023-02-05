@@ -64,7 +64,7 @@ public class SystemCertificateUpgraderTest {
 
     @Test
     public void shouldIgnore_IfTaskCompleted() {
-        final SystemTask task = new SystemTask();
+        SystemTask task = new SystemTask();
         task.setStatus(SystemTaskStatus.SUCCESS.name());
         when(systemTaskRepository.findById(any())).thenReturn(Maybe.just(task));
 
@@ -78,18 +78,18 @@ public class SystemCertificateUpgraderTest {
     @Test
     public void shouldUpgrade() {
         when(systemTaskRepository.findById(anyString())).thenReturn(Maybe.empty());
-        final SystemTask task = new SystemTask();
+        SystemTask task = new SystemTask();
         task.setStatus(SystemTaskStatus.INITIALIZED.name());
         when(systemTaskRepository.create(any())).thenReturn(Single.just(task));
 
-        final LocalDateTime now = LocalDateTime.now();
-        final LocalDateTime twoYearsOld = now.minusYears(2);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime twoYearsOld = now.minusYears(2);
 
-        final Domain domain1 = new Domain();
+        Domain domain1 = new Domain();
         domain1.setId(DOMAIN_1);
         domain1.setCreatedAt(new Date(twoYearsOld.toInstant(ZoneOffset.UTC).toEpochMilli()));
 
-        final Certificate defaultDomain1 = new Certificate();
+        Certificate defaultDomain1 = new Certificate();
         defaultDomain1.setName("Default");
         defaultDomain1.setCreatedAt(
                 new Date(twoYearsOld.plusSeconds(30).toInstant(ZoneOffset.UTC).toEpochMilli()));
@@ -99,19 +99,19 @@ public class SystemCertificateUpgraderTest {
         when(certificateRepository.findByDomain(eq(DOMAIN_1)))
                 .thenReturn(Flowable.just(defaultDomain1));
 
-        final LocalDateTime oneYearOld = now.minusYears(1);
-        final Domain domain2 = new Domain();
+        LocalDateTime oneYearOld = now.minusYears(1);
+        Domain domain2 = new Domain();
         domain2.setId(DOMAIN_2);
         domain2.setCreatedAt(new Date(oneYearOld.toInstant(ZoneOffset.UTC).toEpochMilli()));
 
-        final Certificate defaultDomain2 = new Certificate();
+        Certificate defaultDomain2 = new Certificate();
         defaultDomain2.setName("Default");
         defaultDomain2.setCreatedAt(
                 new Date(oneYearOld.plusSeconds(30).toInstant(ZoneOffset.UTC).toEpochMilli()));
         defaultDomain2.setUpdatedAt(
                 new Date(oneYearOld.plusSeconds(40).toInstant(ZoneOffset.UTC).toEpochMilli()));
 
-        final Certificate notDefaultDomain2 = new Certificate();
+        Certificate notDefaultDomain2 = new Certificate();
         notDefaultDomain2.setName("Default");
         notDefaultDomain2.setCreatedAt(
                 new Date(oneYearOld.plusSeconds(70).toInstant(ZoneOffset.UTC).toEpochMilli()));
