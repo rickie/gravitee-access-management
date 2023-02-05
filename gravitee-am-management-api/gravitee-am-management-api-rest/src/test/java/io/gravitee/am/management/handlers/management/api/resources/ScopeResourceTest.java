@@ -34,12 +34,12 @@ public class ScopeResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetScope() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String scopeId = "scope-id";
-        final Scope mockScope = new Scope();
+        String scopeId = "scope-id";
+        Scope mockScope = new Scope();
         mockScope.setId(scopeId);
         mockScope.setKey(scopeId);
         mockScope.setName("scope-name");
@@ -48,51 +48,51 @@ public class ScopeResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.just(mockScope)).when(scopeService).findById(scopeId);
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("scopes").path(scopeId).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Scope scope = readEntity(response, Scope.class);
+        Scope scope = readEntity(response, Scope.class);
         assertEquals(domainId, scope.getDomain());
         assertEquals(scopeId, scope.getKey());
     }
 
     @Test
     public void shouldGetScope_notFound() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String scopeId = "scope-id";
+        String scopeId = "scope-id";
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.empty()).when(scopeService).findById(scopeId);
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("scopes").path(scopeId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }
 
     @Test
     public void shouldGetScope_domainNotFound() {
-        final String domainId = "domain-id";
-        final String scopeId = "scope-id";
+        String domainId = "domain-id";
+        String scopeId = "scope-id";
 
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("scopes").path(scopeId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }
 
     @Test
     public void shouldGetScope_wrongDomain() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String scopeId = "scope-id";
-        final Scope mockScope = new Scope();
+        String scopeId = "scope-id";
+        Scope mockScope = new Scope();
         mockScope.setId(scopeId);
         mockScope.setKey(scopeId);
         mockScope.setName("scope-name");
@@ -101,7 +101,7 @@ public class ScopeResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.just(mockScope)).when(scopeService).findById(scopeId);
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("scopes").path(scopeId).request().get();
         assertEquals(HttpStatusCode.BAD_REQUEST_400, response.getStatus());
     }

@@ -79,7 +79,7 @@ public class PolicyChain extends AbstractProcessor<ExecutionContext>
                     doNext(executionContext.request(), executionContext.response());
                 }
             } catch (Exception ex) {
-                final String message =
+                String message =
                         "An error occurs in policy["
                                 + policy.id()
                                 + "] error["
@@ -104,12 +104,12 @@ public class PolicyChain extends AbstractProcessor<ExecutionContext>
             return false;
         }
 
-        final String condition = policy.condition();
+        String condition = policy.condition();
         if (isNullOrEmpty(condition) || condition.isBlank()) {
             return true;
         }
 
-        final TemplateEngine templateEngine = executionContext.getTemplateEngine();
+        TemplateEngine templateEngine = executionContext.getTemplateEngine();
         try {
             return nonNull(templateEngine)
                     && templateEngine.getValue(condition.trim(), Boolean.class);

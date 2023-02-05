@@ -53,7 +53,7 @@ public class ForgotPasswordSubmissionRequestParseHandler extends UserBodyRequest
         if (missingParam.isPresent()
                 && accountSettings != null
                 && accountSettings.isResetPasswordCustomForm()) {
-            final List<String> alternativeParams =
+            List<String> alternativeParams =
                     accountSettings.getResetPasswordCustomFormFields().stream()
                             .map(FormField::getKey)
                             .collect(Collectors.toList());

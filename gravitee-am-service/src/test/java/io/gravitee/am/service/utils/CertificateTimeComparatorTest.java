@@ -40,14 +40,14 @@ public class CertificateTimeComparatorTest {
     @DisplayName("Sort Certificates based on expiration date order by desc")
     public void shouldSortCertificate_ByExpiration_orderBy_DESC(
             List<Certificate> certificates, Certificate expectedCertificate) {
-        final Optional<Certificate> first =
+        Optional<Certificate> first =
                 certificates.stream().sorted(new CertificateTimeComparator()).findFirst();
         assertTrue(first.isPresent());
         assertEquals(expectedCertificate.getId(), first.get().getId());
     }
 
     static Stream<Arguments> shouldSortCertificate_ByExpiration_orderBy_DESC() {
-        final var now = Instant.now();
+        var now = Instant.now();
         var cert1 = new Certificate();
         cert1.setId("cert1");
         cert1.setCreatedAt(new Date(now.toEpochMilli()));

@@ -48,7 +48,7 @@ public class UserProfilePasswordValidator implements PasswordValidator {
         if (!this.excludeUserProfileInfo || isNull(user)) {
             return true;
         }
-        final String passwordToLower = password.toLowerCase(Locale.ROOT);
+        String passwordToLower = password.toLowerCase(Locale.ROOT);
         return isFieldValid(passwordToLower, user.getUsername())
                 && isFieldValid(passwordToLower, user.getNickName())
                 && isFieldValid(passwordToLower, user.getFirstName())

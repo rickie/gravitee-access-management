@@ -105,7 +105,7 @@ public abstract class AbstractLogoutEndpoint implements Handler<RoutingContext> 
      */
     protected void doRedirect(
             Client client, RoutingContext routingContext, String endSessionEndpoint) {
-        final HttpServerRequest request = routingContext.request();
+        HttpServerRequest request = routingContext.request();
 
         // validate request
         // see https://openid.net/specs/openid-connect-rpinitiated-1_0.html#RPLogout
@@ -120,8 +120,7 @@ public abstract class AbstractLogoutEndpoint implements Handler<RoutingContext> 
 
         // redirect to target url
         String logoutRedirectUrl = getLogoutRedirectUrl(request.params());
-        final MultiMap originalLogoutQueryParams =
-                routingContext.get(ConstantKeys.PARAM_CONTEXT_KEY);
+        MultiMap originalLogoutQueryParams = routingContext.get(ConstantKeys.PARAM_CONTEXT_KEY);
         if (originalLogoutQueryParams != null) {
             // redirect is trigger because of the LogoutCallbackEndpoint, extract the redirect URL
             // from initial logout request
@@ -196,7 +195,7 @@ public abstract class AbstractLogoutEndpoint implements Handler<RoutingContext> 
     }
 
     private void invalidateSession0(RoutingContext routingContext, boolean redirect) {
-        final User endUser =
+        User endUser =
                 routingContext.get(ConstantKeys.USER_CONTEXT_KEY) != null
                         ? routingContext.get(ConstantKeys.USER_CONTEXT_KEY)
                         : (routingContext.user() != null
@@ -260,7 +259,7 @@ public abstract class AbstractLogoutEndpoint implements Handler<RoutingContext> 
         // If included in the logout request, the OP passes this value back to the RP using the
         // state parameter when redirecting the User Agent back to the RP.
         UriBuilder uriBuilder = UriBuilder.fromURIString(url);
-        final String state =
+        String state =
                 routingContext.request().getParam(io.gravitee.am.common.oauth2.Parameters.STATE);
         if (!StringUtils.isEmpty(state)) {
             uriBuilder.addParameter(io.gravitee.am.common.oauth2.Parameters.STATE, state);

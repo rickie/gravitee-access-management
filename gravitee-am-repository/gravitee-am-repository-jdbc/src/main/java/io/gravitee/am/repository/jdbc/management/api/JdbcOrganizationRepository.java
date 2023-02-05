@@ -140,9 +140,9 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository
         TransactionalOperator trx = TransactionalOperator.create(tm);
         Mono<Void> insert = template.insert(toJdbcOrganization(organization)).then();
 
-        final Mono<Void> storeIdentities = storeIdentities(organization, false);
-        final Mono<Void> storeDomainRestrictions = storeDomainRestrictions(organization, false);
-        final Mono<Void> storeHrids = storeHrids(organization, false);
+        Mono<Void> storeIdentities = storeIdentities(organization, false);
+        Mono<Void> storeDomainRestrictions = storeDomainRestrictions(organization, false);
+        Mono<Void> storeHrids = storeHrids(organization, false);
 
         return monoToSingle(
                 insert.then(storeIdentities)
@@ -160,9 +160,9 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository
         // prepare the update for organization table
         Mono<Void> update = template.update(toJdbcOrganization(organization)).then();
 
-        final Mono<Void> storeIdentities = storeIdentities(organization, true);
-        final Mono<Void> storeDomainRestrictions = storeDomainRestrictions(organization, true);
-        final Mono<Void> storeHrids = storeHrids(organization, true);
+        Mono<Void> storeIdentities = storeIdentities(organization, true);
+        Mono<Void> storeDomainRestrictions = storeDomainRestrictions(organization, true);
+        Mono<Void> storeHrids = storeHrids(organization, true);
 
         return monoToSingle(
                 update.then(storeIdentities)
@@ -200,7 +200,7 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository
             delete = deleteIdentities(organization.getId());
         }
 
-        final List<String> identities = organization.getIdentities();
+        List<String> identities = organization.getIdentities();
         if (identities != null && !identities.isEmpty()) {
             return delete.thenMany(
                             Flux.fromIterable(identities)
@@ -240,7 +240,7 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository
             delete = deleteDomainRestrictions(organization.getId());
         }
 
-        final List<String> domainRestrictions = organization.getDomainRestrictions();
+        List<String> domainRestrictions = organization.getDomainRestrictions();
         if (domainRestrictions != null && !domainRestrictions.isEmpty()) {
             // concat flows to create domainRestrictions
             return delete.thenMany(
@@ -287,9 +287,9 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository
             delete = deleteHrids(organization.getId());
         }
 
-        final List<String> hrids = organization.getHrids();
+        List<String> hrids = organization.getHrids();
         if (hrids != null && !hrids.isEmpty()) {
-            final ArrayList<JdbcOrganization.Hrid> dbHrids = new ArrayList<>();
+            ArrayList<JdbcOrganization.Hrid> dbHrids = new ArrayList<>();
             for (int i = 0; i < hrids.size(); i++) {
                 JdbcOrganization.Hrid hrid = new JdbcOrganization.Hrid();
                 hrid.setOrganizationId(organization.getId());

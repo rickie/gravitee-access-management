@@ -84,8 +84,8 @@ public class ApplicationsResource extends AbstractResource {
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue(MAX_APPLICATIONS_SIZE_PER_PAGE_STRING) int size,
             @QueryParam("q") String query,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION, Acl.LIST)
                 .andThen(
@@ -173,10 +173,10 @@ public class ApplicationsResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @ApiParam(name = "application", required = true) @Valid @NotNull
-                    final NewApplication newApplication,
-            @Suspended final AsyncResponse response) {
+                    NewApplication newApplication,
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.APPLICATION, Acl.CREATE)

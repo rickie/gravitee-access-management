@@ -31,7 +31,7 @@ public abstract class OrganizationProviderConfiguration {
 
     public OrganizationProviderConfiguration(String type, Environment env, int index) {
         this.type = type;
-        final String propertyBase = getPropertyBase(index);
+        String propertyBase = getPropertyBase(index);
         this.name =
                 env.getProperty(
                         propertyBase + "name", StringUtils.capitalize(this.type) + " users");

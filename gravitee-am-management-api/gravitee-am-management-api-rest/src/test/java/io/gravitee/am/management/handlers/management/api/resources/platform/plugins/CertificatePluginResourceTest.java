@@ -34,8 +34,8 @@ public class CertificatePluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGet() {
-        final String certificatePluginId = "certificate-plugin-id";
-        final CertificatePlugin certificatePlugin = new CertificatePlugin();
+        String certificatePluginId = "certificate-plugin-id";
+        CertificatePlugin certificatePlugin = new CertificatePlugin();
         certificatePlugin.setId(certificatePluginId);
         certificatePlugin.setName("certificate-plugin-name");
 
@@ -43,7 +43,7 @@ public class CertificatePluginResourceTest extends JerseySpringTest {
                 .when(certificatePluginService)
                 .findById(certificatePluginId);
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("certificates")
@@ -55,12 +55,12 @@ public class CertificatePluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGet_technicalManagementException() {
-        final String certificatePluginId = "certificate-plugin-id";
+        String certificatePluginId = "certificate-plugin-id";
         doReturn(Maybe.error(new TechnicalManagementException("Error occurs")))
                 .when(certificatePluginService)
                 .findById(certificatePluginId);
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("certificates")
@@ -72,19 +72,19 @@ public class CertificatePluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema() {
-        final String certificatePluginId = "certificate-plugin-id";
-        final CertificatePlugin certificatePlugin = new CertificatePlugin();
+        String certificatePluginId = "certificate-plugin-id";
+        CertificatePlugin certificatePlugin = new CertificatePlugin();
         certificatePlugin.setId(certificatePluginId);
         certificatePlugin.setName("certificate-plugin-name");
 
-        final String schema = "certificate-plugin-schema";
+        String schema = "certificate-plugin-schema";
 
         doReturn(Maybe.just(certificatePlugin))
                 .when(certificatePluginService)
                 .findById(certificatePluginId);
         doReturn(Maybe.just(schema)).when(certificatePluginService).getSchema(certificatePluginId);
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("certificates")
@@ -94,18 +94,18 @@ public class CertificatePluginResourceTest extends JerseySpringTest {
                         .get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final String responseEntity = readEntity(response, String.class);
+        String responseEntity = readEntity(response, String.class);
         assertEquals(schema, responseEntity);
     }
 
     @Test
     public void shouldGetSchema_technicalManagementException() {
-        final String certificatePluginId = "certificate-plugin-id";
+        String certificatePluginId = "certificate-plugin-id";
         doReturn(Maybe.error(new TechnicalManagementException("Error occurs")))
                 .when(certificatePluginService)
                 .findById(certificatePluginId);
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("certificates")

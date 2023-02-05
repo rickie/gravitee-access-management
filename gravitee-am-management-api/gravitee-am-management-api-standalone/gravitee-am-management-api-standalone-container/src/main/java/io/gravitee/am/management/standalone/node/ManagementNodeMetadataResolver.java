@@ -33,7 +33,7 @@ public class ManagementNodeMetadataResolver implements NodeMetadataResolver {
     @Lazy @Autowired private InstallationService installationService;
 
     public Map<String, Object> resolve() {
-        final HashMap<String, Object> metadata = new HashMap<>();
+        HashMap<String, Object> metadata = new HashMap<>();
         metadata.put(META_INSTALLATION, getInstallationId());
         return metadata;
     }

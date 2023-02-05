@@ -33,8 +33,8 @@ public abstract class AbstractExceptionMapper<T extends Throwable> implements Ex
         return convert(e, e.getHttpStatusCode());
     }
 
-    protected ErrorEntity convert(final Throwable t, final int status) {
-        final ErrorEntity errorEntity = new ErrorEntity();
+    protected ErrorEntity convert(Throwable t, int status) {
+        ErrorEntity errorEntity = new ErrorEntity();
 
         errorEntity.setHttpCode(status);
         errorEntity.setMessage(t.getMessage());

@@ -36,8 +36,8 @@ public class WebAuthnResponseEndpoint extends AbstractEndpoint implements Handle
     public void handle(RoutingContext ctx) {
         // at this stage the user has been authenticated
         // redirect the user to the original request
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(ctx.request());
-        final String redirectUri = getReturnUrl(ctx, queryParams);
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(ctx.request());
+        String redirectUri = getReturnUrl(ctx, queryParams);
 
         ctx.response()
                 .putHeader(io.vertx.core.http.HttpHeaders.LOCATION, redirectUri)

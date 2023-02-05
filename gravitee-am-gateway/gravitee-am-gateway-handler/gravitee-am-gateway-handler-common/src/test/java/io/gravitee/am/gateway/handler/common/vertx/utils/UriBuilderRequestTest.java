@@ -40,7 +40,7 @@ public class UriBuilderRequestTest {
         when(request.getHeader(eq(HttpHeaders.X_FORWARDED_HOST))).thenReturn("myhost");
         when(request.getHeader(eq(HttpHeaders.X_FORWARDED_PORT))).thenReturn("8888");
 
-        final var generatedUri = UriBuilderRequest.resolveProxyRequest(request, path, params, true);
+        var generatedUri = UriBuilderRequest.resolveProxyRequest(request, path, params, true);
         assertEquals("https://myhost:8888/my/path?param1=value1", generatedUri);
     }
 
@@ -50,7 +50,7 @@ public class UriBuilderRequestTest {
         when(request.getHeader(eq(HttpHeaders.X_FORWARDED_HOST))).thenReturn("myhost:9999");
         when(request.getHeader(eq(HttpHeaders.X_FORWARDED_PORT))).thenReturn("8888");
 
-        final var generatedUri = UriBuilderRequest.resolveProxyRequest(request, path, params, true);
+        var generatedUri = UriBuilderRequest.resolveProxyRequest(request, path, params, true);
         assertEquals("https://myhost:8888/my/path?param1=value1", generatedUri);
     }
 
@@ -59,7 +59,7 @@ public class UriBuilderRequestTest {
         when(request.getHeader(eq(HttpHeaders.X_FORWARDED_PROTO))).thenReturn("https");
         when(request.getHeader(eq(HttpHeaders.X_FORWARDED_HOST))).thenReturn("myhost:9999");
 
-        final var generatedUri = UriBuilderRequest.resolveProxyRequest(request, path, params, true);
+        var generatedUri = UriBuilderRequest.resolveProxyRequest(request, path, params, true);
         assertEquals("https://myhost:9999/my/path?param1=value1", generatedUri);
     }
 
@@ -68,7 +68,7 @@ public class UriBuilderRequestTest {
         when(request.getHeader(eq(HttpHeaders.X_FORWARDED_PROTO))).thenReturn("https");
         when(request.getHeader(eq(HttpHeaders.X_FORWARDED_HOST))).thenReturn("myhost");
 
-        final var generatedUri = UriBuilderRequest.resolveProxyRequest(request, path, params, true);
+        var generatedUri = UriBuilderRequest.resolveProxyRequest(request, path, params, true);
         assertEquals("https://myhost/my/path?param1=value1", generatedUri);
     }
 }

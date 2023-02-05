@@ -68,9 +68,9 @@ public class DomainResource extends AbstractDomainResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ)
                 .andThen(
@@ -110,9 +110,8 @@ public class DomainResource extends AbstractDomainResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
-            @ApiParam(name = "domain", required = true) @Valid @NotNull
-                    final PatchDomain domainToPatch,
-            @Suspended final AsyncResponse response) {
+            @ApiParam(name = "domain", required = true) @Valid @NotNull PatchDomain domainToPatch,
+            @Suspended AsyncResponse response) {
 
         updateInternal(organizationId, environmentId, domainId, domainToPatch, response);
     }
@@ -135,9 +134,8 @@ public class DomainResource extends AbstractDomainResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
-            @ApiParam(name = "domain", required = true) @Valid @NotNull
-                    final PatchDomain domainToPatch,
-            @Suspended final AsyncResponse response) {
+            @ApiParam(name = "domain", required = true) @Valid @NotNull PatchDomain domainToPatch,
+            @Suspended AsyncResponse response) {
 
         updateInternal(organizationId, environmentId, domainId, domainToPatch, response);
     }
@@ -158,8 +156,8 @@ public class DomainResource extends AbstractDomainResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN, Acl.DELETE)
                 .andThen(domainService.delete(domain, authenticatedUser))
@@ -188,7 +186,7 @@ public class DomainResource extends AbstractDomainResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ)
                 .andThen(
@@ -327,10 +325,10 @@ public class DomainResource extends AbstractDomainResource {
             String organizationId,
             String environmentId,
             String domainId,
-            final PatchDomain patchDomain,
-            final AsyncResponse response) {
+            PatchDomain patchDomain,
+            AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
         Set<Permission> requiredPermissions = patchDomain.getRequiredPermissions();
 
         if (requiredPermissions.isEmpty()) {

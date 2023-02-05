@@ -48,12 +48,12 @@ public class EntrypointsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetEntrypoints() {
-        final Entrypoint entrypoint = new Entrypoint();
+        Entrypoint entrypoint = new Entrypoint();
         entrypoint.setId(ENTRYPOINT_ID);
         entrypoint.setName("entrypoint-1-name");
         entrypoint.setOrganizationId(ORGANIZATION_ID);
 
-        final Entrypoint entrypoint2 = new Entrypoint();
+        Entrypoint entrypoint2 = new Entrypoint();
         entrypoint2.setId("entrypoint#2");
         entrypoint2.setName("entrypoint-2-name");
         entrypoint2.setOrganizationId(ORGANIZATION_ID);
@@ -62,11 +62,11 @@ public class EntrypointsResourceTest extends JerseySpringTest {
                 .when(entrypointService)
                 .findAll(ORGANIZATION_ID);
 
-        final Response response =
+        Response response =
                 target("organizations").path(ORGANIZATION_ID).path("entrypoints").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final List<Entrypoint> responseEntity = readEntity(response, List.class);
+        List<Entrypoint> responseEntity = readEntity(response, List.class);
         assertEquals(2, responseEntity.size());
     }
 
@@ -76,7 +76,7 @@ public class EntrypointsResourceTest extends JerseySpringTest {
                 .when(entrypointService)
                 .findAll(anyString());
 
-        final Response response =
+        Response response =
                 target("organizations").path(ORGANIZATION_ID).path("entrypoints").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
@@ -98,7 +98,7 @@ public class EntrypointsResourceTest extends JerseySpringTest {
 
         WebTarget path = target("organizations").path(ORGANIZATION_ID).path("entrypoints");
 
-        final Response response = post(path, newEntrypoint);
+        Response response = post(path, newEntrypoint);
         assertEquals(HttpStatusCode.CREATED_201, response.getStatus());
         assertEquals(
                 path.getUri().toString() + "/" + entrypoint.getId(),

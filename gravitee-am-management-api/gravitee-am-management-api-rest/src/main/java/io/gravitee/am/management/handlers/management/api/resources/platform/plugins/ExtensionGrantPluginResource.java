@@ -50,7 +50,7 @@ public class ExtensionGrantPluginResource {
             notes = "There is no particular permission needed. User must be authenticated.")
     public void get(
             @PathParam("extensionGrant") String extensionGrantId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         extensionGrantPluginService
                 .findById(extensionGrantId)
@@ -68,7 +68,7 @@ public class ExtensionGrantPluginResource {
             notes = "There is no particular permission needed. User must be authenticated.")
     public void getSchema(
             @PathParam("extensionGrant") String extensionGrantId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         // Check that the extension grant exists
         extensionGrantPluginService

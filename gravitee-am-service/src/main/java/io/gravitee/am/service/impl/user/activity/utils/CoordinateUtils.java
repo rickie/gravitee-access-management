@@ -31,13 +31,13 @@ public class CoordinateUtils {
         if (!data.containsKey(key)) {
             return null;
         }
-        final Double coordinate = (Double) data.get(key);
+        Double coordinate = (Double) data.get(key);
 
         if (delta == 0) {
             return coordinate;
         }
 
-        final double safeDelta = Math.abs(delta);
+        double safeDelta = Math.abs(delta);
         double lowerBound = coordinate - safeDelta;
         double upperBound = coordinate + safeDelta;
 

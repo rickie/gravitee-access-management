@@ -139,12 +139,12 @@ public class PreviewBuilder {
         previewForm.setReferenceId(this.domain.getId());
         previewForm.setReferenceType(ReferenceType.DOMAIN);
 
-        final String previewId = "preview-" + UUID.randomUUID();
+        String previewId = "preview-" + UUID.randomUUID();
         previewForm.setReferenceId(previewId);
 
         this.templateResolver.addForm(previewForm);
         try {
-            final String processedTemplate =
+            String processedTemplate =
                     templateEngine.process(
                             this.templateResolver.getTemplateKey(previewForm), context);
             previewForm.setContent(processedTemplate);
@@ -177,7 +177,7 @@ public class PreviewBuilder {
     }
 
     private Map<String, Object> generateTemplateVariables(String template) {
-        final Map<String, Object> variables = new HashMap<>();
+        Map<String, Object> variables = new HashMap<>();
 
         variables.put(
                 ConstantKeys._CSRF,
@@ -242,10 +242,10 @@ public class PreviewBuilder {
 
             case MFA_ENROLL:
             case MFA_CHALLENGE_ALTERNATIVES:
-                final Enrollment otpEnrollment = new Enrollment();
+                Enrollment otpEnrollment = new Enrollment();
                 otpEnrollment.setBarCode(
                         "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQAAAACFI5MzAAABuElEQVR4Xu2WWWoEMQwFDb6WwVc36FqGTpXCLAzJn5X8tGiGtmtA27Pc7frN2ufG025yE+0vyWqtr75GXzP2mC5LSPCsvtme1+65rCGrR6y528A17zxlZI1htpNMS8l17abvaxcSntgN749y1hAlES/70M45opEgAkGKoXftPFkzK3nFtpSI/hXbWdJtGwk2TtXgZ8wSEh7f5vkFjGxgCUHtnt6lRnCfMikh6d2WpeSbBa4gTgl6Rr7T0rouISxpGnvB4HPQPit6lviG4q0s7sU1xFKaXeSfmOmEUkIQIJ1ja3SS5vUZwVGCWwafVxOnC8W3WUSmOSJ6JyBlHYnOE66+ruCppH9x3NaQHgoju+eYWK8IjpLIGLYtW770SztPnOK2zVpmE58RHCare6xUh8G8TaSzhEKSLRE0QnBkvGnnJGGbSjqV8rJ1p4gs76O58iC7fijxLKGgXOYL5+EXkaGUEI1LI2cFT1a4giw/sUI9ZjBegyUkrKmKN4TUyqwhWVL2bVzk/V5GLpsH8ihT2zqS5yny20v/JYQnch7x6UVpvyVynqgQ9Q70gLF+ZHqW/Gw3uYn2/+QLiTKJ//OwuCgAAAAASUVORK5CYII=");
-                final Map<String, Object> factorOTP =
+                Map<String, Object> factorOTP =
                         Map.of(
                                 ID,
                                 "idotp",
@@ -256,9 +256,9 @@ public class PreviewBuilder {
                                 ENROLLMENT,
                                 otpEnrollment);
 
-                final Enrollment smsEnrollment = new Enrollment();
+                Enrollment smsEnrollment = new Enrollment();
                 smsEnrollment.setCountries(List.of("us", "en", "fr"));
-                final Map<String, Object> factorSms =
+                Map<String, Object> factorSms =
                         Map.of(
                                 ID, "idsms",
                                 FACTOR_TYPE, FactorType.SMS.getType(),
@@ -266,9 +266,9 @@ public class PreviewBuilder {
                                 FACTOR_NAME, "SMS Factor name",
                                 ENROLLMENT, smsEnrollment);
 
-                final Enrollment emailEnrollment = new Enrollment();
+                Enrollment emailEnrollment = new Enrollment();
                 emailEnrollment.setKey(EMPTY_STRING);
-                final Map<String, Object> factorEmail =
+                Map<String, Object> factorEmail =
                         Map.of(
                                 ID,
                                 "idemail",
@@ -285,7 +285,7 @@ public class PreviewBuilder {
                 break;
 
             case MFA_CHALLENGE:
-                final Factor factor = new Factor();
+                Factor factor = new Factor();
                 factor.setFactorType(FactorType.OTP);
                 variables.put(ConstantKeys.FACTOR_KEY, factor);
                 variables.put(ConstantKeys.REMEMBER_DEVICE_IS_ACTIVE, Boolean.FALSE.toString());
@@ -326,7 +326,7 @@ public class PreviewBuilder {
     }
 
     private UserProperties generateFakeUser() {
-        final UserProperties fakeUser = new UserProperties();
+        UserProperties fakeUser = new UserProperties();
         fakeUser.setDomain(this.domain.getId());
         fakeUser.setEmail("john.doe@mycompany.com");
         fakeUser.setFirstName("John");
@@ -337,7 +337,7 @@ public class PreviewBuilder {
     }
 
     private Client generateFakeApplication() {
-        final Client fakeClient = new Client();
+        Client fakeClient = new Client();
         fakeClient.setClientName("PreviewApp");
         fakeClient.setClientId("<fakeClient-id>");
         fakeClient.setDomain(this.domain.getId());

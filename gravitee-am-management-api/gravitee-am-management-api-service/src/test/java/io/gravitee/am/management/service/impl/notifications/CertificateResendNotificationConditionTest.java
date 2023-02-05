@@ -47,15 +47,15 @@ public class CertificateResendNotificationConditionTest {
     @Test
     public void shouldReturnFalse_FirstThresholdReached_ButNotTheSecondOne() {
         NotificationDefinition def = new NotificationDefinition();
-        final Certificate certificate = new Certificate();
-        final Instant now = Instant.now();
+        Certificate certificate = new Certificate();
+        Instant now = Instant.now();
         certificate.setExpiresAt(new Date(now.plus(13, ChronoUnit.DAYS).toEpochMilli()));
         def.setData(
                 Map.of(
                         NotificationDefinitionUtils.NOTIFIER_DATA_CERTIFICATE,
                         new CertificateProperties(certificate)));
 
-        final NotificationAcknowledge notificationAcknowledge = new NotificationAcknowledge();
+        NotificationAcknowledge notificationAcknowledge = new NotificationAcknowledge();
         notificationAcknowledge.setUpdatedAt(
                 new Date(now.minus(12, ChronoUnit.DAYS).toEpochMilli()));
 
@@ -67,20 +67,20 @@ public class CertificateResendNotificationConditionTest {
     @Test
     public void shouldReturnTrue_FirstAndSecondThresholdReached_ThirdThresholdWillExpire() {
         NotificationDefinition def = new NotificationDefinition();
-        final Certificate certificate = new Certificate();
-        final Instant now = Instant.now();
+        Certificate certificate = new Certificate();
+        Instant now = Instant.now();
         certificate.setExpiresAt(new Date(now.plus(2, ChronoUnit.DAYS).toEpochMilli()));
         def.setData(
                 Map.of(
                         NotificationDefinitionUtils.NOTIFIER_DATA_CERTIFICATE,
                         new CertificateProperties(certificate)));
 
-        final NotificationAcknowledge notificationAcknowledge = new NotificationAcknowledge();
+        NotificationAcknowledge notificationAcknowledge = new NotificationAcknowledge();
         notificationAcknowledge.setUpdatedAt(
                 new Date(
                         now.minus(8, ChronoUnit.DAYS).minus(1, ChronoUnit.MINUTES).toEpochMilli()));
 
-        final CertificateResendNotificationCondition resendCondition =
+        CertificateResendNotificationCondition resendCondition =
                 new CertificateResendNotificationCondition(List.of(25, 10, 2));
         Assert.assertTrue(resendCondition.apply(def, notificationAcknowledge));
     }
@@ -88,20 +88,20 @@ public class CertificateResendNotificationConditionTest {
     @Test
     public void shouldReturnTrue_FirstAndSecondThresholdReached_ThirdThresholdNotExpired() {
         NotificationDefinition def = new NotificationDefinition();
-        final Certificate certificate = new Certificate();
-        final Instant now = Instant.now();
+        Certificate certificate = new Certificate();
+        Instant now = Instant.now();
         certificate.setExpiresAt(new Date(now.plus(4, ChronoUnit.DAYS).toEpochMilli()));
         def.setData(
                 Map.of(
                         NotificationDefinitionUtils.NOTIFIER_DATA_CERTIFICATE,
                         new CertificateProperties(certificate)));
 
-        final NotificationAcknowledge notificationAcknowledge = new NotificationAcknowledge();
+        NotificationAcknowledge notificationAcknowledge = new NotificationAcknowledge();
         notificationAcknowledge.setUpdatedAt(
                 new Date(
                         now.minus(6, ChronoUnit.DAYS).minus(1, ChronoUnit.MINUTES).toEpochMilli()));
 
-        final CertificateResendNotificationCondition resendCondition =
+        CertificateResendNotificationCondition resendCondition =
                 new CertificateResendNotificationCondition(List.of(25, 10, 2));
         Assert.assertFalse(resendCondition.apply(def, notificationAcknowledge));
     }
@@ -109,19 +109,19 @@ public class CertificateResendNotificationConditionTest {
     @Test
     public void shouldReturnTrue_ThirdThresholdReached() {
         NotificationDefinition def = new NotificationDefinition();
-        final Certificate certificate = new Certificate();
-        final Instant now = Instant.now();
+        Certificate certificate = new Certificate();
+        Instant now = Instant.now();
         certificate.setExpiresAt(new Date(now.plus(1, ChronoUnit.DAYS).toEpochMilli()));
         def.setData(
                 Map.of(
                         NotificationDefinitionUtils.NOTIFIER_DATA_CERTIFICATE,
                         new CertificateProperties(certificate)));
 
-        final NotificationAcknowledge notificationAcknowledge = new NotificationAcknowledge();
+        NotificationAcknowledge notificationAcknowledge = new NotificationAcknowledge();
         notificationAcknowledge.setUpdatedAt(
                 new Date(now.minus(2, ChronoUnit.DAYS).plus(1, ChronoUnit.MINUTES).toEpochMilli()));
 
-        final CertificateResendNotificationCondition resendCondition =
+        CertificateResendNotificationCondition resendCondition =
                 new CertificateResendNotificationCondition(List.of(25, 10, 2));
         Assert.assertFalse(resendCondition.apply(def, notificationAcknowledge));
     }

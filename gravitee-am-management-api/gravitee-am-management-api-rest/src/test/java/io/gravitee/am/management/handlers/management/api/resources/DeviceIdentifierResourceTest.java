@@ -35,12 +35,12 @@ public class DeviceIdentifierResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetDeviceIdentifier() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String deviceIdentifierId = "deviceIdentifier-id";
-        final DeviceIdentifier mockDeviceIdentifier = new DeviceIdentifier();
+        String deviceIdentifierId = "deviceIdentifier-id";
+        DeviceIdentifier mockDeviceIdentifier = new DeviceIdentifier();
         mockDeviceIdentifier.setId(deviceIdentifierId);
         mockDeviceIdentifier.setName("deviceIdentifier-name");
         mockDeviceIdentifier.setReferenceType(ReferenceType.DOMAIN);
@@ -51,7 +51,7 @@ public class DeviceIdentifierResourceTest extends JerseySpringTest {
                 .when(deviceIdentifierService)
                 .findById(deviceIdentifierId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("device-identifiers")
@@ -60,23 +60,23 @@ public class DeviceIdentifierResourceTest extends JerseySpringTest {
                         .get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final DeviceIdentifier deviceIdentifier = readEntity(response, DeviceIdentifier.class);
+        DeviceIdentifier deviceIdentifier = readEntity(response, DeviceIdentifier.class);
         assertEquals(domainId, deviceIdentifier.getReferenceId());
         assertEquals(deviceIdentifierId, deviceIdentifier.getId());
     }
 
     @Test
     public void shouldGetDeviceIdentifier_notFound() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String deviceIdentifierId = "deviceIdentifier-id";
+        String deviceIdentifierId = "deviceIdentifier-id";
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.empty()).when(deviceIdentifierService).findById(deviceIdentifierId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("device-identifiers")
@@ -88,12 +88,12 @@ public class DeviceIdentifierResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetDeviceIdentifier_domainNotFound() {
-        final String domainId = "domain-id";
-        final String deviceIdentifierId = "deviceIdentifier-id";
+        String domainId = "domain-id";
+        String deviceIdentifierId = "deviceIdentifier-id";
 
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("device-identifiers")
@@ -105,12 +105,12 @@ public class DeviceIdentifierResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetDeviceIdentifier_wrongDomain() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String deviceIdentifierId = "deviceIdentifier-id2";
-        final DeviceIdentifier mockDeviceIdentifier = new DeviceIdentifier();
+        String deviceIdentifierId = "deviceIdentifier-id2";
+        DeviceIdentifier mockDeviceIdentifier = new DeviceIdentifier();
         mockDeviceIdentifier.setId(deviceIdentifierId);
         mockDeviceIdentifier.setName("deviceIdentifier-name");
         mockDeviceIdentifier.setReferenceType(ReferenceType.DOMAIN);
@@ -121,7 +121,7 @@ public class DeviceIdentifierResourceTest extends JerseySpringTest {
                 .when(deviceIdentifierService)
                 .findById(deviceIdentifierId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("device-identifiers")

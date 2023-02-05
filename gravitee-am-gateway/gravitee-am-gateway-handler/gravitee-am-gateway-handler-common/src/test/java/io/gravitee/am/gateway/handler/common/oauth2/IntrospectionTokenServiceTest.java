@@ -57,12 +57,12 @@ public class IntrospectionTokenServiceTest {
 
     @Test
     public void shouldIntrospect_validToken_offline_verification() {
-        final String token = "token";
-        final JWT jwt = new JWT();
+        String token = "token";
+        JWT jwt = new JWT();
         jwt.setJti("jti");
         jwt.setDomain("domain");
         jwt.setAud("client");
-        final Client client = new Client();
+        Client client = new Client();
         client.setClientId("client-id");
 
         when(jwtService.decode(token)).thenReturn(Single.just(jwt));
@@ -78,18 +78,18 @@ public class IntrospectionTokenServiceTest {
 
     @Test
     public void shouldIntrospect_validToken_online_verification() {
-        final String token = "token";
+        String token = "token";
 
-        final JWT jwt = new JWT();
+        JWT jwt = new JWT();
         jwt.setJti("jti");
         jwt.setDomain("domain");
         jwt.setAud("client");
         jwt.setIat(Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond());
 
-        final Client client = new Client();
+        Client client = new Client();
         client.setClientId("client-id");
 
-        final AccessToken accessToken = new AccessToken();
+        AccessToken accessToken = new AccessToken();
         accessToken.setExpireAt(new Date(Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli()));
 
         when(jwtService.decode(token)).thenReturn(Single.just(jwt));
@@ -106,13 +106,13 @@ public class IntrospectionTokenServiceTest {
 
     @Test
     public void shouldIntrospect_validToken_offline_verification_timer() {
-        final String token = "token";
-        final JWT jwt = new JWT();
+        String token = "token";
+        JWT jwt = new JWT();
         jwt.setJti("jti");
         jwt.setDomain("domain");
         jwt.setAud("client");
         jwt.setIat(Instant.now().getEpochSecond());
-        final Client client = new Client();
+        Client client = new Client();
         client.setClientId("client-id");
 
         when(jwtService.decode(token)).thenReturn(Single.just(jwt));
@@ -129,13 +129,13 @@ public class IntrospectionTokenServiceTest {
 
     @Test
     public void shouldIntrospect_invalidValidToken_jwt_exception() {
-        final String token = "token";
-        final JWT jwt = new JWT();
+        String token = "token";
+        JWT jwt = new JWT();
         jwt.setJti("jti");
         jwt.setDomain("domain");
         jwt.setAud("client");
         jwt.setIat(Instant.now().getEpochSecond());
-        final Client client = new Client();
+        Client client = new Client();
         client.setClientId("client-id");
 
         when(jwtService.decode(token)).thenReturn(Single.just(jwt));
@@ -151,13 +151,13 @@ public class IntrospectionTokenServiceTest {
 
     @Test
     public void shouldIntrospect_invalidValidToken_token_revoked() {
-        final String token = "token";
-        final JWT jwt = new JWT();
+        String token = "token";
+        JWT jwt = new JWT();
         jwt.setJti("jti");
         jwt.setDomain("domain");
         jwt.setAud("client");
         jwt.setIat(Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond());
-        final Client client = new Client();
+        Client client = new Client();
         client.setClientId("client-id");
 
         when(jwtService.decode(token)).thenReturn(Single.just(jwt));
@@ -173,16 +173,16 @@ public class IntrospectionTokenServiceTest {
 
     @Test
     public void shouldIntrospect_invalidValidToken_token_expired() {
-        final String token = "token";
-        final JWT jwt = new JWT();
+        String token = "token";
+        JWT jwt = new JWT();
         jwt.setJti("jti");
         jwt.setDomain("domain");
         jwt.setAud("client");
         jwt.setIat(Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond());
-        final Client client = new Client();
+        Client client = new Client();
         client.setClientId("client-id");
 
-        final AccessToken accessToken = new AccessToken();
+        AccessToken accessToken = new AccessToken();
         accessToken.setExpireAt(new Date(Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli()));
 
         when(jwtService.decode(token)).thenReturn(Single.just(jwt));

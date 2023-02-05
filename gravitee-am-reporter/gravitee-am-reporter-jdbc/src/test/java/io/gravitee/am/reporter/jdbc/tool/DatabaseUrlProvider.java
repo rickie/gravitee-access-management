@@ -28,7 +28,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 public class DatabaseUrlProvider {
 
     public String getDatabaseType() {
-        final String jdbcType = System.getProperty("jdbcType", "postgresql-tc~15.1");
+        String jdbcType = System.getProperty("jdbcType", "postgresql-tc~15.1");
         if (jdbcType.startsWith("postgresql-tc")) {
             return "postgresql";
         }
@@ -50,7 +50,7 @@ public class DatabaseUrlProvider {
 
     @Bean(destroyMethod = "stop")
     public R2dbcDatabaseContainer getDatabaseContainer() {
-        final String jdbcType = System.getProperty("jdbcType", "postgresql-tc~15.1");
+        String jdbcType = System.getProperty("jdbcType", "postgresql-tc~15.1");
         // use sys.out to display in to the junit logs which DB is used
         System.out.println("Run Tests with " + jdbcType + " database container");
         R2dbcDatabaseContainer dbContainer = null;
