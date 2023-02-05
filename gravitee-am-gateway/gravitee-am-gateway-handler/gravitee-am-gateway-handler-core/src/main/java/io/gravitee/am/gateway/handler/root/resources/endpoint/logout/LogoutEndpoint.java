@@ -102,7 +102,7 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
         restoreCurrentSession(
                 routingContext,
                 sessionHandler -> {
-                    final UserToken currentSession = sessionHandler.result();
+                    UserToken currentSession = sessionHandler.result();
 
                     if (currentSession != null) {
                         // put current session in context for later use
@@ -120,7 +120,7 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
                     evaluateSingleSignOut(
                             routingContext,
                             endpointHandler -> {
-                                final String oidcEndSessionEndpoint = endpointHandler.result();
+                                String oidcEndSessionEndpoint = endpointHandler.result();
                                 if (oidcEndSessionEndpoint != null) {
                                     // 3.  Redirection to RP After Logout
                                     // In some cases, the RP will request that the End-User's User
@@ -196,7 +196,7 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
         // The OP SHOULD accept ID Tokens when the RP identified by the ID Token's aud claim and/or
         // sid claim has a current session
         // or had a recent session at the OP, even when the exp time has passed.
-        final String idToken = routingContext.request().getParam(Parameters.ID_TOKEN_HINT);
+        String idToken = routingContext.request().getParam(Parameters.ID_TOKEN_HINT);
         if (!StringUtils.isEmpty(idToken)) {
             userService
                     .extractSessionFromIdToken(idToken)
@@ -230,7 +230,7 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
         }
 
         // get client from the user's last application
-        final io.gravitee.am.model.User endUser =
+        io.gravitee.am.model.User endUser =
                 ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
                                 routingContext.user().getDelegate())
                         .getUser();
@@ -263,8 +263,8 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
      */
     private void evaluateSingleSignOut(
             RoutingContext routingContext, Handler<AsyncResult<String>> handler) {
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final User endUser =
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        User endUser =
                 routingContext.get(ConstantKeys.USER_CONTEXT_KEY) != null
                         ? routingContext.get(ConstantKeys.USER_CONTEXT_KEY)
                         : (routingContext.user() != null
@@ -290,7 +290,7 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
         }
 
         // generate the delegated OP logout request
-        final Authentication authentication =
+        Authentication authentication =
                 new EndUserAuthentication(
                         endUser,
                         null,
@@ -366,11 +366,11 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
         }
         // Generate a state containing provider id and current query parameter string.
         // This state will be sent back to AM after social logout.
-        final String delegatedOpIdToken =
+        String delegatedOpIdToken =
                 (String)
                         endUser.getAdditionalInformation()
                                 .get(ConstantKeys.OIDC_PROVIDER_ID_TOKEN_KEY);
-        final JWT stateJwt = new JWT();
+        JWT stateJwt = new JWT();
         stateJwt.put("c", endUser.getClient());
         stateJwt.put("p", endUser.getSource());
         stateJwt.put("q", routingContext.request().query());

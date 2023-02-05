@@ -42,7 +42,7 @@ public class AuthorizationRequestParseClientHandler implements Handler<RoutingCo
 
     @Override
     public void handle(RoutingContext context) {
-        final String clientId = context.request().getParam(Parameters.CLIENT_ID);
+        String clientId = context.request().getParam(Parameters.CLIENT_ID);
 
         fetchClient(
                 clientId,

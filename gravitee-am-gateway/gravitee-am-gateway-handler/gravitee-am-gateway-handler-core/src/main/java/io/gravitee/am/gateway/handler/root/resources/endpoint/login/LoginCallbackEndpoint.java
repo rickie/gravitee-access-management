@@ -33,9 +33,8 @@ public class LoginCallbackEndpoint extends AbstractEndpoint implements Handler<R
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final Session session = routingContext.session();
-        final String returnURL =
-                getReturnUrl(routingContext, routingContext.get(PARAM_CONTEXT_KEY));
+        Session session = routingContext.session();
+        String returnURL = getReturnUrl(routingContext, routingContext.get(PARAM_CONTEXT_KEY));
 
         // if we have an id_token, put in the session context for post step (mainly the user consent
         // step)

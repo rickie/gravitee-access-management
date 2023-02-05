@@ -62,7 +62,7 @@ public class PermissionSettingsUtilsTest {
         app.setTemplate(Optional.of(false));
         app.setMetadata(Optional.of(Map.of()));
 
-        final Set<Permission> permissions = app.getRequiredPermissions();
+        Set<Permission> permissions = app.getRequiredPermissions();
         assertTrue(permissions.size() == 1 && permissions.contains(APPLICATION_SETTINGS));
     }
 
@@ -76,7 +76,7 @@ public class PermissionSettingsUtilsTest {
         app.setTemplate(Optional.empty());
         app.setMetadata(Optional.empty());
 
-        final Set<Permission> permissions = app.getRequiredPermissions();
+        Set<Permission> permissions = app.getRequiredPermissions();
         assertTrue(permissions.isEmpty());
     }
 
@@ -85,7 +85,7 @@ public class PermissionSettingsUtilsTest {
         var app = new PatchApplication();
         app.setIdentityProviders(Optional.of(Set.of(new PatchApplicationIdentityProvider())));
 
-        final Set<Permission> permissions = app.getRequiredPermissions();
+        Set<Permission> permissions = app.getRequiredPermissions();
         assertTrue(permissions.size() == 1 && permissions.contains(APPLICATION_IDENTITY_PROVIDER));
     }
 
@@ -94,7 +94,7 @@ public class PermissionSettingsUtilsTest {
         var app = new PatchApplication();
         app.setIdentityProviders(Optional.empty());
 
-        final Set<Permission> permissions = app.getRequiredPermissions();
+        Set<Permission> permissions = app.getRequiredPermissions();
         assertTrue(permissions.isEmpty());
     }
 
@@ -103,7 +103,7 @@ public class PermissionSettingsUtilsTest {
         var app = new PatchApplication();
         app.setFactors(Optional.of(Set.of("factor1", "factor2")));
 
-        final Set<Permission> permissions = app.getRequiredPermissions();
+        Set<Permission> permissions = app.getRequiredPermissions();
         assertTrue(permissions.size() == 1 && permissions.contains(APPLICATION_FACTOR));
     }
 
@@ -112,7 +112,7 @@ public class PermissionSettingsUtilsTest {
         var app = new PatchApplication();
         app.setFactors(Optional.empty());
 
-        final Set<Permission> permissions = app.getRequiredPermissions();
+        Set<Permission> permissions = app.getRequiredPermissions();
         assertTrue(permissions.isEmpty());
     }
 
@@ -121,7 +121,7 @@ public class PermissionSettingsUtilsTest {
         var app = new PatchApplication();
         app.setCertificate(Optional.of("certificate-id"));
 
-        final Set<Permission> permissions = app.getRequiredPermissions();
+        Set<Permission> permissions = app.getRequiredPermissions();
         assertTrue(permissions.size() == 1 && permissions.contains(APPLICATION_CERTIFICATE));
     }
 
@@ -130,14 +130,14 @@ public class PermissionSettingsUtilsTest {
         var app = new PatchApplication();
         app.setCertificate(Optional.empty());
 
-        final Set<Permission> permissions = app.getRequiredPermissions();
+        Set<Permission> permissions = app.getRequiredPermissions();
         assertTrue(permissions.size() == 1 && permissions.contains(APPLICATION_CERTIFICATE));
     }
 
     @Test
     public void must_have_application_settings_permissions_with_sub_settings() {
         var app = new PatchApplication();
-        final PatchApplicationSettings settings = new PatchApplicationSettings();
+        PatchApplicationSettings settings = new PatchApplicationSettings();
 
         settings.setAccount(Optional.of(new AccountSettings()));
         settings.setLogin(Optional.of(new LoginSettings()));
@@ -149,14 +149,14 @@ public class PermissionSettingsUtilsTest {
 
         app.setSettings(Optional.of(settings));
 
-        final Set<Permission> permissions = app.getRequiredPermissions();
+        Set<Permission> permissions = app.getRequiredPermissions();
         assertTrue(permissions.size() == 1 && permissions.contains(APPLICATION_SETTINGS));
     }
 
     @Test
     public void must_have_nothing_with_application_settings_permissions_optional() {
         var app = new PatchApplication();
-        final PatchApplicationSettings settings = new PatchApplicationSettings();
+        PatchApplicationSettings settings = new PatchApplicationSettings();
 
         settings.setAccount(Optional.empty());
         settings.setLogin(Optional.empty());
@@ -168,29 +168,29 @@ public class PermissionSettingsUtilsTest {
 
         app.setSettings(Optional.of(settings));
 
-        final Set<Permission> permissions = app.getRequiredPermissions();
+        Set<Permission> permissions = app.getRequiredPermissions();
         assertTrue(permissions.isEmpty());
     }
 
     @Test
     public void must_have_openid_permissions_with_sub_settings() {
         var app = new PatchApplication();
-        final PatchApplicationSettings settings = new PatchApplicationSettings();
+        PatchApplicationSettings settings = new PatchApplicationSettings();
         settings.setOauth(Optional.of(new PatchApplicationOAuthSettings()));
         app.setSettings(Optional.of(settings));
 
-        final Set<Permission> permissions = app.getRequiredPermissions();
+        Set<Permission> permissions = app.getRequiredPermissions();
         assertTrue(permissions.size() == 1 && permissions.contains(APPLICATION_OPENID));
     }
 
     @Test
     public void must_have_saml_permissions_with_sub_settings() {
         var app = new PatchApplication();
-        final PatchApplicationSettings settings = new PatchApplicationSettings();
+        PatchApplicationSettings settings = new PatchApplicationSettings();
         settings.setSaml(Optional.of(new PatchApplicationSAMLSettings()));
         app.setSettings(Optional.of(settings));
 
-        final Set<Permission> permissions = app.getRequiredPermissions();
+        Set<Permission> permissions = app.getRequiredPermissions();
         assertTrue(permissions.size() == 1 && permissions.contains(APPLICATION_SAML));
     }
 
@@ -206,7 +206,7 @@ public class PermissionSettingsUtilsTest {
         app.setIdentityProviders(Optional.of(Set.of(new PatchApplicationIdentityProvider())));
         app.setFactors(Optional.of(Set.of("factor1", "factor2")));
         app.setCertificate(Optional.of("certificate-id"));
-        final PatchApplicationSettings settings = new PatchApplicationSettings();
+        PatchApplicationSettings settings = new PatchApplicationSettings();
 
         settings.setAccount(Optional.of(new AccountSettings()));
         settings.setLogin(Optional.of(new LoginSettings()));
@@ -219,7 +219,7 @@ public class PermissionSettingsUtilsTest {
         settings.setSaml(Optional.of(new PatchApplicationSAMLSettings()));
         app.setSettings(Optional.of(settings));
 
-        final Set<Permission> permissions = app.getRequiredPermissions();
+        Set<Permission> permissions = app.getRequiredPermissions();
         assertTrue(
                 permissions.size() == 6
                         && permissions.containsAll(

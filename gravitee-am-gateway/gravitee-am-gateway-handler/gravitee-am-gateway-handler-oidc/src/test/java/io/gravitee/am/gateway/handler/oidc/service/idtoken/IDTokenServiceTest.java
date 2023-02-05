@@ -576,7 +576,7 @@ public class IDTokenServiceTest {
         verify(jwtService, times(1))
                 .encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
 
-        final JWT capturedValue = jwtCaptor.getValue();
+        JWT capturedValue = jwtCaptor.getValue();
         assertEquals(capturedValue.getSub(), expectedJwt.getSub());
         assertEquals(capturedValue.getAud(), expectedJwt.getAud());
         assertEquals(
@@ -634,7 +634,7 @@ public class IDTokenServiceTest {
         verify(jwtService, times(1))
                 .encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
 
-        final JWT capturedValue = jwtCaptor.getValue();
+        JWT capturedValue = jwtCaptor.getValue();
         assertEquals(capturedValue.getSub(), expectedJwt.getSub());
         assertEquals(capturedValue.getAud(), expectedJwt.getAud());
         assertNull(capturedValue.get(StandardClaims.ADDRESS));
@@ -741,7 +741,7 @@ public class IDTokenServiceTest {
         verify(jwtService, times(1))
                 .encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
 
-        final JWT capturedValue = jwtCaptor.getValue();
+        JWT capturedValue = jwtCaptor.getValue();
         assertEquals(capturedValue.getSub(), expectedJwt.getSub());
         assertEquals(capturedValue.getAud(), expectedJwt.getAud());
         assertEquals(

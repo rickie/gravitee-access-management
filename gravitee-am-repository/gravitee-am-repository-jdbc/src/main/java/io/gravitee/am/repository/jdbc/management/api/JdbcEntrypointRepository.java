@@ -124,7 +124,7 @@ public class JdbcEntrypointRepository extends AbstractJdbcRepository
         TransactionalOperator trx = TransactionalOperator.create(tm);
         Mono<Integer> action = template.insert(toJdbcEntity(item)).map(__ -> 1);
 
-        final List<String> tags = item.getTags();
+        List<String> tags = item.getTags();
         if (tags != null && !tags.isEmpty()) {
             action =
                     action.then(
@@ -150,7 +150,7 @@ public class JdbcEntrypointRepository extends AbstractJdbcRepository
         TransactionalOperator trx = TransactionalOperator.create(tm);
         Mono<Integer> action = template.update(toJdbcEntity(item)).map(__ -> 1);
 
-        final List<String> tags = item.getTags();
+        List<String> tags = item.getTags();
         if (tags != null & !tags.isEmpty()) {
             action =
                     action.then(

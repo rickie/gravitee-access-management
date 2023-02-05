@@ -72,7 +72,7 @@ public class JdbcUserNotificationRepository extends AbstractJdbcRepository
     @Override
     public Single<UserNotification> create(UserNotification item) {
         LOGGER.debug("create({})", item);
-        final JdbcUserNotification entity = toJdbcEntity(item);
+        JdbcUserNotification entity = toJdbcEntity(item);
         entity.setId(entity.getId() == null ? RandomString.generate() : entity.getId());
         return monoToSingle(this.template.insert(entity)).map(this::toEntity);
     }
@@ -80,7 +80,7 @@ public class JdbcUserNotificationRepository extends AbstractJdbcRepository
     @Override
     public Single<UserNotification> update(UserNotification item) {
         LOGGER.debug("update({})", item);
-        final JdbcUserNotification entity = toJdbcEntity(item);
+        JdbcUserNotification entity = toJdbcEntity(item);
         return monoToSingle(this.template.update(entity)).map(this::toEntity);
     }
 

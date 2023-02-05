@@ -93,7 +93,7 @@ public class RequestUtils {
      * @return all cleaned query parameters as a {@link MultiMap}.
      */
     public static MultiMap getCleanedQueryParams(String uri) {
-        final MultiMap queryParams = getQueryParams(uri);
+        MultiMap queryParams = getQueryParams(uri);
         queryParams.remove(ConstantKeys.ERROR_PARAM_KEY);
         queryParams.remove(ConstantKeys.RATE_LIMIT_ERROR_PARAM_KEY);
         queryParams.remove(ConstantKeys.VERIFY_ATTEMPT_ERROR_PARAM_KEY);

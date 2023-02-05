@@ -103,14 +103,14 @@ public abstract class JdbcUserProvider_Test {
 
     @Test
     public void shouldUpdate_notPassword() {
-        final String username = "userToUpdateNoPwd";
+        String username = "userToUpdateNoPwd";
         DefaultUser user = new DefaultUser(username);
         user.setCredentials("password");
         user.setEmail(username + "@acme.fr");
         User createdUser = userProvider.create(user).blockingGet();
 
         DefaultUser updateUser = new DefaultUser(username);
-        final String emailToUpdate = username + "-email@acme.fr";
+        String emailToUpdate = username + "-email@acme.fr";
         updateUser.setEmail(emailToUpdate);
         userProvider.update(createdUser.getId(), updateUser).blockingGet();
 

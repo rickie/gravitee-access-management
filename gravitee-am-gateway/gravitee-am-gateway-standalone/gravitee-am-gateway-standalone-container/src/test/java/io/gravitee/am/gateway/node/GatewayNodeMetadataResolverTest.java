@@ -62,14 +62,14 @@ public class GatewayNodeMetadataResolverTest {
     @Test
     public void shouldResolveOrganizations() {
 
-        final Installation installation = new Installation();
+        Installation installation = new Installation();
         installation.setId("install#1");
 
-        final Organization organization = new Organization();
+        Organization organization = new Organization();
         organization.setId("org#1");
         organization.setHrids(Arrays.asList("france"));
 
-        final io.gravitee.am.model.Environment environment = new io.gravitee.am.model.Environment();
+        io.gravitee.am.model.Environment environment = new io.gravitee.am.model.Environment();
         environment.setId("env#1");
         environment.setHrids(Arrays.asList("dev"));
         environment.setOrganizationId(organization.getId());
@@ -81,7 +81,7 @@ public class GatewayNodeMetadataResolverTest {
         when(environmentRepository.findAll(organization.getId()))
                 .thenReturn(Flowable.just(environment));
 
-        final Map<String, Object> metadata = cut.resolve();
+        Map<String, Object> metadata = cut.resolve();
 
         assertEquals(singleton("org#1"), metadata.get(Node.META_ORGANIZATIONS));
         assertEquals(singleton("env#1"), metadata.get(Node.META_ENVIRONMENTS));
@@ -90,27 +90,24 @@ public class GatewayNodeMetadataResolverTest {
     @Test
     public void shouldResolveOrganizationAndEnvironments() {
 
-        final Installation installation = new Installation();
+        Installation installation = new Installation();
         installation.setId("install#1");
 
-        final Organization organization = new Organization();
+        Organization organization = new Organization();
         organization.setId("org#1");
         organization.setHrids(Arrays.asList("france"));
 
-        final io.gravitee.am.model.Environment environmentDev =
-                new io.gravitee.am.model.Environment();
+        io.gravitee.am.model.Environment environmentDev = new io.gravitee.am.model.Environment();
         environmentDev.setId("env#1");
         environmentDev.setHrids(Arrays.asList("dev"));
         environmentDev.setOrganizationId(organization.getId());
 
-        final io.gravitee.am.model.Environment environmentQa =
-                new io.gravitee.am.model.Environment();
+        io.gravitee.am.model.Environment environmentQa = new io.gravitee.am.model.Environment();
         environmentQa.setId("env#2");
         environmentQa.setHrids(Arrays.asList("qa"));
         environmentQa.setOrganizationId(organization.getId());
 
-        final io.gravitee.am.model.Environment environmentPrep =
-                new io.gravitee.am.model.Environment();
+        io.gravitee.am.model.Environment environmentPrep = new io.gravitee.am.model.Environment();
         environmentPrep.setId("env#3");
         environmentPrep.setHrids(Arrays.asList("prep"));
         environmentPrep.setOrganizationId(organization.getId());
@@ -123,7 +120,7 @@ public class GatewayNodeMetadataResolverTest {
         when(environmentRepository.findAll(organization.getId()))
                 .thenReturn(Flowable.just(environmentDev, environmentQa, environmentPrep));
 
-        final Map<String, Object> metadata = cut.resolve();
+        Map<String, Object> metadata = cut.resolve();
 
         assertEquals(singleton("org#1"), metadata.get(Node.META_ORGANIZATIONS));
         assertEquals(
@@ -134,10 +131,10 @@ public class GatewayNodeMetadataResolverTest {
     @Test
     public void shouldResolveEnvironments() {
 
-        final Installation installation = new Installation();
+        Installation installation = new Installation();
         installation.setId("install#1");
 
-        final io.gravitee.am.model.Environment environment = new io.gravitee.am.model.Environment();
+        io.gravitee.am.model.Environment environment = new io.gravitee.am.model.Environment();
         environment.setId("env#1");
         environment.setHrids(Arrays.asList("dev"));
 
@@ -145,7 +142,7 @@ public class GatewayNodeMetadataResolverTest {
         when(installationRepository.find()).thenReturn(Maybe.just(installation));
         when(environmentRepository.findAll()).thenReturn(Flowable.just(environment));
 
-        final Map<String, Object> metadata = cut.resolve();
+        Map<String, Object> metadata = cut.resolve();
 
         assertEquals(singleton("env#1"), metadata.get(Node.META_ENVIRONMENTS));
     }
@@ -153,12 +150,12 @@ public class GatewayNodeMetadataResolverTest {
     @Test
     public void shouldResolveEmptyOrganizationsAndEnvironments() {
 
-        final Installation installation = new Installation();
+        Installation installation = new Installation();
         installation.setId("install#1");
 
         when(installationRepository.find()).thenReturn(Maybe.just(installation));
 
-        final Map<String, Object> metadata = cut.resolve();
+        Map<String, Object> metadata = cut.resolve();
 
         assertEquals(emptySet(), metadata.get(Node.META_ORGANIZATIONS));
         assertEquals(emptySet(), metadata.get(Node.META_ENVIRONMENTS));

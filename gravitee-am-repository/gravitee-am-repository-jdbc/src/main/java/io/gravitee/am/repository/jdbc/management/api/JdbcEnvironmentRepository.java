@@ -65,7 +65,7 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository
     public Flowable<Environment> findAll() {
         LOGGER.debug("findAll()");
 
-        final Flowable<Environment> result =
+        Flowable<Environment> result =
                 environmentRepository
                         .findAll()
                         .map(this::toEnvironment)
@@ -80,7 +80,7 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository
     public Flowable<Environment> findAll(String organizationId) {
         LOGGER.debug("findAll({})", organizationId);
 
-        final Flowable<Environment> result =
+        Flowable<Environment> result =
                 environmentRepository
                         .findByOrganization(organizationId)
                         .map(this::toEnvironment)
@@ -135,8 +135,8 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository
         TransactionalOperator trx = TransactionalOperator.create(tm);
         Mono<Void> insert = template.insert(toJdbcEnvironment(environment)).then();
 
-        final Mono<Void> storeDomainRestrictions = storeDomainRestrictions(environment, false);
-        final Mono<Void> storeHrids = storeHrids(environment, false);
+        Mono<Void> storeDomainRestrictions = storeDomainRestrictions(environment, false);
+        Mono<Void> storeHrids = storeHrids(environment, false);
 
         return monoToSingle(
                 insert.then(storeDomainRestrictions)
@@ -214,7 +214,7 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository
             delete = deleteDomainRestrictions(environment.getId());
         }
 
-        final List<String> domainRestrictions = environment.getDomainRestrictions();
+        List<String> domainRestrictions = environment.getDomainRestrictions();
         if (domainRestrictions != null && !domainRestrictions.isEmpty()) {
             // concat flows to create domainRestrictions
             return delete.thenMany(
@@ -261,9 +261,9 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository
             delete = deleteHrids(environment.getId());
         }
 
-        final List<String> hrids = environment.getHrids();
+        List<String> hrids = environment.getHrids();
         if (hrids != null && !hrids.isEmpty()) {
-            final ArrayList<JdbcEnvironment.Hrid> dbHrids = new ArrayList<>();
+            ArrayList<JdbcEnvironment.Hrid> dbHrids = new ArrayList<>();
             for (int i = 0; i < hrids.size(); i++) {
                 JdbcEnvironment.Hrid hrid = new JdbcEnvironment.Hrid();
                 hrid.setEnvironmentId(environment.getId());

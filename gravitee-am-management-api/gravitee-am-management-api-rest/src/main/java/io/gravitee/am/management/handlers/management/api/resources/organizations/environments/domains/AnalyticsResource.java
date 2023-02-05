@@ -58,7 +58,7 @@ public class AnalyticsResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @BeanParam AnalyticsParam param,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         // validate param
         param.validate();

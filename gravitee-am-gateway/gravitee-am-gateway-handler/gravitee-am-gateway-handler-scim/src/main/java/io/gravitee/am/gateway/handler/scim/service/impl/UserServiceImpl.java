@@ -196,7 +196,7 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Create a new user {} for domain {}", user.getUserName(), domain.getName());
 
         // set user idp source
-        final String source =
+        String source =
                 user.getSource() != null
                         ? user.getSource()
                         : (idp != null ? idp : DEFAULT_IDP_PREFIX + domain.getId());
@@ -217,7 +217,7 @@ public class UserServiceImpl implements UserService {
             return Single.error(new InvalidValueException(FIELD_PASSWORD_IS_INVALID));
         }
 
-        final var rawPassword = user.getPassword();
+        var rawPassword = user.getPassword();
 
         // check if user is unique
         return userRepository
@@ -246,7 +246,7 @@ public class UserServiceImpl implements UserService {
                                             .andThen(
                                                     Single.defer(
                                                                     () -> {
-                                                                        final IdentityProvider
+                                                                        IdentityProvider
                                                                                 identityProvider =
                                                                                         identityProviderManager
                                                                                                 .getIdentityProvider(
@@ -381,7 +381,7 @@ public class UserServiceImpl implements UserService {
             Client client) {
         LOGGER.debug("Update a user {} for domain {}", user.getUserName(), domain.getName());
 
-        final var rawPassword = user.getPassword();
+        var rawPassword = user.getPassword();
         return userRepository
                 .findById(userId)
                 .switchIfEmpty(Maybe.error(new UserNotFoundException(userId)))
@@ -500,7 +500,6 @@ public class UserServiceImpl implements UserService {
                                                                 .andThen(
                                                                         Single.defer(
                                                                                         () -> {
-                                                                                            final
                                                                                             IdentityProvider
                                                                                                     identityProvider =
                                                                                                             identityProviderManager

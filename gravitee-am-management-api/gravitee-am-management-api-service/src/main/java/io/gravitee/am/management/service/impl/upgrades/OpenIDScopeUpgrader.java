@@ -89,7 +89,7 @@ public class OpenIDScopeUpgrader implements Upgrader, Ordered {
                                         "Update a system scope key[{}] for domain[{}]",
                                         systemScope.getKey(),
                                         domain);
-                                final Scope existingScope = optScope.get();
+                                Scope existingScope = optScope.get();
                                 UpdateSystemScope scope = new UpdateSystemScope();
                                 scope.setName(
                                         existingScope.getName() != null
