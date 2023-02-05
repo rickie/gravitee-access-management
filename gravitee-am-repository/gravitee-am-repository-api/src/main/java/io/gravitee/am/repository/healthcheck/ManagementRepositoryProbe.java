@@ -39,7 +39,7 @@ public class ManagementRepositoryProbe implements Probe {
     @Override
     public CompletableFuture<Result> check() {
         // Search for an domain to check repository connection
-        final CompletableFuture<Result> future = new CompletableFuture<>();
+        CompletableFuture<Result> future = new CompletableFuture<>();
 
         domainRepository
                 .findById(DOMAIN)

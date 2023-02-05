@@ -143,9 +143,9 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testFindByType() {
-        final Random random = new Random();
-        final int nbOfType1 = random.nextInt(10) + 1;
-        final int nbOfType2 = random.nextInt(10) + 1;
+        Random random = new Random();
+        int nbOfType1 = random.nextInt(10) + 1;
+        int nbOfType2 = random.nextInt(10) + 1;
 
         for (int i = 0; i < nbOfType1; ++i) {
             SystemTask task = buildSystemTask("type1");

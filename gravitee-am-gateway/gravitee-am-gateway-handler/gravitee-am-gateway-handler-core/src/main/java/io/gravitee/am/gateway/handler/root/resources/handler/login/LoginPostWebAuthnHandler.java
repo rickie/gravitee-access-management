@@ -37,7 +37,7 @@ public class LoginPostWebAuthnHandler implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final Cookie cookie =
+        Cookie cookie =
                 routingContext
                         .request()
                         .getCookie(webAuthnCookieService.getRememberDeviceCookieName());

@@ -108,7 +108,7 @@ public class I18nDictionaryManager extends AbstractService
     }
 
     private void update(String id, I18nDictionaryEvent event) {
-        final String eventType = event.toString().toLowerCase();
+        String eventType = event.toString().toLowerCase();
         logger.info(
                 "Domain {} has received {} i18n dictionary event for {}",
                 domain.getName(),

@@ -51,8 +51,8 @@ public class SMSFactorProvider implements FactorProvider {
 
     @Override
     public Completable verify(FactorContext context) {
-        final String code = context.getData(FactorContext.KEY_CODE, String.class);
-        final EnrolledFactor enrolledFactor =
+        String code = context.getData(FactorContext.KEY_CODE, String.class);
+        EnrolledFactor enrolledFactor =
                 context.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class);
         ResourceManager component = context.getComponent(ResourceManager.class);
         ResourceProvider provider =
@@ -81,7 +81,7 @@ public class SMSFactorProvider implements FactorProvider {
 
     @Override
     public Completable sendChallenge(FactorContext context) {
-        final EnrolledFactor enrolledFactor =
+        EnrolledFactor enrolledFactor =
                 context.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class);
         ResourceManager component = context.getComponent(ResourceManager.class);
         ResourceProvider provider =
@@ -107,7 +107,7 @@ public class SMSFactorProvider implements FactorProvider {
                 logger.warn("No phone number in form");
             } else {
                 // check phone format according to Factor configuration
-                final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
+                PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
                 try {
                     Phonenumber.PhoneNumber phone =
                             phoneNumberUtil.parse(

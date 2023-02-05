@@ -47,7 +47,7 @@ public class BotDetectionsPluginResource {
     @ApiOperation(
             value = "List bot detection plugins",
             notes = "There is no particular permission needed. User must be authenticated.")
-    public void list(@Suspended final AsyncResponse response) {
+    public void list(@Suspended AsyncResponse response) {
 
         pluginService
                 .findAll()

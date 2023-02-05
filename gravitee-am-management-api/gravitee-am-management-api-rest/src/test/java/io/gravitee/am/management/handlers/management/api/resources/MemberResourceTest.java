@@ -38,13 +38,13 @@ public class MemberResourceTest extends JerseySpringTest {
     @Test
     public void shouldNotDeleteMember_organizationNotFound() {
 
-        final String organizationId = "orga-1";
+        String organizationId = "orga-1";
 
         doReturn(Single.error(new OrganizationNotFoundException(organizationId)))
                 .when(organizationService)
                 .findById(organizationId);
 
-        final Response response =
+        Response response =
                 target("/organizations")
                         .path(organizationId)
                         .path("members")
@@ -69,7 +69,7 @@ public class MemberResourceTest extends JerseySpringTest {
                 .when(membershipService)
                 .delete(eq(membershipId), any(io.gravitee.am.identityprovider.api.User.class));
 
-        final Response response =
+        Response response =
                 target("/organizations")
                         .path(organization.getId())
                         .path("members")

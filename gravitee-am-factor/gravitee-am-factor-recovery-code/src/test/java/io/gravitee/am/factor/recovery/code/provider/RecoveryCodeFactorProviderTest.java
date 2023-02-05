@@ -99,7 +99,7 @@ public class RecoveryCodeFactorProviderTest {
     @Test
     public void shouldVerifyRecoveryCode() {
         enrolledFactor.setSecurity(createFactorSecurityWithRecoveryCode());
-        final String code = "three";
+        String code = "three";
         when(factorContext.getData(FactorContext.KEY_CODE, String.class)).thenReturn(code);
 
         TestObserver<Void> test = recoveryCodeFactorProvider.verify(factorContext).test();
@@ -112,7 +112,7 @@ public class RecoveryCodeFactorProviderTest {
     @Test
     public void verifyShouldThrowExceptionForBadRecoveryCode() {
         enrolledFactor.setSecurity(createFactorSecurityWithRecoveryCode());
-        final String invalidCode = "Invalid Code";
+        String invalidCode = "Invalid Code";
         when(factorContext.getData(FactorContext.KEY_CODE, String.class)).thenReturn(invalidCode);
 
         TestObserver<Void> test = recoveryCodeFactorProvider.verify(factorContext).test();

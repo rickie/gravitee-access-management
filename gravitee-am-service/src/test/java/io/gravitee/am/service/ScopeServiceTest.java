@@ -305,7 +305,7 @@ public class ScopeServiceTest {
         patch.setDiscovery(Optional.of(true));
         patch.setName(Optional.of("name"));
 
-        final String scopeId = "toPatchId";
+        String scopeId = "toPatchId";
 
         Scope toPatch = new Scope();
         toPatch.setId(scopeId);
@@ -337,7 +337,7 @@ public class ScopeServiceTest {
         patch.setDiscovery(Optional.of(true));
         patch.setName(Optional.of("name"));
 
-        final String scopeId = "toPatchId";
+        String scopeId = "toPatchId";
 
         Scope toPatch = new Scope();
         toPatch.setId(scopeId);
@@ -415,7 +415,7 @@ public class ScopeServiceTest {
         updateScope.setDiscovery(true);
         updateScope.setName("name");
 
-        final String scopeId = "toUpdateId";
+        String scopeId = "toUpdateId";
 
         Scope toUpdate = new Scope();
         toUpdate.setId(scopeId);
@@ -446,7 +446,7 @@ public class ScopeServiceTest {
         UpdateScope updateScope = new UpdateScope();
         updateScope.setName("name");
 
-        final String scopeId = "toUpdateId";
+        String scopeId = "toUpdateId";
 
         Scope toUpdate = new Scope();
         toUpdate.setId(scopeId);
@@ -478,7 +478,7 @@ public class ScopeServiceTest {
         updateScope.setDiscovery(true);
         updateScope.setName("name");
 
-        final String scopeId = "toUpdateId";
+        String scopeId = "toUpdateId";
 
         Scope toUpdate = new Scope();
         toUpdate.setId(scopeId);
@@ -539,7 +539,7 @@ public class ScopeServiceTest {
         updateScope.setDiscovery(true);
         updateScope.setName("name");
 
-        final String scopeId = "toUpdateId";
+        String scopeId = "toUpdateId";
 
         Scope toUpdate = new Scope();
         toUpdate.setId(scopeId);

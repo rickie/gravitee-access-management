@@ -478,15 +478,15 @@ public class FormServiceImpl implements FormService {
 
         return Single.create(
                 emitter -> {
-                    final String path = "views/default/" + template + ".html";
-                    final InputStream resourceAsStream =
+                    String path = "views/default/" + template + ".html";
+                    InputStream resourceAsStream =
                             this.getClass().getClassLoader().getResourceAsStream(path);
-                    final String content = IOUtils.toString(resourceAsStream, defaultCharset());
+                    String content = IOUtils.toString(resourceAsStream, defaultCharset());
                     if (content.isBlank()) {
                         throw new TechnicalManagementException(
                                 "An error has occurred while trying to load default form");
                     }
-                    final Form form = new Form(false, template);
+                    Form form = new Form(false, template);
                     form.setContent(content);
                     emitter.onSuccess(form);
                 });

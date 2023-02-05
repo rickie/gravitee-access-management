@@ -70,7 +70,7 @@ public class VerifyAttemptServiceImplTest {
     @Test
     public void checkVerification_when_acc_settings_is_null() {
         when(domain.getAccountSettings()).thenReturn(null);
-        final Client client = null;
+        Client client = null;
         TestObserver<VerifyAttempt> observer =
                 verifyAttemptService.checkVerifyAttempt(user, factorId, client, domain).test();
 
@@ -83,7 +83,7 @@ public class VerifyAttemptServiceImplTest {
     public void checkVerification_when_isMfaChallengeAttemptsDetectionEnabled_is_false() {
         when(domain.getAccountSettings()).thenReturn(accountSettings);
         when(accountSettings.isMfaChallengeAttemptsDetectionEnabled()).thenReturn(false);
-        final Client client = null;
+        Client client = null;
 
         TestObserver<VerifyAttempt> observer =
                 verifyAttemptService.checkVerifyAttempt(user, factorId, client, domain).test();
@@ -100,7 +100,7 @@ public class VerifyAttemptServiceImplTest {
         when(accountSettings.isMfaChallengeAttemptsDetectionEnabled()).thenReturn(true);
         when(client.getId()).thenReturn("any-client-id");
         when(accountSettings.getMfaChallengeAttemptsResetTime()).thenReturn(360000);
-        final VerifyAttempt verifyAttempt = createVerifyAttempt();
+        VerifyAttempt verifyAttempt = createVerifyAttempt();
         Date pastDate = getDate("11-06-22");
         verifyAttempt.setUpdatedAt(pastDate);
 
@@ -124,7 +124,7 @@ public class VerifyAttemptServiceImplTest {
         when(accountSettings.getMfaChallengeMaxAttempts()).thenReturn(5);
         when(accountSettings.getMfaChallengeAttemptsResetTime()).thenReturn(360000);
         when(client.getId()).thenReturn("any-client-id");
-        final VerifyAttempt verifyAttempt = createVerifyAttempt();
+        VerifyAttempt verifyAttempt = createVerifyAttempt();
         verifyAttempt.setAllowRequest(false);
         verifyAttempt.setAttempts(2);
         verifyAttempt.setUpdatedAt(new Date());
@@ -142,7 +142,7 @@ public class VerifyAttemptServiceImplTest {
     @Test
     public void verificationFailed_when_acc_settings_is_null() {
         when(domain.getAccountSettings()).thenReturn(null);
-        final Client client = null;
+        Client client = null;
         TestObserver<Void> observer =
                 verifyAttemptService
                         .incrementAttempt(userId, factorId, client, domain, Optional.empty())
@@ -156,7 +156,7 @@ public class VerifyAttemptServiceImplTest {
     public void verificationFailed_when_isMfaChallengeAttemptsDetectionEnabled_is_false() {
         when(domain.getAccountSettings()).thenReturn(accountSettings);
         when(accountSettings.isMfaChallengeAttemptsDetectionEnabled()).thenReturn(false);
-        final Client client = null;
+        Client client = null;
 
         TestObserver<Void> observer =
                 verifyAttemptService
@@ -224,7 +224,7 @@ public class VerifyAttemptServiceImplTest {
         when(accountSettings.getMfaChallengeAttemptsResetTime()).thenReturn(360000);
         when(accountSettings.getMfaChallengeMaxAttempts()).thenReturn(2);
 
-        final VerifyAttempt verifyAttempt = createVerifyAttempt();
+        VerifyAttempt verifyAttempt = createVerifyAttempt();
         Date futureDate = getDate("11-06-29");
         verifyAttempt.setUpdatedAt(futureDate);
         verifyAttempt.setAllowRequest(false);

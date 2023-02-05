@@ -34,7 +34,7 @@ public class DeviceIdentifierPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetPlugin() {
-        final DeviceIdentifierPlugin plugin = new DeviceIdentifierPlugin();
+        DeviceIdentifierPlugin plugin = new DeviceIdentifierPlugin();
         plugin.setId("plugin-id");
         plugin.setName("plugin-name");
         plugin.setDescription("desc");
@@ -42,7 +42,7 @@ public class DeviceIdentifierPluginResourceTest extends JerseySpringTest {
 
         doReturn(Maybe.just(plugin)).when(deviceIdentifierPluginService).findById("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("device-identifiers")
@@ -54,12 +54,12 @@ public class DeviceIdentifierPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetPlugin_NotFound() {
-        final DeviceIdentifierPlugin plugin = new DeviceIdentifierPlugin();
+        DeviceIdentifierPlugin plugin = new DeviceIdentifierPlugin();
         plugin.setId("plugin-id");
 
         doReturn(Maybe.empty()).when(deviceIdentifierPluginService).findById("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("device-identifiers")
@@ -76,7 +76,7 @@ public class DeviceIdentifierPluginResourceTest extends JerseySpringTest {
                 .when(deviceIdentifierPluginService)
                 .findById("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("device-identifiers")
@@ -89,7 +89,7 @@ public class DeviceIdentifierPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema() {
-        final DeviceIdentifierPlugin plugin = new DeviceIdentifierPlugin();
+        DeviceIdentifierPlugin plugin = new DeviceIdentifierPlugin();
         plugin.setId("plugin-id");
         plugin.setName("plugin-name");
         plugin.setDescription("desc");
@@ -98,7 +98,7 @@ public class DeviceIdentifierPluginResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(plugin)).when(deviceIdentifierPluginService).findById("plugin-id");
         doReturn(Maybe.just("{}")).when(deviceIdentifierPluginService).getSchema("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("device-identifiers")
@@ -112,7 +112,7 @@ public class DeviceIdentifierPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema_PluginNotFound() {
-        final DeviceIdentifierPlugin plugin = new DeviceIdentifierPlugin();
+        DeviceIdentifierPlugin plugin = new DeviceIdentifierPlugin();
         plugin.setId("plugin-id");
         plugin.setName("plugin-name");
         plugin.setDescription("desc");
@@ -120,7 +120,7 @@ public class DeviceIdentifierPluginResourceTest extends JerseySpringTest {
 
         doReturn(Maybe.empty()).when(deviceIdentifierPluginService).findById("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("device-identifiers")
@@ -134,7 +134,7 @@ public class DeviceIdentifierPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema_SchemaNotFound() {
-        final DeviceIdentifierPlugin plugin = new DeviceIdentifierPlugin();
+        DeviceIdentifierPlugin plugin = new DeviceIdentifierPlugin();
         plugin.setId("plugin-id");
         plugin.setName("plugin-name");
         plugin.setDescription("desc");
@@ -143,7 +143,7 @@ public class DeviceIdentifierPluginResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(plugin)).when(deviceIdentifierPluginService).findById("plugin-id");
         doReturn(Maybe.empty()).when(deviceIdentifierPluginService).getSchema("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("device-identifiers")
@@ -157,7 +157,7 @@ public class DeviceIdentifierPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema_TechnicalException() {
-        final DeviceIdentifierPlugin plugin = new DeviceIdentifierPlugin();
+        DeviceIdentifierPlugin plugin = new DeviceIdentifierPlugin();
         plugin.setId("plugin-id");
         plugin.setName("plugin-name");
         plugin.setDescription("desc");
@@ -168,7 +168,7 @@ public class DeviceIdentifierPluginResourceTest extends JerseySpringTest {
                 .when(deviceIdentifierPluginService)
                 .getSchema("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("device-identifiers")

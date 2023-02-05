@@ -110,7 +110,7 @@ public class MongoNotificationAcknowledgeRepository extends AbstractManagementMo
     }
 
     private NotificationAcknowledge convert(NotificationAcknowledgeMongo entity) {
-        final NotificationAcknowledge bean = new NotificationAcknowledge();
+        NotificationAcknowledge bean = new NotificationAcknowledge();
         bean.setId(entity.getId());
         bean.setResourceId(entity.getResourceId());
         bean.setResourceType(entity.getResourceType());
@@ -123,7 +123,7 @@ public class MongoNotificationAcknowledgeRepository extends AbstractManagementMo
     }
 
     private NotificationAcknowledgeMongo convert(NotificationAcknowledge bean) {
-        final NotificationAcknowledgeMongo entity = new NotificationAcknowledgeMongo();
+        NotificationAcknowledgeMongo entity = new NotificationAcknowledgeMongo();
         entity.setId(bean.getId());
         entity.setResourceId(bean.getResourceId());
         entity.setResourceType(bean.getResourceType());

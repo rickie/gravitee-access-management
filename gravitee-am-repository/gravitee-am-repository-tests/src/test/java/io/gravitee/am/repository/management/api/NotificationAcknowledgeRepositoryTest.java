@@ -124,7 +124,7 @@ public class NotificationAcknowledgeRepositoryTest extends AbstractManagementTes
 
     @Test
     public void testNotFound() throws TechnicalException {
-        final TestObserver<NotificationAcknowledge> test =
+        TestObserver<NotificationAcknowledge> test =
                 repository
                         .findByResourceIdAndTypeAndAudienceId(
                                 "unknown", "unknown", "unknown", "unknonwn")
@@ -153,7 +153,7 @@ public class NotificationAcknowledgeRepositoryTest extends AbstractManagementTes
         testObserver.assertNoErrors();
         testObserver.assertValue(d -> d.getId().equals(acknowledge.getId()));
 
-        final TestObserver<Void> test =
+        TestObserver<Void> test =
                 repository
                         .deleteByResourceId(
                                 acknowledge.getResourceId(), acknowledge.getResourceType())

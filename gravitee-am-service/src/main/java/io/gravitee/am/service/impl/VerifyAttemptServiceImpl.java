@@ -57,14 +57,13 @@ public class VerifyAttemptServiceImpl implements VerifyAttemptService {
     @Override
     public Maybe<VerifyAttempt> checkVerifyAttempt(
             User user, String factorId, Client client, Domain domain) {
-        final AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
+        AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
         if (accountSettings == null || !accountSettings.isMfaChallengeAttemptsDetectionEnabled()) {
             LOGGER.debug("MFA brute force detection is disabled, won't check verify attempt.");
             return Maybe.empty();
         }
 
-        final VerifyAttemptCriteria criteria =
-                buildCriteria(user.getId(), factorId, client.getId());
+        VerifyAttemptCriteria criteria = buildCriteria(user.getId(), factorId, client.getId());
 
         return getVerifyAttemptIfExists(criteria, accountSettings)
                 .doOnSuccess(
@@ -90,14 +89,14 @@ public class VerifyAttemptServiceImpl implements VerifyAttemptService {
             Client client,
             Domain domain,
             Optional<VerifyAttempt> optionalVerifyAttempt) {
-        final AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
+        AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
 
         if (accountSettings == null || !accountSettings.isMfaChallengeAttemptsDetectionEnabled()) {
             return Completable.complete();
         }
         if (optionalVerifyAttempt.isPresent()) {
-            final VerifyAttempt verifyAttempt = optionalVerifyAttempt.get();
-            final int attempts = verifyAttempt.getAttempts() + 1;
+            VerifyAttempt verifyAttempt = optionalVerifyAttempt.get();
+            int attempts = verifyAttempt.getAttempts() + 1;
             if (attempts >= accountSettings.getMfaChallengeMaxAttempts()) {
                 verifyAttempt.setAllowRequest(false);
                 verifyAttempt.setAttempts(accountSettings.getMfaChallengeMaxAttempts());
@@ -110,13 +109,13 @@ public class VerifyAttemptServiceImpl implements VerifyAttemptService {
             return verifyAttemptRepository.update(verifyAttempt).ignoreElement();
 
         } else {
-            final VerifyAttempt verifyAttempt = new VerifyAttempt();
+            VerifyAttempt verifyAttempt = new VerifyAttempt();
             verifyAttempt.setUserId(userId);
             verifyAttempt.setFactorId(factorId);
             verifyAttempt.setClient(client.getId());
             verifyAttempt.setReferenceId(domain.getId());
             verifyAttempt.setReferenceType(ReferenceType.DOMAIN);
-            final int attempts = 1;
+            int attempts = 1;
             verifyAttempt.setAttempts(attempts);
             verifyAttempt.setAllowRequest(attempts < accountSettings.getMfaChallengeMaxAttempts());
             verifyAttempt.setCreatedAt(new Date());
@@ -146,7 +145,7 @@ public class VerifyAttemptServiceImpl implements VerifyAttemptService {
 
     @Override
     public boolean shouldSendEmail(Client client, Domain domain) {
-        final AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
+        AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
         return accountSettings.isMfaChallengeSendVerifyAlertEmail();
     }
 
@@ -156,13 +155,13 @@ public class VerifyAttemptServiceImpl implements VerifyAttemptService {
                 .findByCriteria(criteria)
                 .flatMap(
                         verifyAttempt -> {
-                            final Date resetTime =
+                            Date resetTime =
                                     new Date(
                                             verifyAttempt.getUpdatedAt().getTime()
                                                     + (accountSettings
                                                                     .getMfaChallengeAttemptsResetTime()
                                                             * 1000));
-                            final Date currentDate = new Date();
+                            Date currentDate = new Date();
 
                             if (currentDate.getTime() > resetTime.getTime()) {
                                 verifyAttempt.setAttempts(0);

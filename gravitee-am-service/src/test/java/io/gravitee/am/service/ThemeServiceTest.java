@@ -64,8 +64,7 @@ public class ThemeServiceTest {
     @Test
     public void testFindByReference() {
         when(repository.findByReference(any(), any())).thenReturn(Maybe.just(new Theme()));
-        final TestObserver<Theme> test =
-                cut.findByReference(ReferenceType.DOMAIN, DOMAIN_ID_1).test();
+        TestObserver<Theme> test = cut.findByReference(ReferenceType.DOMAIN, DOMAIN_ID_1).test();
         test.awaitTerminalEvent();
         test.assertValueCount(1);
     }
@@ -74,8 +73,7 @@ public class ThemeServiceTest {
     public void testFindByReference_Error() {
         when(repository.findByReference(any(), any()))
                 .thenReturn(Maybe.error(new RuntimeException()));
-        final TestObserver<Theme> test =
-                cut.findByReference(ReferenceType.DOMAIN, DOMAIN_ID_1).test();
+        TestObserver<Theme> test = cut.findByReference(ReferenceType.DOMAIN, DOMAIN_ID_1).test();
         test.awaitTerminalEvent();
         test.assertError(TechnicalManagementException.class);
     }
@@ -89,12 +87,12 @@ public class ThemeServiceTest {
 
         when(themeValidator.validate(any())).thenReturn(Completable.complete());
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID_1);
 
-        final NewTheme newTheme = new NewTheme();
+        NewTheme newTheme = new NewTheme();
         newTheme.setFaviconUrl("http://test/toto/titi?ok=tutu");
-        final TestObserver<Theme> test = cut.create(domain, newTheme, new DefaultUser()).test();
+        TestObserver<Theme> test = cut.create(domain, newTheme, new DefaultUser()).test();
 
         test.awaitTerminalEvent();
         test.assertValueCount(1);
@@ -115,11 +113,10 @@ public class ThemeServiceTest {
         when(repository.create(any())).thenReturn(Single.error(new RuntimeException()));
         when(themeValidator.validate(any())).thenReturn(Completable.complete());
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID_1);
 
-        final TestObserver<Theme> test =
-                cut.create(domain, new NewTheme(), new DefaultUser()).test();
+        TestObserver<Theme> test = cut.create(domain, new NewTheme(), new DefaultUser()).test();
 
         test.awaitTerminalEvent();
         test.assertError(TechnicalManagementException.class);
@@ -136,14 +133,14 @@ public class ThemeServiceTest {
 
     @Test(expected = NullPointerException.class)
     public void testUpdate_ThemeWithoutId() {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID_1);
 
-        final Theme updatedTheme = new Theme();
+        Theme updatedTheme = new Theme();
         updatedTheme.setReferenceId(DOMAIN_ID_1);
         updatedTheme.setReferenceType(ReferenceType.DOMAIN);
 
-        final TestObserver<Theme> test = cut.update(domain, updatedTheme, new DefaultUser()).test();
+        TestObserver<Theme> test = cut.update(domain, updatedTheme, new DefaultUser()).test();
         test.awaitTerminalEvent();
 
         verify(repository, never()).update(any());
@@ -153,21 +150,21 @@ public class ThemeServiceTest {
 
     @Test
     public void testUpdate_ThemeWithoutReferenceId() {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID_1);
 
-        final Theme updatedTheme = new Theme();
+        Theme updatedTheme = new Theme();
         updatedTheme.setId(THEME_ID);
         updatedTheme.setReferenceType(ReferenceType.DOMAIN);
 
-        final Theme existingTheme = new Theme();
+        Theme existingTheme = new Theme();
         existingTheme.setId(THEME_ID);
         existingTheme.setReferenceId(DOMAIN_ID_1);
         existingTheme.setReferenceType(ReferenceType.DOMAIN);
         existingTheme.setCreatedAt(new Date());
         when(repository.findById(eq(THEME_ID))).thenReturn(Maybe.just(existingTheme));
 
-        final TestObserver<Theme> test = cut.update(domain, updatedTheme, new DefaultUser()).test();
+        TestObserver<Theme> test = cut.update(domain, updatedTheme, new DefaultUser()).test();
 
         test.awaitTerminalEvent();
         test.assertError(InvalidThemeException.class);
@@ -179,21 +176,21 @@ public class ThemeServiceTest {
 
     @Test
     public void testUpdate_ThemeWithoutReferenceType() {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID_1);
 
-        final Theme updatedTheme = new Theme();
+        Theme updatedTheme = new Theme();
         updatedTheme.setId(THEME_ID);
         updatedTheme.setReferenceId(DOMAIN_ID_1);
 
-        final Theme existingTheme = new Theme();
+        Theme existingTheme = new Theme();
         existingTheme.setId(THEME_ID);
         existingTheme.setReferenceId(DOMAIN_ID_1);
         existingTheme.setReferenceType(ReferenceType.DOMAIN);
         existingTheme.setCreatedAt(new Date());
         when(repository.findById(eq(THEME_ID))).thenReturn(Maybe.just(existingTheme));
 
-        final TestObserver<Theme> test = cut.update(domain, updatedTheme, new DefaultUser()).test();
+        TestObserver<Theme> test = cut.update(domain, updatedTheme, new DefaultUser()).test();
 
         test.awaitTerminalEvent();
         test.assertError(InvalidThemeException.class);
@@ -207,15 +204,15 @@ public class ThemeServiceTest {
     public void testUpdate_ThemeNotFound() {
         when(repository.findById(any())).thenReturn(Maybe.empty());
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID_1);
 
-        final Theme updatedTheme = new Theme();
+        Theme updatedTheme = new Theme();
         updatedTheme.setId(THEME_ID);
         updatedTheme.setReferenceId(DOMAIN_ID_1);
         updatedTheme.setReferenceType(ReferenceType.DOMAIN);
 
-        final TestObserver<Theme> test = cut.update(domain, updatedTheme, new DefaultUser()).test();
+        TestObserver<Theme> test = cut.update(domain, updatedTheme, new DefaultUser()).test();
 
         test.awaitTerminalEvent();
         test.assertError(ThemeNotFoundException.class);
@@ -227,15 +224,15 @@ public class ThemeServiceTest {
 
     @Test
     public void testUpdate() {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID_1);
 
-        final Theme updatedTheme = new Theme();
+        Theme updatedTheme = new Theme();
         updatedTheme.setId(THEME_ID);
         updatedTheme.setReferenceId(DOMAIN_ID_1);
         updatedTheme.setReferenceType(ReferenceType.DOMAIN);
 
-        final Theme existingTheme = new Theme();
+        Theme existingTheme = new Theme();
         existingTheme.setId(THEME_ID);
         existingTheme.setReferenceId(DOMAIN_ID_1);
         existingTheme.setReferenceType(ReferenceType.DOMAIN);
@@ -246,7 +243,7 @@ public class ThemeServiceTest {
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
         when(themeValidator.validate(any())).thenReturn(Completable.complete());
 
-        final TestObserver<Theme> test = cut.update(domain, updatedTheme, new DefaultUser()).test();
+        TestObserver<Theme> test = cut.update(domain, updatedTheme, new DefaultUser()).test();
 
         test.awaitTerminalEvent();
         test.assertValueCount(1);
@@ -258,15 +255,15 @@ public class ThemeServiceTest {
 
     @Test
     public void testGetTheme() {
-        final Theme theme = new Theme();
+        Theme theme = new Theme();
         theme.setReferenceId(DOMAIN_ID_1);
         theme.setReferenceType(ReferenceType.DOMAIN);
 
         when(repository.findById(any())).thenReturn(Maybe.just(theme));
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID_1);
-        final TestObserver<Theme> test = cut.getTheme(domain, "anyid").test();
+        TestObserver<Theme> test = cut.getTheme(domain, "anyid").test();
 
         test.awaitTerminalEvent();
         test.assertValueCount(1);
@@ -274,15 +271,15 @@ public class ThemeServiceTest {
 
     @Test
     public void testGetTheme_DomainMismatch() {
-        final Theme theme = new Theme();
+        Theme theme = new Theme();
         theme.setReferenceId("otherdomain");
         theme.setReferenceType(ReferenceType.DOMAIN);
 
         when(repository.findById(any())).thenReturn(Maybe.just(theme));
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID_1);
-        final TestObserver<Theme> test = cut.getTheme(domain, "anyid").test();
+        TestObserver<Theme> test = cut.getTheme(domain, "anyid").test();
 
         test.awaitTerminalEvent();
         test.assertError(ThemeNotFoundException.class);
@@ -290,15 +287,15 @@ public class ThemeServiceTest {
 
     @Test
     public void testGetTheme_ReferenceMismatch() {
-        final Theme theme = new Theme();
+        Theme theme = new Theme();
         theme.setReferenceId("otherdomain");
         theme.setReferenceType(ReferenceType.APPLICATION);
 
         when(repository.findById(any())).thenReturn(Maybe.just(theme));
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID_1);
-        final TestObserver<Theme> test = cut.getTheme(domain, "anyid").test();
+        TestObserver<Theme> test = cut.getTheme(domain, "anyid").test();
 
         test.awaitTerminalEvent();
         test.assertError(ThemeNotFoundException.class);
@@ -306,19 +303,19 @@ public class ThemeServiceTest {
 
     @Test
     public void testDelete() {
-        final Theme theme = new Theme();
+        Theme theme = new Theme();
         theme.setReferenceId(DOMAIN_ID_1);
         theme.setReferenceType(ReferenceType.DOMAIN);
 
         when(repository.findById(any())).thenReturn(Maybe.just(theme));
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID_1);
 
         when(repository.delete(any())).thenReturn(Completable.complete());
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        final TestObserver<Void> test = cut.delete(domain, "themeid", new DefaultUser()).test();
+        TestObserver<Void> test = cut.delete(domain, "themeid", new DefaultUser()).test();
 
         test.awaitTerminalEvent();
         test.assertNoErrors();
@@ -330,16 +327,16 @@ public class ThemeServiceTest {
 
     @Test
     public void testDelete_DomainMismatch() {
-        final Theme theme = new Theme();
+        Theme theme = new Theme();
         theme.setReferenceId("anotherdomain");
         theme.setReferenceType(ReferenceType.DOMAIN);
 
         when(repository.findById(any())).thenReturn(Maybe.just(theme));
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID_1);
 
-        final TestObserver<Void> test = cut.delete(domain, "themeid", new DefaultUser()).test();
+        TestObserver<Void> test = cut.delete(domain, "themeid", new DefaultUser()).test();
 
         test.awaitTerminalEvent();
         test.assertError(InvalidThemeException.class);

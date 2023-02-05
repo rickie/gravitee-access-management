@@ -57,7 +57,7 @@ public class PatchOIDCSettingsTest {
 
         // build settings to patch
         OIDCSettings settings = new OIDCSettings();
-        final CIBASettings cibaSettings = new CIBASettings();
+        CIBASettings cibaSettings = new CIBASettings();
         cibaSettings.setEnabled(false);
         settings.setCibaSettings(cibaSettings);
         assertFalse(

@@ -62,7 +62,7 @@ public class FormsResource extends AbstractResource {
     public void get(
             @PathParam("organizationId") String organizationId,
             @NotNull @QueryParam("template") Template formTemplate,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -95,9 +95,9 @@ public class FormsResource extends AbstractResource {
     })
     public void create(
             @PathParam("organizationId") String organizationId,
-            @ApiParam(name = "form", required = true) @Valid @NotNull final NewForm newForm,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @ApiParam(name = "form", required = true) @Valid @NotNull NewForm newForm,
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

@@ -66,8 +66,8 @@ public class WebAuthnRegisterCredentialsEndpoint extends WebAuthnHandler {
     private void createCredentialCreationOptions(RoutingContext ctx) {
         try {
             // might throw runtime exception if there's no json or is bad formed
-            final JsonObject webauthnRegister = ctx.getBodyAsJson();
-            final Session session = ctx.session();
+            JsonObject webauthnRegister = ctx.getBodyAsJson();
+            Session session = ctx.session();
 
             // session validation
             if (session == null) {
@@ -104,7 +104,7 @@ public class WebAuthnRegisterCredentialsEndpoint extends WebAuthnHandler {
                             return;
                         }
 
-                        final JsonObject credentialsOptions = createCredentialsOptions.result();
+                        JsonObject credentialsOptions = createCredentialsOptions.result();
                         // force user id with our own user id
                         credentialsOptions.getJsonObject("user").put("id", user.getId());
 

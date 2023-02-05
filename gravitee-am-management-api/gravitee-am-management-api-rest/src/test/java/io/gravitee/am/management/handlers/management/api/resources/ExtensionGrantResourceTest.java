@@ -34,12 +34,12 @@ public class ExtensionGrantResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetExtensionGrant() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String extensionGrantId = "extensionGrant-id";
-        final ExtensionGrant mockExtensionGrant = new ExtensionGrant();
+        String extensionGrantId = "extensionGrant-id";
+        ExtensionGrant mockExtensionGrant = new ExtensionGrant();
         mockExtensionGrant.setId(extensionGrantId);
         mockExtensionGrant.setName("extensionGrant-name");
         mockExtensionGrant.setDomain(domainId);
@@ -49,7 +49,7 @@ public class ExtensionGrantResourceTest extends JerseySpringTest {
                 .when(extensionGrantService)
                 .findById(extensionGrantId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("extensionGrants")
@@ -58,23 +58,23 @@ public class ExtensionGrantResourceTest extends JerseySpringTest {
                         .get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final ExtensionGrant extensionGrant = readEntity(response, ExtensionGrant.class);
+        ExtensionGrant extensionGrant = readEntity(response, ExtensionGrant.class);
         assertEquals(domainId, extensionGrant.getDomain());
         assertEquals(extensionGrantId, extensionGrant.getId());
     }
 
     @Test
     public void shouldGetExtensionGrant_notFound() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String extensionGrantId = "extensionGrant-id";
+        String extensionGrantId = "extensionGrant-id";
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.empty()).when(extensionGrantService).findById(extensionGrantId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("extensionGrants")
@@ -86,12 +86,12 @@ public class ExtensionGrantResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetExtensionGrant_domainNotFound() {
-        final String domainId = "domain-id";
-        final String extensionGrantId = "extensionGrant-id";
+        String domainId = "domain-id";
+        String extensionGrantId = "extensionGrant-id";
 
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("extensionGrants")
@@ -103,12 +103,12 @@ public class ExtensionGrantResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetExtensionGrant_wrongDomain() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String extensionGrantId = "extensionGrant-id";
-        final ExtensionGrant mockExtensionGrant = new ExtensionGrant();
+        String extensionGrantId = "extensionGrant-id";
+        ExtensionGrant mockExtensionGrant = new ExtensionGrant();
         mockExtensionGrant.setId(extensionGrantId);
         mockExtensionGrant.setName("extensionGrant-name");
         mockExtensionGrant.setDomain("wrong-domain");
@@ -118,7 +118,7 @@ public class ExtensionGrantResourceTest extends JerseySpringTest {
                 .when(extensionGrantService)
                 .findById(extensionGrantId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("extensionGrants")

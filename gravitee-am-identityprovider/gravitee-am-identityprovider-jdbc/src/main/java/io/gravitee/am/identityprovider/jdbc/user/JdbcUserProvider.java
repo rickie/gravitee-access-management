@@ -67,7 +67,7 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
             LOGGER.debug("Auto provisioning of identity provider table enabled");
             // for now simply get the file named <driver>.schema, more complex stuffs will be done
             // if schema updates have to be done in the future
-            final String sqlScript = "database/" + configuration.getProtocol() + ".schema";
+            String sqlScript = "database/" + configuration.getProtocol() + ".schema";
             try (InputStream input =
                             this.getClass().getClassLoader().getResourceAsStream(sqlScript);
                     BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
@@ -75,7 +75,7 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
                 Single.fromPublisher(connectionPool.create())
                         .flatMapPublisher(
                                 connection -> {
-                                    final String tableExistsStatement =
+                                    String tableExistsStatement =
                                             tableExists(
                                                     configuration.getProtocol(),
                                                     configuration.getUsersTable());
@@ -89,7 +89,7 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
                                                                     "SQL datatable {} does not exist.",
                                                                     configuration.getUsersTable());
 
-                                                            final List<String> sqlStatements =
+                                                            List<String> sqlStatements =
                                                                     reader.lines()
                                                                             // remove empty line and
                                                                             // comment
@@ -168,12 +168,12 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
             LOGGER.debug("Auto provisioning of identity provider table enabled");
             // for now simply get the file named <driver>.schema, more complex stuffs will be done
             // if schema updates have to be done in the future
-            final String sqlScript = "database/" + configuration.getProtocol() + ".schema";
+            String sqlScript = "database/" + configuration.getProtocol() + ".schema";
             try (InputStream input =
                             this.getClass().getClassLoader().getResourceAsStream(sqlScript);
                     BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
 
-                final List<String> sqlStatements =
+                List<String> sqlStatements =
                         reader.lines()
                                 // remove empty line and comment
                                 .filter(
@@ -200,7 +200,7 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
                 return Single.fromPublisher(connectionPool.create())
                         .flatMapPublisher(
                                 connection -> {
-                                    final String tableExistsStatement =
+                                    String tableExistsStatement =
                                             tableExists(
                                                     configuration.getProtocol(),
                                                     configuration.getUsersTable());
@@ -259,7 +259,7 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
     }
 
     private Maybe<Map<String, Object>> selectUserByEmail(String email) {
-        final String sql =
+        String sql =
                 String.format(
                         configuration.getSelectUserByEmailQuery(),
                         getIndexParameter(1, configuration.getEmailAttribute()));
@@ -431,7 +431,7 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
     }
 
     private Maybe<Map<String, Object>> selectUserByUsername(Connection cnx, String username) {
-        final String sql =
+        String sql =
                 String.format(
                         configuration.getSelectUserByUsernameQuery(),
                         getIndexParameter(1, configuration.getUsernameAttribute()));
@@ -442,9 +442,9 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
 
     @Override
     public Single<User> update(String id, User updateUser) {
-        final String sql;
-        final Object[] args;
-        final String metadata = convert(updateUser.getAdditionalInformation());
+        String sql;
+        Object[] args;
+        String metadata = convert(updateUser.getAdditionalInformation());
 
         if (updateUser.getCredentials() != null) {
             if (configuration.isUseDedicatedSalt()) {
@@ -520,8 +520,8 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
 
     @Override
     public Single<User> updatePassword(User user, String password) {
-        final String sql;
-        final Object[] args;
+        String sql;
+        Object[] args;
 
         if (Strings.isNullOrEmpty(password)) {
             return Single.error(
@@ -572,7 +572,7 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
 
     @Override
     public Completable delete(String id) {
-        final String sql =
+        String sql =
                 String.format(
                         "DELETE FROM %s where %s = %s",
                         configuration.getUsersTable(),
@@ -591,7 +591,7 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
     }
 
     private Maybe<Map<String, Object>> selectUserByUsername(String username) {
-        final String sql =
+        String sql =
                 String.format(
                         configuration.getSelectUserByUsernameQuery(),
                         getIndexParameter(1, configuration.getUsernameAttribute()));

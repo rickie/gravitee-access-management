@@ -86,11 +86,11 @@ public class HttpUserProvider implements UserProvider {
     @Override
     public Maybe<User> findByEmail(String email) {
         // prepare request
-        final HttpUsersResourceConfiguration usersResourceConfiguration =
+        HttpUsersResourceConfiguration usersResourceConfiguration =
                 configuration.getUsersResource();
-        final HttpResourceConfiguration readResourceConfiguration =
+        HttpResourceConfiguration readResourceConfiguration =
                 usersResourceConfiguration.getPaths().getReadResourceByEmail();
-        final DefaultUser user = new DefaultUser();
+        DefaultUser user = new DefaultUser();
         user.setEmail(email);
 
         return findByUser(usersResourceConfiguration, readResourceConfiguration, user);
@@ -99,11 +99,11 @@ public class HttpUserProvider implements UserProvider {
     @Override
     public Maybe<User> findByUsername(String username) {
         // prepare request
-        final HttpUsersResourceConfiguration usersResourceConfiguration =
+        HttpUsersResourceConfiguration usersResourceConfiguration =
                 configuration.getUsersResource();
-        final HttpResourceConfiguration readResourceConfiguration =
+        HttpResourceConfiguration readResourceConfiguration =
                 usersResourceConfiguration.getPaths().getReadResource();
-        final DefaultUser user = new DefaultUser(username);
+        DefaultUser user = new DefaultUser(username);
 
         return findByUser(usersResourceConfiguration, readResourceConfiguration, user);
     }
@@ -112,18 +112,17 @@ public class HttpUserProvider implements UserProvider {
     public Single<User> create(User user) {
         try {
             // prepare request
-            final HttpUsersResourceConfiguration usersResourceConfiguration =
+            HttpUsersResourceConfiguration usersResourceConfiguration =
                     configuration.getUsersResource();
-            final HttpResourceConfiguration createResourceConfiguration =
+            HttpResourceConfiguration createResourceConfiguration =
                     usersResourceConfiguration.getPaths().getCreateResource();
-            final String createUserURI =
+            String createUserURI =
                     usersResourceConfiguration.getBaseURL()
                             + createResourceConfiguration.getBaseURL();
-            final HttpMethod createUserHttpMethod =
+            HttpMethod createUserHttpMethod =
                     HttpMethod.valueOf(createResourceConfiguration.getHttpMethod().toString());
-            final List<HttpHeader> createUserHttpHeaders =
-                    createResourceConfiguration.getHttpHeaders();
-            final String createUserBody = createResourceConfiguration.getHttpBody();
+            List<HttpHeader> createUserHttpHeaders = createResourceConfiguration.getHttpHeaders();
+            String createUserBody = createResourceConfiguration.getHttpBody();
 
             // prepare context
             AuthenticationContext authenticationContext = new SimpleAuthenticationContext();
@@ -140,7 +139,7 @@ public class HttpUserProvider implements UserProvider {
             templateEngine.getTemplateContext().setVariable(USER_CONTEXT_KEY, user);
 
             // process request
-            final Single<HttpResponse<Buffer>> requestHandler =
+            Single<HttpResponse<Buffer>> requestHandler =
                     processRequest(
                             templateEngine,
                             createUserURI,
@@ -151,7 +150,7 @@ public class HttpUserProvider implements UserProvider {
             return requestHandler
                     .map(
                             httpResponse -> {
-                                final List<HttpResponseErrorCondition> errorConditions =
+                                List<HttpResponseErrorCondition> errorConditions =
                                         createResourceConfiguration
                                                 .getHttpResponseErrorConditions();
                                 Map<String, Object> userAttributes =
@@ -186,18 +185,17 @@ public class HttpUserProvider implements UserProvider {
     public Single<User> update(String id, User updateUser) {
         try {
             // prepare request
-            final HttpUsersResourceConfiguration usersResourceConfiguration =
+            HttpUsersResourceConfiguration usersResourceConfiguration =
                     configuration.getUsersResource();
-            final HttpResourceConfiguration updateResourceConfiguration =
+            HttpResourceConfiguration updateResourceConfiguration =
                     usersResourceConfiguration.getPaths().getUpdateResource();
-            final String updateUserURI =
+            String updateUserURI =
                     usersResourceConfiguration.getBaseURL()
                             + updateResourceConfiguration.getBaseURL();
-            final HttpMethod updateUserHttpMethod =
+            HttpMethod updateUserHttpMethod =
                     HttpMethod.valueOf(updateResourceConfiguration.getHttpMethod().toString());
-            final List<HttpHeader> updateUserHttpHeaders =
-                    updateResourceConfiguration.getHttpHeaders();
-            final String updateUserBody = updateResourceConfiguration.getHttpBody();
+            List<HttpHeader> updateUserHttpHeaders = updateResourceConfiguration.getHttpHeaders();
+            String updateUserBody = updateResourceConfiguration.getHttpBody();
 
             // prepare context
             AuthenticationContext authenticationContext = new SimpleAuthenticationContext();
@@ -215,7 +213,7 @@ public class HttpUserProvider implements UserProvider {
             templateEngine.getTemplateContext().setVariable(USER_CONTEXT_KEY, updateUser);
 
             // process request
-            final Single<HttpResponse<Buffer>> requestHandler =
+            Single<HttpResponse<Buffer>> requestHandler =
                     processRequest(
                             templateEngine,
                             updateUserURI,
@@ -226,7 +224,7 @@ public class HttpUserProvider implements UserProvider {
             return requestHandler
                     .map(
                             httpResponse -> {
-                                final List<HttpResponseErrorCondition> errorConditions =
+                                List<HttpResponseErrorCondition> errorConditions =
                                         updateResourceConfiguration
                                                 .getHttpResponseErrorConditions();
                                 Map<String, Object> userAttributes =
@@ -270,19 +268,18 @@ public class HttpUserProvider implements UserProvider {
             templateEngine.getTemplateContext().setVariable(USER_CONTEXT_KEY, deleteUser);
 
             // prepare request
-            final HttpUsersResourceConfiguration usersResourceConfiguration =
+            HttpUsersResourceConfiguration usersResourceConfiguration =
                     configuration.getUsersResource();
-            final HttpResourceConfiguration deleteResourceConfiguration =
+            HttpResourceConfiguration deleteResourceConfiguration =
                     usersResourceConfiguration.getPaths().getDeleteResource();
-            final String deleteUserURI =
+            String deleteUserURI =
                     usersResourceConfiguration.getBaseURL()
                             + deleteResourceConfiguration.getBaseURL();
-            final HttpMethod deleteUserHttpMethod =
+            HttpMethod deleteUserHttpMethod =
                     HttpMethod.valueOf(deleteResourceConfiguration.getHttpMethod().toString());
-            final List<HttpHeader> deleteUserHttpHeaders =
-                    deleteResourceConfiguration.getHttpHeaders();
-            final String updateUserBody = deleteResourceConfiguration.getHttpBody();
-            final Single<HttpResponse<Buffer>> requestHandler =
+            List<HttpHeader> deleteUserHttpHeaders = deleteResourceConfiguration.getHttpHeaders();
+            String updateUserBody = deleteResourceConfiguration.getHttpBody();
+            Single<HttpResponse<Buffer>> requestHandler =
                     processRequest(
                             templateEngine,
                             deleteUserURI,
@@ -293,7 +290,7 @@ public class HttpUserProvider implements UserProvider {
             return requestHandler
                     .flatMapCompletable(
                             httpResponse -> {
-                                final List<HttpResponseErrorCondition> errorConditions =
+                                List<HttpResponseErrorCondition> errorConditions =
                                         deleteResourceConfiguration
                                                 .getHttpResponseErrorConditions();
                                 try {
@@ -336,14 +333,14 @@ public class HttpUserProvider implements UserProvider {
             templateEngine.getTemplateContext().setVariable(USER_CONTEXT_KEY, user);
 
             // prepare request
-            final String readUserURI =
+            String readUserURI =
                     usersResourceConfiguration.getBaseURL()
                             + readResourceConfiguration.getBaseURL();
-            final HttpMethod readUserHttpMethod =
+            HttpMethod readUserHttpMethod =
                     HttpMethod.valueOf(readResourceConfiguration.getHttpMethod().toString());
-            final List<HttpHeader> readUserHttpHeaders = readResourceConfiguration.getHttpHeaders();
-            final String readUserBody = readResourceConfiguration.getHttpBody();
-            final Single<HttpResponse<Buffer>> requestHandler =
+            List<HttpHeader> readUserHttpHeaders = readResourceConfiguration.getHttpHeaders();
+            String readUserBody = readResourceConfiguration.getHttpBody();
+            Single<HttpResponse<Buffer>> requestHandler =
                     processRequest(
                             templateEngine,
                             readUserURI,
@@ -355,7 +352,7 @@ public class HttpUserProvider implements UserProvider {
                     .toMaybe()
                     .map(
                             httpResponse -> {
-                                final List<HttpResponseErrorCondition> errorConditions =
+                                List<HttpResponseErrorCondition> errorConditions =
                                         readResourceConfiguration.getHttpResponseErrorConditions();
                                 Map<String, Object> userAttributes =
                                         processResponse(
@@ -397,15 +394,14 @@ public class HttpUserProvider implements UserProvider {
         // remove password key if present to avoid mapper transformation
         // we don't want to store this value
         userAttributes.remove("password");
-        final Map<String, Object> mappedUserAttributes =
+        Map<String, Object> mappedUserAttributes =
                 applyUserMapping(new SimpleAuthenticationContext(), userAttributes);
 
-        final String identifierAttribute =
-                configuration.getUsersResource().getIdentifierAttribute();
-        final String usernameAttribute = configuration.getUsersResource().getUsernameAttribute();
+        String identifierAttribute = configuration.getUsersResource().getIdentifierAttribute();
+        String usernameAttribute = configuration.getUsersResource().getUsernameAttribute();
         // Search the id in mapped attributes first, if missing fallback to attributes before the
         // mapping
-        final String id =
+        String id =
                 ofNullable(mappedUserAttributes.get(identifierAttribute))
                         .or(() -> ofNullable(userAttributes.get(identifierAttribute)))
                         .map(String::valueOf)
@@ -414,7 +410,7 @@ public class HttpUserProvider implements UserProvider {
         // Search the username in mapped attributes first, if missing fallback to attributes before
         // the mapping
         // if both values are null, use id
-        final String usernameValue =
+        String usernameValue =
                 (username != null)
                         ? username
                         : (mappedUserAttributes.get(usernameAttribute) != null)
@@ -451,8 +447,8 @@ public class HttpUserProvider implements UserProvider {
             List<HttpHeader> httpHeaders,
             String httpBody) {
         // prepare request
-        final String evaluatedHttpURI = templateEngine.getValue(httpURI, String.class);
-        final HttpRequest<Buffer> httpRequest = client.requestAbs(httpMethod, evaluatedHttpURI);
+        String evaluatedHttpURI = templateEngine.getValue(httpURI, String.class);
+        HttpRequest<Buffer> httpRequest = client.requestAbs(httpMethod, evaluatedHttpURI);
 
         // set headers
         if (httpHeaders != null) {

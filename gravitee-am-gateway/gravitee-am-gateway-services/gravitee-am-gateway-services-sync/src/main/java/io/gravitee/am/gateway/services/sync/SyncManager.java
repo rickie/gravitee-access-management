@@ -149,8 +149,8 @@ public class SyncManager implements InitializingBean {
                 // search for events and compute them
                 logger.debug("Events synchronization");
 
-                final long from = (lastRefreshAt - lastDelay) - timeframeBeforeDelay;
-                final long to = nextLastRefreshAt + timeframeAfterDelay;
+                long from = (lastRefreshAt - lastDelay) - timeframeBeforeDelay;
+                long to = nextLastRefreshAt + timeframeAfterDelay;
                 Single<List<Event>> findEvents = eventRepository.findByTimeFrame(from, to).toList();
                 if (this.eventsTimeOut > 0) {
                     findEvents = findEvents.timeout(this.eventsTimeOut, TimeUnit.MILLISECONDS);
@@ -237,8 +237,8 @@ public class SyncManager implements InitializingBean {
     }
 
     private void synchronizeDomain(Event event) {
-        final String domainId = event.getPayload().getId();
-        final Action action = event.getPayload().getAction();
+        String domainId = event.getPayload().getId();
+        Action action = event.getPayload().getAction();
         switch (action) {
             case CREATE:
             case UPDATE:
@@ -284,7 +284,7 @@ public class SyncManager implements InitializingBean {
             return true;
         }
 
-        final List<String> tagList = shardingTags.get();
+        List<String> tagList = shardingTags.get();
         if (domain.getTags() == null || domain.getTags().isEmpty()) {
             logger.debug(
                     "Tags {} are configured on gateway instance but not found on the security domain {}",
@@ -293,15 +293,15 @@ public class SyncManager implements InitializingBean {
             return false;
         }
 
-        final List<String> inclusionTags = getInclusionElements(tagList);
-        final List<String> exclusionTags = getExclusionElements(tagList);
+        List<String> inclusionTags = getInclusionElements(tagList);
+        List<String> exclusionTags = getExclusionElements(tagList);
 
         if (inclusionTags.stream().anyMatch(exclusionTags::contains)) {
             throw new IllegalArgumentException(
                     "You must not configure a tag to be included and excluded");
         }
 
-        final boolean hasMatchingTags =
+        boolean hasMatchingTags =
                 hasMatchingElements(inclusionTags, exclusionTags, domain.getTags());
         if (!hasMatchingTags) {
             logger.debug(
@@ -343,10 +343,10 @@ public class SyncManager implements InitializingBean {
     }
 
     private static boolean hasMatchingElements(
-            final List<String> inclusionElements,
-            final List<String> exclusionElements,
-            final Set<String> domainElements) {
-        final boolean hasMatchingElements =
+            List<String> inclusionElements,
+            List<String> exclusionElements,
+            Set<String> domainElements) {
+        boolean hasMatchingElements =
                 inclusionElements.stream()
                                 .anyMatch(
                                         element ->
@@ -369,14 +369,14 @@ public class SyncManager implements InitializingBean {
         return hasMatchingElements;
     }
 
-    private static List<String> getInclusionElements(final List<String> elements) {
+    private static List<String> getInclusionElements(List<String> elements) {
         return elements.stream()
                 .map(String::trim)
                 .filter(elt -> !elt.startsWith("!"))
                 .collect(Collectors.toList());
     }
 
-    private static List<String> getExclusionElements(final List<String> elements) {
+    private static List<String> getExclusionElements(List<String> elements) {
         return elements.stream()
                 .map(String::trim)
                 .filter(elt -> elt.startsWith("!"))
@@ -384,8 +384,8 @@ public class SyncManager implements InitializingBean {
                 .collect(Collectors.toList());
     }
 
-    private static boolean matchingString(final String a, final String b) {
-        final Collator collator = Collator.getInstance();
+    private static boolean matchingString(String a, String b) {
+        Collator collator = Collator.getInstance();
         collator.setStrength(Collator.NO_DECOMPOSITION);
         return collator.compare(a, b) == 0;
     }

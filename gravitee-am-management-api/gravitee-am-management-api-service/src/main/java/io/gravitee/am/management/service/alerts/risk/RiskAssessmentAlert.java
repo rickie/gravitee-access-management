@@ -46,10 +46,10 @@ abstract class RiskAssessmentAlert extends Trigger {
 
     protected Condition getCondition(
             Environment environment, String alertProperty, String defaultAssessment) {
-        final String assessmentProperty = PROPERTY_RISK_ASSESSMENT + "." + alertProperty;
-        final String envProperty = PROPERTY_ALERTS + assessmentProperty + ASSESSMENTS_SUFFIX;
-        final String assessments = environment.getProperty(envProperty, defaultAssessment);
-        final String expression =
+        String assessmentProperty = PROPERTY_RISK_ASSESSMENT + "." + alertProperty;
+        String envProperty = PROPERTY_ALERTS + assessmentProperty + ASSESSMENTS_SUFFIX;
+        String assessments = environment.getProperty(envProperty, defaultAssessment);
+        String expression =
                 Stream.of(assessments.split(", *")).map(Pattern::quote).collect(joining("|"));
         return matches(assessmentProperty, "^(" + expression + ")$").build();
     }

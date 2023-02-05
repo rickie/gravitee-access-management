@@ -58,7 +58,7 @@ public abstract class Operation {
     private static final Pattern PATH_FILTER_PATTERN = Pattern.compile(SQUARE_BRACKETS_PATTERN);
     private final Path path;
 
-    Operation(final String path) {
+    Operation(String path) {
         if (path == null) {
             this.path = new Path();
         } else {
@@ -73,7 +73,7 @@ public abstract class Operation {
         return path;
     }
 
-    public abstract void apply(final ObjectNode node);
+    public abstract void apply(ObjectNode node);
 
     /**
      * The "add" operation is used to add a new attribute value to an existing resource.
@@ -87,8 +87,8 @@ public abstract class Operation {
 
         @JsonCreator
         private AddOperation(
-                @JsonProperty(value = "path") final String path,
-                @JsonProperty(value = "value", required = true) final JsonNode value) {
+                @JsonProperty(value = "path") String path,
+                @JsonProperty(value = "value", required = true) JsonNode value) {
             super(path);
             this.value = value;
         }
@@ -193,7 +193,7 @@ public abstract class Operation {
     static final class RemoveOperation extends Operation {
 
         @JsonCreator
-        private RemoveOperation(@JsonProperty(value = "path", required = true) final String path) {
+        private RemoveOperation(@JsonProperty(value = "path", required = true) String path) {
             super(path);
         }
 
@@ -277,8 +277,8 @@ public abstract class Operation {
 
         @JsonCreator
         private ReplaceOperation(
-                @JsonProperty(value = "path") final String path,
-                @JsonProperty(value = "value", required = true) final JsonNode value) {
+                @JsonProperty(value = "path") String path,
+                @JsonProperty(value = "value", required = true) JsonNode value) {
             super(path);
             this.value = value;
         }
@@ -390,9 +390,9 @@ public abstract class Operation {
         }
 
         // process filtering
-        final String filterValue = filter.getFilterValue();
-        final Operator operator = filter.getOperator();
-        final JsonNode attribute = n.get(filter.getFilterAttribute().getAttributeName());
+        String filterValue = filter.getFilterValue();
+        Operator operator = filter.getOperator();
+        JsonNode attribute = n.get(filter.getFilterAttribute().getAttributeName());
 
         // no node to check, continue
         if (attribute == null) {
