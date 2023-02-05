@@ -186,9 +186,9 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
 
     @Override
     public Flowable<Application> findByIdentityProvider(String identityProvider) {
-        final BsonDocument bsonDocument =
+        BsonDocument bsonDocument =
                 new BsonDocument(FIELD_IDENTITY, new BsonString(identityProvider));
-        final Bson query =
+        Bson query =
                 elemMatch(
                         FIELD_APPLICATION_IDENTITY_PROVIDERS,
                         Document.parse(bsonDocument.toJson()));

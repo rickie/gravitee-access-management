@@ -56,8 +56,8 @@ public class ClientPostAuthProvider implements ClientAuthProvider {
     @Override
     public void handle(
             Client client, RoutingContext context, Handler<AsyncResult<Client>> handler) {
-        final String clientId = getClientId(context.request());
-        final String clientSecret = getClientSecret(context.request());
+        String clientId = getClientId(context.request());
+        String clientSecret = getClientSecret(context.request());
 
         if (!client.getClientId().equals(clientId)
                 || !client.getClientSecret().equals(clientSecret)) {

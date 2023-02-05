@@ -57,7 +57,7 @@ public class CustomBlockingConnectionPool extends BlockingConnectionPool {
      * @throws IllegalStateException if the pool cannot grow to the supplied size and {@link
      *     #createAvailableConnection(boolean)} throws
      */
-    protected void grow(final int size, final boolean throwOnFailure) {
+    protected void grow(int size, boolean throwOnFailure) {
         logger.trace("waiting for pool lock to initialize pool {}", poolLock.getQueueLength());
 
         int count = 0;
@@ -69,7 +69,7 @@ public class CustomBlockingConnectionPool extends BlockingConnectionPool {
             logger.debug("checking connection pool size >= {} for {}", size, this);
             while (currentPoolSize < size && count < size * 2 && failures < maxRetries) {
                 try {
-                    final PooledConnectionProxy pc = createAvailableConnection(throwOnFailure);
+                    PooledConnectionProxy pc = createAvailableConnection(throwOnFailure);
                     if (pc != null && getPoolConfig().isValidateOnCheckIn()) {
                         if (validate(pc.getConnection())) {
                             logger.trace("connection passed initialize validation: {}", pc);

@@ -26,7 +26,7 @@ import java.util.List;
 public class PolicyChainProcessorFactory {
 
     public Processor<ExecutionContext> create(
-            List<Policy> policies, final ExecutionContext executionContext) {
+            List<Policy> policies, ExecutionContext executionContext) {
         return new PolicyChain(policies, executionContext);
     }
 }

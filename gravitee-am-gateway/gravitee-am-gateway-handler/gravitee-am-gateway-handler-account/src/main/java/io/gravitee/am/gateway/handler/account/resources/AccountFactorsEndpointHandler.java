@@ -97,7 +97,7 @@ public class AccountFactorsEndpointHandler {
      * @param routingContext the routingContext holding the current user
      */
     public void listAvailableFactors(RoutingContext routingContext) {
-        final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+        User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
         accountService
                 .getFactors(user.getReferenceId())
                 .subscribe(
@@ -113,8 +113,8 @@ public class AccountFactorsEndpointHandler {
      * @param routingContext the routingContext holding the current user
      */
     public void listEnrolledFactors(RoutingContext routingContext) {
-        final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        final List<EnrolledFactor> enrolledFactors =
+        User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+        List<EnrolledFactor> enrolledFactors =
                 user.getFactors() != null ? filteredEnrolledFactors(user) : Collections.emptyList();
         AccountResponseHandler.handleDefaultResponse(routingContext, enrolledFactors);
     }
@@ -131,8 +131,8 @@ public class AccountFactorsEndpointHandler {
                 return;
             }
 
-            final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-            final io.gravitee.am.gateway.handler.account.model.Enrollment enrollment =
+            User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+            io.gravitee.am.gateway.handler.account.model.Enrollment enrollment =
                     Json.decodeValue(
                             routingContext.getBodyAsString(),
                             io.gravitee.am.gateway.handler.account.model.Enrollment.class);
@@ -143,8 +143,8 @@ public class AccountFactorsEndpointHandler {
                 return;
             }
 
-            final String factorId = enrollment.getFactorId();
-            final EnrollmentAccount account = enrollment.getAccount();
+            String factorId = enrollment.getFactorId();
+            EnrollmentAccount account = enrollment.getAccount();
 
             // find factor
             findFactor(
@@ -155,8 +155,8 @@ public class AccountFactorsEndpointHandler {
                             return;
                         }
 
-                        final Factor factor = h.result();
-                        final FactorProvider factorProvider = factorManager.get(factorId);
+                        Factor factor = h.result();
+                        FactorProvider factorProvider = factorManager.get(factorId);
 
                         if (factorProvider == null) {
                             routingContext.fail(new FactorNotFoundException(factorId));
@@ -232,7 +232,7 @@ public class AccountFactorsEndpointHandler {
                                         return;
                                     }
 
-                                    final EnrolledFactor enrolledFactor = eh.result();
+                                    EnrolledFactor enrolledFactor = eh.result();
                                     // send challenge
                                     sendChallenge(
                                             factorProvider,
@@ -265,10 +265,10 @@ public class AccountFactorsEndpointHandler {
 
     private Completable generateRecoveryCode(
             RoutingContext routingContext, Factor factor, RecoveryFactor factorProvider) {
-        final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        final Map<String, Object> factorData =
+        User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+        Map<String, Object> factorData =
                 Map.of(FactorContext.KEY_RECOVERY_FACTOR, factor, KEY_USER, user);
-        final FactorContext recoveryFactorCtx = new FactorContext(applicationContext, factorData);
+        FactorContext recoveryFactorCtx = new FactorContext(applicationContext, factorData);
 
         return factorProvider.generateRecoveryCode(recoveryFactorCtx).ignoreElement();
     }
@@ -289,9 +289,9 @@ public class AccountFactorsEndpointHandler {
                 return;
             }
 
-            final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-            final String factorId = routingContext.request().getParam("factorId");
-            final String code = routingContext.getBodyAsJson().getString("code");
+            User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+            String factorId = routingContext.request().getParam("factorId");
+            String code = routingContext.getBodyAsJson().getString("code");
 
             // code is required
             if (isEmpty(code)) {
@@ -308,7 +308,7 @@ public class AccountFactorsEndpointHandler {
                             return;
                         }
 
-                        final FactorProvider factorProvider = factorManager.get(factorId);
+                        FactorProvider factorProvider = factorManager.get(factorId);
 
                         if (factorProvider == null) {
                             routingContext.fail(new FactorNotFoundException(factorId));
@@ -330,7 +330,7 @@ public class AccountFactorsEndpointHandler {
                         }
 
                         // verify factor
-                        final EnrolledFactor enrolledFactor = optionalEnrolledFactor.get();
+                        EnrolledFactor enrolledFactor = optionalEnrolledFactor.get();
                         verifyFactor(
                                 code,
                                 enrolledFactor,
@@ -373,15 +373,15 @@ public class AccountFactorsEndpointHandler {
      * @param routingContext the routingContext holding the current user
      */
     public void getEnrolledFactor(RoutingContext routingContext) {
-        final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        final String factorId = routingContext.request().getParam("factorId");
+        User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+        String factorId = routingContext.request().getParam("factorId");
 
         if (user.getFactors() == null) {
             routingContext.fail(new FactorNotFoundException(factorId));
             return;
         }
 
-        final Optional<EnrolledFactor> optionalEnrolledFactor = getEnrolledFactor(factorId, user);
+        Optional<EnrolledFactor> optionalEnrolledFactor = getEnrolledFactor(factorId, user);
 
         if (optionalEnrolledFactor.isEmpty()) {
             routingContext.fail(new FactorNotFoundException(factorId));
@@ -403,10 +403,10 @@ public class AccountFactorsEndpointHandler {
      * @param routingContext the routingContext holding the current user
      */
     public void getEnrolledFactorQrCode(RoutingContext routingContext) {
-        final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        final String factorId = routingContext.request().getParam("factorId");
+        User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+        String factorId = routingContext.request().getParam("factorId");
 
-        final FactorProvider factorProvider = factorManager.get(factorId);
+        FactorProvider factorProvider = factorManager.get(factorId);
 
         if (factorProvider == null) {
             routingContext.fail(new FactorNotFoundException(factorId));
@@ -443,9 +443,9 @@ public class AccountFactorsEndpointHandler {
                 return;
             }
 
-            final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-            final String factorId = routingContext.request().getParam("factorId");
-            final UpdateEnrolledFactor updateEnrolledFactor =
+            User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+            String factorId = routingContext.request().getParam("factorId");
+            UpdateEnrolledFactor updateEnrolledFactor =
                     Json.decodeValue(routingContext.getBodyAsString(), UpdateEnrolledFactor.class);
 
             // find factor
@@ -472,7 +472,7 @@ public class AccountFactorsEndpointHandler {
                         }
 
                         // update the factor
-                        final EnrolledFactor enrolledFactor = optionalEnrolledFactor.get();
+                        EnrolledFactor enrolledFactor = optionalEnrolledFactor.get();
                         enrolledFactor.setPrimary(updateEnrolledFactor.isPrimary());
                         accountService
                                 .upsertFactor(user.getId(), enrolledFactor, new DefaultUser(user))
@@ -488,8 +488,8 @@ public class AccountFactorsEndpointHandler {
     }
 
     public void removeFactor(RoutingContext routingContext) {
-        final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        final String factorId = routingContext.request().getParam("factorId");
+        User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+        String factorId = routingContext.request().getParam("factorId");
 
         accountService
                 .removeFactor(user.getId(), factorId, new DefaultUser(user))
@@ -504,7 +504,7 @@ public class AccountFactorsEndpointHandler {
      * @param routingContext the routingContext holding the current user
      */
     public void listRecoveryCodes(RoutingContext routingContext) {
-        final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+        User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
 
         if (user.getFactors() == null) {
             AccountResponseHandler.handleDefaultResponse(routingContext, Collections.emptyList());
@@ -520,8 +520,8 @@ public class AccountFactorsEndpointHandler {
      * @param routingContext the routingContext holding the current user
      */
     public void enrollRecoveryCode(RoutingContext routingContext) {
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final Factor recoveryCodeFactor = getClientRecoveryCodeFactor(client);
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        Factor recoveryCodeFactor = getClientRecoveryCodeFactor(client);
 
         if (recoveryCodeFactor == null) {
             routingContext.fail(
@@ -531,13 +531,13 @@ public class AccountFactorsEndpointHandler {
             return;
         }
 
-        final RecoveryFactor recoveryCodeFactorProvider =
+        RecoveryFactor recoveryCodeFactorProvider =
                 (RecoveryFactor) factorManager.get(recoveryCodeFactor.getId());
 
         generateRecoveryCode(routingContext, recoveryCodeFactor, recoveryCodeFactorProvider)
                 .subscribe(
                         () -> {
-                            final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+                            User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
                             // Need updated user data after recovery code generation, hence the
                             // accountService call
                             accountService
@@ -557,7 +557,7 @@ public class AccountFactorsEndpointHandler {
      * @param routingContext the routingContext holding the current user
      */
     public void deleteRecoveryCode(RoutingContext routingContext) {
-        final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+        User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
 
         if (user.getFactors() == null) {
             AccountResponseHandler.handleNoBodyResponse(routingContext);
@@ -569,7 +569,7 @@ public class AccountFactorsEndpointHandler {
             return;
         }
 
-        final List<String> recoveryCodes =
+        List<String> recoveryCodes =
                 user.getFactors().stream()
                         .filter(
                                 ef ->
@@ -599,8 +599,8 @@ public class AccountFactorsEndpointHandler {
      * @param routingContext the routingContext holding the current user
      */
     public void sendChallenge(RoutingContext routingContext) {
-        final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        final String factorId = routingContext.request().getParam("factorId");
+        User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+        String factorId = routingContext.request().getParam("factorId");
 
         // find factor
         findFactor(
@@ -611,7 +611,7 @@ public class AccountFactorsEndpointHandler {
                         return;
                     }
 
-                    final FactorProvider factorProvider = factorManager.get(factorId);
+                    FactorProvider factorProvider = factorManager.get(factorId);
                     if (factorProvider == null) {
                         routingContext.fail(new FactorNotFoundException(factorId));
                         return;
@@ -635,7 +635,7 @@ public class AccountFactorsEndpointHandler {
                         return;
                     }
 
-                    final EnrolledFactor enrolledFactor = optionalEnrolledFactor.get();
+                    EnrolledFactor enrolledFactor = optionalEnrolledFactor.get();
                     sendChallenge(
                             factorProvider,
                             enrolledFactor,
@@ -654,7 +654,7 @@ public class AccountFactorsEndpointHandler {
     }
 
     private List<String> getUserRecoveryCodes(User user) {
-        final Optional<Object> securityCodes =
+        Optional<Object> securityCodes =
                 user.getFactors().stream()
                         .filter(
                                 ef ->
@@ -699,7 +699,7 @@ public class AccountFactorsEndpointHandler {
                 .enroll(endUser.getUsername())
                 .map(
                         enrollment -> {
-                            final EnrolledFactor enrolledFactor =
+                            EnrolledFactor enrolledFactor =
                                     buildEnrolledFactor(factor, enrollment, account, endUser);
                             if (factorProvider.checkSecurityFactor(enrolledFactor)) {
                                 return enrolledFactor;
@@ -740,7 +740,7 @@ public class AccountFactorsEndpointHandler {
 
         Map<String, Object> factorData = new HashMap<>();
         factorData.putAll(getEvaluableAttributes(routingContext));
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         factorData.put(FactorContext.KEY_CLIENT, client);
         factorData.put(FactorContext.KEY_USER, endUser);
         factorData.put(
@@ -749,7 +749,7 @@ public class AccountFactorsEndpointHandler {
                         new VertxHttpServerRequest(routingContext.request().getDelegate())));
         factorData.put(FactorContext.KEY_ENROLLED_FACTOR, enrolledFactor);
         FactorContext factorContext = new FactorContext(applicationContext, factorData);
-        final Factor factor = factorManager.getFactor(enrolledFactor.getFactorId());
+        Factor factor = factorManager.getFactor(enrolledFactor.getFactorId());
 
         if (rateLimiterService.isRateLimitEnabled()) {
             rateLimiterService

@@ -182,7 +182,7 @@ public class FlowManagerImpl extends AbstractService
     }
 
     private void updateFlow(String flowId, FlowEvent flowEvent) {
-        final String eventType = flowEvent.toString().toLowerCase();
+        String eventType = flowEvent.toString().toLowerCase();
         logger.info(
                 "Domain {} has received {} flow event for {}", domain.getName(), eventType, flowId);
         flowService
@@ -354,7 +354,7 @@ public class FlowManagerImpl extends AbstractService
      */
     private boolean needDeployment(Flow flow) {
         if (flow != null && flow.getId() != null) {
-            final Flow deployedFlow = this.flows.get(flow.getId());
+            Flow deployedFlow = this.flows.get(flow.getId());
             return (deployedFlow == null
                     || deployedFlow.getUpdatedAt().before(flow.getUpdatedAt()));
         } else {

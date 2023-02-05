@@ -35,12 +35,12 @@ public class IdentityProviderResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetIdentityProvider() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String identityProviderId = "identityProvider-id";
-        final IdentityProvider mockIdentityProvider = new IdentityProvider();
+        String identityProviderId = "identityProvider-id";
+        IdentityProvider mockIdentityProvider = new IdentityProvider();
         mockIdentityProvider.setId(identityProviderId);
         mockIdentityProvider.setName("identityProvider-name");
         mockIdentityProvider.setReferenceType(ReferenceType.DOMAIN);
@@ -51,7 +51,7 @@ public class IdentityProviderResourceTest extends JerseySpringTest {
                 .when(identityProviderService)
                 .findById(identityProviderId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("identities")
@@ -60,23 +60,23 @@ public class IdentityProviderResourceTest extends JerseySpringTest {
                         .get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final IdentityProvider identityProvider = readEntity(response, IdentityProvider.class);
+        IdentityProvider identityProvider = readEntity(response, IdentityProvider.class);
         assertEquals(domainId, identityProvider.getReferenceId());
         assertEquals(identityProviderId, identityProvider.getId());
     }
 
     @Test
     public void shouldGetIdentityProvider_notFound() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String identityProviderId = "identityProvider-id";
+        String identityProviderId = "identityProvider-id";
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.empty()).when(identityProviderService).findById(identityProviderId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("identities")
@@ -88,12 +88,12 @@ public class IdentityProviderResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetIdentityProvider_domainNotFound() {
-        final String domainId = "domain-id";
-        final String identityProviderId = "identityProvider-id";
+        String domainId = "domain-id";
+        String identityProviderId = "identityProvider-id";
 
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("identities")
@@ -105,12 +105,12 @@ public class IdentityProviderResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetIdentityProvider_wrongDomain() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String identityProviderId = "identityProvider-id";
-        final IdentityProvider mockIdentityProvider = new IdentityProvider();
+        String identityProviderId = "identityProvider-id";
+        IdentityProvider mockIdentityProvider = new IdentityProvider();
         mockIdentityProvider.setId(identityProviderId);
         mockIdentityProvider.setName("identityProvider-name");
         mockIdentityProvider.setReferenceType(ReferenceType.DOMAIN);
@@ -121,7 +121,7 @@ public class IdentityProviderResourceTest extends JerseySpringTest {
                 .when(identityProviderService)
                 .findById(identityProviderId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("identities")

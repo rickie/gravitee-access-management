@@ -45,11 +45,11 @@ public class PushedAuthorizationRequestRepositoryTest extends AbstractOAuthTest 
     @Test
     public void shouldFindById() {
         PushedAuthorizationRequest par = new PushedAuthorizationRequest();
-        final String id = RandomString.generate();
+        String id = RandomString.generate();
         par.setId(id);
         par.setDomain("domain");
         par.setClient("client");
-        final LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+        LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
         parameters.add("key", "value");
         par.setParameters(parameters);
 
@@ -67,11 +67,11 @@ public class PushedAuthorizationRequestRepositoryTest extends AbstractOAuthTest 
     @Test
     public void shouldDelete() {
         PushedAuthorizationRequest par = new PushedAuthorizationRequest();
-        final String id = RandomString.generate();
+        String id = RandomString.generate();
         par.setDomain("domain");
         par.setClient("client");
         par.setId(id);
-        final LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+        LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
         parameters.add("key", "value");
         par.setParameters(parameters);
 

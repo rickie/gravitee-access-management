@@ -44,14 +44,14 @@ public class OTPFactorProvider implements FactorProvider {
 
     @Override
     public Completable verify(FactorContext context) {
-        final String code = context.getData(FactorContext.KEY_CODE, String.class);
-        final EnrolledFactor enrolledFactor =
+        String code = context.getData(FactorContext.KEY_CODE, String.class);
+        EnrolledFactor enrolledFactor =
                 context.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class);
 
         return Completable.create(
                 emitter -> {
                     try {
-                        final String otpCode =
+                        String otpCode =
                                 TOTP.generateTOTP(
                                         SharedSecret.base32Str2Hex(
                                                 enrolledFactor.getSecurity().getValue()));
@@ -70,8 +70,8 @@ public class OTPFactorProvider implements FactorProvider {
     public Single<Enrollment> enroll(String account) {
         return Single.fromCallable(
                 () -> {
-                    final String key = SharedSecret.generate();
-                    final String barCode =
+                    String key = SharedSecret.generate();
+                    String barCode =
                             QRCode.generate(
                                     QRCode.generateURI(
                                             key, otpFactorConfiguration.getIssuer(), account),
@@ -110,8 +110,8 @@ public class OTPFactorProvider implements FactorProvider {
     public Maybe<String> generateQrCode(User user, EnrolledFactor enrolledFactor) {
         return Maybe.fromCallable(
                 () -> {
-                    final String key = enrolledFactor.getSecurity().getValue();
-                    final String username = user.getUsername();
+                    String key = enrolledFactor.getSecurity().getValue();
+                    String username = user.getUsername();
                     return QRCode.generate(
                             QRCode.generateURI(key, otpFactorConfiguration.getIssuer(), username),
                             200,

@@ -65,9 +65,9 @@ public class UserRoleResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("user") String user,
             @PathParam("role") String role,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)

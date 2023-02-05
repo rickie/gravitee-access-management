@@ -49,8 +49,7 @@ public class IdentityProviderPluginResource {
             value = "Get an identity provider",
             notes = "There is no particular permission needed. User must be authenticated.")
     public void get(
-            @PathParam("identity") String identityProviderId,
-            @Suspended final AsyncResponse response) {
+            @PathParam("identity") String identityProviderId, @Suspended AsyncResponse response) {
 
         identityProviderPluginService
                 .findById(identityProviderId)
@@ -68,8 +67,7 @@ public class IdentityProviderPluginResource {
             value = "Get an identity provider plugin's schema",
             notes = "There is no particular permission needed. User must be authenticated.")
     public void getSchema(
-            @PathParam("identity") String identityProviderId,
-            @Suspended final AsyncResponse response) {
+            @PathParam("identity") String identityProviderId, @Suspended AsyncResponse response) {
 
         // Check that the identity provider exists
         identityProviderPluginService

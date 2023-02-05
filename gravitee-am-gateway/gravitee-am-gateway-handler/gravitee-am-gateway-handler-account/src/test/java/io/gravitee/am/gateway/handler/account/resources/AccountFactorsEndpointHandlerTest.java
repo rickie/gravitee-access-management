@@ -128,7 +128,7 @@ public class AccountFactorsEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void listRecoveryCodesShouldReturnUserRecoveryCodes() throws Exception {
         addFactors(user);
-        final String[] expectedRecoveryCodes = {"one", "two", "three"};
+        String[] expectedRecoveryCodes = {"one", "two", "three"};
 
         router.route(REQUEST_PATH + "recovery_code")
                 .handler(accountFactorsEndpointHandler::listRecoveryCodes)
@@ -143,7 +143,7 @@ public class AccountFactorsEndpointHandlerTest extends RxWebTestBase {
                             h -> {
                                 ObjectMapper objectMapper = new ObjectMapper();
                                 try {
-                                    final Object[] actualRecoveryCodes =
+                                    Object[] actualRecoveryCodes =
                                             objectMapper
                                                     .readValue(h.toString(), List.class)
                                                     .toArray();
@@ -160,7 +160,7 @@ public class AccountFactorsEndpointHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldReturnEmptyListInAbsenceOfFactor() throws Exception {
-        final String expectedValue = "[ ]";
+        String expectedValue = "[ ]";
 
         router.route(REQUEST_PATH + "recovery_code")
                 .handler(accountFactorsEndpointHandler::listRecoveryCodes)
@@ -184,7 +184,7 @@ public class AccountFactorsEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldReturnEmptyListInAbsenceOfRecoveryCodeFactor() throws Exception {
         addSMSFactor(user);
-        final String expectedValue = "[ ]";
+        String expectedValue = "[ ]";
 
         router.route(REQUEST_PATH + "recovery_code")
                 .handler(accountFactorsEndpointHandler::listRecoveryCodes)
@@ -698,9 +698,9 @@ public class AccountFactorsEndpointHandlerTest extends RxWebTestBase {
     }
 
     private void addFactors(User user) {
-        final Map<String, Object> recoveryCode =
+        Map<String, Object> recoveryCode =
                 Map.of(RECOVERY_CODE, Arrays.asList("one", "two", "three"));
-        final EnrolledFactor securityEnrolledFactor = new EnrolledFactor();
+        EnrolledFactor securityEnrolledFactor = new EnrolledFactor();
         securityEnrolledFactor.setSecurity(
                 new EnrolledFactorSecurity(RECOVERY_CODE, "3", recoveryCode));
 
@@ -712,7 +712,7 @@ public class AccountFactorsEndpointHandlerTest extends RxWebTestBase {
     }
 
     private EnrolledFactor smsFactor() {
-        final EnrolledFactor smsFactor = new EnrolledFactor();
+        EnrolledFactor smsFactor = new EnrolledFactor();
         smsFactor.setChannel(new EnrolledFactorChannel(EnrolledFactorChannel.Type.SMS, "1234"));
         return smsFactor;
     }

@@ -61,8 +61,8 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
 
     @Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
-        final String username = authentication.getPrincipal().toString();
-        final String presentedPassword = authentication.getCredentials().toString();
+        String username = authentication.getPrincipal().toString();
+        String presentedPassword = authentication.getCredentials().toString();
 
         return selectUserByMultipleField(username)
                 .toList()
@@ -107,7 +107,7 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
                 .toList()
                 .flatMapMaybe(
                         userEvaluations -> {
-                            final var validUsers =
+                            var validUsers =
                                     userEvaluations.stream()
                                             .filter(UserCredentialEvaluation::isPasswordValid)
                                             .collect(Collectors.toList());
@@ -141,7 +141,7 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
                         ? configuration.getSelectUserByMultipleFieldsQuery()
                         : configuration.getSelectUserByUsernameQuery();
         String[] args = prepareIndexParameters(rawQuery);
-        final String sql = String.format(rawQuery, args);
+        String sql = String.format(rawQuery, args);
         return Flowable.fromPublisher(connectionPool.create())
                 .flatMap(
                         connection -> {
@@ -159,7 +159,7 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
     }
 
     private String[] prepareIndexParameters(String rawQuery) {
-        final int variables = StringUtils.countOccurrencesOf(rawQuery, "%s");
+        int variables = StringUtils.countOccurrencesOf(rawQuery, "%s");
         String[] idxParameters = new String[variables];
         for (int i = 0; i < variables; ++i) {
             idxParameters[i] = getIndexParameter(configuration.getUsernameAttribute(), i);
@@ -174,7 +174,7 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
     }
 
     private Maybe<Map<String, Object>> selectUserByUsername(String username) {
-        final String sql =
+        String sql =
                 String.format(
                         configuration.getSelectUserByUsernameQuery(),
                         getIndexParameter(configuration.getUsernameAttribute()));

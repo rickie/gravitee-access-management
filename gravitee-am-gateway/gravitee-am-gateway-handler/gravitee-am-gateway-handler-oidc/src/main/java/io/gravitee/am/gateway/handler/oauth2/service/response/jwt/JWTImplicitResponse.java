@@ -26,7 +26,7 @@ import io.gravitee.am.gateway.handler.oauth2.service.token.Token;
  */
 public class JWTImplicitResponse extends JWTAuthorizationResponse<ImplicitResponse> {
 
-    public JWTImplicitResponse(final ImplicitResponse response) {
+    public JWTImplicitResponse(ImplicitResponse response) {
         super(response);
     }
 

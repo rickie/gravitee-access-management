@@ -702,7 +702,7 @@ public class DynamicClientRegistrationServiceTest {
 
     @Test
     public void create_sectorIdentifierUriBadRequest() {
-        final String sectorUri = "https://sector/uri";
+        String sectorUri = "https://sector/uri";
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
         request.setSectorIdentifierUri(Optional.of(sectorUri)); // fail due to invalid url
@@ -727,7 +727,7 @@ public class DynamicClientRegistrationServiceTest {
 
     @Test
     public void create_sectorIdentifierUri_invalidRedirectUri() {
-        final String sectorUri = "https://sector/uri";
+        String sectorUri = "https://sector/uri";
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.of(Arrays.asList("https://graviee.io/callback")));
         request.setSectorIdentifierUri(Optional.of(sectorUri)); // fail due to invalid url
@@ -745,8 +745,8 @@ public class DynamicClientRegistrationServiceTest {
 
     @Test
     public void create_sectorIdentifierUri_validRedirectUri() {
-        final String redirectUri = "https://graviee.io/callback";
-        final String sectorUri = "https://sector/uri";
+        String redirectUri = "https://graviee.io/callback";
+        String sectorUri = "https://sector/uri";
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.of(Arrays.asList(redirectUri)));
         request.setSectorIdentifierUri(Optional.of(sectorUri));
@@ -1181,7 +1181,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRequestObjectEncryptionAlg(Optional.of(JWEAlgorithm.RSA_OAEP.getName()));
         request.setRequestObjectEncryptionEnc(Optional.of(EncryptionMethod.A256GCM.getName()));
 
-        final RSAKey rsaKey = generateRSAKey();
+        RSAKey rsaKey = generateRSAKey();
         request.setSoftwareStatement(
                 Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.RS256, Instant.now())));
 
@@ -1205,7 +1205,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRequestObjectEncryptionAlg(Optional.of(JWEAlgorithm.RSA_OAEP.getName()));
         request.setRequestObjectEncryptionEnc(Optional.of(EncryptionMethod.A256GCM.getName()));
 
-        final RSAKey rsaKey = generateRSAKey();
+        RSAKey rsaKey = generateRSAKey();
         request.setSoftwareStatement(
                 Optional.of(
                         generateSoftwareStatement(
@@ -1238,7 +1238,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRequestObjectEncryptionAlg(Optional.of(JWEAlgorithm.RSA_OAEP.getName()));
         request.setRequestObjectEncryptionEnc(Optional.of(EncryptionMethod.A256GCM.getName()));
 
-        final RSAKey rsaKey = generateRSAKey();
+        RSAKey rsaKey = generateRSAKey();
         request.setSoftwareStatement(
                 Optional.of(
                         generateSoftwareStatement(
@@ -1270,11 +1270,11 @@ public class DynamicClientRegistrationServiceTest {
         request.setRequireParRequest(Optional.of(false));
         request.setRequestObjectEncryptionAlg(Optional.of(JWEAlgorithm.RSA_OAEP.getName()));
         request.setRequestObjectEncryptionEnc(Optional.of(EncryptionMethod.A256GCM.getName()));
-        final JWKSet jwkSet = new JWKSet();
+        JWKSet jwkSet = new JWKSet();
         jwkSet.setKeys(Arrays.asList(new io.gravitee.am.model.jose.RSAKey()));
         request.setJwks(Optional.of(jwkSet));
 
-        final RSAKey rsaKey = generateRSAKey();
+        RSAKey rsaKey = generateRSAKey();
         request.setSoftwareStatement(
                 Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
 
@@ -1303,7 +1303,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRequestObjectEncryptionAlg(Optional.of(JWEAlgorithm.RSA_OAEP.getName()));
         request.setRequestObjectEncryptionEnc(Optional.of(EncryptionMethod.A256GCM.getName()));
 
-        final RSAKey rsaKey = generateRSAKey();
+        RSAKey rsaKey = generateRSAKey();
         request.setSoftwareStatement(
                 Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
 
@@ -1333,7 +1333,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRequestObjectEncryptionEnc(Optional.of(EncryptionMethod.A256GCM.getName()));
         request.setJwksUri(Optional.of("https://invalid"));
 
-        final RSAKey rsaKey = generateRSAKey();
+        RSAKey rsaKey = generateRSAKey();
         request.setSoftwareStatement(
                 Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
 
@@ -1365,7 +1365,7 @@ public class DynamicClientRegistrationServiceTest {
 
         request.setRedirectUris(Optional.empty());
 
-        final RSAKey rsaKey = generateRSAKey();
+        RSAKey rsaKey = generateRSAKey();
         request.setSoftwareStatement(
                 Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
 
@@ -1397,7 +1397,7 @@ public class DynamicClientRegistrationServiceTest {
 
         request.setRedirectUris(Optional.of(Arrays.asList("https://invalid")));
 
-        final RSAKey rsaKey = generateRSAKey();
+        RSAKey rsaKey = generateRSAKey();
         request.setSoftwareStatement(
                 Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
 
@@ -1436,7 +1436,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setTlsClientAuthSanIp(Optional.empty());
         request.setTlsClientAuthSanUri(Optional.empty());
 
-        final RSAKey rsaKey = generateRSAKey();
+        RSAKey rsaKey = generateRSAKey();
         request.setSoftwareStatement(
                 Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
 
@@ -1480,7 +1480,7 @@ public class DynamicClientRegistrationServiceTest {
         assertNull(request.getTlsClientAuthSanDns());
         assertNull(request.getTlsClientAuthSanIp());
 
-        final RSAKey rsaKey = generateRSAKey();
+        RSAKey rsaKey = generateRSAKey();
         request.setSoftwareStatement(
                 Optional.of(generateSoftwareStatement(rsaKey, JWSAlgorithm.PS256, Instant.now())));
 
@@ -1621,10 +1621,10 @@ public class DynamicClientRegistrationServiceTest {
             throws Exception {
         JWSSigner signer = new RSASSASigner(rsaJWK);
 
-        final JSONObject jsonObject = new JSONObject();
+        JSONObject jsonObject = new JSONObject();
         jsonObject.put("iat", iat.getEpochSecond());
         jsonObject.put("software_jwks_uri", DUMMY_JWKS_URI);
-        final JSONArray redirectUris = new JSONArray();
+        JSONArray redirectUris = new JSONArray();
         redirectUris.add(DUMMY_REDIRECTURI);
         jsonObject.put("software_redirect_uris", redirectUris);
 

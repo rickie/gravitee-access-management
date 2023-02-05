@@ -300,7 +300,7 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
                                     .flatMap(
                                             preAuth -> {
                                                 if (preAuth) {
-                                                    final String username =
+                                                    String username =
                                                             authentication
                                                                     .getPrincipal()
                                                                     .toString();
@@ -315,7 +315,7 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
                                                                                     username)))
                                                             .flatMap(
                                                                     user -> {
-                                                                        final Authentication
+                                                                        Authentication
                                                                                 enhanceAuthentication =
                                                                                         new EndUserAuthentication(
                                                                                                 user,
@@ -391,14 +391,14 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
 
     private Completable postAuthentication(
             Client client, String username, String source, UserAuthentication userAuthentication) {
-        final AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
+        AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
 
         // if brute force detection feature disabled, continue
         if (accountSettings == null || !accountSettings.isLoginAttemptsDetectionEnabled()) {
             return Completable.complete();
         }
 
-        final LoginAttemptCriteria criteria =
+        LoginAttemptCriteria criteria =
                 new LoginAttemptCriteria.Builder()
                         .domain(domain.getId())
                         .client(client.getId())

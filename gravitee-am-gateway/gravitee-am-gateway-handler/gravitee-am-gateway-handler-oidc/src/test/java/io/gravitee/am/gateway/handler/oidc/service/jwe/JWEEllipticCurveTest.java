@@ -76,8 +76,8 @@ public class JWEEllipticCurveTest {
     @Parameters(name = "Encrypt with Elliptic Curve {0}, alg {1} enc {2}")
     public static Collection<Object[]> data() {
 
-        final List<Curve> curveList = Arrays.asList(Curve.P_256, Curve.P_384, Curve.P_521);
-        final List<JWEAlgorithm> algorithmList =
+        List<Curve> curveList = Arrays.asList(Curve.P_256, Curve.P_384, Curve.P_521);
+        List<JWEAlgorithm> algorithmList =
                 Arrays.asList(ECDH_ES, ECDH_ES_A128KW, ECDH_ES_A192KW, ECDH_ES_A256KW);
 
         // return list of Object[]{Curve, Algorithm, Encryption}

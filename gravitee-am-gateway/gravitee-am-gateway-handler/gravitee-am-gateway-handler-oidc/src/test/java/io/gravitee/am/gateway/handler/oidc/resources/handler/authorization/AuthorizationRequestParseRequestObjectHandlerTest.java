@@ -101,11 +101,11 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
     public void shouldNoPersistPARValues_AuthContextNotPresent() {
         when(domain.usePlainFapiProfile()).thenReturn(false);
 
-        final RoutingContext context = mock(RoutingContext.class);
-        final Client client = new Client();
+        RoutingContext context = mock(RoutingContext.class);
+        Client client = new Client();
         client.setRequireParRequest(false);
         when(context.get(ConstantKeys.CLIENT_CONTEXT_KEY)).thenReturn(client);
-        final HttpServerRequest request = mock(HttpServerRequest.class);
+        HttpServerRequest request = mock(HttpServerRequest.class);
 
         when(request.getParam(Parameters.REQUEST)).thenReturn(null);
         when(request.getParam(Parameters.REQUEST_URI))
@@ -131,11 +131,11 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
     public void shouldPersistPARValues_AuthContextPresent() {
         when(domain.usePlainFapiProfile()).thenReturn(false);
 
-        final RoutingContext context = mock(RoutingContext.class);
-        final Client client = new Client();
+        RoutingContext context = mock(RoutingContext.class);
+        Client client = new Client();
         client.setRequireParRequest(false);
         when(context.get(ConstantKeys.CLIENT_CONTEXT_KEY)).thenReturn(client);
-        final HttpServerRequest request = mock(HttpServerRequest.class);
+        HttpServerRequest request = mock(HttpServerRequest.class);
 
         when(request.getParam(Parameters.REQUEST)).thenReturn(null);
         when(request.getParam(Parameters.REQUEST_URI))
@@ -143,7 +143,7 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
         when(request.params()).thenReturn(new MultiMap(HeadersMultiMap.httpHeaders()));
         when(context.request()).thenReturn(request);
 
-        final Session session = mock(Session.class);
+        Session session = mock(Session.class);
         when(context.session()).thenReturn(session);
 
         when(parService.readFromURI(any(), any(), any()))
@@ -154,7 +154,7 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
                                                 .claim("parParam1", "parValue1")
                                                 .build())));
 
-        final AuthenticationFlowContext authFlowCtx = new AuthenticationFlowContext();
+        AuthenticationFlowContext authFlowCtx = new AuthenticationFlowContext();
         authFlowCtx.setData(new HashMap<>());
         authFlowCtx.setTransactionId("trxid");
         authFlowCtx.setVersion(1);
@@ -184,11 +184,11 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
     public void shouldExistWithoutProcessing() {
         when(domain.usePlainFapiProfile()).thenReturn(false);
 
-        final RoutingContext context = mock(RoutingContext.class);
-        final Client client = new Client();
+        RoutingContext context = mock(RoutingContext.class);
+        Client client = new Client();
         client.setRequireParRequest(false);
         when(context.get(ConstantKeys.CLIENT_CONTEXT_KEY)).thenReturn(client);
-        final HttpServerRequest request = mock(HttpServerRequest.class);
+        HttpServerRequest request = mock(HttpServerRequest.class);
         when(request.getParam(Parameters.REQUEST)).thenReturn(null);
         when(request.getParam(Parameters.REQUEST_URI)).thenReturn(null);
 
@@ -202,11 +202,11 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
     public void shouldFailsWithout_Request_FapiMode() {
         when(domain.usePlainFapiProfile()).thenReturn(true);
 
-        final RoutingContext context = mock(RoutingContext.class);
-        final Client client = new Client();
+        RoutingContext context = mock(RoutingContext.class);
+        Client client = new Client();
         client.setRequireParRequest(false);
         when(context.get(ConstantKeys.CLIENT_CONTEXT_KEY)).thenReturn(client);
-        final HttpServerRequest request = mock(HttpServerRequest.class);
+        HttpServerRequest request = mock(HttpServerRequest.class);
         when(request.getParam(Parameters.REQUEST)).thenReturn(null);
         when(request.getParam(Parameters.REQUEST_URI)).thenReturn(null);
 
@@ -219,11 +219,11 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
 
     @Test
     public void shouldFailsWithout_Request_ParRequired() {
-        final RoutingContext context = mock(RoutingContext.class);
-        final Client client = new Client();
+        RoutingContext context = mock(RoutingContext.class);
+        Client client = new Client();
         client.setRequireParRequest(true);
         when(context.get(ConstantKeys.CLIENT_CONTEXT_KEY)).thenReturn(client);
-        final HttpServerRequest request = mock(HttpServerRequest.class);
+        HttpServerRequest request = mock(HttpServerRequest.class);
         when(request.getParam(Parameters.REQUEST_URI)).thenReturn(null);
 
         when(context.request()).thenReturn(request);

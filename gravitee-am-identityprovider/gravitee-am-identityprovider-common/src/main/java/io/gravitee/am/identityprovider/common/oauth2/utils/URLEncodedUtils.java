@@ -28,11 +28,11 @@ public class URLEncodedUtils {
     private static final char QP_SEP_A = '&';
     private static final String NAME_VALUE_SEPARATOR = "=";
 
-    public static String format(final Iterable<? extends NameValuePair> parameters) {
-        final StringBuilder result = new StringBuilder();
-        for (final NameValuePair parameter : parameters) {
-            final String parameterName = parameter.getName();
-            final String parameterValue = parameter.getValue();
+    public static String format(Iterable<? extends NameValuePair> parameters) {
+        StringBuilder result = new StringBuilder();
+        for (NameValuePair parameter : parameters) {
+            String parameterName = parameter.getName();
+            String parameterValue = parameter.getValue();
             if (result.length() > 0) {
                 result.append(QP_SEP_A);
             }

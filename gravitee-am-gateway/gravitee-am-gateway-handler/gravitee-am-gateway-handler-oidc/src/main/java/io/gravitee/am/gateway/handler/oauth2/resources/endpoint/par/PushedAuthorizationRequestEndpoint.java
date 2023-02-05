@@ -60,7 +60,7 @@ public class PushedAuthorizationRequestEndpoint implements Handler<RoutingContex
             throw new InvalidClientException();
         }
 
-        final String contentType = context.request().getHeader(HttpHeaders.CONTENT_TYPE);
+        String contentType = context.request().getHeader(HttpHeaders.CONTENT_TYPE);
         if (contentType == null || !contentType.startsWith(URLEncodedUtils.CONTENT_TYPE)) {
             throw new InvalidRequestException("Unsupported Content-Type");
         }
