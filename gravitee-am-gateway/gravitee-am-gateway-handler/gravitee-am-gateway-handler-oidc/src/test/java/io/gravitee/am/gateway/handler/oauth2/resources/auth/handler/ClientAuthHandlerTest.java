@@ -85,7 +85,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvoke_clientCredentials_post_basicTokenAuthMethod() throws Exception {
-        final String clientId = "client-id";
+        String clientId = "client-id";
         Client client = mock(Client.class);
         when(client.getTokenEndpointAuthMethod())
                 .thenReturn(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
@@ -100,8 +100,8 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldInvoke_clientCredentials_post_postTokenAuthMethod() throws Exception {
-        final String clientId = "client-id";
-        final String clientSecret = "client-secret";
+        String clientId = "client-id";
+        String clientSecret = "client-secret";
         Client client = mock(Client.class);
         when(client.getClientId()).thenReturn(clientId);
         when(client.getClientSecret()).thenReturn(clientSecret);
@@ -118,8 +118,8 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldInvoke_clientCredentials_basic_basicTokenAuthMethod() throws Exception {
-        final String clientId = "client-id";
-        final String clientSecret = "client-secret";
+        String clientId = "client-id";
+        String clientSecret = "client-secret";
         Client client = mock(Client.class);
         when(client.getClientId()).thenReturn(clientId);
         when(client.getClientSecret()).thenReturn(clientSecret);
@@ -139,8 +139,8 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
     @Test
     public void shouldNotInvoke_invalidClientCredentials_basic_basicTokenAuthMethod()
             throws Exception {
-        final String clientId = "client-id";
-        final String clientSecret = "client-secret";
+        String clientId = "client-id";
+        String clientSecret = "client-secret";
         Client client = mock(Client.class);
         when(client.getClientId()).thenReturn(clientId);
         when(client.getClientSecret()).thenReturn(clientSecret);
@@ -164,7 +164,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
     @Test
     public void shouldInvoke_clientCredentials_privateJWT_privateJWTTokenAuthMethod()
             throws Exception {
-        final String clientId = "client-id";
+        String clientId = "client-id";
         Client client = mock(Client.class);
         when(clientAssertionService.assertClient(eq("type"), eq("myToken"), anyString()))
                 .thenReturn(Maybe.just(client));
@@ -180,7 +180,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
     public void
             shouldNotInvoke_clientCredentials_privateJWT_privateJWTTokenAuthMethod_MissingSSLCert()
                     throws Exception {
-        final String clientId = "client-id";
+        String clientId = "client-id";
         Client client = mock(Client.class);
         when(client.isTlsClientCertificateBoundAccessTokens()).thenReturn(true);
 
@@ -197,7 +197,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
     @Test
     public void shouldInvoke_clientCredentials_clientSecret_clientSecretJWTTokenAuthMethod()
             throws Exception {
-        final String clientId = "client-id";
+        String clientId = "client-id";
         Client client = mock(Client.class);
         when(clientAssertionService.assertClient(eq("type"), eq("myToken"), anyString()))
                 .thenReturn(Maybe.just(client));
@@ -211,7 +211,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvoke_clientCredentials_publicClient() throws Exception {
-        final String clientId = "public-client-id";
+        String clientId = "public-client-id";
         Client client = mock(Client.class);
         when(client.getTokenEndpointAuthMethod()).thenReturn(ClientAuthenticationMethod.NONE);
         when(clientSyncService.findByClientId(clientId)).thenReturn(Maybe.just(client));
@@ -225,7 +225,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldInvoke_noClientCredentials_publicClient() throws Exception {
-        final String clientId = "public-client-id";
+        String clientId = "public-client-id";
         Client client = mock(Client.class);
         when(client.getTokenEndpointAuthMethod()).thenReturn(ClientAuthenticationMethod.NONE);
         when(clientSyncService.findByClientId(clientId)).thenReturn(Maybe.just(client));

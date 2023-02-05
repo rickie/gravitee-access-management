@@ -112,7 +112,7 @@ public class RememberDeviceHandlerTest extends RxWebTestBase {
     @Test
     public void mustDoNext_RememberDeviceSettingsIsNotActive() {
         spyRoutingContext.setMethod(HttpMethod.GET);
-        final MFASettings mfaSettings = new MFASettings();
+        MFASettings mfaSettings = new MFASettings();
         mfaSettings.setRememberDevice(new RememberDeviceSettings());
         client.setMfaSettings(mfaSettings);
         spyRoutingContext.put(CLIENT_CONTEXT_KEY, client);
@@ -126,8 +126,8 @@ public class RememberDeviceHandlerTest extends RxWebTestBase {
     @Test
     public void mustDoNext_deviceAlreadyExist() {
         spyRoutingContext.setMethod(HttpMethod.GET);
-        final MFASettings mfaSettings = new MFASettings();
-        final RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
+        MFASettings mfaSettings = new MFASettings();
+        RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
         rememberDevice.setActive(true);
         mfaSettings.setRememberDevice(rememberDevice);
         client.setMfaSettings(mfaSettings);
@@ -143,8 +143,8 @@ public class RememberDeviceHandlerTest extends RxWebTestBase {
     @Test
     public void mustDoNext_defaultDeviceConsentTimeSecond() {
         spyRoutingContext.setMethod(HttpMethod.GET);
-        final MFASettings mfaSettings = new MFASettings();
-        final RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
+        MFASettings mfaSettings = new MFASettings();
+        RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
         rememberDevice.setActive(true);
         mfaSettings.setRememberDevice(rememberDevice);
         client.setMfaSettings(mfaSettings);
@@ -161,8 +161,8 @@ public class RememberDeviceHandlerTest extends RxWebTestBase {
     @Test
     public void mustDoNext_setDeviceConsentTimeSecond() {
         spyRoutingContext.setMethod(HttpMethod.GET);
-        final MFASettings mfaSettings = new MFASettings();
-        final RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
+        MFASettings mfaSettings = new MFASettings();
+        RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
         rememberDevice.setActive(true);
         rememberDevice.setExpirationTimeSeconds(300L);
         mfaSettings.setRememberDevice(rememberDevice);

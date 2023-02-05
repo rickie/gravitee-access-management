@@ -84,7 +84,7 @@ public class LoginEndpoint extends AbstractEndpoint implements Handler<RoutingCo
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         prepareContext(routingContext, client);
         renderLoginPage(routingContext, client);
     }
@@ -123,8 +123,8 @@ public class LoginEndpoint extends AbstractEndpoint implements Handler<RoutingCo
         routingContext.put(REQUEST_CONTEXT_KEY, evaluableRequest);
 
         // put error in context
-        final String error = routingContext.request().getParam(ConstantKeys.ERROR_PARAM_KEY);
-        final String errorDescription =
+        String error = routingContext.request().getParam(ConstantKeys.ERROR_PARAM_KEY);
+        String errorDescription =
                 routingContext.request().getParam(ConstantKeys.ERROR_DESCRIPTION_PARAM_KEY);
         routingContext.put(ConstantKeys.ERROR_PARAM_KEY, error);
         routingContext.put(ConstantKeys.ERROR_DESCRIPTION_PARAM_KEY, errorDescription);
@@ -133,14 +133,14 @@ public class LoginEndpoint extends AbstractEndpoint implements Handler<RoutingCo
         Map<String, String> params = new HashMap<>(evaluableRequest.getParams().toSingleValueMap());
         params.put(ConstantKeys.ERROR_PARAM_KEY, error);
         params.put(ConstantKeys.ERROR_DESCRIPTION_PARAM_KEY, errorDescription);
-        final String loginHint = routingContext.request().getParam(Parameters.LOGIN_HINT);
+        String loginHint = routingContext.request().getParam(Parameters.LOGIN_HINT);
         if (loginHint != null) {
             params.put(ConstantKeys.USERNAME_PARAM_KEY, loginHint);
         }
         routingContext.put(ConstantKeys.PARAM_CONTEXT_KEY, params);
 
         // put action urls in context
-        final MultiMap queryParams = getCleanedQueryParams(routingContext.request());
+        MultiMap queryParams = getCleanedQueryParams(routingContext.request());
         routingContext.put(
                 ACTION_KEY,
                 resolveProxyRequest(
@@ -192,15 +192,14 @@ public class LoginEndpoint extends AbstractEndpoint implements Handler<RoutingCo
                 routingContext.get(TEMPLATE_KEY_IDENTIFIER_FIRST_LOGIN_CONTEXT_KEY);
         String username = routingContext.request().getParam(Parameters.LOGIN_HINT);
         if (isIdentifierFirstLoginEnabled && StringUtils.isEmpty(username)) {
-            final String redirectUrl =
-                    routingContext.get(TEMPLATE_KEY_BACK_LOGIN_IDENTIFIER_ACTION_KEY);
+            String redirectUrl = routingContext.get(TEMPLATE_KEY_BACK_LOGIN_IDENTIFIER_ACTION_KEY);
             routingContext
                     .response()
                     .putHeader(io.vertx.core.http.HttpHeaders.LOCATION, redirectUrl)
                     .setStatusCode(302)
                     .end();
         } else {
-            final Map<String, Object> data = generateData(routingContext, domain, client);
+            Map<String, Object> data = generateData(routingContext, domain, client);
             data.putAll(botDetectionManager.getTemplateVariables(domain, client));
             data.putAll(deviceIdentifierManager.getTemplateVariables(client));
             renderPage(routingContext, data, client, logger, "Unable to render login page");

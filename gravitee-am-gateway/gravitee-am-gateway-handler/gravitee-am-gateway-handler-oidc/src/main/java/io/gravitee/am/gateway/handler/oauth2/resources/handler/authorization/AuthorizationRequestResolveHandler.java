@@ -45,10 +45,10 @@ public class AuthorizationRequestResolveHandler implements Handler<RoutingContex
     @Override
     public void handle(RoutingContext routingContext) {
         // get client
-        final Client client = routingContext.get(CLIENT_CONTEXT_KEY);
+        Client client = routingContext.get(CLIENT_CONTEXT_KEY);
 
         // get user
-        final io.gravitee.am.model.User endUser =
+        io.gravitee.am.model.User endUser =
                 routingContext.user() != null
                         ? ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
                                         routingContext.user().getDelegate())
@@ -56,8 +56,7 @@ public class AuthorizationRequestResolveHandler implements Handler<RoutingContex
                         : null;
 
         // create authorization request
-        final AuthorizationRequest authorizationRequest =
-                resolveInitialAuthorizeRequest(routingContext);
+        AuthorizationRequest authorizationRequest = resolveInitialAuthorizeRequest(routingContext);
 
         // compute authorization request
         computeAuthorizationRequest(

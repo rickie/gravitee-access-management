@@ -43,7 +43,7 @@ public class FreemarkerConfiguration {
 
     @Bean
     public freemarker.template.Configuration getConfiguration() {
-        final freemarker.template.Configuration configuration =
+        freemarker.template.Configuration configuration =
                 new freemarker.template.Configuration(
                         freemarker.template.Configuration.VERSION_2_3_22);
         configuration.setLocalizedLookup(false);
@@ -54,7 +54,7 @@ public class FreemarkerConfiguration {
                 overrideTemplateLoader(), new FileTemplateLoader(new File(templatesPath))
             };
             configuration.setTemplateLoader(new MultiTemplateLoader(templateLoaders));
-        } catch (final IOException e) {
+        } catch (IOException e) {
             LOGGER.warn("Error occurred while trying to read email templates", e);
         }
         return configuration;

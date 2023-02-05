@@ -180,8 +180,7 @@ public class FactorServiceImpl implements FactorService {
     private Single<Factor> checkFactorConfiguration(Factor factor) {
         // for SMS|CALL Factor, check that countries code provided into the configuration are valid
         if (isCountryCodeFactor(factor)) {
-            final JsonObject configuration =
-                    (JsonObject) Json.decodeValue(factor.getConfiguration());
+            JsonObject configuration = (JsonObject) Json.decodeValue(factor.getConfiguration());
             String countryCodes = configuration.getString(CONFIG_KEY_COUNTRY_CODES);
             for (String code : countryCodes.split(COUNTRY_CODES_SEPARATOR)) {
                 if (!COUNTRY_CODES.contains(code.trim().toUpperCase(Locale.ROOT))) {

@@ -37,7 +37,7 @@ public final class SanitizeUtils {
      */
     public static String sanitize(
             String credentials, String requestBody, List<HttpHeader> authenticationHttpHeaders) {
-        final List<String> contentTypeHeaders =
+        List<String> contentTypeHeaders =
                 authenticationHttpHeaders == null
                         ? Collections.emptyList()
                         : authenticationHttpHeaders.stream()

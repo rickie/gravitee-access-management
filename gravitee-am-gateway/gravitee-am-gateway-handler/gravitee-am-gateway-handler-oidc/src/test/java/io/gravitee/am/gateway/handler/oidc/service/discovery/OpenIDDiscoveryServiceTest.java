@@ -215,7 +215,7 @@ public class OpenIDDiscoveryServiceTest {
     @Test
     public void shouldContainsNotCIBAMetadata() {
         when(domain.useCiba()).thenReturn(false);
-        final OpenIDProviderMetadata openIDProviderMetadata =
+        OpenIDProviderMetadata openIDProviderMetadata =
                 openIDDiscoveryService.getConfiguration("/");
         assertFalse(openIDProviderMetadata.isBackchannelUserCodeSupported());
         assertNull(openIDProviderMetadata.getBackchannelAuthenticationEndpoint());
@@ -226,7 +226,7 @@ public class OpenIDDiscoveryServiceTest {
     @Test
     public void shouldContainsCIBAMetadata() {
         when(domain.useCiba()).thenReturn(true);
-        final OpenIDProviderMetadata openIDProviderMetadata =
+        OpenIDProviderMetadata openIDProviderMetadata =
                 openIDDiscoveryService.getConfiguration("/");
         assertFalse(openIDProviderMetadata.isBackchannelUserCodeSupported());
         assertTrue(

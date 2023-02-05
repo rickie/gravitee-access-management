@@ -29,8 +29,8 @@ public class MfaSkipUserStronglyAuthFilter extends MfaContextHolder implements S
 
     @Override
     public Boolean get() {
-        final boolean userStronglyAuth = context.isUserStronglyAuth();
-        final boolean mfaSkipped = context.isMfaSkipped();
+        boolean userStronglyAuth = context.isUserStronglyAuth();
+        boolean mfaSkipped = context.isMfaSkipped();
         // If user has not matching activated factors, we enforce MFA
         if (!mfaSkipped && !context.userHasMatchingActivatedFactors()) {
             return false;

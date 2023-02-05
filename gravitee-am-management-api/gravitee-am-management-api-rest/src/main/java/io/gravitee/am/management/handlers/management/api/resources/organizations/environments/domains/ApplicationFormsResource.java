@@ -80,7 +80,7 @@ public class ApplicationFormsResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("application") String application,
             @NotNull @QueryParam("template") Template emailTemplate,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId,
@@ -116,9 +116,9 @@ public class ApplicationFormsResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("application") String application,
-            @ApiParam(name = "email", required = true) @Valid @NotNull final NewForm newForm,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @ApiParam(name = "email", required = true) @Valid @NotNull NewForm newForm,
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,

@@ -60,7 +60,7 @@ public class UserActivityServiceTest {
         doReturn(Single.error(new IllegalArgumentException("An Error")))
                 .when(userActivityRepository)
                 .create(any());
-        final TestObserver<Void> testObserver =
+        TestObserver<Void> testObserver =
                 userActivityService.save("domain", "user-id", Type.LOGIN, Map.of()).test();
 
         testObserver.assertError(IllegalArgumentException.class);
@@ -84,7 +84,7 @@ public class UserActivityServiceTest {
     @Test
     public void must_log_info_and_do_nothing_if_success() {
         doReturn(Single.just(new UserActivity())).when(userActivityRepository).create(any());
-        final TestObserver<Void> testObserver =
+        TestObserver<Void> testObserver =
                 userActivityService.save("domain", "user-id", Type.LOGIN, Map.of()).test();
 
         testObserver.awaitTerminalEvent();
@@ -95,7 +95,7 @@ public class UserActivityServiceTest {
     @Test
     public void must_delete_by_domain() {
         doReturn(Completable.complete()).when(userActivityRepository).deleteByDomain(anyString());
-        final TestObserver<Void> testObserver = userActivityService.deleteByDomain("domain").test();
+        TestObserver<Void> testObserver = userActivityService.deleteByDomain("domain").test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
@@ -107,7 +107,7 @@ public class UserActivityServiceTest {
         doReturn(Completable.complete())
                 .when(userActivityRepository)
                 .deleteByDomainAndKey(anyString(), anyString());
-        final TestObserver<Void> testObserver =
+        TestObserver<Void> testObserver =
                 userActivityService.deleteByDomainAndUser("domain", "user-id").test();
 
         testObserver.awaitTerminalEvent();
@@ -121,7 +121,7 @@ public class UserActivityServiceTest {
                 .when(userActivityRepository)
                 .deleteByDomainAndKey(anyString(), anyString());
         ;
-        final TestObserver<Void> testObserver =
+        TestObserver<Void> testObserver =
                 userActivityService.deleteByDomainAndUser("domain", "user-id").test();
 
         testObserver.awaitTerminalEvent();
@@ -133,7 +133,7 @@ public class UserActivityServiceTest {
         doReturn(Completable.error(new IllegalArgumentException("An Error")))
                 .when(userActivityRepository)
                 .deleteByDomain(anyString());
-        final TestObserver<Void> testObserver = userActivityService.deleteByDomain("domain").test();
+        TestObserver<Void> testObserver = userActivityService.deleteByDomain("domain").test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertError(IllegalArgumentException.class);
@@ -144,7 +144,7 @@ public class UserActivityServiceTest {
         doReturn(Flowable.just(new UserActivity(), new UserActivity(), new UserActivity()))
                 .when(userActivityRepository)
                 .findByDomainAndTypeAndKeyAndLimit(anyString(), any(), anyString(), anyInt());
-        final TestSubscriber<UserActivity> testObserver =
+        TestSubscriber<UserActivity> testObserver =
                 userActivityService
                         .findByDomainAndTypeAndUserAndLimit("domain", Type.LOGIN, "user-id", 3)
                         .test();

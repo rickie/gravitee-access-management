@@ -81,7 +81,7 @@ public class UserActivityServiceImpl implements UserActivityService {
 
     public Completable save(
             String domain, String userId, UserActivity.Type type, Map<String, Object> data) {
-        final Date createdAt = new Date();
+        Date createdAt = new Date();
         return Single.defer(
                         () ->
                                 Single.just(
@@ -147,8 +147,8 @@ public class UserActivityServiceImpl implements UserActivityService {
     }
 
     private Date getExpireAtDate(Date createdAt) {
-        final ChronoUnit chronoUnit = configuration.getRetentionUnit();
-        final long retentionTime = configuration.getRetentionTime();
+        ChronoUnit chronoUnit = configuration.getRetentionUnit();
+        long retentionTime = configuration.getRetentionTime();
         var expireTime = chronoUnit.getDuration().toMillis() * Math.abs(retentionTime);
         return new Date(createdAt.getTime() + expireTime);
     }

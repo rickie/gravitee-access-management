@@ -40,14 +40,14 @@ public class GroupMemberResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldNotAddMember_domainNotFound() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
 
-        final Group mockGroup = new Group();
+        Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
 
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("groups")
@@ -62,17 +62,17 @@ public class GroupMemberResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldNotAddMember_groupNotFound() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Group mockGroup = new Group();
+        Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.empty()).when(groupService).findById(mockGroup.getId());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("groups")
@@ -87,18 +87,18 @@ public class GroupMemberResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldNotAddMember_userNotFound() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Group mockGroup = new Group();
+        Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.just(mockGroup)).when(groupService).findById(mockGroup.getId());
         doReturn(Maybe.empty()).when(userService).findById("member-1");
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("groups")
@@ -113,22 +113,22 @@ public class GroupMemberResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldNotAddMember_memberAlreadyExists() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Group mockGroup = new Group();
+        Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
         mockGroup.setMembers(Arrays.asList("member-1"));
 
-        final User mockUser = new User();
+        User mockUser = new User();
         mockUser.setId("member-1");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.just(mockGroup)).when(groupService).findById(mockGroup.getId());
         doReturn(Maybe.just(mockUser)).when(userService).findById(mockUser.getId());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("groups")
@@ -143,14 +143,14 @@ public class GroupMemberResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldAddMember() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Group mockGroup = new Group();
+        Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
 
-        final User mockUser = new User();
+        User mockUser = new User();
         mockUser.setId("member-1");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
@@ -160,7 +160,7 @@ public class GroupMemberResourceTest extends JerseySpringTest {
                 .update(eq(mockDomain.getId()), eq(mockGroup.getId()), any(), any());
         doReturn(Maybe.just(mockUser)).when(userService).findById(mockUser.getId());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("groups")
@@ -175,14 +175,14 @@ public class GroupMemberResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldNotRemoveMember_domainNotFound() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
 
-        final Group mockGroup = new Group();
+        Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
 
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("groups")
@@ -197,17 +197,17 @@ public class GroupMemberResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldNotRemoveMember_groupNotFound() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Group mockGroup = new Group();
+        Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.empty()).when(groupService).findById(mockGroup.getId());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("groups")
@@ -222,18 +222,18 @@ public class GroupMemberResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldNotRemoveMember_userNotFound() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Group mockGroup = new Group();
+        Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.just(mockGroup)).when(groupService).findById(mockGroup.getId());
         doReturn(Maybe.empty()).when(userService).findById("member-1");
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("groups")
@@ -248,14 +248,14 @@ public class GroupMemberResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldRemoveMember_memberNotFound() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Group mockGroup = new Group();
+        Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
 
-        final User mockUser = new User();
+        User mockUser = new User();
         mockUser.setId("member-1");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
@@ -265,7 +265,7 @@ public class GroupMemberResourceTest extends JerseySpringTest {
                 .update(eq(mockDomain.getId()), eq(mockGroup.getId()), any(), any());
         doReturn(Maybe.just(mockUser)).when(userService).findById(mockUser.getId());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("groups")
@@ -280,15 +280,15 @@ public class GroupMemberResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldRemoveMember() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Group mockGroup = new Group();
+        Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
         mockGroup.setMembers(Arrays.asList("member-1"));
 
-        final User mockUser = new User();
+        User mockUser = new User();
         mockUser.setId("member-1");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
@@ -298,7 +298,7 @@ public class GroupMemberResourceTest extends JerseySpringTest {
                 .update(eq(mockDomain.getId()), eq(mockGroup.getId()), any(), any());
         doReturn(Maybe.just(mockUser)).when(userService).findById(mockUser.getId());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("groups")

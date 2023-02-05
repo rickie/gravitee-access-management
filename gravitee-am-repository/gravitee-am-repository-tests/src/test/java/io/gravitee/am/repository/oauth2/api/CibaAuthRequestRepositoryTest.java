@@ -48,7 +48,7 @@ public class CibaAuthRequestRepositoryTest extends AbstractOAuthTest {
 
     @Test
     public void shouldFindById() {
-        final String id = RandomString.generate();
+        String id = RandomString.generate();
         CibaAuthRequest authRequest = buildCibaAuthRequest(id);
 
         repository.create(authRequest).test().awaitTerminalEvent();
@@ -64,7 +64,7 @@ public class CibaAuthRequestRepositoryTest extends AbstractOAuthTest {
 
     @Test
     public void shouldFindByExternalId() {
-        final String id = RandomString.generate();
+        String id = RandomString.generate();
         CibaAuthRequest authRequest = buildCibaAuthRequest(id);
 
         repository.create(authRequest).test().awaitTerminalEvent();
@@ -81,7 +81,7 @@ public class CibaAuthRequestRepositoryTest extends AbstractOAuthTest {
 
     @Test
     public void shouldUpdate() {
-        final String id = RandomString.generate();
+        String id = RandomString.generate();
         CibaAuthRequest authRequest = buildCibaAuthRequest(id);
 
         repository.create(authRequest).test().awaitTerminalEvent();
@@ -114,7 +114,7 @@ public class CibaAuthRequestRepositoryTest extends AbstractOAuthTest {
 
     @Test
     public void shouldUpdateStatus() {
-        final String id = RandomString.generate();
+        String id = RandomString.generate();
         CibaAuthRequest authRequest = buildCibaAuthRequest(id);
 
         repository.create(authRequest).test().awaitTerminalEvent();
@@ -158,7 +158,7 @@ public class CibaAuthRequestRepositoryTest extends AbstractOAuthTest {
 
     @Test
     public void shouldDelete() {
-        final String id = RandomString.generate();
+        String id = RandomString.generate();
         CibaAuthRequest authRequest = buildCibaAuthRequest(id);
 
         TestObserver<CibaAuthRequest> observer =

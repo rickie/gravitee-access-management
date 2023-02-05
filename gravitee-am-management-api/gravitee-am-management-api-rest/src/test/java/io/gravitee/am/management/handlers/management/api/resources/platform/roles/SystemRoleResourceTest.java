@@ -38,8 +38,8 @@ public class SystemRoleResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetSystemRole() {
 
-        final String roleId = "role-id";
-        final Role mockRole = new Role();
+        String roleId = "role-id";
+        Role mockRole = new Role();
         mockRole.setId(roleId);
         mockRole.setName("role-name");
 
@@ -47,23 +47,23 @@ public class SystemRoleResourceTest extends JerseySpringTest {
                 .when(roleService)
                 .findById(ReferenceType.PLATFORM, Platform.DEFAULT, roleId);
 
-        final Response response = target("platform").path("roles").path(roleId).request().get();
+        Response response = target("platform").path("roles").path(roleId).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final RoleEntity role = readEntity(response, RoleEntity.class);
+        RoleEntity role = readEntity(response, RoleEntity.class);
         assertEquals(roleId, role.getId());
     }
 
     @Test
     public void shouldGetRole_notFound() {
 
-        final String roleId = "role-id";
+        String roleId = "role-id";
 
         doReturn(Single.error(new RoleNotFoundException(roleId)))
                 .when(roleService)
                 .findById(ReferenceType.PLATFORM, Platform.DEFAULT, roleId);
 
-        final Response response = target("platform").path("roles").path(roleId).request().get();
+        Response response = target("platform").path("roles").path(roleId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }
 }

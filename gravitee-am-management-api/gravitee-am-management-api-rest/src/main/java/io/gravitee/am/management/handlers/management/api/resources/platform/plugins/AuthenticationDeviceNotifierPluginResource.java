@@ -49,7 +49,7 @@ public class AuthenticationDeviceNotifierPluginResource {
             notes = "There is no particular permission needed. User must be authenticated.")
     public void get(
             @PathParam("authDeviceNotifierId") String authDeviceNotifierId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         pluginService
                 .findById(authDeviceNotifierId)
@@ -69,7 +69,7 @@ public class AuthenticationDeviceNotifierPluginResource {
             notes = "There is no particular permission needed. User must be authenticated.")
     public void getSchema(
             @PathParam("authDeviceNotifierId") String authDeviceNotifierId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         // Check that the auth device notifier exists
         pluginService

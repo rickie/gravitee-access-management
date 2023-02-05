@@ -57,7 +57,7 @@ public class FactorManagerTest {
     @Before
     public void prepare() {
         when(domain.getId()).thenReturn(DOMAIN_ID);
-        final Factor factor = new Factor();
+        Factor factor = new Factor();
         factor.setId(FACTOR_ID);
         when(factorService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.just(factor));
         when(factorPluginManager.create(any())).thenReturn(mock(FactorProvider.class));
