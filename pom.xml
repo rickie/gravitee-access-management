@@ -72,6 +72,10 @@
     </modules>
 
     <properties>
+        <!-- Property using which additional Error Prone flags can be
+        specified. Used by the `patch` profile. -->
+        <error-prone.patch-args />
+
         <gravitee-bom.version>2.5</gravitee-bom.version>
         <gravitee-common.version>1.25.0</gravitee-common.version>
         <gravitee-plugin.version>1.23.1</gravitee-plugin.version>
@@ -515,7 +519,6 @@
                 </executions>
             </plugin>
 
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -534,11 +537,6 @@
                             <artifactId>error_prone_core</artifactId>
                             <version>2.18.0-picnic-1</version>
                         </path>
-<!--                        <path>-->
-<!--                            <groupId>tech.picnic.error-prone-support</groupId>-->
-<!--                            <artifactId>error-prone-contrib</artifactId>-->
-<!--                            <version>0.0.1-SNAPSHOT</version>-->
-<!--                        </path>-->
                     </annotationProcessorPaths>
                     <compilerArgs>
                         <arg>-Xmaxerrs</arg>
@@ -549,7 +547,7 @@
                             -Xplugin:ErrorProne
                             -XepAllErrorsAsWarnings
                             -XepAllDisabledChecksAsWarnings
-                            ${error-prone.args}
+                            ${error-prone.patch-args}
                         </arg>
                         <arg>-XDcompilePolicy=simple</arg>
                     </compilerArgs>
@@ -573,13 +571,10 @@
             configures Error Prone to try and automatically fix (rather than
             merely flag) bug pattern violations in the source code. -->
             <id>patch</id>
-            <activation>
-                <property>
-                    <name>errorprone.patchchecks</name>
-                </property>
-            </activation>
             <properties>
-                <error-prone.args>-XepPatchChecks:${errorprone.patchchecks} -XepPatchLocation:IN_PLACE</error-prone.args>
+                <error-prone.patch-args>-XepPatchChecks:${error-prone.patch-checks} -XepPatchLocation:IN_PLACE</error-prone.patch-args>
+                <!-- One can override this value to specify which checks should be patched. -->
+                <error-prone.patch-checks />
             </properties>
         </profile>
     </profiles>
