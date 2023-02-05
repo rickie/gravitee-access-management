@@ -78,7 +78,7 @@ public class SensitiveDataMaskingTest extends AbstractSensitiveProxy {
 
     @Test
     public void shouldNoFilter_NullURI() throws Exception {
-        final JsonNode config = objectMapper.readTree("{}");
+        JsonNode config = objectMapper.readTree("{}");
         filterSensitiveData(
                 schema,
                 config,
@@ -89,7 +89,7 @@ public class SensitiveDataMaskingTest extends AbstractSensitiveProxy {
 
     @Test
     public void shouldNoFilter_EmptyURI() throws Exception {
-        final JsonNode config = objectMapper.readTree("{ \"uri\" : \"\"}");
+        JsonNode config = objectMapper.readTree("{ \"uri\" : \"\"}");
         filterSensitiveData(
                 schema,
                 config,
@@ -100,8 +100,7 @@ public class SensitiveDataMaskingTest extends AbstractSensitiveProxy {
 
     @Test
     public void shouldFilter_URI_withPassword() throws Exception {
-        final JsonNode config =
-                objectMapper.readTree("{ \"uri\": \"" + URI_WITH_CREDENTIALS + "\"}");
+        JsonNode config = objectMapper.readTree("{ \"uri\": \"" + URI_WITH_CREDENTIALS + "\"}");
         filterSensitiveData(
                 schema,
                 config,
@@ -113,7 +112,7 @@ public class SensitiveDataMaskingTest extends AbstractSensitiveProxy {
 
     @Test
     public void shouldNoFilter_URI_withoutPassword() throws Exception {
-        final JsonNode config = objectMapper.readTree("{ \"uri\": \"" + URI_WITH_USERNAME + "\"}");
+        JsonNode config = objectMapper.readTree("{ \"uri\": \"" + URI_WITH_USERNAME + "\"}");
         filterSensitiveData(
                 schema,
                 config,
@@ -124,8 +123,7 @@ public class SensitiveDataMaskingTest extends AbstractSensitiveProxy {
 
     @Test
     public void shouldNoFilter_URI_withoutUserInfo() throws Exception {
-        final JsonNode config =
-                objectMapper.readTree("{ \"uri\": \"" + URI_WITHOUT_USERINFO + "\"}");
+        JsonNode config = objectMapper.readTree("{ \"uri\": \"" + URI_WITHOUT_USERINFO + "\"}");
         filterSensitiveData(
                 schema,
                 config,
@@ -136,11 +134,10 @@ public class SensitiveDataMaskingTest extends AbstractSensitiveProxy {
 
     @Test
     public void shouldUpdate_URI_withoutUserInfo() throws Exception {
-        final JsonNode newConfig =
+        JsonNode newConfig =
                 objectMapper.readTree(
                         "{ \"uri\": \"" + URI_WITHOUT_USERINFO + "custom-param=toto\"}");
-        final JsonNode oldConfig =
-                objectMapper.readTree("{ \"uri\": \"" + URI_WITHOUT_USERINFO + "\"}");
+        JsonNode oldConfig = objectMapper.readTree("{ \"uri\": \"" + URI_WITHOUT_USERINFO + "\"}");
 
         updateSensitiveData(
                 newConfig,
@@ -156,11 +153,10 @@ public class SensitiveDataMaskingTest extends AbstractSensitiveProxy {
 
     @Test
     public void shouldUpdate_URI_withoutUserInfo_With_multipleWildcard() throws Exception {
-        final JsonNode newConfig =
+        JsonNode newConfig =
                 objectMapper.readTree(
                         "{ \"uri\": \"" + URI_WITHOUT_USERINFO + "custom-param=*******\"}");
-        final JsonNode oldConfig =
-                objectMapper.readTree("{ \"uri\": \"" + URI_WITHOUT_USERINFO + "\"}");
+        JsonNode oldConfig = objectMapper.readTree("{ \"uri\": \"" + URI_WITHOUT_USERINFO + "\"}");
 
         updateSensitiveData(
                 newConfig,
@@ -176,10 +172,9 @@ public class SensitiveDataMaskingTest extends AbstractSensitiveProxy {
 
     @Test
     public void shouldUpdate_URI_withoutUserPassword() throws Exception {
-        final JsonNode newConfig =
+        JsonNode newConfig =
                 objectMapper.readTree("{ \"uri\": \"" + URI_WITH_USERNAME + "custom-param=toto\"}");
-        final JsonNode oldConfig =
-                objectMapper.readTree("{ \"uri\": \"" + URI_WITH_USERNAME + "\"}");
+        JsonNode oldConfig = objectMapper.readTree("{ \"uri\": \"" + URI_WITH_USERNAME + "\"}");
 
         updateSensitiveData(
                 newConfig,
@@ -195,11 +190,10 @@ public class SensitiveDataMaskingTest extends AbstractSensitiveProxy {
 
     @Test
     public void shouldUpdate_URI_withoutUserPassword_With_multipleWildcard() throws Exception {
-        final JsonNode newConfig =
+        JsonNode newConfig =
                 objectMapper.readTree(
                         "{ \"uri\": \"" + URI_WITH_USERNAME + "custom-param=*******\"}");
-        final JsonNode oldConfig =
-                objectMapper.readTree("{ \"uri\": \"" + URI_WITH_USERNAME + "\"}");
+        JsonNode oldConfig = objectMapper.readTree("{ \"uri\": \"" + URI_WITH_USERNAME + "\"}");
 
         updateSensitiveData(
                 newConfig,
@@ -216,11 +210,10 @@ public class SensitiveDataMaskingTest extends AbstractSensitiveProxy {
     @Test
     public void shouldUpdate_URI_withUserPassword_And_PreservePassword() throws Exception {
         // receive new URI (additional param) but with masked Password
-        final JsonNode newConfig =
+        JsonNode newConfig =
                 objectMapper.readTree(
                         "{ \"uri\": \"" + URI_WITH_MASKED_PWD + "custom-param=toto\"}");
-        final JsonNode oldConfig =
-                objectMapper.readTree("{ \"uri\": \"" + URI_WITH_CREDENTIALS + "\"}");
+        JsonNode oldConfig = objectMapper.readTree("{ \"uri\": \"" + URI_WITH_CREDENTIALS + "\"}");
 
         updateSensitiveData(
                 newConfig,
@@ -238,10 +231,8 @@ public class SensitiveDataMaskingTest extends AbstractSensitiveProxy {
     @Test
     public void shouldNotUpdate_URI_withUserPassword_IfNoChanges() throws Exception {
         // receive new URI (additional param) but with masked Password
-        final JsonNode newConfig =
-                objectMapper.readTree("{ \"uri\": \"" + URI_WITH_MASKED_PWD + "\"}");
-        final JsonNode oldConfig =
-                objectMapper.readTree("{ \"uri\": \"" + URI_WITH_CREDENTIALS + "\"}");
+        JsonNode newConfig = objectMapper.readTree("{ \"uri\": \"" + URI_WITH_MASKED_PWD + "\"}");
+        JsonNode oldConfig = objectMapper.readTree("{ \"uri\": \"" + URI_WITH_CREDENTIALS + "\"}");
 
         updateSensitiveData(
                 newConfig,
@@ -256,11 +247,10 @@ public class SensitiveDataMaskingTest extends AbstractSensitiveProxy {
     @Test
     public void shouldUpdate_URI_withUserPassword_And_UpdatePassword() throws Exception {
         // receive new URI (additional param) but with new Password
-        final JsonNode newConfig =
+        JsonNode newConfig =
                 objectMapper.readTree(
                         "{ \"uri\": \"" + URI_WITH_UPDATED_CREDENTIALS + "custom-param=toto\"}");
-        final JsonNode oldConfig =
-                objectMapper.readTree("{ \"uri\": \"" + URI_WITH_CREDENTIALS + "\"}");
+        JsonNode oldConfig = objectMapper.readTree("{ \"uri\": \"" + URI_WITH_CREDENTIALS + "\"}");
 
         updateSensitiveData(
                 newConfig,
@@ -278,11 +268,10 @@ public class SensitiveDataMaskingTest extends AbstractSensitiveProxy {
     @Test
     public void shouldUpdate_URI_withUserEmptyPassword_And_UpdatePassword() throws Exception {
         // receive new URI (additional param) but with new Password
-        final JsonNode newConfig =
+        JsonNode newConfig =
                 objectMapper.readTree(
                         "{ \"uri\": \"" + URI_WITH_CREDENTIALS_EMPTY_PWD + "custom-param=toto\"}");
-        final JsonNode oldConfig =
-                objectMapper.readTree("{ \"uri\": \"" + URI_WITH_CREDENTIALS + "\"}");
+        JsonNode oldConfig = objectMapper.readTree("{ \"uri\": \"" + URI_WITH_CREDENTIALS + "\"}");
 
         updateSensitiveData(
                 newConfig,
@@ -300,10 +289,10 @@ public class SensitiveDataMaskingTest extends AbstractSensitiveProxy {
     @Test
     public void shouldUpdate_URI_withUserPassword_Previous_Uri_Null() throws Exception {
         // receive new URI (additional param) but with masked Password
-        final JsonNode newConfig =
+        JsonNode newConfig =
                 objectMapper.readTree(
                         "{ \"uri\": \"" + URI_WITH_CREDENTIALS + "custom-param=toto\"}");
-        final JsonNode oldConfig = objectMapper.readTree("{}");
+        JsonNode oldConfig = objectMapper.readTree("{}");
 
         updateSensitiveData(
                 newConfig,
@@ -321,8 +310,8 @@ public class SensitiveDataMaskingTest extends AbstractSensitiveProxy {
     @Test
     public void shouldUpdate_URI_WithNullValue() throws Exception {
         // receive new URI (additional param) but with masked Password
-        final JsonNode newConfig = objectMapper.readTree("{}");
-        final JsonNode oldConfig =
+        JsonNode newConfig = objectMapper.readTree("{}");
+        JsonNode oldConfig =
                 objectMapper.readTree(
                         "{\"uri\": \"" + URI_WITH_CREDENTIALS + "custom-param=toto\"}");
 

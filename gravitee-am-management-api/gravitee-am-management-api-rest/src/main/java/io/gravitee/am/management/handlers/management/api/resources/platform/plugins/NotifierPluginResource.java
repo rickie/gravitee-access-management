@@ -58,8 +58,7 @@ public class NotifierPluginResource {
                 response = ErrorEntity.class),
         @ApiResponse(code = 500, message = "Internal server error")
     })
-    public void get(
-            @PathParam("notifierId") String notifierId, @Suspended final AsyncResponse response) {
+    public void get(@PathParam("notifierId") String notifierId, @Suspended AsyncResponse response) {
 
         notifierPluginService
                 .findById(notifierId)
@@ -82,7 +81,7 @@ public class NotifierPluginResource {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     public void getSchema(
-            @PathParam("notifierId") String notifierId, @Suspended final AsyncResponse response) {
+            @PathParam("notifierId") String notifierId, @Suspended AsyncResponse response) {
 
         notifierPluginService
                 .findById(notifierId)

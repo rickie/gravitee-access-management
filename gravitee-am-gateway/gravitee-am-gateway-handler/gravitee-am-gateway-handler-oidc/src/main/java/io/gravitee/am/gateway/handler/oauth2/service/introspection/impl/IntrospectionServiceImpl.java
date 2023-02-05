@@ -83,7 +83,7 @@ public class IntrospectionServiceImpl implements IntrospectionService {
                     .forEach((k, v) -> introspectionResponse.putIfAbsent(k, v));
         }
 
-        final Map<String, Object> cnf = accessToken.getConfirmationMethod();
+        Map<String, Object> cnf = accessToken.getConfirmationMethod();
         if (cnf != null) {
             introspectionResponse.setConfirmationMethod(cnf);
         }

@@ -69,8 +69,7 @@ public class MembersResource extends AbstractResource {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     public void getMembers(
-            @PathParam("organizationId") String organizationId,
-            @Suspended final AsyncResponse response) {
+            @PathParam("organizationId") String organizationId, @Suspended AsyncResponse response) {
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -114,11 +113,11 @@ public class MembersResource extends AbstractResource {
     public void addOrUpdateMember(
             @PathParam("organizationId") String organizationId,
             @Valid @NotNull NewMembership newMembership,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
-        final Membership membership = convert(newMembership);
+        Membership membership = convert(newMembership);
         membership.setReferenceId(organizationId);
         membership.setReferenceType(ReferenceType.ORGANIZATION);
 

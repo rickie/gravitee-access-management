@@ -84,7 +84,7 @@ public class JdbcUserActivityRepository extends AbstractJdbcRepository
     @Override
     public Single<UserActivity> create(UserActivity item) {
         LOGGER.debug("create({})", item);
-        final JdbcUserActivity entity = toJdbcEntity(item);
+        JdbcUserActivity entity = toJdbcEntity(item);
         entity.setId(entity.getId() == null ? RandomString.generate() : entity.getId());
         return monoToSingle(this.template.insert(entity)).map(this::toEntity);
     }
@@ -92,7 +92,7 @@ public class JdbcUserActivityRepository extends AbstractJdbcRepository
     @Override
     public Single<UserActivity> update(UserActivity item) {
         LOGGER.debug("update({})", item);
-        final JdbcUserActivity entity = toJdbcEntity(item);
+        JdbcUserActivity entity = toJdbcEntity(item);
         return monoToSingle(this.template.update(entity)).map(this::toEntity);
     }
 

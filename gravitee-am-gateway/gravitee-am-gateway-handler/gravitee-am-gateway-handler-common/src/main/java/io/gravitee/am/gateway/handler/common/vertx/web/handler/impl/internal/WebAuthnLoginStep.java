@@ -49,7 +49,7 @@ public class WebAuthnLoginStep extends AuthenticationFlowStep {
         }
 
         // get current application
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
         // get login settings, if passwordless is disabled or passwordless remember is disabled,
         // continue

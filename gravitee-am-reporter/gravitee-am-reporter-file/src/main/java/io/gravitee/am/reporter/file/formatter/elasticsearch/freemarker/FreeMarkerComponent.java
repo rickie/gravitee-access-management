@@ -68,11 +68,11 @@ public class FreeMarkerComponent implements InitializingBean {
      * @param data data of the template
      * @return the string generated from the template
      */
-    public String generateFromTemplate(final String templateName, final Map<String, Object> data) {
-        try (final StringWriter output = new StringWriter()) {
+    public String generateFromTemplate(String templateName, Map<String, Object> data) {
+        try (StringWriter output = new StringWriter()) {
             generateFromTemplate(templateName, data, output);
             return output.getBuffer().toString();
-        } catch (final IOException exception) {
+        } catch (IOException exception) {
             logger.error("Impossible to generate from template {}", templateName, exception);
             throw new IllegalArgumentException();
         }
@@ -85,12 +85,11 @@ public class FreeMarkerComponent implements InitializingBean {
      * @param data data of the template
      * @return the string generated from the template
      */
-    public void generateFromTemplate(
-            final String templateName, final Map<String, Object> data, Writer writer) {
+    public void generateFromTemplate(String templateName, Map<String, Object> data, Writer writer) {
         try {
-            final Template template = this.configuration.getTemplate(templateName);
+            Template template = this.configuration.getTemplate(templateName);
             template.process(data, writer);
-        } catch (final IOException | TemplateException exception) {
+        } catch (IOException | TemplateException exception) {
             logger.error("Impossible to generate from template " + templateName, exception);
             throw new IllegalArgumentException();
         }
@@ -102,7 +101,7 @@ public class FreeMarkerComponent implements InitializingBean {
      * @param templateName name of the FreeMarker template
      * @return the string generated from the template
      */
-    public String generateFromTemplate(final String templateName) {
+    public String generateFromTemplate(String templateName) {
         return this.generateFromTemplate(templateName, Collections.emptyMap());
     }
 }

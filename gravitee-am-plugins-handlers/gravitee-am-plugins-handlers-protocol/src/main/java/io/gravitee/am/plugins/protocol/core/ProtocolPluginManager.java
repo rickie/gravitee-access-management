@@ -59,9 +59,8 @@ public class ProtocolPluginManager
                 ProtocolProvider protocolProvider = createInstance(protocol.protocolProvider());
                 Plugin plugin = plugins.get(protocol);
 
-                final ApplicationContext parentContext =
-                        providerConfiguration.getApplicationContext();
-                final Environment environment = parentContext.getEnvironment();
+                ApplicationContext parentContext = providerConfiguration.getApplicationContext();
+                Environment environment = parentContext.getEnvironment();
 
                 AnnotationConfigApplicationContext context =
                         new AnnotationConfigApplicationContext();

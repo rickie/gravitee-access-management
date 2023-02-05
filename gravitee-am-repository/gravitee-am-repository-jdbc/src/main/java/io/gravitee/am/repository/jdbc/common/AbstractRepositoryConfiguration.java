@@ -117,7 +117,7 @@ public abstract class AbstractRepositoryConfiguration extends AbstractR2dbcConfi
                 builder = builder.append(":").append(jdbcPort);
             }
 
-            final String jdbcUrl =
+            String jdbcUrl =
                     builder.append(SQLSERVER_DRIVER.equals(getDriver()) ? ";databaseName=" : "/")
                             .append(poolWrapper.getJdbcDatabase())
                             .toString();
@@ -139,7 +139,7 @@ public abstract class AbstractRepositoryConfiguration extends AbstractR2dbcConfi
         System.setProperty("liquibase.databaseChangeLogLockTableName", "databasechangeloglock");
 
         try {
-            final Liquibase liquibase =
+            Liquibase liquibase =
                     new Liquibase(
                             "liquibase/master.yml",
                             new ClassLoaderResourceAccessor(this.getClass().getClassLoader()),

@@ -41,8 +41,8 @@ public class PreviewResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldRenderDomainTemplate() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         PreviewRequest request = new PreviewRequest();
@@ -52,14 +52,14 @@ public class PreviewResourceTest extends JerseySpringTest {
         request.setTheme(new Theme());
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(any());
-        final PreviewResponse previewResponse = new PreviewResponse();
+        PreviewResponse previewResponse = new PreviewResponse();
         previewResponse.setContent("OK");
         previewResponse.setTemplate(Template.LOGIN.template());
         doReturn(Maybe.just(previewResponse))
                 .when(previewService)
                 .previewDomainForm(any(), any(), any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("forms")
@@ -68,7 +68,7 @@ public class PreviewResourceTest extends JerseySpringTest {
                         .post(Entity.json(request));
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
-        final PreviewResponse entity = response.readEntity(PreviewResponse.class);
+        PreviewResponse entity = response.readEntity(PreviewResponse.class);
         assertNotNull(entity);
         assertNotNull(entity.getContent());
         assertEquals("OK", entity.getContent());

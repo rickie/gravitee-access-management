@@ -99,7 +99,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
                                         accessToken.getSub()))
                 .subscribe(
                         resource -> {
-                            final String resourceLocation = resourceLocation(basePath, resource);
+                            String resourceLocation = resourceLocation(basePath, resource);
                             context.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")

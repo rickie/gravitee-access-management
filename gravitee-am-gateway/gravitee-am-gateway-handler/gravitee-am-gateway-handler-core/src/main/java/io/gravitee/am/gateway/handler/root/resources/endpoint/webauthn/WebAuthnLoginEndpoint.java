@@ -67,10 +67,9 @@ public class WebAuthnLoginEndpoint extends AbstractEndpoint implements Handler<R
     private void renderPage(RoutingContext routingContext) {
         try {
             // prepare the context
-            final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+            Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
-            final MultiMap queryParams =
-                    RequestUtils.getCleanedQueryParams(routingContext.request());
+            MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
             routingContext.put(
                     ConstantKeys.ACTION_KEY,
                     UriBuilderRequest.resolveProxyRequest(
@@ -79,7 +78,7 @@ public class WebAuthnLoginEndpoint extends AbstractEndpoint implements Handler<R
                             queryParams,
                             true));
 
-            final String loginActionKey = routingContext.get(CONTEXT_PATH) + "/login";
+            String loginActionKey = routingContext.get(CONTEXT_PATH) + "/login";
             routingContext.put(
                     ConstantKeys.LOGIN_ACTION_KEY,
                     UriBuilderRequest.resolveProxyRequest(
@@ -91,7 +90,7 @@ public class WebAuthnLoginEndpoint extends AbstractEndpoint implements Handler<R
             addUserActivityConsentTemplateVariables(routingContext);
 
             // render the webauthn login page
-            final Map<String, Object> data = generateData(routingContext, domain, client);
+            Map<String, Object> data = generateData(routingContext, domain, client);
             data.putAll(deviceIdentifierManager.getTemplateVariables(client));
             renderPage(
                     routingContext, data, client, logger, "Unable to render WebAuthn login page");

@@ -79,7 +79,7 @@ public class CertificateResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("certificate") String certificate,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId,
@@ -126,7 +126,7 @@ public class CertificateResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("certificate") String certificate,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         // FIXME: should we create a DOMAIN_CERTIFICATE_KEY permission instead ?
         checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)
@@ -165,7 +165,7 @@ public class CertificateResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("certificate") String certificate,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         // FIXME: should we create a DOMAIN_CERTIFICATE_KEY permission instead ?
         checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)
@@ -205,9 +205,9 @@ public class CertificateResource extends AbstractResource {
             @PathParam("certificate") String certificate,
             @ApiParam(name = "certificate", required = true) @Valid @NotNull
                     UpdateCertificate updateCertificate,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,
@@ -251,8 +251,8 @@ public class CertificateResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("certificate") String certificate,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,

@@ -339,7 +339,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
      * @param request DynamicClientRegistrationRequest
      */
     private Single<DynamicClientRegistrationRequest> validateClientRegistrationRequest(
-            final DynamicClientRegistrationRequest request) {
+            DynamicClientRegistrationRequest request) {
         LOGGER.debug("Validating dynamic client registration payload");
         return this.validateClientRegistrationRequest(request, false);
     }
@@ -352,7 +352,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
     }
 
     private Single<DynamicClientRegistrationRequest> validateClientRegistrationRequest(
-            final DynamicClientRegistrationRequest request, boolean isPatch) {
+            DynamicClientRegistrationRequest request, boolean isPatch) {
         if (request == null) {
             return Single.error(new InvalidClientMetadataException());
         }
@@ -388,7 +388,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
                         new InvalidClientMetadataException("software_statement is required"));
             }
 
-            final String directoryJwksUri =
+            String directoryJwksUri =
                     environment.getProperty(FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI);
             if (Strings.isNullOrEmpty(directoryJwksUri)) {
                 return Single.error(
@@ -400,7 +400,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
 
                 com.nimbusds.jwt.JWT jwt = JWTParser.parse(request.getSoftwareStatement().get());
                 if (jwt instanceof SignedJWT) {
-                    final SignedJWT signedJWT = (SignedJWT) jwt;
+                    SignedJWT signedJWT = (SignedJWT) jwt;
                     if (isSignAlgCompliantWithFapi(
                             signedJWT.getHeader().getAlgorithm().getName())) {
                         return jwkService
@@ -424,7 +424,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
                                                     "software_statement is valid, check claims regarding the registration request information");
                                             JSONObject softwareStatement =
                                                     signedJWT.getPayload().toJSONObject();
-                                            final Number iat = softwareStatement.getAsNumber("iat");
+                                            Number iat = softwareStatement.getAsNumber("iat");
                                             if (iat == null
                                                     || (Instant.now().getEpochSecond()
                                                                     - (iat.longValue()))
@@ -454,7 +454,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
                                                         "jwks_uri doesn't match the software_jwks_uri");
                                             }
 
-                                            final Object software_redirect_uris =
+                                            Object software_redirect_uris =
                                                     softwareStatement.get("software_redirect_uris");
                                             if (software_redirect_uris != null) {
                                                 if (request.getRedirectUris() == null
@@ -463,7 +463,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
                                                             "redirect_uris are missing");
                                                 }
 
-                                                final List<String> redirectUris =
+                                                List<String> redirectUris =
                                                         request.getRedirectUris().get();
                                                 if (software_redirect_uris instanceof JSONArray) {
                                                     redirectUris.forEach(
@@ -706,7 +706,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
         if (domain.useFapiBrazilProfile()) {
             // for Fapi Brazil, request object MUST be encrypted using RSA-OAEP with A256GCM
             // if the request object is passed by_value (requiredPARRequest set to false)
-            final boolean requestModeByValue =
+            boolean requestModeByValue =
                     request.getRequireParRequest() != null
                             && !request.getRequireParRequest().isEmpty()
                             && !request.getRequireParRequest().get();
@@ -900,14 +900,14 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
     private Single<DynamicClientRegistrationRequest> validateScopes(
             DynamicClientRegistrationRequest request) {
 
-        final boolean hasAllowedScopes =
+        boolean hasAllowedScopes =
                 domain.getOidc() != null
                         && domain.getOidc().getClientRegistrationSettings() != null
                         && domain.getOidc().getClientRegistrationSettings().isAllowedScopesEnabled()
                         && domain.getOidc().getClientRegistrationSettings().getAllowedScopes()
                                 != null;
 
-        final boolean hasDefaultScopes =
+        boolean hasDefaultScopes =
                 domain.getOidc() != null
                         && domain.getOidc().getClientRegistrationSettings() != null
                         && domain.getOidc().getClientRegistrationSettings().getDefaultScopes()
@@ -920,10 +920,10 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
         // Remove from the request every non allowed scope
         if (request.getScope() != null && request.getScope().isPresent() && hasAllowedScopes) {
 
-            final Set<String> allowedScopes =
+            Set<String> allowedScopes =
                     new HashSet<>(
                             domain.getOidc().getClientRegistrationSettings().getAllowedScopes());
-            final Set<String> requestedScopes = new HashSet<>(request.getScope().get());
+            Set<String> requestedScopes = new HashSet<>(request.getScope().get());
 
             // Remove non allowed scope
             requestedScopes.retainAll(allowedScopes);
@@ -1177,7 +1177,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
 
     private Single<DynamicClientRegistrationRequest> validateCibaSettings(
             DynamicClientRegistrationRequest request) {
-        final boolean useCibaGrantType =
+        boolean useCibaGrantType =
                 request.getGrantTypes() != null
                         && request.getGrantTypes().isPresent()
                         && request.getGrantTypes().get().contains(GrantType.CIBA_GRANT_TYPE);
@@ -1194,7 +1194,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
                                 "The backchannel_token_delivery_mode is required for CIBA Flow."));
             }
 
-            final String deliveryMode = request.getBackchannelTokenDeliveryMode().get();
+            String deliveryMode = request.getBackchannelTokenDeliveryMode().get();
             if (!CIBADeliveryMode.SUPPORTED_DELIVERY_MODES.contains(deliveryMode)) {
                 return Single.error(
                         new InvalidClientMetadataException(

@@ -60,7 +60,7 @@ public class UserRolesResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.just(mockUser)).when(userService).findById(mockUser.getId());
 
-        final ScopeApproval scopeApproval = new ScopeApproval();
+        ScopeApproval scopeApproval = new ScopeApproval();
         scopeApproval.setClientId("clientId");
         scopeApproval.setScope("scope");
         scopeApproval.setDomain(domainId);
@@ -74,7 +74,7 @@ public class UserRolesResourceTest extends JerseySpringTest {
                 .findByIdIn(mockUser.getRoles());
         doReturn(Single.just(List.of())).when(roleService).findByIdIn(mockUser.getDynamicRoles());
 
-        final Response response = getResponse(domainId, mockUser.getId());
+        Response response = getResponse(domainId, mockUser.getId());
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         assertEquals(response.readEntity(roles.getClass()).size(), 1);
@@ -88,7 +88,7 @@ public class UserRolesResourceTest extends JerseySpringTest {
                 .findByIdIn(mockUser.getDynamicRoles());
         doReturn(Single.just(List.of())).when(roleService).findByIdIn(mockUser.getRoles());
 
-        final Response response = getResponse(domainId, mockUser.getId(), true);
+        Response response = getResponse(domainId, mockUser.getId(), true);
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         assertEquals(response.readEntity(roles.getClass()).size(), 1);
@@ -102,7 +102,7 @@ public class UserRolesResourceTest extends JerseySpringTest {
                 .findByIdIn(mockUser.getRoles());
         doReturn(Single.just(List.of())).when(roleService).findByIdIn(mockUser.getDynamicRoles());
 
-        final Response response = getResponse(domainId, mockUser.getId(), true);
+        Response response = getResponse(domainId, mockUser.getId(), true);
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         assertEquals(response.readEntity(roles.getClass()).size(), 0);
@@ -116,7 +116,7 @@ public class UserRolesResourceTest extends JerseySpringTest {
                 .findByIdIn(mockUser.getRoles());
         doReturn(Single.just(List.of())).when(roleService).findByIdIn(mockUser.getRoles());
 
-        final Response response = getResponse(domainId, mockUser.getId(), false);
+        Response response = getResponse(domainId, mockUser.getId(), false);
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         assertEquals(response.readEntity(roles.getClass()).size(), 0);
@@ -126,7 +126,7 @@ public class UserRolesResourceTest extends JerseySpringTest {
     public void shouldGetUserRoles_emptyBoth() {
         mockUser.setRoles(List.of());
         mockUser.setDynamicRoles(List.of());
-        final Response response = getResponse(domainId, mockUser.getId(), false);
+        Response response = getResponse(domainId, mockUser.getId(), false);
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         assertEquals(response.readEntity(roles.getClass()).size(), 0);
@@ -136,7 +136,7 @@ public class UserRolesResourceTest extends JerseySpringTest {
     public void shouldGetUserRoles_dynamicEmptyBoth() {
         mockUser.setRoles(List.of());
         mockUser.setDynamicRoles(List.of());
-        final Response response = getResponse(domainId, mockUser.getId(), true);
+        Response response = getResponse(domainId, mockUser.getId(), true);
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         assertEquals(response.readEntity(roles.getClass()).size(), 0);
@@ -144,7 +144,7 @@ public class UserRolesResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetUserRoles_nullBoth() {
-        final Response response = getResponse(domainId, mockUser.getId(), false);
+        Response response = getResponse(domainId, mockUser.getId(), false);
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         assertEquals(response.readEntity(roles.getClass()).size(), 0);
@@ -152,7 +152,7 @@ public class UserRolesResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetUserRoles_dynamicNullBoth() {
-        final Response response = getResponse(domainId, mockUser.getId(), true);
+        Response response = getResponse(domainId, mockUser.getId(), true);
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         assertEquals(response.readEntity(roles.getClass()).size(), 0);
@@ -160,12 +160,12 @@ public class UserRolesResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetUserRoles_technicalManagementException() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
         doReturn(Maybe.error(new TechnicalManagementException("error occurs")))
                 .when(domainService)
                 .findById(domainId);
 
-        final Response response = getResponse(domainId, "user1");
+        Response response = getResponse(domainId, "user1");
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
 

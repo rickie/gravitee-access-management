@@ -42,42 +42,42 @@ public class UserProfileUtilsTest {
 
     @Test
     public void shouldReturnPreferredLanguage() {
-        final User user = new User();
+        User user = new User();
         user.setPreferredLanguage("en");
         assertEquals(Locale.ENGLISH, preferredLanguage(user, Locale.CANADA));
     }
 
     @Test
     public void shouldReturnPreferredLanguage_CountryCode_dash() {
-        final User user = new User();
+        User user = new User();
         user.setPreferredLanguage("en-GB");
         assertEquals(new Locale("en", "GB"), preferredLanguage(user, Locale.CANADA));
     }
 
     @Test
     public void shouldReturnPreferredLanguage_CountryCode_underscore() {
-        final User user = new User();
+        User user = new User();
         user.setPreferredLanguage("en_GB");
         assertEquals(new Locale("en", "GB"), preferredLanguage(user, Locale.CANADA));
     }
 
     @Test
     public void shouldReturnLocaleClaim() {
-        final User user = new User();
+        User user = new User();
         user.putAdditionalInformation(StandardClaims.LOCALE, "en");
         assertEquals(Locale.ENGLISH, preferredLanguage(user, Locale.CANADA));
     }
 
     @Test
     public void shouldReturnLocaleClaim_CountryCode_dash() {
-        final User user = new User();
+        User user = new User();
         user.putAdditionalInformation(StandardClaims.LOCALE, "en-GB");
         assertEquals(new Locale("en", "GB"), preferredLanguage(user, Locale.CANADA));
     }
 
     @Test
     public void shouldReturnLocaleClaim_CountryCode_underscore() {
-        final User user = new User();
+        User user = new User();
         user.putAdditionalInformation(StandardClaims.LOCALE, "en_GB");
         assertEquals(new Locale("en", "GB"), preferredLanguage(user, Locale.CANADA));
     }

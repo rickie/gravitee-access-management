@@ -87,7 +87,7 @@ public class ThemesResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
             // TODO do we have to manage Page or a simple list is enough ?
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId, environmentId, domainId, Permission.DOMAIN_THEME, Acl.LIST)
@@ -134,10 +134,10 @@ public class ThemesResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
-            @ApiParam(name = "theme", required = true) @Valid @NotNull final NewTheme newTheme,
-            @Suspended final AsyncResponse response) {
+            @ApiParam(name = "theme", required = true) @Valid @NotNull NewTheme newTheme,
+            @Suspended AsyncResponse response) {
 
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,
