@@ -72,6 +72,10 @@
     </modules>
 
     <properties>
+        <!-- Property using which additional Error Prone flags can be
+        specified. Used by the `patch` profile. -->
+        <error-prone.patch-args />
+
         <gravitee-bom.version>2.5</gravitee-bom.version>
         <gravitee-common.version>1.25.0</gravitee-common.version>
         <gravitee-plugin.version>1.23.1</gravitee-plugin.version>
@@ -514,6 +518,74 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <parameters>true</parameters>
+                    <release>11</release>
+                    <source>11</source>
+                    <target>11</target>
+                    <useIncrementalCompilation>false</useIncrementalCompilation>
+                    <encoding>UTF-8</encoding>
+                    <showWarnings>true</showWarnings>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>com.github.PicnicSupermarket.error-prone</groupId>
+                            <artifactId>error_prone_core</artifactId>
+                            <version>2.18.0-picnic-1</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-Xmaxerrs</arg>
+                        <arg>10000</arg>
+                        <arg>-Xmaxwarns</arg>
+                        <arg>10000</arg>
+                        <arg>
+                            -Xplugin:ErrorProne
+                            -XepAllErrorsAsWarnings
+                            <!-- We want to enable almost all Error
+                            Prone bug pattern checkers, so we enable
+                            all and then selectively deactivate some. -->
+                            -XepAllDisabledChecksAsWarnings
+                            <!-- We don't target Android. -->
+                            -Xep:AndroidJdkLibsChecker:OFF
+                            <!-- We don't target JDK 7. -->
+                            -Xep:Java7ApiChecker:OFF
+                            <!-- We don't target JDK 8. -->
+                            -Xep:Java8ApiChecker:OFF
+                            <!-- Append additional custom arguments. -->
+                            ${error-prone.patch-args}
+                        </arg>
+                        <arg>-XDcompilePolicy=simple</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <doclint>none</doclint>
+                    <source>11</source>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <!-- If combined with the `error-prone` profile above, this profile
+            configures Error Prone to try and automatically fix (rather than
+            merely flag) bug pattern violations in the source code. -->
+            <id>patch</id>
+            <properties>
+                <error-prone.patch-args>-XepPatchChecks:${error-prone.patch-checks} -XepPatchLocation:IN_PLACE</error-prone.patch-args>
+                <!-- One can override this value to specify which checks should be patched. -->
+                <error-prone.patch-checks />
+            </properties>
+        </profile>
+    </profiles>
 </project>
