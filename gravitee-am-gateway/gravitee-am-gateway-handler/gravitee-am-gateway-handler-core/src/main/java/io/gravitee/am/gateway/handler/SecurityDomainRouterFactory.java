@@ -1,22 +1,18 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler;
 
-import io.gravitee.am.gateway.handler.manager.authdevice.notifier.AuthenticationDeviceNotifierManager;
-import io.gravitee.am.gateway.handler.manager.botdetection.BotDetectionManager;
 import io.gravitee.am.gateway.handler.common.alert.AlertEventProcessor;
 import io.gravitee.am.gateway.handler.common.audit.AuditReporterManager;
 import io.gravitee.am.gateway.handler.common.auth.idp.IdentityProviderManager;
@@ -26,6 +22,8 @@ import io.gravitee.am.gateway.handler.common.client.ClientManager;
 import io.gravitee.am.gateway.handler.common.email.EmailManager;
 import io.gravitee.am.gateway.handler.common.factor.FactorManager;
 import io.gravitee.am.gateway.handler.common.flow.FlowManager;
+import io.gravitee.am.gateway.handler.manager.authdevice.notifier.AuthenticationDeviceNotifierManager;
+import io.gravitee.am.gateway.handler.manager.botdetection.BotDetectionManager;
 import io.gravitee.am.gateway.handler.manager.deviceidentifiers.DeviceIdentifierManager;
 import io.gravitee.am.gateway.handler.manager.dictionary.I18nDictionaryManager;
 import io.gravitee.am.gateway.handler.manager.domain.CrossDomainManager;
@@ -36,6 +34,7 @@ import io.gravitee.am.gateway.handler.spring.HandlerConfiguration;
 import io.gravitee.am.gateway.handler.vertx.VertxSecurityDomainHandler;
 import io.gravitee.am.model.Domain;
 import io.gravitee.common.component.LifecycleComponent;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,14 +57,15 @@ public class SecurityDomainRouterFactory {
 
     private final Logger logger = LoggerFactory.getLogger(SecurityDomainRouterFactory.class);
 
-    @Autowired
-    private ApplicationContext gatewayApplicationContext;
+    @Autowired private ApplicationContext gatewayApplicationContext;
 
     public VertxSecurityDomainHandler create(Domain domain) {
         if (domain.isEnabled()) {
-            AbstractApplicationContext internalApplicationContext = createApplicationContext(domain);
+            AbstractApplicationContext internalApplicationContext =
+                    createApplicationContext(domain);
             startComponents(internalApplicationContext);
-            VertxSecurityDomainHandler handler = internalApplicationContext.getBean(VertxSecurityDomainHandler.class);
+            VertxSecurityDomainHandler handler =
+                    internalApplicationContext.getBean(VertxSecurityDomainHandler.class);
             return handler;
         } else {
             logger.warn("Domain is disabled !");
@@ -76,10 +76,13 @@ public class SecurityDomainRouterFactory {
     AbstractApplicationContext createApplicationContext(Domain domain) {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
         context.setParent(gatewayApplicationContext);
-        context.setClassLoader(new ReactorHandlerClassLoader(gatewayApplicationContext.getClassLoader()));
-        context.setEnvironment((ConfigurableEnvironment) gatewayApplicationContext.getEnvironment());
+        context.setClassLoader(
+                new ReactorHandlerClassLoader(gatewayApplicationContext.getClassLoader()));
+        context.setEnvironment(
+                (ConfigurableEnvironment) gatewayApplicationContext.getEnvironment());
 
-        PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
+        PropertySourcesPlaceholderConfigurer configurer =
+                new PropertySourcesPlaceholderConfigurer();
         configurer.setIgnoreUnresolvablePlaceholders(true);
         configurer.setEnvironment(gatewayApplicationContext.getEnvironment());
         context.addBeanFactoryPostProcessor(configurer);
@@ -94,7 +97,7 @@ public class SecurityDomainRouterFactory {
 
     private static class ReactorHandlerClassLoader extends URLClassLoader {
         public ReactorHandlerClassLoader(ClassLoader parent) {
-            super(new URL[]{}, parent);
+            super(new URL[] {}, parent);
         }
     }
 
@@ -119,13 +122,18 @@ public class SecurityDomainRouterFactory {
         components.add(I18nDictionaryManager.class);
         components.add(ThemeManager.class);
 
-        components.forEach(componentClass -> {
-            LifecycleComponent lifecyclecomponent = applicationContext.getBean(componentClass);
-            try {
-                lifecyclecomponent.start();
-            } catch (Exception e) {
-                logger.error("An error occurs while starting component {}", componentClass.getSimpleName(), e);
-            }
-        });
+        components.forEach(
+                componentClass -> {
+                    LifecycleComponent lifecyclecomponent =
+                            applicationContext.getBean(componentClass);
+                    try {
+                        lifecyclecomponent.start();
+                    } catch (Exception e) {
+                        logger.error(
+                                "An error occurs while starting component {}",
+                                componentClass.getSimpleName(),
+                                e);
+                    }
+                });
     }
 }

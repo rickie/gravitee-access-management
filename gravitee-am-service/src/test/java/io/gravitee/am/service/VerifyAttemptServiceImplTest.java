@@ -1,19 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
+
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.User;
@@ -25,6 +31,7 @@ import io.gravitee.am.service.impl.VerifyAttemptServiceImpl;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -37,14 +44,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Ashraful Hasan (ashraful.hasan at graviteesource.com)
  * @author GraviteeSource Team
@@ -52,34 +51,28 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class VerifyAttemptServiceImplTest {
 
-    @InjectMocks
-    private  VerifyAttemptService verifyAttemptService = new VerifyAttemptServiceImpl();
+    @InjectMocks private VerifyAttemptService verifyAttemptService = new VerifyAttemptServiceImpl();
 
-    @Mock
-    VerifyAttemptRepository repository;
+    @Mock VerifyAttemptRepository repository;
 
-    @Mock
-    AccountSettings accountSettings;
-    @Mock
-    private Domain domain;
+    @Mock AccountSettings accountSettings;
+    @Mock private Domain domain;
 
-    @Mock
-    private Client client;
+    @Mock private Client client;
 
-    @Mock
-    private AuditService auditService;
+    @Mock private AuditService auditService;
 
-    @Mock
-    User  user;
+    @Mock User user;
 
     private final String userId = "any-user-id";
-    private final String factorId= "any-factor-id";
+    private final String factorId = "any-factor-id";
 
     @Test
     public void checkVerification_when_acc_settings_is_null() {
         when(domain.getAccountSettings()).thenReturn(null);
         final Client client = null;
-        TestObserver<VerifyAttempt> observer = verifyAttemptService.checkVerifyAttempt(user, factorId, client, domain).test();
+        TestObserver<VerifyAttempt> observer =
+                verifyAttemptService.checkVerifyAttempt(user, factorId, client, domain).test();
 
         observer.assertComplete();
         observer.assertNoErrors();
@@ -92,7 +85,8 @@ public class VerifyAttemptServiceImplTest {
         when(accountSettings.isMfaChallengeAttemptsDetectionEnabled()).thenReturn(false);
         final Client client = null;
 
-        TestObserver<VerifyAttempt> observer = verifyAttemptService.checkVerifyAttempt(user, factorId, client, domain).test();
+        TestObserver<VerifyAttempt> observer =
+                verifyAttemptService.checkVerifyAttempt(user, factorId, client, domain).test();
 
         observer.assertComplete();
         observer.assertNoErrors();
@@ -100,7 +94,8 @@ public class VerifyAttemptServiceImplTest {
     }
 
     @Test
-    public void checkVerification_returns_verifyAttempt_currentDate_greaterThan_resetTime() throws ParseException {
+    public void checkVerification_returns_verifyAttempt_currentDate_greaterThan_resetTime()
+            throws ParseException {
         when(client.getAccountSettings()).thenReturn(accountSettings);
         when(accountSettings.isMfaChallengeAttemptsDetectionEnabled()).thenReturn(true);
         when(client.getId()).thenReturn("any-client-id");
@@ -112,7 +107,8 @@ public class VerifyAttemptServiceImplTest {
         verifyAttempt.setAllowRequest(false);
         when(repository.findByCriteria(any())).thenReturn(Maybe.just(verifyAttempt));
 
-        TestObserver<VerifyAttempt> observer = verifyAttemptService.checkVerifyAttempt(user, factorId, client, domain).test();
+        TestObserver<VerifyAttempt> observer =
+                verifyAttemptService.checkVerifyAttempt(user, factorId, client, domain).test();
 
         observer.assertComplete();
         observer.assertNoErrors();
@@ -121,7 +117,8 @@ public class VerifyAttemptServiceImplTest {
     }
 
     @Test
-    public void checkVerification_returns_verifyAttempt_reset_greaterThan_currentDate() throws ParseException {
+    public void checkVerification_returns_verifyAttempt_reset_greaterThan_currentDate()
+            throws ParseException {
         when(client.getAccountSettings()).thenReturn(accountSettings);
         when(accountSettings.isMfaChallengeAttemptsDetectionEnabled()).thenReturn(true);
         when(accountSettings.getMfaChallengeMaxAttempts()).thenReturn(5);
@@ -133,7 +130,8 @@ public class VerifyAttemptServiceImplTest {
         verifyAttempt.setUpdatedAt(new Date());
         when(repository.findByCriteria(any())).thenReturn(Maybe.just(verifyAttempt));
 
-        TestObserver<VerifyAttempt> observer = verifyAttemptService.checkVerifyAttempt(user, factorId, client, domain).test();
+        TestObserver<VerifyAttempt> observer =
+                verifyAttemptService.checkVerifyAttempt(user, factorId, client, domain).test();
 
         observer.assertComplete();
         observer.assertNoErrors();
@@ -145,7 +143,10 @@ public class VerifyAttemptServiceImplTest {
     public void verificationFailed_when_acc_settings_is_null() {
         when(domain.getAccountSettings()).thenReturn(null);
         final Client client = null;
-        TestObserver<Void> observer = verifyAttemptService.incrementAttempt(userId, factorId, client, domain, Optional.empty()).test();
+        TestObserver<Void> observer =
+                verifyAttemptService
+                        .incrementAttempt(userId, factorId, client, domain, Optional.empty())
+                        .test();
 
         observer.assertComplete();
         observer.assertNoErrors();
@@ -157,7 +158,10 @@ public class VerifyAttemptServiceImplTest {
         when(accountSettings.isMfaChallengeAttemptsDetectionEnabled()).thenReturn(false);
         final Client client = null;
 
-        TestObserver<Void> observer = verifyAttemptService.incrementAttempt(userId, factorId, client, domain, Optional.empty()).test();
+        TestObserver<Void> observer =
+                verifyAttemptService
+                        .incrementAttempt(userId, factorId, client, domain, Optional.empty())
+                        .test();
 
         observer.assertComplete();
         observer.assertNoErrors();
@@ -169,14 +173,16 @@ public class VerifyAttemptServiceImplTest {
         when(accountSettings.isMfaChallengeAttemptsDetectionEnabled()).thenReturn(true);
         when(repository.create(any())).thenReturn(Single.just(new VerifyAttempt()));
 
-        TestObserver<Void> observer = verifyAttemptService.incrementAttempt(userId, factorId, client, domain, Optional.empty()).test();
+        TestObserver<Void> observer =
+                verifyAttemptService
+                        .incrementAttempt(userId, factorId, client, domain, Optional.empty())
+                        .test();
 
         observer.assertComplete();
         observer.assertNoErrors();
         verify(repository, times(1)).create(any());
         verify(repository, never()).update(any());
     }
-
 
     @Test
     public void verificationFailed_when_verifyAttempt_is_not_empty() {
@@ -185,7 +191,11 @@ public class VerifyAttemptServiceImplTest {
         when(repository.update(any())).thenReturn(Single.just(new VerifyAttempt()));
         VerifyAttempt verifyAttempt = createVerifyAttempt();
 
-        TestObserver<Void> observer = verifyAttemptService.incrementAttempt(userId, factorId, client, domain, Optional.of(verifyAttempt)).test();
+        TestObserver<Void> observer =
+                verifyAttemptService
+                        .incrementAttempt(
+                                userId, factorId, client, domain, Optional.of(verifyAttempt))
+                        .test();
 
         observer.assertComplete();
         observer.assertNoErrors();
@@ -199,7 +209,8 @@ public class VerifyAttemptServiceImplTest {
         when(accountSettings.isMfaChallengeAttemptsDetectionEnabled()).thenReturn(true);
         when(repository.findByCriteria(any())).thenReturn(Maybe.empty());
 
-        TestObserver<VerifyAttempt> observer = verifyAttemptService.checkVerifyAttempt(user, factorId, client, domain).test();
+        TestObserver<VerifyAttempt> observer =
+                verifyAttemptService.checkVerifyAttempt(user, factorId, client, domain).test();
 
         observer.assertComplete();
         observer.assertNoErrors();
@@ -221,10 +232,13 @@ public class VerifyAttemptServiceImplTest {
         when(repository.findByCriteria(any())).thenReturn(Maybe.just(verifyAttempt));
         doNothing().when(auditService).report(any());
 
-        TestObserver<VerifyAttempt> observer = verifyAttemptService.checkVerifyAttempt(user, factorId, client, domain).test();
+        TestObserver<VerifyAttempt> observer =
+                verifyAttemptService.checkVerifyAttempt(user, factorId, client, domain).test();
 
         observer.assertNotComplete();
-        assertTrue("Maximum verification limit error should be thrown", observer.errors().get(0).getMessage().equals("Maximum verification limit exceed"));
+        assertTrue(
+                "Maximum verification limit error should be thrown",
+                observer.errors().get(0).getMessage().equals("Maximum verification limit exceed"));
     }
 
     private VerifyAttempt createVerifyAttempt() {

@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.identityprovider.google.authentication;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.jwt.SignatureAlgorithm;
@@ -35,6 +36,7 @@ import io.vertx.ext.web.client.impl.ClientPhase;
 import io.vertx.ext.web.client.impl.WebClientInternal;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.ext.web.client.WebClient;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,9 +50,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
@@ -58,53 +57,53 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class GoogleAuthenticationProviderTest {
 
-    @Spy
-    protected WebClient client = WebClient.wrap(Vertx.vertx().createHttpClient());
+    @Spy protected WebClient client = WebClient.wrap(Vertx.vertx().createHttpClient());
 
-    @Mock
-    protected HttpResponse httpResponse;
+    @Mock protected HttpResponse httpResponse;
 
     @Spy
-    private GoogleIdentityProviderConfiguration configuration = new GoogleIdentityProviderConfiguration();
+    private GoogleIdentityProviderConfiguration configuration =
+            new GoogleIdentityProviderConfiguration();
 
-    @Mock
-    private DefaultIdentityProviderMapper mapper;
+    @Mock private DefaultIdentityProviderMapper mapper;
 
-    @Mock
-    private DefaultIdentityProviderRoleMapper roleMapper;
+    @Mock private DefaultIdentityProviderRoleMapper roleMapper;
 
-    @InjectMocks
-    private GoogleAuthenticationProvider provider;
+    @InjectMocks private GoogleAuthenticationProvider provider;
 
     /*
-    {
-  "sub": "subjohndoe",
-  "aud": "audsubjohndoe",
-  "auth_time": 1594912553,
-  "iss": "http://gravitee.io/domain-test/oidc",
-  "name": "John Doe",
-  "preferred_username": "john.doe@graviteesource.com",
-  "exp": 1594926981,
-  "given_name": "John",
-  "iat": 1594912581,
-  "family_name": "Doe",
-  "non-standard-field": "value-non-std-field"
-    }
-     */
-    private final String jwt = "eyJraWQiOiJkZWZhdWx0LWdyYXZpdGVlLUFNLWtleSIsImFsZyI6IkhTMjU2In0.eyJzdWIiOiJzdWJqb2huZG9lIiwiYXVkIjoiYXVkc3Viam9obmRvZSIsImF1dGhfdGltZSI6MTU5NDkxMjU1MywiaXNzIjoiaHR0cDovL2dyYXZpdGVlLmlvL2RvbWFpbi10ZXN0L29pZGMiLCJuYW1lIjoiSm9obiBEb2UiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJqb2huLmRvZUBncmF2aXRlZXNvdXJjZS5jb20iLCJnaXZlbl9uYW1lIjoiSm9obiIsImlhdCI6MTU5NDkxMjU4MSwiZmFtaWx5X25hbWUiOiJEb2UiLCJub24tc3RhbmRhcmQtZmllbGQiOiJ2YWx1ZS1ub24tc3RkLWZpZWxkIn0.JcYHoWV6egfer1XwQSDmeq8Zb83fGbJSm-cvgHr25sc";
-    private final String secretKey = "02e52785065a9ab489dfd3063a73d31efd5ca196a7a9a00ff070812b0e608fce";
+      {
+    "sub": "subjohndoe",
+    "aud": "audsubjohndoe",
+    "auth_time": 1594912553,
+    "iss": "http://gravitee.io/domain-test/oidc",
+    "name": "John Doe",
+    "preferred_username": "john.doe@graviteesource.com",
+    "exp": 1594926981,
+    "given_name": "John",
+    "iat": 1594912581,
+    "family_name": "Doe",
+    "non-standard-field": "value-non-std-field"
+      }
+       */
+    private final String jwt =
+            "eyJraWQiOiJkZWZhdWx0LWdyYXZpdGVlLUFNLWtleSIsImFsZyI6IkhTMjU2In0.eyJzdWIiOiJzdWJqb2huZG9lIiwiYXVkIjoiYXVkc3Viam9obmRvZSIsImF1dGhfdGltZSI6MTU5NDkxMjU1MywiaXNzIjoiaHR0cDovL2dyYXZpdGVlLmlvL2RvbWFpbi10ZXN0L29pZGMiLCJuYW1lIjoiSm9obiBEb2UiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJqb2huLmRvZUBncmF2aXRlZXNvdXJjZS5jb20iLCJnaXZlbl9uYW1lIjoiSm9obiIsImlhdCI6MTU5NDkxMjU4MSwiZmFtaWx5X25hbWUiOiJEb2UiLCJub24tc3RhbmRhcmQtZmllbGQiOiJ2YWx1ZS1ub24tc3RkLWZpZWxkIn0.JcYHoWV6egfer1XwQSDmeq8Zb83fGbJSm-cvgHr25sc";
+    private final String secretKey =
+            "02e52785065a9ab489dfd3063a73d31efd5ca196a7a9a00ff070812b0e608fce";
 
     @Before
     public void init() {
-        ((WebClientInternal) client.getDelegate()).addInterceptor(event -> {
+        ((WebClientInternal) client.getDelegate())
+                .addInterceptor(
+                        event -> {
+                            if (event.phase() == ClientPhase.PREPARE_REQUEST) {
+                                // By pass send request and jump directly to dispatch phase with the
+                                // mocked http response.
+                                event.dispatchResponse(httpResponse);
+                            }
 
-            if (event.phase() == ClientPhase.PREPARE_REQUEST) {
-                // By pass send request and jump directly to dispatch phase with the mocked http response.
-                event.dispatchResponse(httpResponse);
-            }
-
-            event.next();
-        });
+                            event.next();
+                        });
 
         when(configuration.getClientSecret()).thenReturn("a_secret");
     }
@@ -121,7 +120,12 @@ public class GoogleAuthenticationProviderTest {
 
         Assert.assertNotNull(request);
         assertEquals(HttpMethod.GET, request.getMethod());
-        assertEquals(GoogleIdentityProviderConfiguration.AUTHORIZATION_URL + "?client_id=testClientId&response_type=code&scope=openid profile email&state=" + state + "&redirect_uri=https://gravitee.io", request.getUri());
+        assertEquals(
+                GoogleIdentityProviderConfiguration.AUTHORIZATION_URL
+                        + "?client_id=testClientId&response_type=code&scope=openid profile email&state="
+                        + state
+                        + "&redirect_uri=https://gravitee.io",
+                request.getUri());
         assertNull(request.getHeaders());
     }
 
@@ -133,11 +137,17 @@ public class GoogleAuthenticationProviderTest {
         when(configuration.getClientId()).thenReturn("testClientId");
 
         final String state = RandomString.generate();
-        Request request = (Request) provider.asyncSignInUrl("https://gravitee.io", state).blockingGet();
+        Request request =
+                (Request) provider.asyncSignInUrl("https://gravitee.io", state).blockingGet();
 
         Assert.assertNotNull(request);
         assertEquals(HttpMethod.GET, request.getMethod());
-        assertEquals(GoogleIdentityProviderConfiguration.AUTHORIZATION_URL + "?client_id=testClientId&response_type=code&scope=openid profile email&state=" + state + "&redirect_uri=https://gravitee.io", request.getUri());
+        assertEquals(
+                GoogleIdentityProviderConfiguration.AUTHORIZATION_URL
+                        + "?client_id=testClientId&response_type=code&scope=openid profile email&state="
+                        + state
+                        + "&redirect_uri=https://gravitee.io",
+                request.getUri());
         assertNull(request.getHeaders());
     }
 
@@ -145,7 +155,8 @@ public class GoogleAuthenticationProviderTest {
     public void shouldGenerateSignInUrl_withScope() throws Exception {
 
         when(configuration.getClientId()).thenReturn("testClientId");
-        LinkedHashSet<String> scopes = new LinkedHashSet<>(); // LinkedHashSet to preserve order of scopes into the URI
+        LinkedHashSet<String> scopes =
+                new LinkedHashSet<>(); // LinkedHashSet to preserve order of scopes into the URI
         scopes.add("other_scope");
         scopes.add("other_scope2");
         // openid scope will be added by default
@@ -158,7 +169,12 @@ public class GoogleAuthenticationProviderTest {
 
         Assert.assertNotNull(request);
         assertEquals(HttpMethod.GET, request.getMethod());
-        assertEquals(GoogleIdentityProviderConfiguration.AUTHORIZATION_URL + "?client_id=testClientId&response_type=code&scope=other_scope other_scope2 openid profile email&state=" + state + "&redirect_uri=https://gravitee.io", request.getUri());
+        assertEquals(
+                GoogleIdentityProviderConfiguration.AUTHORIZATION_URL
+                        + "?client_id=testClientId&response_type=code&scope=other_scope other_scope2 openid profile email&state="
+                        + state
+                        + "&redirect_uri=https://gravitee.io",
+                request.getUri());
         assertNull(request.getHeaders());
     }
 
@@ -183,38 +199,43 @@ public class GoogleAuthenticationProviderTest {
         when(authentication.getContext().get("redirect_uri")).thenReturn("https://gravitee.io");
         when(authenticationContext.get("id_token")).thenReturn(jwt);
 
-        when(httpResponse.statusCode())
-                .thenReturn(HttpStatusCode.OK_200);
+        when(httpResponse.statusCode()).thenReturn(HttpStatusCode.OK_200);
         when(httpResponse.bodyAsJsonObject())
-                .thenReturn(new JsonObject().put("token_type", "Bearer")
-                        .put("scope", "openid")
-                        .put("expires_in", 3599)
-                        .put("access_token", jwt)
-                        .put("id_token", jwt));
+                .thenReturn(
+                        new JsonObject()
+                                .put("token_type", "Bearer")
+                                .put("scope", "openid")
+                                .put("expires_in", 3599)
+                                .put("access_token", jwt)
+                                .put("id_token", jwt));
 
         TestObserver<User> obs = provider.loadUserByUsername(authentication).test();
 
         obs.awaitTerminalEvent();
-        obs.assertValue(user -> {
-            assertEquals("subjohndoe", user.getId());
-            assertEquals("john.doe@graviteesource.com", user.getUsername());
-            assertEquals("John Doe", user.getAdditionalInformation().get("name"));
-            assertEquals("John", user.getAdditionalInformation().get("given_name"));
-            assertEquals("Doe", user.getAdditionalInformation().get("family_name"));
-            assertEquals("value-non-std-field", user.getAdditionalInformation().get("non-standard-field"));
+        obs.assertValue(
+                user -> {
+                    assertEquals("subjohndoe", user.getId());
+                    assertEquals("john.doe@graviteesource.com", user.getUsername());
+                    assertEquals("John Doe", user.getAdditionalInformation().get("name"));
+                    assertEquals("John", user.getAdditionalInformation().get("given_name"));
+                    assertEquals("Doe", user.getAdditionalInformation().get("family_name"));
+                    assertEquals(
+                            "value-non-std-field",
+                            user.getAdditionalInformation().get("non-standard-field"));
 
-            assertTrue(user.getRoles().isEmpty());
-            return true;
-        });
+                    assertTrue(user.getRoles().isEmpty());
+                    return true;
+                });
 
         verify(authenticationContext, times(1)).set("id_token", jwt);
         verify(client, times(1)).postAbs(GoogleIdentityProviderConfiguration.TOKEN_URL);
     }
+
     @Test
     public void shouldAuthenticate_RoleMapping() throws Exception {
         forceProviderInfoForTest();
         Map<String, String[]> roles = new HashMap<>();
-        roles.put("admin", new String[] { "preferred_username=john.doe@graviteesource.com"});
+        roles.put("admin", new String[] {"preferred_username=john.doe@graviteesource.com"});
         when(roleMapper.getRoles()).thenReturn(roles);
         when(roleMapper.apply(any(), anyMap())).thenCallRealMethod();
 
@@ -235,29 +256,33 @@ public class GoogleAuthenticationProviderTest {
         when(configuration.getClientSecret()).thenReturn("testClientSecret");
 
         when(authentication.getContext().get("redirect_uri")).thenReturn("https://gravitee.io");
-        when(httpResponse.statusCode())
-                .thenReturn(HttpStatusCode.OK_200);
+        when(httpResponse.statusCode()).thenReturn(HttpStatusCode.OK_200);
         when(httpResponse.bodyAsJsonObject())
-                .thenReturn(new JsonObject().put("token_type", "Bearer")
-                        .put("scope", "openid")
-                        .put("expires_in", 3599)
-                        .put("access_token", jwt)
-                        .put("id_token", jwt));
+                .thenReturn(
+                        new JsonObject()
+                                .put("token_type", "Bearer")
+                                .put("scope", "openid")
+                                .put("expires_in", 3599)
+                                .put("access_token", jwt)
+                                .put("id_token", jwt));
 
         TestObserver<User> obs = provider.loadUserByUsername(authentication).test();
 
         obs.awaitTerminalEvent();
-        obs.assertValue(user -> {
-            assertEquals("subjohndoe", user.getId());
-            assertEquals("john.doe@graviteesource.com", user.getUsername());
-            assertEquals("John Doe", user.getAdditionalInformation().get("name"));
-            assertEquals("John", user.getAdditionalInformation().get("given_name"));
-            assertEquals("Doe", user.getAdditionalInformation().get("family_name"));
-            assertEquals("value-non-std-field", user.getAdditionalInformation().get("non-standard-field"));
+        obs.assertValue(
+                user -> {
+                    assertEquals("subjohndoe", user.getId());
+                    assertEquals("john.doe@graviteesource.com", user.getUsername());
+                    assertEquals("John Doe", user.getAdditionalInformation().get("name"));
+                    assertEquals("John", user.getAdditionalInformation().get("given_name"));
+                    assertEquals("Doe", user.getAdditionalInformation().get("family_name"));
+                    assertEquals(
+                            "value-non-std-field",
+                            user.getAdditionalInformation().get("non-standard-field"));
 
-            assertTrue(user.getRoles().contains("admin"));
-            return true;
-        });
+                    assertTrue(user.getRoles().contains("admin"));
+                    return true;
+                });
         verify(authenticationContext, times(1)).set("id_token", jwt);
         verify(client, times(1)).postAbs(GoogleIdentityProviderConfiguration.TOKEN_URL);
     }
@@ -266,7 +291,8 @@ public class GoogleAuthenticationProviderTest {
     public void shouldAuthenticate_invalidJwt() throws Exception {
         forceProviderInfoForTest();
 
-        final String badJwt = "eyJraWQiOiJkZWZhdWx0LWdyYXZpdGVlLUFNLWtleSIsImFsZyI6IkhTMjU2In0.eyJzdWIiOiJzdWJqb2huZG9lIiwiYXVkIjoiYXVkc3Viam9obmRvZSIsImF1dGhfdGltZSI6MTU5NDkxMjU1MywiaXNzIjoiaHR0cDovL2dyYXZpdGVlLmlvL2RvbWFpbi10ZXN0L29pZGMiLCJuYW1lIjoiSm9obiBEb2UiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJqb2huLmRvZUBncmF2aXRlZXNvdXJjZS5jb20iLCJleHAiOjE1OTQ5MjY5ODEsImdpdmVuX25hbWUiOiJKb2huIiwiaWF0IjoxNTk0OTEyNTgxLCJmYW1pbHlfbmFtZSI6IkRvZSJ9.Kgr8PkN9GRtfeASpBF1uvUlK14SEQRIk-XtvwloGzdo";
+        final String badJwt =
+                "eyJraWQiOiJkZWZhdWx0LWdyYXZpdGVlLUFNLWtleSIsImFsZyI6IkhTMjU2In0.eyJzdWIiOiJzdWJqb2huZG9lIiwiYXVkIjoiYXVkc3Viam9obmRvZSIsImF1dGhfdGltZSI6MTU5NDkxMjU1MywiaXNzIjoiaHR0cDovL2dyYXZpdGVlLmlvL2RvbWFpbi10ZXN0L29pZGMiLCJuYW1lIjoiSm9obiBEb2UiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJqb2huLmRvZUBncmF2aXRlZXNvdXJjZS5jb20iLCJleHAiOjE1OTQ5MjY5ODEsImdpdmVuX25hbWUiOiJKb2huIiwiaWF0IjoxNTk0OTEyNTgxLCJmYW1pbHlfbmFtZSI6IkRvZSJ9.Kgr8PkN9GRtfeASpBF1uvUlK14SEQRIk-XtvwloGzdo";
 
         Authentication authentication = mock(Authentication.class);
         AuthenticationContext authenticationContext = mock(AuthenticationContext.class);
@@ -284,14 +310,15 @@ public class GoogleAuthenticationProviderTest {
         when(configuration.getClientSecret()).thenReturn("testClientSecret");
 
         when(authentication.getContext().get("redirect_uri")).thenReturn("https://gravitee.io");
-        when(httpResponse.statusCode())
-                .thenReturn(HttpStatusCode.OK_200);
+        when(httpResponse.statusCode()).thenReturn(HttpStatusCode.OK_200);
         when(httpResponse.bodyAsJsonObject())
-                .thenReturn(new JsonObject().put("token_type", "Bearer")
-                        .put("scope", "openid")
-                        .put("expires_in", 3599)
-                        .put("access_token", jwt)
-                        .put("id_token", badJwt));
+                .thenReturn(
+                        new JsonObject()
+                                .put("token_type", "Bearer")
+                                .put("scope", "openid")
+                                .put("expires_in", 3599)
+                                .put("access_token", jwt)
+                                .put("id_token", badJwt));
 
         TestObserver<User> obs = provider.loadUserByUsername(authentication).test();
 

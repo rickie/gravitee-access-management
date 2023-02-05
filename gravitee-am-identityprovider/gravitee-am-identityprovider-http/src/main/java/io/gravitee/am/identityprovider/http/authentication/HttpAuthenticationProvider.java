@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.identityprovider.http.authentication;
@@ -43,6 +41,7 @@ import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.ext.web.client.HttpRequest;
 import io.vertx.reactivex.ext.web.client.HttpResponse;
 import io.vertx.reactivex.ext.web.client.WebClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,30 +68,32 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
     @Qualifier("idpHttpAuthWebClient")
     private WebClient client;
 
-    @Autowired
-    private HttpIdentityProviderConfiguration configuration;
+    @Autowired private HttpIdentityProviderConfiguration configuration;
 
-    @Autowired
-    private IdentityProviderMapper mapper;
+    @Autowired private IdentityProviderMapper mapper;
 
-    @Autowired
-    private IdentityProviderRoleMapper roleMapper;
+    @Autowired private IdentityProviderRoleMapper roleMapper;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Autowired private PasswordEncoder passwordEncoder;
 
     @Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
         try {
             // prepare request
-            final HttpResourceConfiguration resourceConfiguration = configuration.getAuthenticationResource();
-            final HttpMethod authenticationHttpMethod = HttpMethod.valueOf(resourceConfiguration.getHttpMethod().toString());
-            final List<HttpHeader> authenticationHttpHeaders = resourceConfiguration.getHttpHeaders();
+            final HttpResourceConfiguration resourceConfiguration =
+                    configuration.getAuthenticationResource();
+            final HttpMethod authenticationHttpMethod =
+                    HttpMethod.valueOf(resourceConfiguration.getHttpMethod().toString());
+            final List<HttpHeader> authenticationHttpHeaders =
+                    resourceConfiguration.getHttpHeaders();
             final String authenticationBody = resourceConfiguration.getHttpBody();
 
             final Object principal = authentication.getPrincipal();
-            final String encodedCredentials = passwordEncoder.encode((String) authentication.getCredentials());
-            final Object credentials = SanitizeUtils.sanitize(encodedCredentials, authenticationBody, authenticationHttpHeaders);
+            final String encodedCredentials =
+                    passwordEncoder.encode((String) authentication.getCredentials());
+            final Object credentials =
+                    SanitizeUtils.sanitize(
+                            encodedCredentials, authenticationBody, authenticationHttpHeaders);
 
             // prepare context
             TemplateEngine templateEngine = authentication.getContext().getTemplateEngine();
@@ -100,32 +101,53 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
             templateEngine.getTemplateContext().setVariable(CREDENTIALS_CONTEXT_KEY, credentials);
 
             // process request
-            final String authenticationURI = templateEngine.getValue(resourceConfiguration.getBaseURL(), String.class);
-            final Single<HttpResponse<Buffer>> requestHandler = processRequest(templateEngine, authenticationURI, authenticationHttpMethod, authenticationHttpHeaders, authenticationBody);
+            final String authenticationURI =
+                    templateEngine.getValue(resourceConfiguration.getBaseURL(), String.class);
+            final Single<HttpResponse<Buffer>> requestHandler =
+                    processRequest(
+                            templateEngine,
+                            authenticationURI,
+                            authenticationHttpMethod,
+                            authenticationHttpHeaders,
+                            authenticationBody);
 
             return requestHandler
                     .toMaybe()
-                    .map(httpResponse -> {
-                        final List<HttpResponseErrorCondition> errorConditions = resourceConfiguration.getHttpResponseErrorConditions();
-                        Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
-                        return createUser(authentication.getContext(), userAttributes);
-                    })
-                    .onErrorResumeNext(ex -> {
-                        if (ex instanceof AuthenticationException) {
-                            return Maybe.error(ex);
-                        }
-                        LOGGER.error("An error has occurred while calling the remote HTTP identity provider {}", ex);
-                        return Maybe.error(new InternalAuthenticationServiceException("An error has occurred while calling the remote HTTP identity provider", ex));
-                    });
+                    .map(
+                            httpResponse -> {
+                                final List<HttpResponseErrorCondition> errorConditions =
+                                        resourceConfiguration.getHttpResponseErrorConditions();
+                                Map<String, Object> userAttributes =
+                                        processResponse(
+                                                templateEngine, errorConditions, httpResponse);
+                                return createUser(authentication.getContext(), userAttributes);
+                            })
+                    .onErrorResumeNext(
+                            ex -> {
+                                if (ex instanceof AuthenticationException) {
+                                    return Maybe.error(ex);
+                                }
+                                LOGGER.error(
+                                        "An error has occurred while calling the remote HTTP identity provider {}",
+                                        ex);
+                                return Maybe.error(
+                                        new InternalAuthenticationServiceException(
+                                                "An error has occurred while calling the remote HTTP identity provider",
+                                                ex));
+                            });
         } catch (Exception ex) {
             LOGGER.error("An error has occurred while authenticating the user {}", ex);
-            return Maybe.error(new InternalAuthenticationServiceException("An error has occurred while authenticating the user", ex));
+            return Maybe.error(
+                    new InternalAuthenticationServiceException(
+                            "An error has occurred while authenticating the user", ex));
         }
     }
 
     @Override
     public Maybe<User> loadPreAuthenticatedUser(Authentication authentication) {
-        return loadByUsername0(authentication.getContext(), new DefaultUser((io.gravitee.am.model.User) authentication.getPrincipal()));
+        return loadByUsername0(
+                authentication.getContext(),
+                new DefaultUser((io.gravitee.am.model.User) authentication.getPrincipal()));
     }
 
     @Override
@@ -135,7 +157,8 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
 
     private Maybe<User> loadByUsername0(AuthenticationContext authenticationContext, User user) {
         // prepare request
-        final HttpAuthResourcePathsConfiguration authResourceConfiguration = configuration.getAuthenticationResource().getPaths();
+        final HttpAuthResourcePathsConfiguration authResourceConfiguration =
+                configuration.getAuthenticationResource().getPaths();
         if (authResourceConfiguration == null) {
             return Maybe.empty();
         }
@@ -143,7 +166,8 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
             return Maybe.empty();
         }
 
-        final HttpResourceConfiguration readResourceConfiguration = authResourceConfiguration.getLoadPreAuthUserResource();
+        final HttpResourceConfiguration readResourceConfiguration =
+                authResourceConfiguration.getLoadPreAuthUserResource();
 
         if (readResourceConfiguration.getBaseURL() == null) {
             LOGGER.warn("Missing pre-authenticated user resource base URL");
@@ -162,46 +186,73 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
 
             // prepare request
             final String readUserURI = readResourceConfiguration.getBaseURL();
-            final HttpMethod readUserHttpMethod = HttpMethod.valueOf(readResourceConfiguration.getHttpMethod().toString());
+            final HttpMethod readUserHttpMethod =
+                    HttpMethod.valueOf(readResourceConfiguration.getHttpMethod().toString());
             final List<HttpHeader> readUserHttpHeaders = readResourceConfiguration.getHttpHeaders();
             final String readUserBody = readResourceConfiguration.getHttpBody();
-            final Single<HttpResponse<Buffer>> requestHandler = processRequest(templateEngine, readUserURI, readUserHttpMethod, readUserHttpHeaders, readUserBody);
+            final Single<HttpResponse<Buffer>> requestHandler =
+                    processRequest(
+                            templateEngine,
+                            readUserURI,
+                            readUserHttpMethod,
+                            readUserHttpHeaders,
+                            readUserBody);
 
             return requestHandler
                     .toMaybe()
-                    .map(httpResponse -> {
-                        final List<HttpResponseErrorCondition> errorConditions = readResourceConfiguration.getHttpResponseErrorConditions();
-                        Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
-                        return createUser(authenticationContext, userAttributes);
-                    })
-                    .onErrorResumeNext(ex -> {
-                        if (ex instanceof AbstractManagementException) {
-                            return Maybe.error(ex);
-                        }
-                        LOGGER.error("An error has occurred when loading pre-authenticated user {} from the remote HTTP identity provider", user.getUsername() != null ? user.getUsername() : user.getEmail(), ex);
-                        return Maybe.error(new TechnicalManagementException("An error has occurred when loading pre-authenticated user from the remote HTTP identity provider", ex));
-                    });
+                    .map(
+                            httpResponse -> {
+                                final List<HttpResponseErrorCondition> errorConditions =
+                                        readResourceConfiguration.getHttpResponseErrorConditions();
+                                Map<String, Object> userAttributes =
+                                        processResponse(
+                                                templateEngine, errorConditions, httpResponse);
+                                return createUser(authenticationContext, userAttributes);
+                            })
+                    .onErrorResumeNext(
+                            ex -> {
+                                if (ex instanceof AbstractManagementException) {
+                                    return Maybe.error(ex);
+                                }
+                                LOGGER.error(
+                                        "An error has occurred when loading pre-authenticated user {} from the remote HTTP identity provider",
+                                        user.getUsername() != null
+                                                ? user.getUsername()
+                                                : user.getEmail(),
+                                        ex);
+                                return Maybe.error(
+                                        new TechnicalManagementException(
+                                                "An error has occurred when loading pre-authenticated user from the remote HTTP identity provider",
+                                                ex));
+                            });
         } catch (Exception ex) {
-            LOGGER.error("An error has occurred when loading pre-authenticated user {}", user.getUsername() != null ? user.getUsername() : user.getEmail(), ex);
-            return Maybe.error(new TechnicalManagementException("An error has occurred when when loading pre-authenticated user", ex));
+            LOGGER.error(
+                    "An error has occurred when loading pre-authenticated user {}",
+                    user.getUsername() != null ? user.getUsername() : user.getEmail(),
+                    ex);
+            return Maybe.error(
+                    new TechnicalManagementException(
+                            "An error has occurred when when loading pre-authenticated user", ex));
         }
     }
 
-    private Single<HttpResponse<Buffer>> processRequest(TemplateEngine templateEngine,
-                                                        String httpURI,
-                                                        HttpMethod httpMethod,
-                                                        List<HttpHeader> httpHeaders,
-                                                        String httpBody) {
+    private Single<HttpResponse<Buffer>> processRequest(
+            TemplateEngine templateEngine,
+            String httpURI,
+            HttpMethod httpMethod,
+            List<HttpHeader> httpHeaders,
+            String httpBody) {
         // prepare request
         final String evaluatedHttpURI = templateEngine.getValue(httpURI, String.class);
         final HttpRequest<Buffer> httpRequest = client.requestAbs(httpMethod, evaluatedHttpURI);
 
         // set headers
         if (httpHeaders != null) {
-            httpHeaders.forEach(header -> {
-                String extValue = templateEngine.getValue(header.getValue(), String.class);
-                httpRequest.putHeader(header.getName(), extValue);
-            });
+            httpHeaders.forEach(
+                    header -> {
+                        String extValue = templateEngine.getValue(header.getValue(), String.class);
+                        httpRequest.putHeader(header.getName(), extValue);
+                    });
         }
 
         // set body
@@ -209,22 +260,24 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
         if (httpBody != null && !httpBody.isEmpty()) {
             String bodyRequest = templateEngine.getValue(httpBody, String.class);
             if (!httpRequest.headers().contains(HttpHeaders.CONTENT_TYPE)) {
-                httpRequest.putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(bodyRequest.length()));
+                httpRequest.putHeader(
+                        HttpHeaders.CONTENT_LENGTH, String.valueOf(bodyRequest.length()));
                 responseHandler = httpRequest.rxSendBuffer(Buffer.buffer(bodyRequest));
             } else {
                 String contentTypeHeader = httpRequest.headers().get(HttpHeaders.CONTENT_TYPE);
                 switch (contentTypeHeader) {
-                    case(MediaType.APPLICATION_JSON):
+                    case (MediaType.APPLICATION_JSON):
                         responseHandler = httpRequest.rxSendJsonObject(new JsonObject(bodyRequest));
                         break;
-                    case(MediaType.APPLICATION_FORM_URLENCODED):
+                    case (MediaType.APPLICATION_FORM_URLENCODED):
                         Map<String, String> queryParameters = format(bodyRequest);
                         MultiMap multiMap = MultiMap.caseInsensitiveMultiMap();
                         multiMap.setAll(queryParameters);
                         responseHandler = httpRequest.rxSendForm(multiMap);
                         break;
                     default:
-                        httpRequest.putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(bodyRequest.length()));
+                        httpRequest.putHeader(
+                                HttpHeaders.CONTENT_LENGTH, String.valueOf(bodyRequest.length()));
                         responseHandler = httpRequest.rxSendBuffer(Buffer.buffer(bodyRequest));
                 }
             }
@@ -234,9 +287,17 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
         return responseHandler;
     }
 
-    private Map<String, Object> processResponse(TemplateEngine templateEngine, List<HttpResponseErrorCondition> errorConditions, HttpResponse<Buffer> httpResponse) throws Exception {
-        String responseBody =  httpResponse.bodyAsString();
-        templateEngine.getTemplateContext().setVariable(AUTHENTICATION_RESPONSE_CONTEXT_KEY, new HttpIdentityProviderResponse(httpResponse, responseBody));
+    private Map<String, Object> processResponse(
+            TemplateEngine templateEngine,
+            List<HttpResponseErrorCondition> errorConditions,
+            HttpResponse<Buffer> httpResponse)
+            throws Exception {
+        String responseBody = httpResponse.bodyAsString();
+        templateEngine
+                .getTemplateContext()
+                .setVariable(
+                        AUTHENTICATION_RESPONSE_CONTEXT_KEY,
+                        new HttpIdentityProviderResponse(httpResponse, responseBody));
 
         // process response
         Exception lastException = null;
@@ -245,11 +306,15 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
             while (iter.hasNext() && lastException == null) {
                 HttpResponseErrorCondition errorCondition = iter.next();
                 if (templateEngine.getValue(errorCondition.getValue(), Boolean.class)) {
-                    Class<? extends Exception> clazz = (Class<? extends Exception>) Class.forName(errorCondition.getException());
+                    Class<? extends Exception> clazz =
+                            (Class<? extends Exception>)
+                                    Class.forName(errorCondition.getException());
                     if (errorCondition.getMessage() != null) {
-                        String errorMessage = templateEngine.getValue(errorCondition.getMessage(), String.class);
+                        String errorMessage =
+                                templateEngine.getValue(errorCondition.getMessage(), String.class);
                         Constructor<?> constructor = clazz.getConstructor(String.class);
-                        lastException = clazz.cast(constructor.newInstance(new Object[]{errorMessage}));
+                        lastException =
+                                clazz.cast(constructor.newInstance(new Object[] {errorMessage}));
                     } else {
                         lastException = clazz.newInstance();
                     }
@@ -264,8 +329,9 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
         if (responseBody == null) {
             throw new InternalAuthenticationServiceException("Unable to find user information");
         }
-        return responseBody.startsWith("[") ?
-                new JsonArray(responseBody).getJsonObject(0).getMap() : new JsonObject(responseBody).getMap();
+        return responseBody.startsWith("[")
+                ? new JsonArray(responseBody).getJsonObject(0).getMap()
+                : new JsonObject(responseBody).getMap();
     }
 
     private User createUser(AuthenticationContext authContext, Map<String, Object> attributes) {
@@ -274,14 +340,20 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
 
         // sub claim is required
         if (mappedAttributes.isEmpty() || mappedAttributes.get(StandardClaims.SUB) == null) {
-            throw new InternalAuthenticationServiceException("The 'sub' claim for the user is required");
+            throw new InternalAuthenticationServiceException(
+                    "The 'sub' claim for the user is required");
         }
 
         // apply role mapping
         List<String> roles = applyRoleMapping(authContext, attributes);
 
         // create the user
-        String username = mappedAttributes.getOrDefault(StandardClaims.PREFERRED_USERNAME, mappedAttributes.get(StandardClaims.SUB)).toString();
+        String username =
+                mappedAttributes
+                        .getOrDefault(
+                                StandardClaims.PREFERRED_USERNAME,
+                                mappedAttributes.get(StandardClaims.SUB))
+                        .toString();
         DefaultUser user = new DefaultUser(username);
         user.setId(mappedAttributes.get(StandardClaims.SUB).toString());
         // set additional information
@@ -289,7 +361,8 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
         additionalInformation.putAll(mappedAttributes);
         // update username if user mapping has been changed
         if (additionalInformation.containsKey(StandardClaims.PREFERRED_USERNAME)) {
-            user.setUsername(additionalInformation.get(StandardClaims.PREFERRED_USERNAME).toString());
+            user.setUsername(
+                    additionalInformation.get(StandardClaims.PREFERRED_USERNAME).toString());
         }
         user.setAdditionalInformation(additionalInformation);
         // set user roles
@@ -297,14 +370,16 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
         return user;
     }
 
-    private Map<String, Object> applyUserMapping(AuthenticationContext authContext, Map<String, Object> attributes) {
+    private Map<String, Object> applyUserMapping(
+            AuthenticationContext authContext, Map<String, Object> attributes) {
         if (!mappingEnabled()) {
             return attributes;
         }
         return this.mapper.apply(authContext, attributes);
     }
 
-    private List<String> applyRoleMapping(AuthenticationContext authContext, Map<String, Object> attributes) {
+    private List<String> applyRoleMapping(
+            AuthenticationContext authContext, Map<String, Object> attributes) {
         if (!roleMappingEnabled()) {
             return Collections.emptyList();
         }

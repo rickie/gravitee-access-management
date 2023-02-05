@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oidc.service.jwk.impl;
@@ -28,6 +26,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.vertx.reactivex.ext.web.client.HttpResponse;
 import io.vertx.reactivex.ext.web.client.WebClient;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -42,8 +41,7 @@ import java.util.function.Predicate;
  */
 public class JWKServiceImpl implements JWKService {
 
-    @Autowired
-    private CertificateManager certificateManager;
+    @Autowired private CertificateManager certificateManager;
 
     @Autowired
     @Qualifier("oidcWebClient")
@@ -54,19 +52,19 @@ public class JWKServiceImpl implements JWKService {
         return Flowable.fromIterable(certificateManager.providers())
                 .flatMap(certificateProvider -> certificateProvider.getProvider().keys())
                 .toList()
-                .map(keys -> {
-                    JWKSet jwkSet = new JWKSet();
-                    jwkSet.setKeys(keys);
-                    return jwkSet;
-                });
+                .map(
+                        keys -> {
+                            JWKSet jwkSet = new JWKSet();
+                            jwkSet.setKeys(keys);
+                            return jwkSet;
+                        });
     }
 
     @Override
     public Maybe<JWKSet> getKeys(Client client) {
-        if(client.getJwks()!=null) {
+        if (client.getJwks() != null) {
             return Maybe.just(client.getJwks());
-        }
-        else if(client.getJwksUri()!=null) {
+        } else if (client.getJwksUri() != null) {
             return getKeys(client.getJwksUri());
         }
         return Maybe.empty();
@@ -77,32 +75,36 @@ public class JWKServiceImpl implements JWKService {
         return Flowable.fromIterable(certificateManager.providers())
                 .flatMap(provider -> provider.getProvider().privateKey())
                 .toList()
-                .map(keys -> {
-                    JWKSet jwkSet = new JWKSet();
-                    jwkSet.setKeys(keys);
-                    return jwkSet;
-                }).toMaybe();
+                .map(
+                        keys -> {
+                            JWKSet jwkSet = new JWKSet();
+                            jwkSet.setKeys(keys);
+                            return jwkSet;
+                        })
+                .toMaybe();
     }
 
     @Override
     public Maybe<JWKSet> getKeys(String jwksUri) {
-        try{
+        try {
             return client.getAbs(UriBuilder.fromHttpUrl(jwksUri).build().toString())
                     .rxSend()
                     .map(HttpResponse::bodyAsString)
                     .map(new JWKSetDeserializer()::convert)
-                    .flatMapMaybe(jwkSet -> {
-                        if(jwkSet!=null && jwkSet.isPresent()) {
-                            return Maybe.just(jwkSet.get());
-                        }
-                        return Maybe.empty();
-                    })
-                    .onErrorResumeNext(Maybe.error(new InvalidClientMetadataException("Unable to parse jwks from : " + jwksUri)));
-        }
-        catch(IllegalArgumentException | URISyntaxException ex) {
-            return Maybe.error(new InvalidClientMetadataException(jwksUri+" is not valid."));
-        }
-        catch(InvalidClientMetadataException ex) {
+                    .flatMapMaybe(
+                            jwkSet -> {
+                                if (jwkSet != null && jwkSet.isPresent()) {
+                                    return Maybe.just(jwkSet.get());
+                                }
+                                return Maybe.empty();
+                            })
+                    .onErrorResumeNext(
+                            Maybe.error(
+                                    new InvalidClientMetadataException(
+                                            "Unable to parse jwks from : " + jwksUri)));
+        } catch (IllegalArgumentException | URISyntaxException ex) {
+            return Maybe.error(new InvalidClientMetadataException(jwksUri + " is not valid."));
+        } catch (InvalidClientMetadataException ex) {
             return Maybe.error(ex);
         }
     }
@@ -110,32 +112,30 @@ public class JWKServiceImpl implements JWKService {
     @Override
     public Maybe<JWK> getKey(JWKSet jwkSet, String kid) {
 
-        if(jwkSet==null || jwkSet.getKeys().isEmpty() || kid==null || kid.trim().isEmpty()) {
+        if (jwkSet == null || jwkSet.getKeys().isEmpty() || kid == null || kid.trim().isEmpty()) {
             return Maybe.empty();
         }
 
-        //Else return matching key
-        Optional<JWK> jwk = jwkSet.getKeys().stream().filter(key -> kid.equals(key.getKid())).findFirst();
-        if(jwk.isPresent()) {
+        // Else return matching key
+        Optional<JWK> jwk =
+                jwkSet.getKeys().stream().filter(key -> kid.equals(key.getKid())).findFirst();
+        if (jwk.isPresent()) {
             return Maybe.just(jwk.get());
         }
 
-        //No matching key found in JWKs...
+        // No matching key found in JWKs...
         return Maybe.empty();
     }
 
     @Override
     public Maybe<JWK> filter(JWKSet jwkSet, Predicate<JWK> filter) {
-        if(jwkSet==null || jwkSet.getKeys()==null || jwkSet.getKeys().isEmpty()) {
+        if (jwkSet == null || jwkSet.getKeys() == null || jwkSet.getKeys().isEmpty()) {
             return Maybe.empty();
         }
 
-        Optional<JWK> jwk = jwkSet.getKeys()
-                .stream()
-                .filter(filter)
-                .findFirst();
+        Optional<JWK> jwk = jwkSet.getKeys().stream().filter(filter).findFirst();
 
-        if(jwk.isPresent()) {
+        if (jwk.isPresent()) {
             return Maybe.just(jwk.get());
         }
         return Maybe.empty();

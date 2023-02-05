@@ -1,19 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.resources;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.reset;
 
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.management.handlers.management.api.model.ThemeEntity;
@@ -22,24 +27,18 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.Theme;
 import io.gravitee.am.service.model.NewTheme;
 import io.gravitee.common.http.HttpStatusCode;
-import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Date;
+import java.util.List;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.reset;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -57,11 +56,7 @@ public class ThemesResourceTest extends JerseySpringTest {
         final String domainId = "domain-1";
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
-        final Response response = target("domains")
-                .path(domainId)
-                .path("themes")
-                .request()
-                .get();
+        final Response response = target("domains").path(domainId).path("themes").request().get();
 
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }
@@ -73,13 +68,11 @@ public class ThemesResourceTest extends JerseySpringTest {
         mockDomain.setId(domainId);
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Maybe.just(new Theme())).when(themeService).findByReference(ReferenceType.DOMAIN, domainId);
+        doReturn(Maybe.just(new Theme()))
+                .when(themeService)
+                .findByReference(ReferenceType.DOMAIN, domainId);
 
-        final Response response = target("domains")
-                .path(domainId)
-                .path("themes")
-                .request()
-                .get();
+        final Response response = target("domains").path(domainId).path("themes").request().get();
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         assertEquals(1, response.readEntity(List.class).size());
@@ -94,11 +87,7 @@ public class ThemesResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.empty()).when(themeService).findByReference(ReferenceType.DOMAIN, domainId);
 
-        final Response response = target("domains")
-                .path(domainId)
-                .path("themes")
-                .request()
-                .get();
+        final Response response = target("domains").path(domainId).path("themes").request().get();
 
         assertEquals(HttpStatusCode.NO_CONTENT_204, response.getStatus());
     }
@@ -110,11 +99,12 @@ public class ThemesResourceTest extends JerseySpringTest {
 
         final NewTheme newTheme = new NewTheme();
 
-        final Response response = target("domains")
-                .path(domainId)
-                .path("themes")
-                .request()
-                .post(Entity.json(newTheme));
+        final Response response =
+                target("domains")
+                        .path(domainId)
+                        .path("themes")
+                        .request()
+                        .post(Entity.json(newTheme));
 
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }
@@ -122,11 +112,8 @@ public class ThemesResourceTest extends JerseySpringTest {
     @Test
     public void shouldNotCreateThemes_MissingTheme() {
         final String domainId = "domain-1";
-        final Response response = target("domains")
-                .path(domainId)
-                .path("themes")
-                .request()
-                .post(Entity.json(null));
+        final Response response =
+                target("domains").path(domainId).path("themes").request().post(Entity.json(null));
 
         assertEquals(HttpStatusCode.BAD_REQUEST_400, response.getStatus());
     }
@@ -156,11 +143,12 @@ public class ThemesResourceTest extends JerseySpringTest {
 
         doReturn(Single.just(theme)).when(themeService).create(any(), any(), any());
 
-        final Response response = target("domains")
-                .path(domainId)
-                .path("themes")
-                .request()
-                .post(Entity.json(new NewTheme()));
+        final Response response =
+                target("domains")
+                        .path(domainId)
+                        .path("themes")
+                        .request()
+                        .post(Entity.json(new NewTheme()));
 
         assertEquals(HttpStatusCode.CREATED_201, response.getStatus());
         final ThemeEntity entity = readEntity(response, ThemeEntity.class);
@@ -180,7 +168,8 @@ public class ThemesResourceTest extends JerseySpringTest {
         assertEquals(theme.getSecondaryTextColorHex(), entity.getSecondaryTextColorHex());
 
         assertNotNull(response.getHeaderString(HttpHeaders.LOCATION));
-        assertTrue(response.getHeaderString(HttpHeaders.LOCATION).endsWith("/themes/"+theme.getId()));
+        assertTrue(
+                response.getHeaderString(HttpHeaders.LOCATION)
+                        .endsWith("/themes/" + theme.getId()));
     }
-
 }

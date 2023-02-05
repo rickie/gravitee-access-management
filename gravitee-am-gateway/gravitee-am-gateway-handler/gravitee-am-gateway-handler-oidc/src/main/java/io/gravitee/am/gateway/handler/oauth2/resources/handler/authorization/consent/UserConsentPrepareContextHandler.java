@@ -1,22 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization.consent;
 
-import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.common.utils.ConstantKeys;
+import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.oauth2.exception.AccessDeniedException;
 import io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest;
 import io.gravitee.am.model.oidc.Client;
@@ -39,15 +37,22 @@ public class UserConsentPrepareContextHandler implements Handler<RoutingContext>
     @Override
     public void handle(RoutingContext routingContext) {
         // user must redirected here after an authorization request
-        AuthorizationRequest authorizationRequest = routingContext.get(ConstantKeys.AUTHORIZATION_REQUEST_CONTEXT_KEY);
+        AuthorizationRequest authorizationRequest =
+                routingContext.get(ConstantKeys.AUTHORIZATION_REQUEST_CONTEXT_KEY);
         if (authorizationRequest == null) {
-            routingContext.response().setStatusCode(400).end("An authorization request is required to handle user approval");
+            routingContext
+                    .response()
+                    .setStatusCode(400)
+                    .end("An authorization request is required to handle user approval");
             return;
         }
 
         // check user
         User authenticatedUser = routingContext.user();
-        if (authenticatedUser == null || !(authenticatedUser.getDelegate() instanceof io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)) {
+        if (authenticatedUser == null
+                || !(authenticatedUser.getDelegate()
+                        instanceof
+                        io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)) {
             routingContext.fail(new AccessDeniedException());
             return;
         }
@@ -55,13 +60,17 @@ public class UserConsentPrepareContextHandler implements Handler<RoutingContext>
         // prepare context
         Client safeClient = new Client(routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY));
         safeClient.setClientSecret(null);
-        io.gravitee.am.model.User user = ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User) authenticatedUser.getDelegate()).getUser();
+        io.gravitee.am.model.User user =
+                ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
+                                authenticatedUser.getDelegate())
+                        .getUser();
         prepareContext(routingContext, safeClient, user);
 
         routingContext.next();
     }
 
-    private void prepareContext(RoutingContext context, Client client, io.gravitee.am.model.User user) {
+    private void prepareContext(
+            RoutingContext context, Client client, io.gravitee.am.model.User user) {
         context.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
         context.put(ConstantKeys.USER_CONTEXT_KEY, user);
 
@@ -72,7 +81,8 @@ public class UserConsentPrepareContextHandler implements Handler<RoutingContext>
         }
 
         // add webAuthn credential id if exists
-        String webAuthnCredentialId = context.session().get(ConstantKeys.WEBAUTHN_CREDENTIAL_ID_CONTEXT_KEY);
+        String webAuthnCredentialId =
+                context.session().get(ConstantKeys.WEBAUTHN_CREDENTIAL_ID_CONTEXT_KEY);
         if (webAuthnCredentialId != null) {
             context.put(ConstantKeys.WEBAUTHN_CREDENTIAL_ID_CONTEXT_KEY, webAuthnCredentialId);
         }

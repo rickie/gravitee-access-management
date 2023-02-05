@@ -1,32 +1,29 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.root.resources.endpoint.login;
 
+import static io.gravitee.am.common.utils.ConstantKeys.ID_TOKEN_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.PARAM_CONTEXT_KEY;
+
 import com.google.common.net.HttpHeaders;
+
 import io.gravitee.am.common.utils.ConstantKeys;
-import io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest;
 import io.gravitee.am.gateway.handler.root.resources.endpoint.AbstractEndpoint;
 import io.vertx.core.Handler;
-import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.core.http.HttpServerResponse;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.Session;
-
-import static io.gravitee.am.common.utils.ConstantKeys.ID_TOKEN_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.PARAM_CONTEXT_KEY;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -37,9 +34,11 @@ public class LoginCallbackEndpoint extends AbstractEndpoint implements Handler<R
     @Override
     public void handle(RoutingContext routingContext) {
         final Session session = routingContext.session();
-        final String returnURL = getReturnUrl(routingContext, routingContext.get(PARAM_CONTEXT_KEY));
+        final String returnURL =
+                getReturnUrl(routingContext, routingContext.get(PARAM_CONTEXT_KEY));
 
-        // if we have an id_token, put in the session context for post step (mainly the user consent step)
+        // if we have an id_token, put in the session context for post step (mainly the user consent
+        // step)
         if (session != null) {
             if (routingContext.data().containsKey(ID_TOKEN_KEY)) {
                 session.put(ID_TOKEN_KEY, routingContext.get(ID_TOKEN_KEY));

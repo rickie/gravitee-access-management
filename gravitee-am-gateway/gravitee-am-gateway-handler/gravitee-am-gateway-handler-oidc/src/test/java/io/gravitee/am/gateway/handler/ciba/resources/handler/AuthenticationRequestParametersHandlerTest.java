@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.ciba.resources.handler;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -23,6 +24,7 @@ import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+
 import io.gravitee.am.common.oauth2.GrantType;
 import io.gravitee.am.common.oidc.AcrValues;
 import io.gravitee.am.common.oidc.idtoken.Claims;
@@ -46,7 +48,9 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.reactivex.ext.web.RoutingContext;
+
 import net.minidev.json.JSONObject;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -59,27 +63,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
+public class AuthenticationRequestParametersHandlerTest extends RxWebTestBase {
 
     public static final String KID = "tu-gio-am";
-    @Mock
-    private Domain domain;
-    @Mock
-    private JWSService jwsService;
-    @Mock
-    private JWKService jwkService;
-    @Mock
-    private UserService userService;
-    @Mock
-    private ScopeManager scopeManager;
+    @Mock private Domain domain;
+    @Mock private JWSService jwsService;
+    @Mock private JWKService jwkService;
+    @Mock private UserService userService;
+    @Mock private ScopeManager scopeManager;
 
     private OpenIDProviderMetadata openIDProviderMetadata;
 
@@ -93,7 +89,9 @@ public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
 
         when(domain.getOidc()).thenReturn(OIDCSettings.defaultSettings());
 
-        handlerUnderTest = new AuthenticationRequestParametersHandlerMock(domain, jwsService, jwkService, userService, scopeManager);
+        handlerUnderTest =
+                new AuthenticationRequestParametersHandlerMock(
+                        domain, jwsService, jwkService, userService, scopeManager);
         router.route(HttpMethod.POST, "/oidc/ciba/authenticate")
                 .handler(handlerUnderTest)
                 .handler(rc -> rc.response().end())
@@ -109,7 +107,6 @@ public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
         final ApplicationScopeSettings scope = new ApplicationScopeSettings();
         scope.setScope("openid");
         this.client.setScopeSettings(List.of(scope));
-
     }
 
     @Test
@@ -119,16 +116,21 @@ public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
 
         handlerUnderTest.setCibaRequest(cibaRequest);
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.BAD_REQUEST_400, "Bad Request", null);
+                HttpStatusCode.BAD_REQUEST_400,
+                "Bad Request",
+                null);
     }
 
     @Test
@@ -139,17 +141,24 @@ public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
 
         handlerUnderTest.setCibaRequest(cibaRequest);
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.put(ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY, openIDProviderMetadata);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.put(
+                                    ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY,
+                                    openIDProviderMetadata);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.BAD_REQUEST_400, "Bad Request", null);
+                HttpStatusCode.BAD_REQUEST_400,
+                "Bad Request",
+                null);
     }
 
     @Test
@@ -157,20 +166,28 @@ public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
         CibaAuthenticationRequest cibaRequest = new CibaAuthenticationRequest();
         cibaRequest.setLoginHint("username");
         cibaRequest.setScopes(Set.of("openid"));
-        cibaRequest.setAcrValues(Arrays.asList("urn:mace:incommon:iap:bronze", "urn:mace:incommon:iap:unknown"));
+        cibaRequest.setAcrValues(
+                Arrays.asList("urn:mace:incommon:iap:bronze", "urn:mace:incommon:iap:unknown"));
         handlerUnderTest.setCibaRequest(cibaRequest);
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.put(ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY, openIDProviderMetadata);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.put(
+                                    ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY,
+                                    openIDProviderMetadata);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.BAD_REQUEST_400, "Bad Request", null);
+                HttpStatusCode.BAD_REQUEST_400,
+                "Bad Request",
+                null);
     }
 
     @Test
@@ -181,17 +198,24 @@ public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
 
         handlerUnderTest.setCibaRequest(cibaRequest);
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.put(ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY, openIDProviderMetadata);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.put(
+                                    ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY,
+                                    openIDProviderMetadata);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.BAD_REQUEST_400, "Bad Request", null);
+                HttpStatusCode.BAD_REQUEST_400,
+                "Bad Request",
+                null);
     }
 
     @Test
@@ -204,17 +228,24 @@ public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
 
         handlerUnderTest.setCibaRequest(cibaRequest);
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.put(ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY, openIDProviderMetadata);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.put(
+                                    ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY,
+                                    openIDProviderMetadata);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.BAD_REQUEST_400, "Bad Request", null);
+                HttpStatusCode.BAD_REQUEST_400,
+                "Bad Request",
+                null);
     }
 
     @Test
@@ -227,17 +258,24 @@ public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
 
         handlerUnderTest.setCibaRequest(cibaRequest);
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.put(ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY, openIDProviderMetadata);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.put(
+                                    ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY,
+                                    openIDProviderMetadata);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.BAD_REQUEST_400, "Bad Request", null);
+                HttpStatusCode.BAD_REQUEST_400,
+                "Bad Request",
+                null);
     }
 
     @Test
@@ -252,17 +290,24 @@ public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
 
         handlerUnderTest.setCibaRequest(cibaRequest);
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.put(ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY, openIDProviderMetadata);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.put(
+                                    ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY,
+                                    openIDProviderMetadata);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.BAD_REQUEST_400, "Bad Request", null);
+                HttpStatusCode.BAD_REQUEST_400,
+                "Bad Request",
+                null);
     }
 
     @Test
@@ -279,19 +324,27 @@ public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
 
         final User user = new User();
         user.setId(UUID.randomUUID().toString());
-        when(userService.findByDomainAndCriteria(any(), any())).thenReturn(Single.just(List.of(user)));
+        when(userService.findByDomainAndCriteria(any(), any()))
+                .thenReturn(Single.just(List.of(user)));
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.put(ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY, openIDProviderMetadata);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.put(
+                                    ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY,
+                                    openIDProviderMetadata);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.OK_200, "OK", null);
+                HttpStatusCode.OK_200,
+                "OK",
+                null);
     }
 
     @Test
@@ -308,19 +361,27 @@ public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
 
         final User user = new User();
         user.setId(UUID.randomUUID().toString());
-        when(userService.findByDomainAndCriteria(any(), any())).thenReturn(Single.just(List.of(user, user)));
+        when(userService.findByDomainAndCriteria(any(), any()))
+                .thenReturn(Single.just(List.of(user, user)));
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.put(ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY, openIDProviderMetadata);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.put(
+                                    ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY,
+                                    openIDProviderMetadata);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.BAD_REQUEST_400, "Bad Request", null);
+                HttpStatusCode.BAD_REQUEST_400,
+                "Bad Request",
+                null);
     }
 
     @Test
@@ -353,19 +414,27 @@ public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
 
         final User user = new User();
         user.setId(UUID.randomUUID().toString());
-        when(userService.findByDomainAndCriteria(any(), any())).thenReturn(Single.just(List.of(user, user)));
+        when(userService.findByDomainAndCriteria(any(), any()))
+                .thenReturn(Single.just(List.of(user, user)));
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.put(ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY, openIDProviderMetadata);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.put(
+                                    ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY,
+                                    openIDProviderMetadata);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.BAD_REQUEST_400, "Bad Request", null);
+                HttpStatusCode.BAD_REQUEST_400,
+                "Bad Request",
+                null);
     }
 
     @Test
@@ -397,17 +466,24 @@ public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
         when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(jwk));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.put(ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY, openIDProviderMetadata);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.put(
+                                    ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY,
+                                    openIDProviderMetadata);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.BAD_REQUEST_400, "Bad Request", null);
+                HttpStatusCode.BAD_REQUEST_400,
+                "Bad Request",
+                null);
     }
 
     @Test
@@ -440,19 +516,27 @@ public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
 
         final User user = new User();
         user.setId(UUID.randomUUID().toString());
-        when(userService.findByDomainAndCriteria(any(), any())).thenReturn(Single.just(List.of(user)));
+        when(userService.findByDomainAndCriteria(any(), any()))
+                .thenReturn(Single.just(List.of(user)));
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.put(ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY, openIDProviderMetadata);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.put(
+                                    ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY,
+                                    openIDProviderMetadata);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.OK_200, "OK", null);
+                HttpStatusCode.OK_200,
+                "OK",
+                null);
     }
 
     @Test
@@ -485,26 +569,37 @@ public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
         user.setId(UUID.randomUUID().toString());
         when(userService.findById(any())).thenReturn(Maybe.just(user));
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.put(ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY, openIDProviderMetadata);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.put(
+                                    ConstantKeys.PROVIDER_METADATA_CONTEXT_KEY,
+                                    openIDProviderMetadata);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.OK_200, "OK", null);
+                HttpStatusCode.OK_200,
+                "OK",
+                null);
     }
 
-    /**
-     * Simple class to allow to simply provide CibaAuthenticationRequest for testing
-     */
-    private class AuthenticationRequestParametersHandlerMock extends AuthenticationRequestParametersHandler {
+    /** Simple class to allow to simply provide CibaAuthenticationRequest for testing */
+    private class AuthenticationRequestParametersHandlerMock
+            extends AuthenticationRequestParametersHandler {
         private CibaAuthenticationRequest cibaRequest;
 
-        public AuthenticationRequestParametersHandlerMock(Domain domain, JWSService jwsService, JWKService jwkService, UserService userService, ScopeManager scopeManager) {
+        public AuthenticationRequestParametersHandlerMock(
+                Domain domain,
+                JWSService jwsService,
+                JWKService jwkService,
+                UserService userService,
+                ScopeManager scopeManager) {
             super(domain, jwsService, jwkService, userService, scopeManager);
         }
 
@@ -559,9 +654,12 @@ public class AuthenticationRequestParametersHandlerTest  extends RxWebTestBase {
 
         public String generateHint() throws Exception {
             JWSSigner signer = new RSASSASigner(rsaJWK);
-            JWSObject jwsObject = new JWSObject(
-                    new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaJWK.getKeyID()).build(),
-                    new Payload(this.payload));
+            JWSObject jwsObject =
+                    new JWSObject(
+                            new JWSHeader.Builder(JWSAlgorithm.RS256)
+                                    .keyID(rsaJWK.getKeyID())
+                                    .build(),
+                            new Payload(this.payload));
 
             jwsObject.sign(signer);
             return jwsObject.serialize();

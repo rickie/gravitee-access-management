@@ -1,20 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.gravitee.am.service.impl;
+
+import static io.gravitee.am.service.impl.user.activity.utils.CoordinateUtils.computeCoordinate;
+import static io.gravitee.am.service.impl.user.activity.utils.HashedKeyUtils.computeHash;
 
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.UserActivity;
@@ -25,16 +25,15 @@ import io.gravitee.am.service.impl.user.activity.configuration.UserActivityConfi
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import static io.gravitee.am.service.impl.user.activity.utils.CoordinateUtils.computeCoordinate;
-import static io.gravitee.am.service.impl.user.activity.utils.HashedKeyUtils.computeHash;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * @author Rémi SULTAN (remi.sultan at graviteesource.com)
@@ -57,8 +56,7 @@ public class UserActivityServiceImpl implements UserActivityService {
 
     public UserActivityServiceImpl(
             UserActivityConfiguration configuration,
-            @Lazy UserActivityRepository userActivityRepository
-    ) {
+            @Lazy UserActivityRepository userActivityRepository) {
         this.configuration = configuration;
         this.userActivityRepository = userActivityRepository;
     }
@@ -75,45 +73,63 @@ public class UserActivityServiceImpl implements UserActivityService {
         return this.configuration.getRetentionUnit();
     }
 
-    public Flowable<UserActivity> findByDomainAndTypeAndUserAndLimit(String domain, Type type, String userId, int limit) {
-        return userActivityRepository.findByDomainAndTypeAndKeyAndLimit(domain, type, buildKey(userId), limit);
+    public Flowable<UserActivity> findByDomainAndTypeAndUserAndLimit(
+            String domain, Type type, String userId, int limit) {
+        return userActivityRepository.findByDomainAndTypeAndKeyAndLimit(
+                domain, type, buildKey(userId), limit);
     }
 
     public Completable save(
-            String domain,
-            String userId,
-            UserActivity.Type type,
-            Map<String, Object> data) {
+            String domain, String userId, UserActivity.Type type, Map<String, Object> data) {
         final Date createdAt = new Date();
-        return Single.defer(() -> Single.just(new UserActivity()
-                                .setReferenceType(ReferenceType.DOMAIN)
-                                .setReferenceId(domain)
-                                .setUserActivityType(type)
-                                .setUserActivityKey(buildKey(userId))
-                                .setLatitude(buildLatitude(data))
-                                .setLongitude(buildLongitude(data))
-                                .setUserAgent((String) data.get(USER_AGENT))
-                                .setLoginAttempts((Integer) data.getOrDefault(LOGIN_ATTEMPTS, 0))
-                                .setCreatedAt(createdAt)
-                                .setExpireAt(getExpireAtDate(createdAt))
-                        )
-                ).flatMap(userActivityRepository::create)
+        return Single.defer(
+                        () ->
+                                Single.just(
+                                        new UserActivity()
+                                                .setReferenceType(ReferenceType.DOMAIN)
+                                                .setReferenceId(domain)
+                                                .setUserActivityType(type)
+                                                .setUserActivityKey(buildKey(userId))
+                                                .setLatitude(buildLatitude(data))
+                                                .setLongitude(buildLongitude(data))
+                                                .setUserAgent((String) data.get(USER_AGENT))
+                                                .setLoginAttempts(
+                                                        (Integer)
+                                                                data.getOrDefault(
+                                                                        LOGIN_ATTEMPTS, 0))
+                                                .setCreatedAt(createdAt)
+                                                .setExpireAt(getExpireAtDate(createdAt))))
+                .flatMap(userActivityRepository::create)
                 .doOnSuccess(ua -> LOGGER.debug("UserActivity with id '{}' created", ua.getId()))
-                .doOnError(err ->
-                        LOGGER.error("An unexpected error has occurred while saving UserActivity '{}'", err.getMessage(), err)
-                ).ignoreElement();
+                .doOnError(
+                        err ->
+                                LOGGER.error(
+                                        "An unexpected error has occurred while saving UserActivity '{}'",
+                                        err.getMessage(),
+                                        err))
+                .ignoreElement();
     }
 
     public Completable deleteByDomainAndUser(String domain, String userId) {
-        return userActivityRepository.deleteByDomainAndKey(domain, buildKey(userId)).doOnError(err ->
-                LOGGER.error("An unexpected error has occurred while deleting userActivity '{}'", err.getMessage(), err)
-        );
+        return userActivityRepository
+                .deleteByDomainAndKey(domain, buildKey(userId))
+                .doOnError(
+                        err ->
+                                LOGGER.error(
+                                        "An unexpected error has occurred while deleting userActivity '{}'",
+                                        err.getMessage(),
+                                        err));
     }
 
     public Completable deleteByDomain(String domain) {
-        return userActivityRepository.deleteByDomain(domain).doOnError(err ->
-                LOGGER.error("An unexpected error has occurred while deleting userActivity '{}'", err.getMessage(), err)
-        );
+        return userActivityRepository
+                .deleteByDomain(domain)
+                .doOnError(
+                        err ->
+                                LOGGER.error(
+                                        "An unexpected error has occurred while deleting userActivity '{}'",
+                                        err.getMessage(),
+                                        err));
     }
 
     private String buildKey(String userId) {
@@ -121,11 +137,13 @@ public class UserActivityServiceImpl implements UserActivityService {
     }
 
     private Double buildLatitude(Map<String, Object> data) {
-        return computeCoordinate(data, LATITUDE_KEY, configuration.getLatitudeVariation(), LATITUDE_BOUNDARY);
+        return computeCoordinate(
+                data, LATITUDE_KEY, configuration.getLatitudeVariation(), LATITUDE_BOUNDARY);
     }
 
     private Double buildLongitude(Map<String, Object> data) {
-        return computeCoordinate(data, LONGITUDE_KEY, configuration.getLongitudeVariation(), LONGITUDE_BOUNDARY);
+        return computeCoordinate(
+                data, LONGITUDE_KEY, configuration.getLongitudeVariation(), LONGITUDE_BOUNDARY);
     }
 
     private Date getExpireAtDate(Date createdAt) {

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.service.pkce;
@@ -33,12 +31,13 @@ public final class PKCEUtils {
     private static final int PKCE_CODE_CHALLENGE_MIN_LENGTH = 43;
     private static final int PKCE_CODE_CHALLENGE_MAX_LENGTH = 128;
 
-    private static final Pattern VALID_CODE_VERIFIER_PATTERN = Pattern.compile("^[A-Za-z0-9\\-\\._~]+$");
+    private static final Pattern VALID_CODE_VERIFIER_PATTERN =
+            Pattern.compile("^[A-Za-z0-9\\-\\._~]+$");
     private static final Pattern CODE_CHALLENGE_PATTERN = Pattern.compile("^[A-Za-z0-9\\-\\._~]+$");
 
     /**
-     * Check that code challenge is valid
-     * <a href="https://tools.ietf.org/html/rfc7636#section-4"></a>
+     * Check that code challenge is valid <a
+     * href="https://tools.ietf.org/html/rfc7636#section-4"></a>
      *
      * @param codeChallenge Code challenge to validate
      * @return
@@ -50,8 +49,8 @@ public final class PKCEUtils {
     }
 
     /**
-     * Check that code verifier is valid
-     * <a href="https://tools.ietf.org/html/rfc7636#section-4.2"></a>
+     * Check that code verifier is valid <a
+     * href="https://tools.ietf.org/html/rfc7636#section-4.2"></a>
      *
      * @param codeVerifier Code verifier to validate
      * @return
@@ -63,8 +62,8 @@ public final class PKCEUtils {
     }
 
     /**
-     * This method generate an S256 code challenge from the given code verifier.
-     * <a href="https://tools.ietf.org/html/rfc7636#section-4.6"></a>
+     * This method generate an S256 code challenge from the given code verifier. <a
+     * href="https://tools.ietf.org/html/rfc7636#section-4.6"></a>
      *
      * @param codeVerifier
      * @return
@@ -72,6 +71,8 @@ public final class PKCEUtils {
      */
     public static String getS256CodeChallenge(String codeVerifier) throws Exception {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(md.digest(codeVerifier.getBytes()));
+        return Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(md.digest(codeVerifier.getBytes()));
     }
 }

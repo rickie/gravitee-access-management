@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.common.utils;
@@ -131,13 +129,13 @@ public interface ConstantKeys {
     String REQUEST_URI_ID_KEY = "requestUriId";
     String REQUEST_OBJECT_FROM_URI = "request-object-from-uri";
 
-    //geoip
+    // geoip
     String GEOIP_KEY = "geoip";
 
-    //login attempts
+    // login attempts
     String LOGIN_ATTEMPT_KEY = "login_attempts";
 
-    //remember device
+    // remember device
     String DEVICE_ALREADY_EXISTS_KEY = "deviceAlreadyExists";
     String REMEMBER_DEVICE_CONSENT_TIME_SECONDS = "rememberDeviceConsentTimeSeconds";
     long DEFAULT_REMEMBER_DEVICE_CONSENT_TIME = 10 * 60 * 60; // 10 hours
@@ -150,7 +148,8 @@ public interface ConstantKeys {
 
     // Header name that will contain the Peer Certificate
     String HTTP_SSL_CERTIFICATE_HEADER = "http.ssl.certificateHeader";
-    // Base Url for mtls_endpoint_aliases on which the domain HRID and the oauth endpoints will be appended
+    // Base Url for mtls_endpoint_aliases on which the domain HRID and the oauth endpoints will be
+    // appended
     String HTTP_SSL_ALIASES_BASE_URL = "http.ssl.mtls_aliases.base_url";
     String HTTP_SSL_ALIASES_ENDPOINTS = "http.ssl.mtls_aliases.endpoints";
     String HTTP_SSL_ALIASES_ENDPOINTS_TOKEN = "token_endpoint";
@@ -167,7 +166,7 @@ public interface ConstantKeys {
 
     String CSP_SCRIPT_INLINE_NONCE = "script_inline_nonce";
 
-    //User Activity
+    // User Activity
     String USER_CONSENT_IP_LOCATION = "uc_geoip";
     String USER_CONSENT_USER_AGENT = "uc_ua";
     String USER_ACTIVITY_RETENTION_TIME = "user_activity_retention_time";
@@ -192,12 +191,9 @@ public interface ConstantKeys {
     String TEMPLATE_KEY_RECOVERY_CODES_KEY = "recoveryCodes";
     String TEMPLATE_KEY_RECOVERY_CODES_URL_KEY = "recoveryCodeURL";
 
-
-
     // entry into the io.gravitee.am.model.AuthenticationFlowContext to get access to the
     // content of the OAuth2 parameters retrieved using PAR
     String REQUEST_PARAMETERS_KEY = "requestParameters";
-
 
     String ALLOW_REGISTER_CONTEXT_KEY = "allowRegister";
     String ALLOW_PASSWORDLESS_CONTEXT_KEY = "allowPasswordless";

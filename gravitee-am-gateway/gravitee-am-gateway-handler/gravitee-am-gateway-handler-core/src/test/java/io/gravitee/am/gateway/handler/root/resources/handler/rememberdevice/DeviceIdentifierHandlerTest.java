@@ -1,20 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.gravitee.am.gateway.handler.root.resources.handler.rememberdevice;
+
+import static io.gravitee.am.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.DEVICE_ALREADY_EXISTS_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.DEVICE_ID;
+import static io.gravitee.am.common.utils.ConstantKeys.DEVICE_TYPE;
+import static io.gravitee.am.common.utils.ConstantKeys.USER_CONTEXT_KEY;
+
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.gateway.handler.root.resources.handler.dummies.SpyRoutingContext;
 import io.gravitee.am.model.Domain;
@@ -25,6 +30,7 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.service.DeviceService;
 import io.reactivex.Single;
 import io.vertx.core.http.HttpMethod;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,13 +38,6 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.UUID;
-
-import static io.gravitee.am.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.DEVICE_ALREADY_EXISTS_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.DEVICE_ID;
-import static io.gravitee.am.common.utils.ConstantKeys.DEVICE_TYPE;
-import static io.gravitee.am.common.utils.ConstantKeys.USER_CONTEXT_KEY;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Rémi SULTAN (remi.sultan at graviteesource.com)
@@ -79,7 +78,8 @@ public class DeviceIdentifierHandlerTest {
 
         Assert.assertNull(spyRoutingContext.get(DEVICE_ALREADY_EXISTS_KEY));
         verify(spyRoutingContext, times(1)).next();
-        verify(deviceService, times(0)).deviceExists(anyString(), anyString(), anyString(), anyString(), anyString());
+        verify(deviceService, times(0))
+                .deviceExists(anyString(), anyString(), anyString(), anyString(), anyString());
     }
 
     @Test
@@ -94,7 +94,8 @@ public class DeviceIdentifierHandlerTest {
 
         Assert.assertNull(spyRoutingContext.get(DEVICE_ALREADY_EXISTS_KEY));
         verify(spyRoutingContext, times(1)).next();
-        verify(deviceService, times(0)).deviceExists(anyString(), anyString(), anyString(), anyString(), anyString());
+        verify(deviceService, times(0))
+                .deviceExists(anyString(), anyString(), anyString(), anyString(), anyString());
     }
 
     @Test
@@ -110,7 +111,8 @@ public class DeviceIdentifierHandlerTest {
 
         Assert.assertNull(spyRoutingContext.get(DEVICE_ALREADY_EXISTS_KEY));
         verify(spyRoutingContext, times(1)).next();
-        verify(deviceService, times(0)).deviceExists(anyString(), anyString(), anyString(), anyString(), anyString());
+        verify(deviceService, times(0))
+                .deviceExists(anyString(), anyString(), anyString(), anyString(), anyString());
     }
 
     @Test
@@ -126,7 +128,8 @@ public class DeviceIdentifierHandlerTest {
 
         Assert.assertNull(spyRoutingContext.get(DEVICE_ALREADY_EXISTS_KEY));
         verify(spyRoutingContext, times(1)).next();
-        verify(deviceService, times(0)).deviceExists(anyString(), anyString(), anyString(), anyString(), anyString());
+        verify(deviceService, times(0))
+                .deviceExists(anyString(), anyString(), anyString(), anyString(), anyString());
     }
 
     @Test
@@ -143,7 +146,8 @@ public class DeviceIdentifierHandlerTest {
 
         Assert.assertNull(spyRoutingContext.get(DEVICE_ALREADY_EXISTS_KEY));
         verify(spyRoutingContext, times(1)).next();
-        verify(deviceService, times(0)).deviceExists(anyString(), anyString(), anyString(), anyString(), anyString());
+        verify(deviceService, times(0))
+                .deviceExists(anyString(), anyString(), anyString(), anyString(), anyString());
     }
 
     @Test
@@ -164,7 +168,8 @@ public class DeviceIdentifierHandlerTest {
 
         Assert.assertNull(spyRoutingContext.get(DEVICE_ALREADY_EXISTS_KEY));
         verify(spyRoutingContext, times(1)).next();
-        verify(deviceService, times(0)).deviceExists(anyString(), anyString(), anyString(), anyString(), anyString());
+        verify(deviceService, times(0))
+                .deviceExists(anyString(), anyString(), anyString(), anyString(), anyString());
     }
 
     @Test
@@ -182,7 +187,9 @@ public class DeviceIdentifierHandlerTest {
         spyRoutingContext.put(USER_CONTEXT_KEY, user);
         spyRoutingContext.putParam(DEVICE_ID, "deviceId");
 
-        doReturn(Single.just(false)).when(deviceService).deviceExists(anyString(), anyString(), anyString(), anyString(), anyString());
+        doReturn(Single.just(false))
+                .when(deviceService)
+                .deviceExists(anyString(), anyString(), anyString(), anyString(), anyString());
         handler.handle(spyRoutingContext);
 
         Assert.assertTrue(spyRoutingContext.session().get(DEVICE_ALREADY_EXISTS_KEY));
@@ -205,7 +212,9 @@ public class DeviceIdentifierHandlerTest {
         spyRoutingContext.putParam(DEVICE_ID, "deviceId2");
         spyRoutingContext.putParam(DEVICE_TYPE, "deviceType");
 
-        doReturn(Single.just(true)).when(deviceService).deviceExists(anyString(), anyString(), anyString(), anyString(), anyString());
+        doReturn(Single.just(true))
+                .when(deviceService)
+                .deviceExists(anyString(), anyString(), anyString(), anyString(), anyString());
         handler.handle(spyRoutingContext);
 
         Assert.assertFalse(spyRoutingContext.session().get(DEVICE_ALREADY_EXISTS_KEY));

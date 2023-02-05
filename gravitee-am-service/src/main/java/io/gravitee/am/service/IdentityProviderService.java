@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
@@ -44,17 +42,36 @@ public interface IdentityProviderService {
 
     Flowable<IdentityProvider> findByDomain(String domain);
 
-    Single<IdentityProvider> create(ReferenceType referenceType, String referenceId, NewIdentityProvider newIdentityProvider, User principal, boolean system);
+    Single<IdentityProvider> create(
+            ReferenceType referenceType,
+            String referenceId,
+            NewIdentityProvider newIdentityProvider,
+            User principal,
+            boolean system);
 
-    Single<IdentityProvider> update(ReferenceType referenceType, String referenceId, String id, UpdateIdentityProvider updateIdentityProvider, User principal, boolean isUpgrader);
+    Single<IdentityProvider> update(
+            ReferenceType referenceType,
+            String referenceId,
+            String id,
+            UpdateIdentityProvider updateIdentityProvider,
+            User principal,
+            boolean isUpgrader);
 
-    Completable delete(ReferenceType referenceType, String referenceId, String identityProviderId, User principal);
+    Completable delete(
+            ReferenceType referenceType,
+            String referenceId,
+            String identityProviderId,
+            User principal);
 
     default Single<IdentityProvider> create(String domain, NewIdentityProvider identityProvider) {
         return create(domain, identityProvider, null);
     }
 
-    default Single<IdentityProvider> update(String domain, String id, UpdateIdentityProvider updateIdentityProvider, boolean isUpgrader) {
+    default Single<IdentityProvider> update(
+            String domain,
+            String id,
+            UpdateIdentityProvider updateIdentityProvider,
+            boolean isUpgrader) {
         return update(domain, id, updateIdentityProvider, null, isUpgrader);
     }
 
@@ -62,12 +79,19 @@ public interface IdentityProviderService {
         return delete(domain, identityProviderId, null);
     }
 
-    default Single<IdentityProvider> create(String domain, NewIdentityProvider identityProvider, User principal) {
+    default Single<IdentityProvider> create(
+            String domain, NewIdentityProvider identityProvider, User principal) {
         return create(ReferenceType.DOMAIN, domain, identityProvider, principal, false);
     }
 
-    default Single<IdentityProvider> update(String domain, String id, UpdateIdentityProvider updateIdentityProvider, User principal, boolean isUpgrader) {
-        return update(ReferenceType.DOMAIN, domain, id, updateIdentityProvider, principal, isUpgrader);
+    default Single<IdentityProvider> update(
+            String domain,
+            String id,
+            UpdateIdentityProvider updateIdentityProvider,
+            User principal,
+            boolean isUpgrader) {
+        return update(
+                ReferenceType.DOMAIN, domain, id, updateIdentityProvider, principal, isUpgrader);
     }
 
     default Completable delete(String domain, String identityProviderId, User principal) {

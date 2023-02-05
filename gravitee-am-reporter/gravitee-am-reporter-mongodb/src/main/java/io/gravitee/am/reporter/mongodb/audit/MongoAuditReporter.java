@@ -1,19 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.reporter.mongodb.audit;
+
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.gte;
+import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.lte;
+import static com.mongodb.client.model.Filters.or;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.model.Accumulators;
@@ -23,6 +28,7 @@ import com.mongodb.client.model.InsertOneModel;
 import com.mongodb.client.model.WriteModel;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.common.analytics.Type;
 import io.gravitee.am.common.audit.Status;
 import io.gravitee.am.model.ReferenceType;
@@ -49,6 +55,7 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.processors.PublishProcessor;
+
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
@@ -69,13 +76,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.gte;
-import static com.mongodb.client.model.Filters.in;
-import static com.mongodb.client.model.Filters.lte;
-import static com.mongodb.client.model.Filters.or;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -99,19 +99,24 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
     private static final String INDEX_REFERENCE_TYPE_TIMESTAMP_NAME = "ref_1_type_1_time_-1";
     private static final String INDEX_REFERENCE_ACTOR_TIMESTAMP_NAME = "ref_1_actor_1_time_-1";
     private static final String INDEX_REFERENCE_TARGET_TIMESTAMP_NAME = "ref_1_target_1_time_-1";
-    private static final String INDEX_REFERENCE_ACTOR_TARGET_TIMESTAMP_NAME = "ref_1_actor_1_target_1_time_-1";
-    private static final String INDEX_REFERENCE_ACTOR_ID_TARGET_ID_TIMESTAMP_NAME = "ref_1_actorId_1_targetId_1_time_-1";
-    private static final String OLD_INDEX_REFERENCE_TIMESTAMP_NAME = "referenceType_1_referenceId_1_timestamp_-1";
-    private static final String OLD_INDEX_REFERENCE_TYPE_TIMESTAMP_NAME = "referenceType_1_referenceId_1_type_1_timestamp_-1";
-    private static final String OLD_INDEX_REFERENCE_ACTOR_TIMESTAMP_NAME = "referenceType_1_referenceId_1_actor.alternativeId_1_timestamp_-1";
-    private static final String OLD_INDEX_REFERENCE_TARGET_TIMESTAMP_NAME = "referenceType_1_referenceId_1_target.alternativeId_1_timestamp_-1";
-    private static final String OLD_INDEX_REFERENCE_ACTOR_TARGET_TIMESTAMP_NAME = "referenceType_1_referenceId_1_actor.alternativeId_1_target.alternativeId_1_timestamp_-1";
+    private static final String INDEX_REFERENCE_ACTOR_TARGET_TIMESTAMP_NAME =
+            "ref_1_actor_1_target_1_time_-1";
+    private static final String INDEX_REFERENCE_ACTOR_ID_TARGET_ID_TIMESTAMP_NAME =
+            "ref_1_actorId_1_targetId_1_time_-1";
+    private static final String OLD_INDEX_REFERENCE_TIMESTAMP_NAME =
+            "referenceType_1_referenceId_1_timestamp_-1";
+    private static final String OLD_INDEX_REFERENCE_TYPE_TIMESTAMP_NAME =
+            "referenceType_1_referenceId_1_type_1_timestamp_-1";
+    private static final String OLD_INDEX_REFERENCE_ACTOR_TIMESTAMP_NAME =
+            "referenceType_1_referenceId_1_actor.alternativeId_1_timestamp_-1";
+    private static final String OLD_INDEX_REFERENCE_TARGET_TIMESTAMP_NAME =
+            "referenceType_1_referenceId_1_target.alternativeId_1_timestamp_-1";
+    private static final String OLD_INDEX_REFERENCE_ACTOR_TARGET_TIMESTAMP_NAME =
+            "referenceType_1_referenceId_1_actor.alternativeId_1_target.alternativeId_1_timestamp_-1";
 
-    @Autowired
-    private ConnectionProvider connectionProvider;
+    @Autowired private ConnectionProvider connectionProvider;
 
-    @Autowired
-    private MongoReporterConfiguration configuration;
+    @Autowired private MongoReporterConfiguration configuration;
 
     @Value("${management.mongodb.ensureIndexOnStart:true}")
     private boolean ensureIndexOnStart;
@@ -128,19 +133,41 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
     public boolean canSearch() {
         return true;
     }
+
     @Override
-    public Single<Page<Audit>> search(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
+    public Single<Page<Audit>> search(
+            ReferenceType referenceType,
+            String referenceId,
+            AuditReportableCriteria criteria,
+            int page,
+            int size) {
         // build query
         Bson query = query(referenceType, referenceId, criteria);
 
         // run search query
-        Single<Long> countOperation = Observable.fromPublisher(reportableCollection.countDocuments(query)).first(0l);
-        Single<List<Audit>> auditsOperation = Observable.fromPublisher(reportableCollection.find(query).sort(new BasicDBObject(FIELD_TIMESTAMP, -1)).skip(size * page).limit(size)).map(this::convert).collect(LinkedList::new, List::add);
-        return Single.zip(countOperation, auditsOperation, (count, audits) -> new Page<>(audits, page, count));
+        Single<Long> countOperation =
+                Observable.fromPublisher(reportableCollection.countDocuments(query)).first(0l);
+        Single<List<Audit>> auditsOperation =
+                Observable.fromPublisher(
+                                reportableCollection
+                                        .find(query)
+                                        .sort(new BasicDBObject(FIELD_TIMESTAMP, -1))
+                                        .skip(size * page)
+                                        .limit(size))
+                        .map(this::convert)
+                        .collect(LinkedList::new, List::add);
+        return Single.zip(
+                countOperation,
+                auditsOperation,
+                (count, audits) -> new Page<>(audits, page, count));
     }
 
     @Override
-    public Single<Map<Object, Object>> aggregate(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, Type analyticsType) {
+    public Single<Map<Object, Object>> aggregate(
+            ReferenceType referenceType,
+            String referenceId,
+            AuditReportableCriteria criteria,
+            Type analyticsType) {
         // build query
         Bson query = query(referenceType, referenceId, criteria);
         switch (analyticsType) {
@@ -151,19 +178,29 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
             case COUNT:
                 return executeCount(query);
             default:
-                return Single.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated"));
+                return Single.error(
+                        new IllegalArgumentException(
+                                "Analytics [" + analyticsType + "] cannot be calculated"));
         }
     }
 
     @Override
     public Maybe<Audit> findById(ReferenceType referenceType, String referenceId, String id) {
-        return Observable.fromPublisher(reportableCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first()).firstElement().map(this::convert);
+        return Observable.fromPublisher(
+                        reportableCollection
+                                .find(
+                                        and(
+                                                eq(FIELD_REFERENCE_TYPE, referenceType.name()),
+                                                eq(FIELD_REFERENCE_ID, referenceId),
+                                                eq(FIELD_ID, id)))
+                                .first())
+                .firstElement()
+                .map(this::convert);
     }
 
     @Override
     public void report(Reportable reportable) {
-        bulkProcessor
-                .onNext((Audit) reportable);
+        bulkProcessor.onNext((Audit) reportable);
     }
 
     @Override
@@ -171,19 +208,30 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
         this.clientWrapper = this.connectionProvider.getClientWrapper();
 
         // init reportable collection
-        reportableCollection = this.clientWrapper.getClient().getDatabase(this.configuration.getDatabase()).getCollection(this.configuration.getReportableCollection(), AuditMongo.class);
+        reportableCollection =
+                this.clientWrapper
+                        .getClient()
+                        .getDatabase(this.configuration.getDatabase())
+                        .getCollection(
+                                this.configuration.getReportableCollection(), AuditMongo.class);
 
         // init indexes
         initIndexes();
 
         // init bulk processor
-        disposable = bulkProcessor.buffer(
-                configuration.getFlushInterval(),
-                TimeUnit.SECONDS,
-                configuration.getBulkActions())
-                .flatMap(this::bulk)
-                .doOnError(throwable -> logger.error("An error occurs while indexing data into MongoDB", throwable))
-                .subscribe();
+        disposable =
+                bulkProcessor
+                        .buffer(
+                                configuration.getFlushInterval(),
+                                TimeUnit.SECONDS,
+                                configuration.getBulkActions())
+                        .flatMap(this::bulk)
+                        .doOnError(
+                                throwable ->
+                                        logger.error(
+                                                "An error occurs while indexing data into MongoDB",
+                                                throwable))
+                        .subscribe();
     }
 
     @Override
@@ -212,100 +260,224 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
 
     private void initIndexes() {
         if (ensureIndexOnStart) {
-            List<String> oldIndexNames = Arrays.asList(
-                    OLD_INDEX_REFERENCE_TIMESTAMP_NAME,
-                    OLD_INDEX_REFERENCE_TYPE_TIMESTAMP_NAME,
-                    OLD_INDEX_REFERENCE_ACTOR_TIMESTAMP_NAME,
-                    OLD_INDEX_REFERENCE_TARGET_TIMESTAMP_NAME,
-                    OLD_INDEX_REFERENCE_ACTOR_TARGET_TIMESTAMP_NAME
-            );
+            List<String> oldIndexNames =
+                    Arrays.asList(
+                            OLD_INDEX_REFERENCE_TIMESTAMP_NAME,
+                            OLD_INDEX_REFERENCE_TYPE_TIMESTAMP_NAME,
+                            OLD_INDEX_REFERENCE_ACTOR_TIMESTAMP_NAME,
+                            OLD_INDEX_REFERENCE_TARGET_TIMESTAMP_NAME,
+                            OLD_INDEX_REFERENCE_ACTOR_TARGET_TIMESTAMP_NAME);
             // drop old indexes
             // see : https://github.com/gravitee-io/issues/issues/7136
-            Completable deleteOldIndexes = Observable.fromPublisher(reportableCollection.listIndexes())
-                    .map(document -> document.getString("name"))
-                    .flatMapCompletable(indexName -> {
-                        if (oldIndexNames.contains(indexName)) {
-                            return Completable.fromPublisher(reportableCollection.dropIndex(indexName));
-                        } else {
-                            return Completable.complete();
-                        }
-                    });
+            Completable deleteOldIndexes =
+                    Observable.fromPublisher(reportableCollection.listIndexes())
+                            .map(document -> document.getString("name"))
+                            .flatMapCompletable(
+                                    indexName -> {
+                                        if (oldIndexNames.contains(indexName)) {
+                                            return Completable.fromPublisher(
+                                                    reportableCollection.dropIndex(indexName));
+                                        } else {
+                                            return Completable.complete();
+                                        }
+                                    });
 
             // create new indexes
             Map<Document, IndexOptions> indexes = new HashMap<>();
-            indexes.put(new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_TIMESTAMP, -1), new IndexOptions().name(INDEX_REFERENCE_TIMESTAMP_NAME));
-            indexes.put(new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_TYPE, 1).append(FIELD_TIMESTAMP, -1), new IndexOptions().name(INDEX_REFERENCE_TYPE_TIMESTAMP_NAME));
-            indexes.put(new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_ACTOR, 1).append(FIELD_TIMESTAMP, -1), new IndexOptions().name(INDEX_REFERENCE_ACTOR_TIMESTAMP_NAME));
-            indexes.put(new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_TARGET, 1).append(FIELD_TIMESTAMP, -1), new IndexOptions().name(INDEX_REFERENCE_TARGET_TIMESTAMP_NAME));
-            indexes.put(new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_ACTOR, 1).append(FIELD_TARGET, 1).append(FIELD_TIMESTAMP, -1), new IndexOptions().name(INDEX_REFERENCE_ACTOR_TARGET_TIMESTAMP_NAME));
-            indexes.put(new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_ACTOR_ID, 1).append(FIELD_TARGET_ID, 1).append(FIELD_TIMESTAMP, -1), new IndexOptions().name(INDEX_REFERENCE_ACTOR_ID_TARGET_ID_TIMESTAMP_NAME));
-            Completable createNewIndexes = Observable.fromIterable(indexes.entrySet())
-                    .flatMapCompletable(index -> Completable.fromPublisher(reportableCollection.createIndex(index.getKey(), index.getValue()))
-                            .doOnComplete(() -> logger.debug("Created an index named: {}", index.getValue().getName()))
-                            .doOnError(throwable -> logger.error("An error has occurred during creation of index {}", index.getValue().getName(), throwable)));
+            indexes.put(
+                    new Document(FIELD_REFERENCE_TYPE, 1)
+                            .append(FIELD_REFERENCE_ID, 1)
+                            .append(FIELD_TIMESTAMP, -1),
+                    new IndexOptions().name(INDEX_REFERENCE_TIMESTAMP_NAME));
+            indexes.put(
+                    new Document(FIELD_REFERENCE_TYPE, 1)
+                            .append(FIELD_REFERENCE_ID, 1)
+                            .append(FIELD_TYPE, 1)
+                            .append(FIELD_TIMESTAMP, -1),
+                    new IndexOptions().name(INDEX_REFERENCE_TYPE_TIMESTAMP_NAME));
+            indexes.put(
+                    new Document(FIELD_REFERENCE_TYPE, 1)
+                            .append(FIELD_REFERENCE_ID, 1)
+                            .append(FIELD_ACTOR, 1)
+                            .append(FIELD_TIMESTAMP, -1),
+                    new IndexOptions().name(INDEX_REFERENCE_ACTOR_TIMESTAMP_NAME));
+            indexes.put(
+                    new Document(FIELD_REFERENCE_TYPE, 1)
+                            .append(FIELD_REFERENCE_ID, 1)
+                            .append(FIELD_TARGET, 1)
+                            .append(FIELD_TIMESTAMP, -1),
+                    new IndexOptions().name(INDEX_REFERENCE_TARGET_TIMESTAMP_NAME));
+            indexes.put(
+                    new Document(FIELD_REFERENCE_TYPE, 1)
+                            .append(FIELD_REFERENCE_ID, 1)
+                            .append(FIELD_ACTOR, 1)
+                            .append(FIELD_TARGET, 1)
+                            .append(FIELD_TIMESTAMP, -1),
+                    new IndexOptions().name(INDEX_REFERENCE_ACTOR_TARGET_TIMESTAMP_NAME));
+            indexes.put(
+                    new Document(FIELD_REFERENCE_TYPE, 1)
+                            .append(FIELD_REFERENCE_ID, 1)
+                            .append(FIELD_ACTOR_ID, 1)
+                            .append(FIELD_TARGET_ID, 1)
+                            .append(FIELD_TIMESTAMP, -1),
+                    new IndexOptions().name(INDEX_REFERENCE_ACTOR_ID_TARGET_ID_TIMESTAMP_NAME));
+            Completable createNewIndexes =
+                    Observable.fromIterable(indexes.entrySet())
+                            .flatMapCompletable(
+                                    index ->
+                                            Completable.fromPublisher(
+                                                            reportableCollection.createIndex(
+                                                                    index.getKey(),
+                                                                    index.getValue()))
+                                                    .doOnComplete(
+                                                            () ->
+                                                                    logger.debug(
+                                                                            "Created an index named: {}",
+                                                                            index.getValue()
+                                                                                    .getName()))
+                                                    .doOnError(
+                                                            throwable ->
+                                                                    logger.error(
+                                                                            "An error has occurred during creation of index {}",
+                                                                            index.getValue()
+                                                                                    .getName(),
+                                                                            throwable)));
 
             // process indexes
-            deleteOldIndexes
-                    .andThen(createNewIndexes)
-                    .subscribe();
-
+            deleteOldIndexes.andThen(createNewIndexes).subscribe();
         }
     }
 
-    private Single<Map<Object, Object>> executeHistogram(AuditReportableCriteria criteria, Bson query) {
-        // NOTE : MongoDB does not return count : 0 if there is no matching document in the given time range, we need to add it by hand
+    private Single<Map<Object, Object>> executeHistogram(
+            AuditReportableCriteria criteria, Bson query) {
+        // NOTE : MongoDB does not return count : 0 if there is no matching document in the given
+        // time range, we need to add it by hand
         Map<Long, Long> intervals = intervals(criteria);
         String fieldSuccess = (criteria.types().get(0) + "_" + Status.SUCCESS).toLowerCase();
         String fieldFailure = (criteria.types().get(0) + "_" + Status.FAILURE).toLowerCase();
-        return Observable.fromPublisher(reportableCollection.aggregate(Arrays.asList(
-                Aggregates.match(query),
-                Aggregates.group(
-                        new BasicDBObject("_id",
-                                new BasicDBObject("$subtract",
-                                        Arrays.asList(
-                                                new BasicDBObject("$subtract", Arrays.asList("$timestamp", new Date(0))),
-                                                new BasicDBObject("$mod", Arrays.asList(new BasicDBObject("$subtract", Arrays.asList("$timestamp", new Date(0))), criteria.interval()))
-                                        ))),
-                        Accumulators.sum(fieldSuccess, new BasicDBObject("$cond", Arrays.asList(new BasicDBObject("$eq", Arrays.asList("$outcome.status", Status.SUCCESS)), 1, 0))),
-                        Accumulators.sum(fieldFailure, new BasicDBObject("$cond", Arrays.asList(new BasicDBObject("$eq", Arrays.asList("$outcome.status", Status.FAILURE)), 1, 0))))), Document.class))
+        return Observable.fromPublisher(
+                        reportableCollection.aggregate(
+                                Arrays.asList(
+                                        Aggregates.match(query),
+                                        Aggregates.group(
+                                                new BasicDBObject(
+                                                        "_id",
+                                                        new BasicDBObject(
+                                                                "$subtract",
+                                                                Arrays.asList(
+                                                                        new BasicDBObject(
+                                                                                "$subtract",
+                                                                                Arrays.asList(
+                                                                                        "$timestamp",
+                                                                                        new Date(
+                                                                                                0))),
+                                                                        new BasicDBObject(
+                                                                                "$mod",
+                                                                                Arrays.asList(
+                                                                                        new BasicDBObject(
+                                                                                                "$subtract",
+                                                                                                Arrays
+                                                                                                        .asList(
+                                                                                                                "$timestamp",
+                                                                                                                new Date(
+                                                                                                                        0))),
+                                                                                        criteria
+                                                                                                .interval()))))),
+                                                Accumulators.sum(
+                                                        fieldSuccess,
+                                                        new BasicDBObject(
+                                                                "$cond",
+                                                                Arrays.asList(
+                                                                        new BasicDBObject(
+                                                                                "$eq",
+                                                                                Arrays.asList(
+                                                                                        "$outcome.status",
+                                                                                        Status
+                                                                                                .SUCCESS)),
+                                                                        1,
+                                                                        0))),
+                                                Accumulators.sum(
+                                                        fieldFailure,
+                                                        new BasicDBObject(
+                                                                "$cond",
+                                                                Arrays.asList(
+                                                                        new BasicDBObject(
+                                                                                "$eq",
+                                                                                Arrays.asList(
+                                                                                        "$outcome.status",
+                                                                                        Status
+                                                                                                .FAILURE)),
+                                                                        1,
+                                                                        0))))),
+                                Document.class))
                 .toList()
-                .map(docs -> {
-                    Map<Long, Long> successResult = new HashMap<>();
-                    Map<Long, Long> failureResult = new HashMap<>();
-                    docs.forEach(document -> {
-                        Long timestamp = ((Number) ((Document) document.get("_id")).get("_id")).longValue();
-                        Long successAttempts = ((Number) document.get(fieldSuccess)).longValue();
-                        Long failureAttempts = ((Number) document.get(fieldFailure)).longValue();
-                        successResult.put(timestamp, successAttempts);
-                        failureResult.put(timestamp, failureAttempts);
-                    });
-                    // complete result with remaining intervals
-                    intervals.forEach((k, v) -> {
-                        successResult.putIfAbsent(k, v);
-                        failureResult.putIfAbsent(k, v);
-                    });
-                    List<Long> successData = successResult.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(e -> e.getValue()).collect(Collectors.toList());
-                    List<Long> failureData = failureResult.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(e -> e.getValue()).collect(Collectors.toList());
-                    Map<Object, Object> result = new HashMap<>();
-                    result.put(fieldSuccess, successData);
-                    result.put(fieldFailure, failureData);
-                    return result;
-                });
+                .map(
+                        docs -> {
+                            Map<Long, Long> successResult = new HashMap<>();
+                            Map<Long, Long> failureResult = new HashMap<>();
+                            docs.forEach(
+                                    document -> {
+                                        Long timestamp =
+                                                ((Number)
+                                                                ((Document) document.get("_id"))
+                                                                        .get("_id"))
+                                                        .longValue();
+                                        Long successAttempts =
+                                                ((Number) document.get(fieldSuccess)).longValue();
+                                        Long failureAttempts =
+                                                ((Number) document.get(fieldFailure)).longValue();
+                                        successResult.put(timestamp, successAttempts);
+                                        failureResult.put(timestamp, failureAttempts);
+                                    });
+                            // complete result with remaining intervals
+                            intervals.forEach(
+                                    (k, v) -> {
+                                        successResult.putIfAbsent(k, v);
+                                        failureResult.putIfAbsent(k, v);
+                                    });
+                            List<Long> successData =
+                                    successResult.entrySet().stream()
+                                            .sorted(Map.Entry.comparingByKey())
+                                            .map(e -> e.getValue())
+                                            .collect(Collectors.toList());
+                            List<Long> failureData =
+                                    failureResult.entrySet().stream()
+                                            .sorted(Map.Entry.comparingByKey())
+                                            .map(e -> e.getValue())
+                                            .collect(Collectors.toList());
+                            Map<Object, Object> result = new HashMap<>();
+                            result.put(fieldSuccess, successData);
+                            result.put(fieldFailure, failureData);
+                            return result;
+                        });
     }
 
-    private Single<Map<Object, Object>> executeGroupBy(AuditReportableCriteria criteria, Bson query) {
-        return Observable.fromPublisher(reportableCollection.aggregate(
-                Arrays.asList(
-                        Aggregates.match(query),
-                        Aggregates.group(new BasicDBObject("_id", "$" + criteria.field()), Accumulators.sum("count", 1)),
-                        Aggregates.limit(criteria.size() != null ? criteria.size() : 50)), Document.class
-        ))
+    private Single<Map<Object, Object>> executeGroupBy(
+            AuditReportableCriteria criteria, Bson query) {
+        return Observable.fromPublisher(
+                        reportableCollection.aggregate(
+                                Arrays.asList(
+                                        Aggregates.match(query),
+                                        Aggregates.group(
+                                                new BasicDBObject("_id", "$" + criteria.field()),
+                                                Accumulators.sum("count", 1)),
+                                        Aggregates.limit(
+                                                criteria.size() != null ? criteria.size() : 50)),
+                                Document.class))
                 .toList()
-                .map(docs -> docs.stream().collect(Collectors.toMap(d -> ((Document) d.get("_id")).get("_id"), d -> d.get("count"))));
+                .map(
+                        docs ->
+                                docs.stream()
+                                        .collect(
+                                                Collectors.toMap(
+                                                        d -> ((Document) d.get("_id")).get("_id"),
+                                                        d -> d.get("count"))));
     }
 
     private Single<Map<Object, Object>> executeCount(Bson query) {
-        return Observable.fromPublisher(reportableCollection.countDocuments(query)).first(0l).map(data -> Collections.singletonMap("data", data));
+        return Observable.fromPublisher(reportableCollection.countDocuments(query))
+                .first(0l)
+                .map(data -> Collections.singletonMap("data", data));
     }
 
     private Flowable bulk(List<Audit> audits) {
@@ -316,10 +488,14 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
         return Flowable.fromPublisher(reportableCollection.bulkWrite(this.convert(audits)));
     }
 
-    private Bson query(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
+    private Bson query(
+            ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
         List<Bson> filters = new ArrayList<>();
 
-        filters.add(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)));
+        filters.add(
+                and(
+                        eq(FIELD_REFERENCE_TYPE, referenceType.name()),
+                        eq(FIELD_REFERENCE_ID, referenceId)));
 
         // event types
         if (criteria.types() != null && !criteria.types().isEmpty()) {
@@ -338,12 +514,19 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
 
         // event user technical ID
         if (criteria.userId() != null && !criteria.userId().isEmpty()) {
-            filters.add(or(eq(FIELD_ACTOR_ID, criteria.userId()), eq(FIELD_TARGET_ID, criteria.userId())));
+            filters.add(
+                    or(
+                            eq(FIELD_ACTOR_ID, criteria.userId()),
+                            eq(FIELD_TARGET_ID, criteria.userId())));
         }
 
         // time range
         if (criteria.from() != 0 && criteria.to() != 0) {
-            filters.add(new Document(FIELD_TIMESTAMP, new Document("$gte", new Date(criteria.from())).append("$lte", new Date(criteria.to()))));
+            filters.add(
+                    new Document(
+                            FIELD_TIMESTAMP,
+                            new Document("$gte", new Date(criteria.from()))
+                                    .append("$lte", new Date(criteria.to()))));
         } else {
             if (criteria.from() != 0) {
                 filters.add(gte(FIELD_TIMESTAMP, new Date(criteria.from())));
@@ -363,7 +546,9 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
     }
 
     private List<WriteModel<AuditMongo>> convert(List<Audit> audits) {
-        return audits.stream().map(audit -> new InsertOneModel<>(convert(audit))).collect(Collectors.toList());
+        return audits.stream()
+                .map(audit -> new InsertOneModel<>(convert(audit)))
+                .collect(Collectors.toList());
     }
 
     private AuditMongo convert(Audit audit) {
@@ -383,7 +568,8 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
             actorMongo.setAlternativeId(actor.getAlternativeId());
             actorMongo.setType(actor.getType());
             actorMongo.setDisplayName(actor.getDisplayName());
-            actorMongo.setReferenceType(actor.getReferenceType() != null ? actor.getReferenceType().name() : null);
+            actorMongo.setReferenceType(
+                    actor.getReferenceType() != null ? actor.getReferenceType().name() : null);
             actorMongo.setReferenceId(actor.getReferenceId());
             auditMongo.setActor(actorMongo);
         }
@@ -408,7 +594,8 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
             targetMongo.setType(target.getType());
             targetMongo.setAlternativeId(target.getAlternativeId());
             targetMongo.setDisplayName(target.getDisplayName());
-            targetMongo.setReferenceType(target.getReferenceType() != null ? target.getReferenceType().name() : null);
+            targetMongo.setReferenceType(
+                    target.getReferenceType() != null ? target.getReferenceType().name() : null);
             targetMongo.setReferenceId(target.getReferenceId());
             auditMongo.setTarget(targetMongo);
         }
@@ -441,7 +628,10 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
             actor.setAlternativeId(actorMongo.getAlternativeId());
             actor.setType(actorMongo.getType());
             actor.setDisplayName(actorMongo.getDisplayName());
-            actor.setReferenceType(actorMongo.getReferenceType() != null ? ReferenceType.valueOf(actorMongo.getReferenceType()) : null);
+            actor.setReferenceType(
+                    actorMongo.getReferenceType() != null
+                            ? ReferenceType.valueOf(actorMongo.getReferenceType())
+                            : null);
             actor.setReferenceId(actorMongo.getReferenceId());
             audit.setActor(actor);
         }
@@ -466,7 +656,10 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
             target.setType(targetMongo.getType());
             target.setAlternativeId(targetMongo.getAlternativeId());
             target.setDisplayName(targetMongo.getDisplayName());
-            target.setReferenceType(targetMongo.getReferenceType() != null ? ReferenceType.valueOf(targetMongo.getReferenceType()) : null);
+            target.setReferenceType(
+                    targetMongo.getReferenceType() != null
+                            ? ReferenceType.valueOf(targetMongo.getReferenceType())
+                            : null);
             target.setReferenceId(targetMongo.getReferenceId());
             audit.setTarget(target);
         }
@@ -502,7 +695,8 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
             return ChronoUnit.SECONDS;
         } else if (millisecondsInterval >= 60 * 1000 && millisecondsInterval < 60 * 60 * 1000) {
             return ChronoUnit.MINUTES;
-        } else if (millisecondsInterval >= 60 * 60 * 1000 && millisecondsInterval < 24 * 60 * 60 * 1000) {
+        } else if (millisecondsInterval >= 60 * 60 * 1000
+                && millisecondsInterval < 24 * 60 * 60 * 1000) {
             return ChronoUnit.HOURS;
         } else {
             return ChronoUnit.DAYS;

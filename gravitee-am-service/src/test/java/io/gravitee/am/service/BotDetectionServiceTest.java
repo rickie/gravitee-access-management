@@ -1,21 +1,23 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import com.google.common.collect.Sets;
+
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.BotDetection;
 import io.gravitee.am.model.Domain;
@@ -38,6 +40,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -47,9 +50,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
@@ -57,29 +57,24 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class BotDetectionServiceTest {
 
-    @InjectMocks
-    private BotDetectionService botDetectionService = new BotDetectionServiceImpl();
+    @InjectMocks private BotDetectionService botDetectionService = new BotDetectionServiceImpl();
 
-    @Mock
-    private EventService eventService;
+    @Mock private EventService eventService;
 
-    @Mock
-    private BotDetectionRepository botDetectionRepository;
+    @Mock private BotDetectionRepository botDetectionRepository;
 
-    @Mock
-    private ApplicationService applicationService;
+    @Mock private ApplicationService applicationService;
 
-    @Mock
-    private DomainService domainService;
+    @Mock private DomainService domainService;
 
-    @Mock
-    private AuditService auditService;
+    @Mock private AuditService auditService;
 
-    private final static String DOMAIN = "domain1";
+    private static final String DOMAIN = "domain1";
 
     @Test
     public void shouldFindById() {
-        when(botDetectionRepository.findById("bot-detection")).thenReturn(Maybe.just(new BotDetection()));
+        when(botDetectionRepository.findById("bot-detection"))
+                .thenReturn(Maybe.just(new BotDetection()));
         TestObserver testObserver = botDetectionService.findById("bot-detection").test();
 
         testObserver.awaitTerminalEvent();
@@ -99,7 +94,8 @@ public class BotDetectionServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(botDetectionRepository.findById("bot-detection")).thenReturn(Maybe.error(TechnicalException::new));
+        when(botDetectionRepository.findById("bot-detection"))
+                .thenReturn(Maybe.error(TechnicalException::new));
         TestObserver testObserver = new TestObserver();
         botDetectionService.findById("bot-detection").subscribe(testObserver);
 
@@ -109,8 +105,10 @@ public class BotDetectionServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(botDetectionRepository.findByReference(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(new BotDetection()));
-        TestSubscriber<BotDetection> testSubscriber = botDetectionService.findByDomain(DOMAIN).test();
+        when(botDetectionRepository.findByReference(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.just(new BotDetection()));
+        TestSubscriber<BotDetection> testSubscriber =
+                botDetectionService.findByDomain(DOMAIN).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -120,7 +118,8 @@ public class BotDetectionServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(botDetectionRepository.findByReference(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.error(TechnicalException::new));
+        when(botDetectionRepository.findByReference(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.error(TechnicalException::new));
 
         TestSubscriber testSubscriber = botDetectionService.findByDomain(DOMAIN).test();
 
@@ -132,7 +131,8 @@ public class BotDetectionServiceTest {
     public void shouldCreate() {
         NewBotDetection newBotDetection = Mockito.mock(NewBotDetection.class);
         when(newBotDetection.getDetectionType()).thenReturn(BotDetection.DETECTION_TYPE_CAPTCHA);
-        when(botDetectionRepository.create(any(BotDetection.class))).thenReturn(Single.just(new BotDetection()));
+        when(botDetectionRepository.create(any(BotDetection.class)))
+                .thenReturn(Single.just(new BotDetection()));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
         TestObserver testObserver = botDetectionService.create(DOMAIN, newBotDetection).test();
@@ -150,7 +150,8 @@ public class BotDetectionServiceTest {
     public void shouldCreate_technicalException() {
         NewBotDetection newBotDetection = Mockito.mock(NewBotDetection.class);
         when(newBotDetection.getDetectionType()).thenReturn(BotDetection.DETECTION_TYPE_CAPTCHA);
-        when(botDetectionRepository.create(any())).thenReturn(Single.error(TechnicalException::new));
+        when(botDetectionRepository.create(any()))
+                .thenReturn(Single.error(TechnicalException::new));
 
         TestObserver<BotDetection> testObserver = new TestObserver<>();
         botDetectionService.create(DOMAIN, newBotDetection).subscribe(testObserver);
@@ -166,11 +167,14 @@ public class BotDetectionServiceTest {
     public void shouldUpdate() {
         UpdateBotDetection updateBotDetection = Mockito.mock(UpdateBotDetection.class);
         when(updateBotDetection.getName()).thenReturn("bot-detection");
-        when(botDetectionRepository.findById("bot-detection")).thenReturn(Maybe.just(new BotDetection()));
-        when(botDetectionRepository.update(any(BotDetection.class))).thenReturn(Single.just(new BotDetection()));
+        when(botDetectionRepository.findById("bot-detection"))
+                .thenReturn(Maybe.just(new BotDetection()));
+        when(botDetectionRepository.update(any(BotDetection.class)))
+                .thenReturn(Single.just(new BotDetection()));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = botDetectionService.update(DOMAIN, "bot-detection", updateBotDetection).test();
+        TestObserver testObserver =
+                botDetectionService.update(DOMAIN, "bot-detection", updateBotDetection).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -184,9 +188,11 @@ public class BotDetectionServiceTest {
     @Test
     public void shouldUpdate_technicalException() {
         UpdateBotDetection updateBotDetection = Mockito.mock(UpdateBotDetection.class);
-        when(botDetectionRepository.findById("bot-detection")).thenReturn(Maybe.error(TechnicalException::new));
+        when(botDetectionRepository.findById("bot-detection"))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
-        TestObserver testObserver = botDetectionService.update(DOMAIN, "bot-detection", updateBotDetection).test();
+        TestObserver testObserver =
+                botDetectionService.update(DOMAIN, "bot-detection", updateBotDetection).test();
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
 
@@ -210,7 +216,8 @@ public class BotDetectionServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(botDetectionRepository.findById("bot-detection")).thenReturn(Maybe.error(TechnicalException::new));
+        when(botDetectionRepository.findById("bot-detection"))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
         TestObserver testObserver = botDetectionService.delete(DOMAIN, "bot-detection").test();
 
@@ -227,7 +234,8 @@ public class BotDetectionServiceTest {
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
         final Domain domain = new Domain();
         when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(domain));
-        when(applicationService.findByDomain(DOMAIN)).thenReturn(Single.just(Collections.emptySet()));
+        when(applicationService.findByDomain(DOMAIN))
+                .thenReturn(Single.just(Collections.emptySet()));
 
         TestObserver testObserver = botDetectionService.delete(DOMAIN, detection.getId()).test();
         testObserver.awaitTerminalEvent();

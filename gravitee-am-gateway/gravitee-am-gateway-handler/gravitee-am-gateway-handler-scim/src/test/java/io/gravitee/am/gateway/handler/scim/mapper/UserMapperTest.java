@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.scim.mapper;
+
+import static org.junit.Assert.assertTrue;
 
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.common.oidc.idtoken.Claims;
@@ -21,6 +21,7 @@ import io.gravitee.am.common.scim.Schema;
 import io.gravitee.am.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.scim.model.GraviteeUser;
 import io.gravitee.am.gateway.handler.scim.model.User;
+
 import org.junit.Test;
 
 import java.util.Collections;
@@ -28,8 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -76,13 +75,14 @@ public class UserMapperTest {
     }
 
     private Map<String, Object> standardClaims() {
-        return StandardClaims.claims()
-                .stream()
-                .collect(Collectors.toMap(s -> s, s -> s));
+        return StandardClaims.claims().stream().collect(Collectors.toMap(s -> s, s -> s));
     }
 
     private Map<String, Object> restrictedClaims() {
-        return List.of(Claims.auth_time, ConstantKeys.OIDC_PROVIDER_ID_ACCESS_TOKEN_KEY, ConstantKeys.OIDC_PROVIDER_ID_TOKEN_KEY)
+        return List.of(
+                        Claims.auth_time,
+                        ConstantKeys.OIDC_PROVIDER_ID_ACCESS_TOKEN_KEY,
+                        ConstantKeys.OIDC_PROVIDER_ID_TOKEN_KEY)
                 .stream()
                 .collect(Collectors.toMap(s -> s, s -> s));
     }

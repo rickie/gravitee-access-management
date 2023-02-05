@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.impl;
@@ -21,9 +19,11 @@ import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.util.MultiValueMap;
 import io.gravitee.el.spel.context.SecuredMethodResolver;
 import io.reactivex.Single;
+
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
@@ -48,38 +48,43 @@ public class SpelServiceImpl implements SpelService {
 
     SecuredMethodResolver securedMethodResolver = new SecuredMethodResolver();
 
-    private List<Class> supportedTypes = new ArrayList() {
-        {
-            add(MultiValueMap.class);
-            add(HttpHeaders.class);
-            add(Map.class);
-            add(Boolean.class);
-            add(Integer.class);
-            add(Long.class);
-            add(Math.class);
-            add(Object.class);
-            add(List.class);
-            add(Collection.class);
-            add(Set.class);
-            add(String.class);
-            add(String[].class);
-        }
-    };
+    private List<Class> supportedTypes =
+            new ArrayList() {
+                {
+                    add(MultiValueMap.class);
+                    add(HttpHeaders.class);
+                    add(Map.class);
+                    add(Boolean.class);
+                    add(Integer.class);
+                    add(Long.class);
+                    add(Math.class);
+                    add(Object.class);
+                    add(List.class);
+                    add(Collection.class);
+                    add(Set.class);
+                    add(String.class);
+                    add(String[].class);
+                }
+            };
 
     @Override
     public Single<JSONObject> getGrammar() {
-        return Single.create(emitter -> {
-            try {
-                JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
-                InputStream resourceAsStream = this.getClass().getResourceAsStream(GRAMMAR_PATH);
-                JSONObject parse = (JSONObject) parser.parse(resourceAsStream);
-                Map<String, Object> types = buildTypes();
-                parse.appendField("_types", types);
-                emitter.onSuccess(parse);
-            } catch (ParseException | UnsupportedEncodingException e) {
-                emitter.onError(new TechnicalManagementException("An error has occurred while trying load Spel grammar", e));
-            }
-        });
+        return Single.create(
+                emitter -> {
+                    try {
+                        JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
+                        InputStream resourceAsStream =
+                                this.getClass().getResourceAsStream(GRAMMAR_PATH);
+                        JSONObject parse = (JSONObject) parser.parse(resourceAsStream);
+                        Map<String, Object> types = buildTypes();
+                        parse.appendField("_types", types);
+                        emitter.onSuccess(parse);
+                    } catch (ParseException | UnsupportedEncodingException e) {
+                        emitter.onError(
+                                new TechnicalManagementException(
+                                        "An error has occurred while trying load Spel grammar", e));
+                    }
+                });
     }
 
     private Map<String, Object> buildTypes() {
@@ -91,11 +96,11 @@ public class SpelServiceImpl implements SpelService {
     private Map<String, Object> buildType(Class<?> classz) {
         Map type = new HashMap<>();
 
-        List<Object> methods = Arrays
-            .stream(securedMethodResolver.getMethods(classz))
-            .filter(f -> Modifier.isPublic(f.getModifiers()))
-            .map((Function<Method, Object>) method -> new MethodWrapper(method))
-            .collect(Collectors.toList());
+        List<Object> methods =
+                Arrays.stream(securedMethodResolver.getMethods(classz))
+                        .filter(f -> Modifier.isPublic(f.getModifiers()))
+                        .map((Function<Method, Object>) method -> new MethodWrapper(method))
+                        .collect(Collectors.toList());
         type.put("methods", methods);
         return type;
     }
@@ -105,10 +110,12 @@ public class SpelServiceImpl implements SpelService {
         public MethodWrapper(Method method) {
             this.put("name", method.getName());
             this.put("returnType", method.getReturnType().getSimpleName());
-            List<Object> params = Arrays
-                .stream(method.getParameters())
-                .map((Function<Parameter, Object>) parameter -> new ParameterWrapper(parameter))
-                .collect(Collectors.toList());
+            List<Object> params =
+                    Arrays.stream(method.getParameters())
+                            .map(
+                                    (Function<Parameter, Object>)
+                                            parameter -> new ParameterWrapper(parameter))
+                            .collect(Collectors.toList());
             if (params.size() > 0) {
                 this.put("params", params);
             }

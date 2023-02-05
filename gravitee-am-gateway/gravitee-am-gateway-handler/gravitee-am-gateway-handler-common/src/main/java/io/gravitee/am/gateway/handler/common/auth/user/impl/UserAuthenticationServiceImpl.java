@@ -1,19 +1,26 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.auth.user.impl;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
+
+import static io.gravitee.am.common.utils.ConstantKeys.OIDC_PROVIDER_ID_ACCESS_TOKEN_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.OIDC_PROVIDER_ID_TOKEN_KEY;
+import static io.gravitee.am.service.utils.UserProfileUtils.buildDisplayName;
+import static io.gravitee.am.service.utils.UserProfileUtils.hasGeneratedDisplayName;
+
+import static java.util.Optional.ofNullable;
 
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.common.exception.authentication.AccountDisabledException;
@@ -44,6 +51,7 @@ import io.gravitee.gateway.api.Request;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,68 +60,70 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static io.gravitee.am.common.utils.ConstantKeys.OIDC_PROVIDER_ID_ACCESS_TOKEN_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.OIDC_PROVIDER_ID_TOKEN_KEY;
-import static io.gravitee.am.service.utils.UserProfileUtils.buildDisplayName;
-import static io.gravitee.am.service.utils.UserProfileUtils.hasGeneratedDisplayName;
-import static java.util.Optional.ofNullable;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class UserAuthenticationServiceImpl implements UserAuthenticationService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserAuthenticationServiceImpl.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(UserAuthenticationServiceImpl.class);
     private static final String SOURCE_FIELD = "source";
 
-    @Autowired
-    private Domain domain;
+    @Autowired private Domain domain;
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
-    @Autowired
-    private IdentityProviderManager identityProviderManager;
+    @Autowired private IdentityProviderManager identityProviderManager;
 
-    @Autowired
-    private AuditService auditService;
+    @Autowired private AuditService auditService;
 
-    @Autowired
-    private EmailService emailService;
+    @Autowired private EmailService emailService;
 
     @Override
-    public Single<User> connect(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
+    public Single<User> connect(
+            io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
         // save or update the user
         return saveOrUpdate(principal, afterAuthentication)
                 // check account status
-                .flatMap(user -> checkAccountStatus(user)
-                        // and enhance user information
-                        .andThen(Single.defer(() -> userService.enhance(user))));
+                .flatMap(
+                        user ->
+                                checkAccountStatus(user)
+                                        // and enhance user information
+                                        .andThen(Single.defer(() -> userService.enhance(user))));
     }
 
     @Override
     public Single<User> connectPreAuthenticatedUser(String subject) {
-        return userService.findById(subject)
+        return userService
+                .findById(subject)
                 .switchIfEmpty(Single.error(new UserNotFoundException(subject)))
                 // check account status
-                .flatMap(user -> {
-                    if (isIndefinitelyLocked(user)) {
-                        return Single.error(new AccountLockedException("Account is locked for user " + user.getUsername()));
-                    }
-                    if (!user.isEnabled()) {
-                        return Single.error(new AccountDisabledException("Account is disabled for user " + user.getUsername()));
-                    }
-                    return Single.just(user);
-                })
+                .flatMap(
+                        user -> {
+                            if (isIndefinitelyLocked(user)) {
+                                return Single.error(
+                                        new AccountLockedException(
+                                                "Account is locked for user "
+                                                        + user.getUsername()));
+                            }
+                            if (!user.isEnabled()) {
+                                return Single.error(
+                                        new AccountDisabledException(
+                                                "Account is disabled for user "
+                                                        + user.getUsername()));
+                            }
+                            return Single.just(user);
+                        })
                 // update login information
-                .flatMap(user -> {
-                    user.setLoggedAt(new Date());
-                    user.setLoginsCount(user.getLoginsCount() + 1);
-                    return userService.update(user)
-                            .flatMap(user1 -> userService.enhance(user1));
-                });
+                .flatMap(
+                        user -> {
+                            user.setLoggedAt(new Date());
+                            user.setLoginsCount(user.getLoginsCount() + 1);
+                            return userService
+                                    .update(user)
+                                    .flatMap(user1 -> userService.enhance(user1));
+                        });
     }
 
     @Override
@@ -122,43 +132,96 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
         return userService
                 .findById(subject)
                 .switchIfEmpty(Maybe.error(new UserNotFoundException(subject)))
-                .flatMap(user -> isIndefinitelyLocked(user) ?
-                        Maybe.error(new AccountLockedException("User " + user.getUsername() + " is locked")) :
-                        Maybe.just(user)
-                )
-                .flatMap(user -> identityProviderManager.get(user.getSource())
-                        // if the user has been found, try to load user information from its latest identity provider
-                        .flatMap(authenticationProvider -> {
-                            SimpleAuthenticationContext authenticationContext = new SimpleAuthenticationContext(request);
-                            final Authentication authentication = new EndUserAuthentication(user, null, authenticationContext);
-                            return authenticationProvider.loadPreAuthenticatedUser(authentication);
-                        })
-                        .flatMap(idpUser -> {
-                            // retrieve information from the idp user and update the user
-                            Map<String, Object> additionalInformation = idpUser.getAdditionalInformation() == null ? new HashMap<>() : new HashMap<>(idpUser.getAdditionalInformation());
-                            additionalInformation.put(SOURCE_FIELD, user.getSource());
-                            additionalInformation.put(Parameters.CLIENT_ID, user.getClient());
-                            ((DefaultUser) idpUser).setAdditionalInformation(additionalInformation);
-                            return update(user, idpUser, false)
-                                    .flatMap(userService::enhance).toMaybe();
-                        })
-                        // no user has been found in the identity provider, just enhance user information
-                        .switchIfEmpty(Maybe.defer(() -> userService.enhance(user).toMaybe())));
+                .flatMap(
+                        user ->
+                                isIndefinitelyLocked(user)
+                                        ? Maybe.error(
+                                                new AccountLockedException(
+                                                        "User "
+                                                                + user.getUsername()
+                                                                + " is locked"))
+                                        : Maybe.just(user))
+                .flatMap(
+                        user ->
+                                identityProviderManager
+                                        .get(user.getSource())
+                                        // if the user has been found, try to load user information
+                                        // from its latest identity provider
+                                        .flatMap(
+                                                authenticationProvider -> {
+                                                    SimpleAuthenticationContext
+                                                            authenticationContext =
+                                                                    new SimpleAuthenticationContext(
+                                                                            request);
+                                                    final Authentication authentication =
+                                                            new EndUserAuthentication(
+                                                                    user,
+                                                                    null,
+                                                                    authenticationContext);
+                                                    return authenticationProvider
+                                                            .loadPreAuthenticatedUser(
+                                                                    authentication);
+                                                })
+                                        .flatMap(
+                                                idpUser -> {
+                                                    // retrieve information from the idp user and
+                                                    // update the user
+                                                    Map<String, Object> additionalInformation =
+                                                            idpUser.getAdditionalInformation()
+                                                                            == null
+                                                                    ? new HashMap<>()
+                                                                    : new HashMap<>(
+                                                                            idpUser
+                                                                                    .getAdditionalInformation());
+                                                    additionalInformation.put(
+                                                            SOURCE_FIELD, user.getSource());
+                                                    additionalInformation.put(
+                                                            Parameters.CLIENT_ID, user.getClient());
+                                                    ((DefaultUser) idpUser)
+                                                            .setAdditionalInformation(
+                                                                    additionalInformation);
+                                                    return update(user, idpUser, false)
+                                                            .flatMap(userService::enhance)
+                                                            .toMaybe();
+                                                })
+                                        // no user has been found in the identity provider, just
+                                        // enhance user information
+                                        .switchIfEmpty(
+                                                Maybe.defer(
+                                                        () ->
+                                                                userService
+                                                                        .enhance(user)
+                                                                        .toMaybe())));
     }
 
     @Override
-    public Maybe<User> loadPreAuthenticatedUser(io.gravitee.am.identityprovider.api.User principal) {
+    public Maybe<User> loadPreAuthenticatedUser(
+            io.gravitee.am.identityprovider.api.User principal) {
         String source = (String) principal.getAdditionalInformation().get(SOURCE_FIELD);
-        return userService.findByDomainAndExternalIdAndSource(domain.getId(), principal.getId(), source)
-                .switchIfEmpty(Maybe.defer(() -> userService.findByDomainAndUsernameAndSource(domain.getId(), principal.getUsername(), source)))
-                .flatMap(user -> isIndefinitelyLocked(user) ?
-                        Maybe.error(new AccountLockedException("User " + user.getUsername() + " is locked")) :
-                        Maybe.just(user)
-                );
+        return userService
+                .findByDomainAndExternalIdAndSource(domain.getId(), principal.getId(), source)
+                .switchIfEmpty(
+                        Maybe.defer(
+                                () ->
+                                        userService.findByDomainAndUsernameAndSource(
+                                                domain.getId(), principal.getUsername(), source)))
+                .flatMap(
+                        user ->
+                                isIndefinitelyLocked(user)
+                                        ? Maybe.error(
+                                                new AccountLockedException(
+                                                        "User "
+                                                                + user.getUsername()
+                                                                + " is locked"))
+                                        : Maybe.just(user));
     }
 
     @Override
-    public Completable lockAccount(LoginAttemptCriteria criteria, AccountSettings accountSettings, Client client, User user) {
+    public Completable lockAccount(
+            LoginAttemptCriteria criteria,
+            AccountSettings accountSettings,
+            Client client,
+            User user) {
         if (user == null) {
             return Completable.complete();
         }
@@ -166,36 +229,68 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
         // update user status
         user.setAccountNonLocked(false);
         user.setAccountLockedAt(new Date());
-        user.setAccountLockedUntil(new Date(System.currentTimeMillis() + (accountSettings.getAccountBlockedDuration() * 1000)));
+        user.setAccountLockedUntil(
+                new Date(
+                        System.currentTimeMillis()
+                                + (accountSettings.getAccountBlockedDuration() * 1000)));
 
-        return userService.update(user)
-                .flatMap(user1 -> {
-                    // send an email if option is enabled
-                    if (user1.getEmail() != null && accountSettings.isSendRecoverAccountEmail()) {
-                        new Thread(() -> emailService.send(Template.BLOCKED_ACCOUNT, user1, client)).start();
-                    }
-                    return Single.just(user);
-                })
-                .doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).type(EventType.USER_LOCKED).domain(criteria.domain()).client(criteria.client()).principal(null).user(user1)))
+        return userService
+                .update(user)
+                .flatMap(
+                        user1 -> {
+                            // send an email if option is enabled
+                            if (user1.getEmail() != null
+                                    && accountSettings.isSendRecoverAccountEmail()) {
+                                new Thread(
+                                                () ->
+                                                        emailService.send(
+                                                                Template.BLOCKED_ACCOUNT,
+                                                                user1,
+                                                                client))
+                                        .start();
+                            }
+                            return Single.just(user);
+                        })
+                .doOnSuccess(
+                        user1 ->
+                                auditService.report(
+                                        AuditBuilder.builder(UserAuditBuilder.class)
+                                                .type(EventType.USER_LOCKED)
+                                                .domain(criteria.domain())
+                                                .client(criteria.client())
+                                                .principal(null)
+                                                .user(user1)))
                 .ignoreElement();
     }
 
-    private Single<User> saveOrUpdate(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
+    private Single<User> saveOrUpdate(
+            io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
         String source = (String) principal.getAdditionalInformation().get(SOURCE_FIELD);
-        return userService.findByDomainAndExternalIdAndSource(domain.getId(), principal.getId(), source)
-                .switchIfEmpty(Maybe.defer(() -> userService.findByDomainAndUsernameAndSource(domain.getId(), principal.getUsername(), source)))
+        return userService
+                .findByDomainAndExternalIdAndSource(domain.getId(), principal.getId(), source)
+                .switchIfEmpty(
+                        Maybe.defer(
+                                () ->
+                                        userService.findByDomainAndUsernameAndSource(
+                                                domain.getId(), principal.getUsername(), source)))
                 .switchIfEmpty(Maybe.error(new UserNotFoundException(principal.getUsername())))
-                .flatMap(user -> isIndefinitelyLocked(user) ?
-                        Maybe.error(new AccountLockedException("User " + user.getUsername() + " is locked")) :
-                        Maybe.just(user)
-                )
+                .flatMap(
+                        user ->
+                                isIndefinitelyLocked(user)
+                                        ? Maybe.error(
+                                                new AccountLockedException(
+                                                        "User "
+                                                                + user.getUsername()
+                                                                + " is locked"))
+                                        : Maybe.just(user))
                 .flatMapSingle(existingUser -> update(existingUser, principal, afterAuthentication))
-                .onErrorResumeNext(ex -> {
-                    if (ex instanceof UserNotFoundException) {
-                        return create(principal, afterAuthentication);
-                    }
-                    return Single.error(ex);
-                });
+                .onErrorResumeNext(
+                        ex -> {
+                            if (ex instanceof UserNotFoundException) {
+                                return create(principal, afterAuthentication);
+                            }
+                            return Single.error(ex);
+                        });
     }
 
     private boolean isIndefinitelyLocked(User user) {
@@ -204,24 +299,31 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 
     /**
      * Check the user account status
+     *
      * @param user Authenticated user
      * @return Completable.complete() or Completable.error(error) if account status is not ok
      */
     private Completable checkAccountStatus(User user) {
         if (!user.isEnabled()) {
-            return Completable.error(new AccountDisabledException("Account is disabled for user " + user.getUsername()));
+            return Completable.error(
+                    new AccountDisabledException(
+                            "Account is disabled for user " + user.getUsername()));
         }
         return Completable.complete();
     }
 
     /**
      * Update user information with data from the identity provider user
+     *
      * @param existingUser existing user in the repository
      * @param principal user from the identity provider
      * @param afterAuthentication if update operation is called after a sign in operation
      * @return updated user
      */
-    private Single<User> update(User existingUser, io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
+    private Single<User> update(
+            User existingUser,
+            io.gravitee.am.identityprovider.api.User principal,
+            boolean afterAuthentication) {
         LOGGER.debug("Updating user: username[{}]", principal.getUsername());
 
         final boolean updateDisplayName = hasGeneratedDisplayName(existingUser);
@@ -248,19 +350,26 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
         // set roles
         existingUser.setDynamicRoles(principal.getRoles());
         if (existingUser.getLastPasswordReset() == null) {
-            existingUser.setLastPasswordReset(existingUser.getUpdatedAt() == null ? new Date() : existingUser.getUpdatedAt());
+            existingUser.setLastPasswordReset(
+                    existingUser.getUpdatedAt() == null ? new Date() : existingUser.getUpdatedAt());
         }
 
-        Map<String, Object> additionalInformation = ofNullable(principal.getAdditionalInformation()).orElse(Map.of());
-        removeOriginalProviderOidcTokensIfNecessary(existingUser, afterAuthentication, additionalInformation);
+        Map<String, Object> additionalInformation =
+                ofNullable(principal.getAdditionalInformation()).orElse(Map.of());
+        removeOriginalProviderOidcTokensIfNecessary(
+                existingUser, afterAuthentication, additionalInformation);
         extractAdditionalInformation(existingUser, additionalInformation);
 
         return userService.update(existingUser);
     }
 
-    private void removeOriginalProviderOidcTokensIfNecessary(User existingUser, boolean afterAuthentication, Map<String, Object> additionalInformation) {
+    private void removeOriginalProviderOidcTokensIfNecessary(
+            User existingUser,
+            boolean afterAuthentication,
+            Map<String, Object> additionalInformation) {
         if (afterAuthentication) {
-            // remove the op_id_token and op_access_token from existing user profile to avoid keeping this information
+            // remove the op_id_token and op_access_token from existing user profile to avoid
+            // keeping this information
             // if the singleSignOut is disabled or provider does not retrieve oidc tokens
             if (!additionalInformation.containsKey(OIDC_PROVIDER_ID_TOKEN_KEY)) {
                 existingUser.removeAdditionalInformation(OIDC_PROVIDER_ID_TOKEN_KEY);
@@ -273,11 +382,13 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 
     /**
      * Create user with data from the identity provider user
+     *
      * @param principal user from the identity provider
      * @param afterAuthentication if create operation is called after a sign in operation
      * @return created user
      */
-    private Single<User> create(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
+    private Single<User> create(
+            io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
         LOGGER.debug("Creating a new user: username[%s]", principal.getUsername());
         final User newUser = new User();
         // set external id
@@ -299,9 +410,13 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
         return userService.create(newUser);
     }
 
-    private void extractAdditionalInformation(User user, Map<String, Object> additionalInformation) {
+    private void extractAdditionalInformation(
+            User user, Map<String, Object> additionalInformation) {
         if (additionalInformation != null) {
-            Map<String, Object> extraInformation = user.getAdditionalInformation() != null ? new HashMap<>(user.getAdditionalInformation()) : new HashMap<>();
+            Map<String, Object> extraInformation =
+                    user.getAdditionalInformation() != null
+                            ? new HashMap<>(user.getAdditionalInformation())
+                            : new HashMap<>();
             extraInformation.putAll(additionalInformation);
             if (user.getLoggedAt() != null) {
                 extraInformation.put(Claims.auth_time, user.getLoggedAt().getTime() / 1000);

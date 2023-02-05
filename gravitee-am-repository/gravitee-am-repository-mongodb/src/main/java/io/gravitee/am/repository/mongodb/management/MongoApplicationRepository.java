@@ -1,22 +1,28 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.*;
+
+import static java.util.Objects.isNull;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toSet;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.common.oauth2.TokenTypeHint;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.*;
@@ -31,31 +37,28 @@ import io.gravitee.am.repository.management.api.ApplicationRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.*;
 import io.gravitee.am.repository.mongodb.management.internal.model.risk.RiskAssessmentSettingsMongo;
 import io.gravitee.risk.assessment.api.assessment.settings.RiskAssessmentSettings;
-import io.reactivex.Observable;
 import io.reactivex.*;
+import io.reactivex.Observable;
+
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.mongodb.client.model.Filters.*;
-import static java.util.Objects.isNull;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toSet;
+import javax.annotation.PostConstruct;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class MongoApplicationRepository extends AbstractManagementMongoRepository implements ApplicationRepository {
+public class MongoApplicationRepository extends AbstractManagementMongoRepository
+        implements ApplicationRepository {
 
     private static final String FIELD_CLIENT_ID = "settings.oauth.clientId";
     private static final String FIELD_APPLICATION_IDENTITY_PROVIDERS = "identityProviders";
@@ -69,40 +72,74 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
 
     @PostConstruct
     public void init() {
-        applicationsCollection = mongoOperations.getCollection("applications", ApplicationMongo.class);
+        applicationsCollection =
+                mongoOperations.getCollection("applications", ApplicationMongo.class);
         super.init(applicationsCollection);
         super.createIndex(applicationsCollection, new Document(FIELD_DOMAIN, 1));
         super.createIndex(applicationsCollection, new Document(FIELD_UPDATED_AT, -1));
-        super.createIndex(applicationsCollection, new Document(FIELD_DOMAIN, 1).append(FIELD_CLIENT_ID, 1));
-        super.createIndex(applicationsCollection, new Document(FIELD_DOMAIN, 1).append(FIELD_NAME, 1));
+        super.createIndex(
+                applicationsCollection, new Document(FIELD_DOMAIN, 1).append(FIELD_CLIENT_ID, 1));
+        super.createIndex(
+                applicationsCollection, new Document(FIELD_DOMAIN, 1).append(FIELD_NAME, 1));
         super.createIndex(applicationsCollection, new Document(FIELD_IDENTITIES, 1));
-        super.createIndex(applicationsCollection, new Document(FIELD_APPLICATION_IDENTITY_PROVIDERS + "." + FIELD_IDENTITY, 1));
+        super.createIndex(
+                applicationsCollection,
+                new Document(FIELD_APPLICATION_IDENTITY_PROVIDERS + "." + FIELD_IDENTITY, 1));
         super.createIndex(applicationsCollection, new Document(FIELD_CERTIFICATE, 1));
-        super.createIndex(applicationsCollection, new Document(FIELD_DOMAIN, 1).append(FIELD_GRANT_TYPES, 1));
+        super.createIndex(
+                applicationsCollection, new Document(FIELD_DOMAIN, 1).append(FIELD_GRANT_TYPES, 1));
     }
 
     @Override
     public Flowable<Application> findAll() {
-        return Flowable.fromPublisher(applicationsCollection.find()).map(MongoApplicationRepository::convert);
+        return Flowable.fromPublisher(applicationsCollection.find())
+                .map(MongoApplicationRepository::convert);
     }
 
     @Override
     public Single<Page<Application>> findAll(int page, int size) {
-        Single<Long> countOperation = Observable.fromPublisher(applicationsCollection.countDocuments()).first(0l);
-        Single<Set<Application>> applicationsOperation = Observable.fromPublisher(applicationsCollection.find().sort(new BasicDBObject(FIELD_UPDATED_AT, -1)).skip(size * page).limit(size)).map(MongoApplicationRepository::convert).collect(HashSet::new, Set::add);
-        return Single.zip(countOperation, applicationsOperation, (count, applications) -> new Page<>(applications, page, count));
+        Single<Long> countOperation =
+                Observable.fromPublisher(applicationsCollection.countDocuments()).first(0l);
+        Single<Set<Application>> applicationsOperation =
+                Observable.fromPublisher(
+                                applicationsCollection
+                                        .find()
+                                        .sort(new BasicDBObject(FIELD_UPDATED_AT, -1))
+                                        .skip(size * page)
+                                        .limit(size))
+                        .map(MongoApplicationRepository::convert)
+                        .collect(HashSet::new, Set::add);
+        return Single.zip(
+                countOperation,
+                applicationsOperation,
+                (count, applications) -> new Page<>(applications, page, count));
     }
 
     @Override
     public Flowable<Application> findByDomain(String domain) {
-        return Flowable.fromPublisher(applicationsCollection.find(eq(FIELD_DOMAIN, domain))).map(MongoApplicationRepository::convert);
+        return Flowable.fromPublisher(applicationsCollection.find(eq(FIELD_DOMAIN, domain)))
+                .map(MongoApplicationRepository::convert);
     }
 
     @Override
     public Single<Page<Application>> findByDomain(String domain, int page, int size) {
-        Single<Long> countOperation = Observable.fromPublisher(applicationsCollection.countDocuments(eq(FIELD_DOMAIN, domain))).first(0l);
-        Single<Set<Application>> applicationsOperation = Observable.fromPublisher(applicationsCollection.find(eq(FIELD_DOMAIN, domain)).sort(new BasicDBObject(FIELD_UPDATED_AT, -1)).skip(size * page).limit(size)).map(MongoApplicationRepository::convert).collect(HashSet::new, Set::add);
-        return Single.zip(countOperation, applicationsOperation, (count, applications) -> new Page<>(applications, page, count));
+        Single<Long> countOperation =
+                Observable.fromPublisher(
+                                applicationsCollection.countDocuments(eq(FIELD_DOMAIN, domain)))
+                        .first(0l);
+        Single<Set<Application>> applicationsOperation =
+                Observable.fromPublisher(
+                                applicationsCollection
+                                        .find(eq(FIELD_DOMAIN, domain))
+                                        .sort(new BasicDBObject(FIELD_UPDATED_AT, -1))
+                                        .skip(size * page)
+                                        .limit(size))
+                        .map(MongoApplicationRepository::convert)
+                        .collect(HashSet::new, Set::add);
+        return Single.zip(
+                countOperation,
+                applicationsOperation,
+                (count, applications) -> new Page<>(applications, page, count));
     }
 
     @Override
@@ -114,70 +151,110 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
             String compactQuery = query.replaceAll("\\*+", ".*");
             String regex = "^" + compactQuery;
             Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-            searchQuery = or(new BasicDBObject(FIELD_CLIENT_ID, pattern), new BasicDBObject(FIELD_NAME, pattern));
+            searchQuery =
+                    or(
+                            new BasicDBObject(FIELD_CLIENT_ID, pattern),
+                            new BasicDBObject(FIELD_NAME, pattern));
         }
 
-        Bson mongoQuery = and(
-                eq(FIELD_DOMAIN, domain),
-                searchQuery);
+        Bson mongoQuery = and(eq(FIELD_DOMAIN, domain), searchQuery);
 
-        Single<Long> countOperation = Observable.fromPublisher(applicationsCollection.countDocuments(mongoQuery)).first(0l);
-        Single<Set<Application>> applicationsOperation = Observable.fromPublisher(applicationsCollection.find(mongoQuery).sort(new BasicDBObject(FIELD_UPDATED_AT, -1)).skip(size * page).limit(size)).map(MongoApplicationRepository::convert).collect(HashSet::new, Set::add);
-        return Single.zip(countOperation, applicationsOperation, (count, applications) -> new Page<>(applications, page, count));
+        Single<Long> countOperation =
+                Observable.fromPublisher(applicationsCollection.countDocuments(mongoQuery))
+                        .first(0l);
+        Single<Set<Application>> applicationsOperation =
+                Observable.fromPublisher(
+                                applicationsCollection
+                                        .find(mongoQuery)
+                                        .sort(new BasicDBObject(FIELD_UPDATED_AT, -1))
+                                        .skip(size * page)
+                                        .limit(size))
+                        .map(MongoApplicationRepository::convert)
+                        .collect(HashSet::new, Set::add);
+        return Single.zip(
+                countOperation,
+                applicationsOperation,
+                (count, applications) -> new Page<>(applications, page, count));
     }
 
     @Override
     public Flowable<Application> findByCertificate(String certificate) {
-        return Flowable.fromPublisher(applicationsCollection.find(eq(FIELD_CERTIFICATE, certificate))).map(MongoApplicationRepository::convert);
+        return Flowable.fromPublisher(
+                        applicationsCollection.find(eq(FIELD_CERTIFICATE, certificate)))
+                .map(MongoApplicationRepository::convert);
     }
 
     @Override
     public Flowable<Application> findByIdentityProvider(String identityProvider) {
-        final BsonDocument bsonDocument = new BsonDocument(FIELD_IDENTITY, new BsonString(identityProvider));
-        final Bson query = elemMatch(FIELD_APPLICATION_IDENTITY_PROVIDERS, Document.parse(bsonDocument.toJson()));
-        return Flowable.fromPublisher(applicationsCollection.find(query)).map(MongoApplicationRepository::convert);
+        final BsonDocument bsonDocument =
+                new BsonDocument(FIELD_IDENTITY, new BsonString(identityProvider));
+        final Bson query =
+                elemMatch(
+                        FIELD_APPLICATION_IDENTITY_PROVIDERS,
+                        Document.parse(bsonDocument.toJson()));
+        return Flowable.fromPublisher(applicationsCollection.find(query))
+                .map(MongoApplicationRepository::convert);
     }
 
     @Override
     public Flowable<Application> findByFactor(String factor) {
-        return Flowable.fromPublisher(applicationsCollection.find(eq(FIELD_FACTORS, factor))).map(MongoApplicationRepository::convert);
+        return Flowable.fromPublisher(applicationsCollection.find(eq(FIELD_FACTORS, factor)))
+                .map(MongoApplicationRepository::convert);
     }
 
     @Override
     public Maybe<Application> findById(String id) {
-        return Observable.fromPublisher(applicationsCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(MongoApplicationRepository::convert);
+        return Observable.fromPublisher(applicationsCollection.find(eq(FIELD_ID, id)).first())
+                .firstElement()
+                .map(MongoApplicationRepository::convert);
     }
 
     @Override
     public Maybe<Application> findByDomainAndClientId(String domain, String clientId) {
-        return Observable.fromPublisher(applicationsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, clientId)))
-                .first()).firstElement().map(MongoApplicationRepository::convert);
+        return Observable.fromPublisher(
+                        applicationsCollection
+                                .find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, clientId)))
+                                .first())
+                .firstElement()
+                .map(MongoApplicationRepository::convert);
     }
 
     @Override
-    public Flowable<Application> findByDomainAndExtensionGrant(String domain, String extensionGrant) {
-        return Flowable.fromPublisher(applicationsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_GRANT_TYPES, extensionGrant)))).map(MongoApplicationRepository::convert);
+    public Flowable<Application> findByDomainAndExtensionGrant(
+            String domain, String extensionGrant) {
+        return Flowable.fromPublisher(
+                        applicationsCollection.find(
+                                and(
+                                        eq(FIELD_DOMAIN, domain),
+                                        eq(FIELD_GRANT_TYPES, extensionGrant))))
+                .map(MongoApplicationRepository::convert);
     }
 
     @Override
     public Flowable<Application> findByIdIn(List<String> ids) {
-        return Flowable.fromPublisher(applicationsCollection.find(in(FIELD_ID, ids))).map(MongoApplicationRepository::convert);
+        return Flowable.fromPublisher(applicationsCollection.find(in(FIELD_ID, ids)))
+                .map(MongoApplicationRepository::convert);
     }
 
     @Override
     public Single<Application> create(Application item) {
         ApplicationMongo application = convert(item);
-        application.setId(application.getId() == null ? RandomString.generate() : application.getId());
-        return Single.fromPublisher(applicationsCollection.insertOne(application)).flatMap(success -> {
-            item.setId(application.getId());
-            return Single.just(item);
-        });
+        application.setId(
+                application.getId() == null ? RandomString.generate() : application.getId());
+        return Single.fromPublisher(applicationsCollection.insertOne(application))
+                .flatMap(
+                        success -> {
+                            item.setId(application.getId());
+                            return Single.just(item);
+                        });
     }
 
     @Override
     public Single<Application> update(Application item) {
         ApplicationMongo application = convert(item);
-        return Single.fromPublisher(applicationsCollection.replaceOne(eq(FIELD_ID, application.getId()), application))
+        return Single.fromPublisher(
+                        applicationsCollection.replaceOne(
+                                eq(FIELD_ID, application.getId()), application))
                 .flatMap(success -> Single.just(item));
     }
 
@@ -193,7 +270,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
 
     @Override
     public Single<Long> countByDomain(String domain) {
-        return Single.fromPublisher(applicationsCollection.countDocuments(eq(FIELD_DOMAIN, domain)));
+        return Single.fromPublisher(
+                applicationsCollection.countDocuments(eq(FIELD_DOMAIN, domain)));
     }
 
     private ApplicationMongo convert(Application other) {
@@ -207,22 +285,26 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         applicationMongo.setTemplate(other.isTemplate());
         applicationMongo.setFactors(other.getFactors());
         applicationMongo.setCertificate(other.getCertificate());
-        applicationMongo.setMetadata(other.getMetadata() != null ? new Document(other.getMetadata()) : null);
+        applicationMongo.setMetadata(
+                other.getMetadata() != null ? new Document(other.getMetadata()) : null);
         applicationMongo.setSettings(convert(other.getSettings()));
         applicationMongo.setIdentityProviders(convert(other.getIdentityProviders()));
-        applicationMongo.setIdentities(applicationMongo.getIdentityProviders().stream().map(ApplicationIdentityProviderMongo::getIdentity).collect(toSet()));
+        applicationMongo.setIdentities(
+                applicationMongo.getIdentityProviders().stream()
+                        .map(ApplicationIdentityProviderMongo::getIdentity)
+                        .collect(toSet()));
         applicationMongo.setCreatedAt(other.getCreatedAt());
         applicationMongo.setUpdatedAt(other.getUpdatedAt());
 
         return applicationMongo;
     }
 
-
     private static Application convert(ApplicationMongo other) {
         Application application = new Application();
         application.setId(other.getId());
         application.setName(other.getName());
-        application.setType(other.getType() != null ? ApplicationType.valueOf(other.getType()) : null);
+        application.setType(
+                other.getType() != null ? ApplicationType.valueOf(other.getType()) : null);
         application.setDescription(other.getDescription());
         application.setDomain(other.getDomain());
         application.setEnabled(other.isEnabled());
@@ -278,7 +360,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         if (other == null) {
             return null;
         }
-        ApplicationOAuthSettingsMongo applicationOAuthSettingsMongo = new ApplicationOAuthSettingsMongo();
+        ApplicationOAuthSettingsMongo applicationOAuthSettingsMongo =
+                new ApplicationOAuthSettingsMongo();
         applicationOAuthSettingsMongo.setClientId(other.getClientId());
         applicationOAuthSettingsMongo.setClientSecret(other.getClientSecret());
         applicationOAuthSettingsMongo.setClientType(other.getClientType());
@@ -296,17 +379,28 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         applicationOAuthSettingsMongo.setJwks(convert(other.getJwks()));
         applicationOAuthSettingsMongo.setSectorIdentifierUri(other.getSectorIdentifierUri());
         applicationOAuthSettingsMongo.setSubjectType(other.getSubjectType());
-        applicationOAuthSettingsMongo.setIdTokenSignedResponseAlg(other.getIdTokenSignedResponseAlg());
-        applicationOAuthSettingsMongo.setIdTokenEncryptedResponseAlg(other.getIdTokenEncryptedResponseAlg());
-        applicationOAuthSettingsMongo.setIdTokenEncryptedResponseEnc(other.getIdTokenEncryptedResponseEnc());
-        applicationOAuthSettingsMongo.setUserinfoSignedResponseAlg(other.getUserinfoSignedResponseAlg());
-        applicationOAuthSettingsMongo.setUserinfoEncryptedResponseAlg(other.getUserinfoEncryptedResponseAlg());
-        applicationOAuthSettingsMongo.setUserinfoEncryptedResponseEnc(other.getUserinfoEncryptedResponseEnc());
-        applicationOAuthSettingsMongo.setRequestObjectSigningAlg(other.getRequestObjectSigningAlg());
-        applicationOAuthSettingsMongo.setRequestObjectEncryptionAlg(other.getRequestObjectEncryptionAlg());
-        applicationOAuthSettingsMongo.setRequestObjectEncryptionEnc(other.getRequestObjectEncryptionEnc());
-        applicationOAuthSettingsMongo.setTokenEndpointAuthMethod(other.getTokenEndpointAuthMethod());
-        applicationOAuthSettingsMongo.setTokenEndpointAuthSigningAlg(other.getTokenEndpointAuthSigningAlg());
+        applicationOAuthSettingsMongo.setIdTokenSignedResponseAlg(
+                other.getIdTokenSignedResponseAlg());
+        applicationOAuthSettingsMongo.setIdTokenEncryptedResponseAlg(
+                other.getIdTokenEncryptedResponseAlg());
+        applicationOAuthSettingsMongo.setIdTokenEncryptedResponseEnc(
+                other.getIdTokenEncryptedResponseEnc());
+        applicationOAuthSettingsMongo.setUserinfoSignedResponseAlg(
+                other.getUserinfoSignedResponseAlg());
+        applicationOAuthSettingsMongo.setUserinfoEncryptedResponseAlg(
+                other.getUserinfoEncryptedResponseAlg());
+        applicationOAuthSettingsMongo.setUserinfoEncryptedResponseEnc(
+                other.getUserinfoEncryptedResponseEnc());
+        applicationOAuthSettingsMongo.setRequestObjectSigningAlg(
+                other.getRequestObjectSigningAlg());
+        applicationOAuthSettingsMongo.setRequestObjectEncryptionAlg(
+                other.getRequestObjectEncryptionAlg());
+        applicationOAuthSettingsMongo.setRequestObjectEncryptionEnc(
+                other.getRequestObjectEncryptionEnc());
+        applicationOAuthSettingsMongo.setTokenEndpointAuthMethod(
+                other.getTokenEndpointAuthMethod());
+        applicationOAuthSettingsMongo.setTokenEndpointAuthSigningAlg(
+                other.getTokenEndpointAuthSigningAlg());
         applicationOAuthSettingsMongo.setDefaultMaxAge(other.getDefaultMaxAge());
         applicationOAuthSettingsMongo.setRequireAuthTime(other.getRequireAuthTime());
         applicationOAuthSettingsMongo.setDefaultACRvalues(other.getDefaultACRvalues());
@@ -315,42 +409,63 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         applicationOAuthSettingsMongo.setSoftwareId(other.getSoftwareId());
         applicationOAuthSettingsMongo.setSoftwareVersion(other.getSoftwareVersion());
         applicationOAuthSettingsMongo.setSoftwareStatement(other.getSoftwareStatement());
-        applicationOAuthSettingsMongo.setRegistrationAccessToken(other.getRegistrationAccessToken());
+        applicationOAuthSettingsMongo.setRegistrationAccessToken(
+                other.getRegistrationAccessToken());
         applicationOAuthSettingsMongo.setRegistrationClientUri(other.getRegistrationClientUri());
         applicationOAuthSettingsMongo.setClientIdIssuedAt(other.getClientIdIssuedAt());
         applicationOAuthSettingsMongo.setClientSecretExpiresAt(other.getClientSecretExpiresAt());
         applicationOAuthSettingsMongo.setScopes(other.getScopes());
         applicationOAuthSettingsMongo.setDefaultScopes(other.getDefaultScopes());
-        applicationOAuthSettingsMongo.setScopeApprovals(other.getScopeApprovals() != null ? new Document((Map) other.getScopeApprovals()) : null);
-        applicationOAuthSettingsMongo.setEnhanceScopesWithUserPermissions(other.isEnhanceScopesWithUserPermissions());
-        applicationOAuthSettingsMongo.setAccessTokenValiditySeconds(other.getAccessTokenValiditySeconds());
-        applicationOAuthSettingsMongo.setRefreshTokenValiditySeconds(other.getRefreshTokenValiditySeconds());
+        applicationOAuthSettingsMongo.setScopeApprovals(
+                other.getScopeApprovals() != null
+                        ? new Document((Map) other.getScopeApprovals())
+                        : null);
+        applicationOAuthSettingsMongo.setEnhanceScopesWithUserPermissions(
+                other.isEnhanceScopesWithUserPermissions());
+        applicationOAuthSettingsMongo.setAccessTokenValiditySeconds(
+                other.getAccessTokenValiditySeconds());
+        applicationOAuthSettingsMongo.setRefreshTokenValiditySeconds(
+                other.getRefreshTokenValiditySeconds());
         applicationOAuthSettingsMongo.setIdTokenValiditySeconds(other.getIdTokenValiditySeconds());
-        applicationOAuthSettingsMongo.setTokenCustomClaims(getMongoTokenClaims(other.getTokenCustomClaims()));
+        applicationOAuthSettingsMongo.setTokenCustomClaims(
+                getMongoTokenClaims(other.getTokenCustomClaims()));
         applicationOAuthSettingsMongo.setTlsClientAuthSubjectDn(other.getTlsClientAuthSubjectDn());
         applicationOAuthSettingsMongo.setTlsClientAuthSanDns(other.getTlsClientAuthSanDns());
         applicationOAuthSettingsMongo.setTlsClientAuthSanEmail(other.getTlsClientAuthSanEmail());
         applicationOAuthSettingsMongo.setTlsClientAuthSanIp(other.getTlsClientAuthSanIp());
         applicationOAuthSettingsMongo.setTlsClientAuthSanUri(other.getTlsClientAuthSanUri());
-        applicationOAuthSettingsMongo.setTlsClientCertificateBoundAccessTokens(other.isTlsClientCertificateBoundAccessTokens());
-        applicationOAuthSettingsMongo.setAuthorizationSignedResponseAlg(other.getAuthorizationSignedResponseAlg());
-        applicationOAuthSettingsMongo.setAuthorizationEncryptedResponseAlg(other.getAuthorizationEncryptedResponseAlg());
-        applicationOAuthSettingsMongo.setAuthorizationEncryptedResponseEnc(other.getAuthorizationEncryptedResponseEnc());
+        applicationOAuthSettingsMongo.setTlsClientCertificateBoundAccessTokens(
+                other.isTlsClientCertificateBoundAccessTokens());
+        applicationOAuthSettingsMongo.setAuthorizationSignedResponseAlg(
+                other.getAuthorizationSignedResponseAlg());
+        applicationOAuthSettingsMongo.setAuthorizationEncryptedResponseAlg(
+                other.getAuthorizationEncryptedResponseAlg());
+        applicationOAuthSettingsMongo.setAuthorizationEncryptedResponseEnc(
+                other.getAuthorizationEncryptedResponseEnc());
         applicationOAuthSettingsMongo.setForcePKCE(other.isForcePKCE());
-        applicationOAuthSettingsMongo.setForceS256CodeChallengeMethod(other.isForceS256CodeChallengeMethod());
+        applicationOAuthSettingsMongo.setForceS256CodeChallengeMethod(
+                other.isForceS256CodeChallengeMethod());
         applicationOAuthSettingsMongo.setPostLogoutRedirectUris(other.getPostLogoutRedirectUris());
         applicationOAuthSettingsMongo.setSingleSignOut(other.isSingleSignOut());
         applicationOAuthSettingsMongo.setSilentReAuthentication(other.isSilentReAuthentication());
         if (other.getScopeSettings() != null) {
-            applicationOAuthSettingsMongo.setScopeSettings(other.getScopeSettings().stream().map(MongoApplicationRepository::convert).collect(Collectors.toList()));
+            applicationOAuthSettingsMongo.setScopeSettings(
+                    other.getScopeSettings().stream()
+                            .map(MongoApplicationRepository::convert)
+                            .collect(Collectors.toList()));
         }
         applicationOAuthSettingsMongo.setRequireParRequest(other.isRequireParRequest());
 
-        applicationOAuthSettingsMongo.setBackchannelAuthRequestSignAlg(other.getBackchannelAuthRequestSignAlg());
-        applicationOAuthSettingsMongo.setBackchannelTokenDeliveryMode(other.getBackchannelTokenDeliveryMode());
-        applicationOAuthSettingsMongo.setBackchannelUserCodeParameter(other.isBackchannelUserCodeParameter());
-        applicationOAuthSettingsMongo.setBackchannelClientNotificationEndpoint(other.getBackchannelClientNotificationEndpoint());
-        applicationOAuthSettingsMongo.setDisableRefreshTokenRotation(other.isDisableRefreshTokenRotation());
+        applicationOAuthSettingsMongo.setBackchannelAuthRequestSignAlg(
+                other.getBackchannelAuthRequestSignAlg());
+        applicationOAuthSettingsMongo.setBackchannelTokenDeliveryMode(
+                other.getBackchannelTokenDeliveryMode());
+        applicationOAuthSettingsMongo.setBackchannelUserCodeParameter(
+                other.isBackchannelUserCodeParameter());
+        applicationOAuthSettingsMongo.setBackchannelClientNotificationEndpoint(
+                other.getBackchannelClientNotificationEndpoint());
+        applicationOAuthSettingsMongo.setDisableRefreshTokenRotation(
+                other.isDisableRefreshTokenRotation());
 
         return applicationOAuthSettingsMongo;
     }
@@ -378,16 +493,23 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         applicationOAuthSettings.setSectorIdentifierUri(other.getSectorIdentifierUri());
         applicationOAuthSettings.setSubjectType(other.getSubjectType());
         applicationOAuthSettings.setIdTokenSignedResponseAlg(other.getIdTokenSignedResponseAlg());
-        applicationOAuthSettings.setIdTokenEncryptedResponseAlg(other.getIdTokenEncryptedResponseAlg());
-        applicationOAuthSettings.setIdTokenEncryptedResponseEnc(other.getIdTokenEncryptedResponseEnc());
+        applicationOAuthSettings.setIdTokenEncryptedResponseAlg(
+                other.getIdTokenEncryptedResponseAlg());
+        applicationOAuthSettings.setIdTokenEncryptedResponseEnc(
+                other.getIdTokenEncryptedResponseEnc());
         applicationOAuthSettings.setUserinfoSignedResponseAlg(other.getUserinfoSignedResponseAlg());
-        applicationOAuthSettings.setUserinfoEncryptedResponseAlg(other.getUserinfoEncryptedResponseAlg());
-        applicationOAuthSettings.setUserinfoEncryptedResponseEnc(other.getUserinfoEncryptedResponseEnc());
+        applicationOAuthSettings.setUserinfoEncryptedResponseAlg(
+                other.getUserinfoEncryptedResponseAlg());
+        applicationOAuthSettings.setUserinfoEncryptedResponseEnc(
+                other.getUserinfoEncryptedResponseEnc());
         applicationOAuthSettings.setRequestObjectSigningAlg(other.getRequestObjectSigningAlg());
-        applicationOAuthSettings.setRequestObjectEncryptionAlg(other.getRequestObjectEncryptionAlg());
-        applicationOAuthSettings.setRequestObjectEncryptionEnc(other.getRequestObjectEncryptionEnc());
+        applicationOAuthSettings.setRequestObjectEncryptionAlg(
+                other.getRequestObjectEncryptionAlg());
+        applicationOAuthSettings.setRequestObjectEncryptionEnc(
+                other.getRequestObjectEncryptionEnc());
         applicationOAuthSettings.setTokenEndpointAuthMethod(other.getTokenEndpointAuthMethod());
-        applicationOAuthSettings.setTokenEndpointAuthSigningAlg(other.getTokenEndpointAuthSigningAlg());
+        applicationOAuthSettings.setTokenEndpointAuthSigningAlg(
+                other.getTokenEndpointAuthSigningAlg());
         applicationOAuthSettings.setDefaultMaxAge(other.getDefaultMaxAge());
         applicationOAuthSettings.setRequireAuthTime(other.getRequireAuthTime());
         applicationOAuthSettings.setDefaultACRvalues(other.getDefaultACRvalues());
@@ -402,10 +524,14 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         applicationOAuthSettings.setClientSecretExpiresAt(other.getClientSecretExpiresAt());
         applicationOAuthSettings.setScopes(other.getScopes());
         applicationOAuthSettings.setDefaultScopes(other.getDefaultScopes());
-        applicationOAuthSettings.setScopeApprovals(other.getScopeApprovals() != null ? (Map) other.getScopeApprovals() : null);
-        applicationOAuthSettings.setEnhanceScopesWithUserPermissions(other.isEnhanceScopesWithUserPermissions());
-        applicationOAuthSettings.setAccessTokenValiditySeconds(other.getAccessTokenValiditySeconds());
-        applicationOAuthSettings.setRefreshTokenValiditySeconds(other.getRefreshTokenValiditySeconds());
+        applicationOAuthSettings.setScopeApprovals(
+                other.getScopeApprovals() != null ? (Map) other.getScopeApprovals() : null);
+        applicationOAuthSettings.setEnhanceScopesWithUserPermissions(
+                other.isEnhanceScopesWithUserPermissions());
+        applicationOAuthSettings.setAccessTokenValiditySeconds(
+                other.getAccessTokenValiditySeconds());
+        applicationOAuthSettings.setRefreshTokenValiditySeconds(
+                other.getRefreshTokenValiditySeconds());
         applicationOAuthSettings.setIdTokenValiditySeconds(other.getIdTokenValiditySeconds());
         applicationOAuthSettings.setTokenCustomClaims(getTokenClaims(other.getTokenCustomClaims()));
         applicationOAuthSettings.setTlsClientAuthSubjectDn(other.getTlsClientAuthSubjectDn());
@@ -413,25 +539,38 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         applicationOAuthSettings.setTlsClientAuthSanEmail(other.getTlsClientAuthSanEmail());
         applicationOAuthSettings.setTlsClientAuthSanIp(other.getTlsClientAuthSanIp());
         applicationOAuthSettings.setTlsClientAuthSanUri(other.getTlsClientAuthSanUri());
-        applicationOAuthSettings.setTlsClientCertificateBoundAccessTokens(other.isTlsClientCertificateBoundAccessTokens());
-        applicationOAuthSettings.setAuthorizationSignedResponseAlg(other.getAuthorizationSignedResponseAlg());
-        applicationOAuthSettings.setAuthorizationEncryptedResponseAlg(other.getAuthorizationEncryptedResponseAlg());
-        applicationOAuthSettings.setAuthorizationEncryptedResponseEnc(other.getAuthorizationEncryptedResponseEnc());
+        applicationOAuthSettings.setTlsClientCertificateBoundAccessTokens(
+                other.isTlsClientCertificateBoundAccessTokens());
+        applicationOAuthSettings.setAuthorizationSignedResponseAlg(
+                other.getAuthorizationSignedResponseAlg());
+        applicationOAuthSettings.setAuthorizationEncryptedResponseAlg(
+                other.getAuthorizationEncryptedResponseAlg());
+        applicationOAuthSettings.setAuthorizationEncryptedResponseEnc(
+                other.getAuthorizationEncryptedResponseEnc());
         applicationOAuthSettings.setForcePKCE(other.isForcePKCE());
-        applicationOAuthSettings.setForceS256CodeChallengeMethod(other.isForceS256CodeChallengeMethod());
+        applicationOAuthSettings.setForceS256CodeChallengeMethod(
+                other.isForceS256CodeChallengeMethod());
         applicationOAuthSettings.setPostLogoutRedirectUris(other.getPostLogoutRedirectUris());
         applicationOAuthSettings.setSingleSignOut(other.isSingleSignOut());
         applicationOAuthSettings.setSilentReAuthentication(other.isSilentReAuthentication());
         if (other.getScopeSettings() != null) {
-            applicationOAuthSettings.setScopeSettings(other.getScopeSettings().stream().map(MongoApplicationRepository::convert).collect(Collectors.toList()));
+            applicationOAuthSettings.setScopeSettings(
+                    other.getScopeSettings().stream()
+                            .map(MongoApplicationRepository::convert)
+                            .collect(Collectors.toList()));
         }
 
-        applicationOAuthSettings.setBackchannelAuthRequestSignAlg(other.getBackchannelAuthRequestSignAlg());
-        applicationOAuthSettings.setBackchannelTokenDeliveryMode(other.getBackchannelTokenDeliveryMode());
-        applicationOAuthSettings.setBackchannelUserCodeParameter(other.isBackchannelUserCodeParameter());
-        applicationOAuthSettings.setBackchannelClientNotificationEndpoint(other.getBackchannelClientNotificationEndpoint());
+        applicationOAuthSettings.setBackchannelAuthRequestSignAlg(
+                other.getBackchannelAuthRequestSignAlg());
+        applicationOAuthSettings.setBackchannelTokenDeliveryMode(
+                other.getBackchannelTokenDeliveryMode());
+        applicationOAuthSettings.setBackchannelUserCodeParameter(
+                other.isBackchannelUserCodeParameter());
+        applicationOAuthSettings.setBackchannelClientNotificationEndpoint(
+                other.getBackchannelClientNotificationEndpoint());
         applicationOAuthSettings.setRequireParRequest(other.isRequireParRequest());
-        applicationOAuthSettings.setDisableRefreshTokenRotation(other.isDisableRefreshTokenRotation());
+        applicationOAuthSettings.setDisableRefreshTokenRotation(
+                other.isDisableRefreshTokenRotation());
 
         return applicationOAuthSettings;
     }
@@ -440,9 +579,11 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         if (other == null) {
             return null;
         }
-        ApplicationSAMLSettingsMongo applicationSAMLSettingsMongo = new ApplicationSAMLSettingsMongo();
+        ApplicationSAMLSettingsMongo applicationSAMLSettingsMongo =
+                new ApplicationSAMLSettingsMongo();
         applicationSAMLSettingsMongo.setEntityId(other.getEntityId());
-        applicationSAMLSettingsMongo.setAttributeConsumeServiceUrl(other.getAttributeConsumeServiceUrl());
+        applicationSAMLSettingsMongo.setAttributeConsumeServiceUrl(
+                other.getAttributeConsumeServiceUrl());
         applicationSAMLSettingsMongo.setSingleLogoutServiceUrl(other.getSingleLogoutServiceUrl());
         applicationSAMLSettingsMongo.setCertificate(other.getCertificate());
         applicationSAMLSettingsMongo.setWantResponseSigned(other.isWantResponseSigned());
@@ -456,7 +597,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         }
         ApplicationSAMLSettings applicationSAMLSettings = new ApplicationSAMLSettings();
         applicationSAMLSettings.setEntityId(other.getEntityId());
-        applicationSAMLSettings.setAttributeConsumeServiceUrl(other.getAttributeConsumeServiceUrl());
+        applicationSAMLSettings.setAttributeConsumeServiceUrl(
+                other.getAttributeConsumeServiceUrl());
         applicationSAMLSettings.setSingleLogoutServiceUrl(other.getSingleLogoutServiceUrl());
         applicationSAMLSettings.setCertificate(other.getCertificate());
         applicationSAMLSettings.setWantResponseSigned(other.isWantResponseSigned());
@@ -473,7 +615,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
     }
 
     private static ApplicationScopeSettingsMongo convert(ApplicationScopeSettings other) {
-        ApplicationScopeSettingsMongo applicationScopeSettingsMongo = new ApplicationScopeSettingsMongo();
+        ApplicationScopeSettingsMongo applicationScopeSettingsMongo =
+                new ApplicationScopeSettingsMongo();
         applicationScopeSettingsMongo.setScope(other.getScope());
         applicationScopeSettingsMongo.setScopeApproval(other.getScopeApproval());
         applicationScopeSettingsMongo.setDefaultScope(other.isDefaultScope());
@@ -520,7 +663,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
             return null;
         }
 
-        ApplicationAdvancedSettingsMongo applicationAdvancedSettingsMongo = new ApplicationAdvancedSettingsMongo();
+        ApplicationAdvancedSettingsMongo applicationAdvancedSettingsMongo =
+                new ApplicationAdvancedSettingsMongo();
         applicationAdvancedSettingsMongo.setSkipConsent(other.isSkipConsent());
         applicationAdvancedSettingsMongo.setFlowsInherited(other.isFlowsInherited());
         return applicationAdvancedSettingsMongo;
@@ -557,14 +701,18 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         if (mongoTokenClaims == null) {
             return null;
         }
-        return mongoTokenClaims.stream().map(MongoApplicationRepository::convert).collect(Collectors.toList());
+        return mongoTokenClaims.stream()
+                .map(MongoApplicationRepository::convert)
+                .collect(Collectors.toList());
     }
 
     private static List<TokenClaimMongo> getMongoTokenClaims(List<TokenClaim> tokenClaims) {
         if (tokenClaims == null) {
             return null;
         }
-        return tokenClaims.stream().map(MongoApplicationRepository::convert).collect(Collectors.toList());
+        return tokenClaims.stream()
+                .map(MongoApplicationRepository::convert)
+                .collect(Collectors.toList());
     }
 
     private static TokenClaim convert(TokenClaimMongo mongoTokenClaim) {
@@ -590,9 +738,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
 
         JWKSet jwkSet = new JWKSet();
 
-        List<JWK> jwkList = jwksMongo.stream()
-                .map(jwkMongo -> convert(jwkMongo))
-                .collect(Collectors.toList());
+        List<JWK> jwkList =
+                jwksMongo.stream().map(jwkMongo -> convert(jwkMongo)).collect(Collectors.toList());
 
         jwkSet.setKeys(jwkList);
 
@@ -607,7 +754,7 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         JWK result;
 
         switch (KeyType.parse(jwkMongo.getKty())) {
-            // @formatter:off
+                // @formatter:off
             case EC:
                 result = convertEC(jwkMongo);
                 break;
@@ -626,11 +773,15 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         }
 
         result.setAlg(jwkMongo.getAlg());
-        result.setKeyOps(jwkMongo.getKeyOps() != null ? jwkMongo.getKeyOps().stream().collect(toSet()) : null);
+        result.setKeyOps(
+                jwkMongo.getKeyOps() != null
+                        ? jwkMongo.getKeyOps().stream().collect(toSet())
+                        : null);
         result.setKid(jwkMongo.getKid());
         result.setKty(jwkMongo.getKty());
         result.setUse(jwkMongo.getUse());
-        result.setX5c(jwkMongo.getX5c() != null ? jwkMongo.getX5c().stream().collect(toSet()) : null);
+        result.setX5c(
+                jwkMongo.getX5c() != null ? jwkMongo.getX5c().stream().collect(toSet()) : null);
         result.setX5t(jwkMongo.getX5t());
         result.setX5tS256(jwkMongo.getX5tS256());
         result.setX5u(jwkMongo.getX5u());
@@ -690,9 +841,7 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
             return null;
         }
 
-        return jwkSet.getKeys().stream()
-                .map(jwk -> convert(jwk))
-                .collect(Collectors.toList());
+        return jwkSet.getKeys().stream().map(jwk -> convert(jwk)).collect(Collectors.toList());
     }
 
     private static JWKMongo convert(JWK jwk) {
@@ -703,7 +852,7 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         JWKMongo result;
 
         switch (KeyType.parse(jwk.getKty())) {
-            // @formatter:off
+                // @formatter:off
             case EC:
                 result = convert((ECKey) jwk);
                 break;
@@ -722,11 +871,15 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         }
 
         result.setAlg(jwk.getAlg());
-        result.setKeyOps(jwk.getKeyOps() != null ? jwk.getKeyOps().stream().collect(Collectors.toList()) : null);
+        result.setKeyOps(
+                jwk.getKeyOps() != null
+                        ? jwk.getKeyOps().stream().collect(Collectors.toList())
+                        : null);
         result.setKid(jwk.getKid());
         result.setKty(jwk.getKty());
         result.setUse(jwk.getUse());
-        result.setX5c(jwk.getX5c() != null ? jwk.getX5c().stream().collect(Collectors.toList()) : null);
+        result.setX5c(
+                jwk.getX5c() != null ? jwk.getX5c().stream().collect(Collectors.toList()) : null);
         result.setX5t(jwk.getX5t());
         result.setX5tS256(jwk.getX5tS256());
         result.setX5u(jwk.getX5u());
@@ -770,13 +923,15 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         return key;
     }
 
-    private static SortedSet<ApplicationIdentityProvider> convert(Set<ApplicationIdentityProviderMongo> applicationIdentityProvidersMongo) {
+    private static SortedSet<ApplicationIdentityProvider> convert(
+            Set<ApplicationIdentityProviderMongo> applicationIdentityProvidersMongo) {
         return ofNullable(applicationIdentityProvidersMongo).orElse(Set.of()).stream()
                 .map(MongoApplicationRepository::convert)
                 .collect(toCollection(TreeSet::new));
     }
 
-    private static ApplicationIdentityProvider convert(ApplicationIdentityProviderMongo idpSettingsMongo) {
+    private static ApplicationIdentityProvider convert(
+            ApplicationIdentityProviderMongo idpSettingsMongo) {
         var identityProviderSettings = new ApplicationIdentityProvider();
         identityProviderSettings.setIdentity(idpSettingsMongo.getIdentity());
         identityProviderSettings.setSelectionRule(idpSettingsMongo.getSelectionRule());
@@ -784,13 +939,15 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         return identityProviderSettings;
     }
 
-    private static Set<ApplicationIdentityProviderMongo> convert(SortedSet<ApplicationIdentityProvider> applicationIdentityProviders) {
+    private static Set<ApplicationIdentityProviderMongo> convert(
+            SortedSet<ApplicationIdentityProvider> applicationIdentityProviders) {
         return ofNullable(applicationIdentityProviders).orElse(new TreeSet<>()).stream()
                 .map(MongoApplicationRepository::convert)
                 .collect(toSet());
     }
 
-    private static ApplicationIdentityProviderMongo convert(ApplicationIdentityProvider idpSettingsMongo) {
+    private static ApplicationIdentityProviderMongo convert(
+            ApplicationIdentityProvider idpSettingsMongo) {
         var identityProviderSettings = new ApplicationIdentityProviderMongo();
         identityProviderSettings.setIdentity(idpSettingsMongo.getIdentity());
         identityProviderSettings.setSelectionRule(idpSettingsMongo.getSelectionRule());

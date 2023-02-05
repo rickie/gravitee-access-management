@@ -1,21 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.scim.resources.users;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.gravitee.am.gateway.handler.common.vertx.core.http.VertxHttpServerRequest;
 import io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest;
 import io.gravitee.am.gateway.handler.scim.exception.InvalidSyntaxException;
@@ -26,10 +25,10 @@ import io.gravitee.am.gateway.handler.scim.model.User;
 import io.gravitee.am.gateway.handler.scim.service.UserService;
 import io.gravitee.am.identityprovider.api.SimpleAuthenticationContext;
 import io.gravitee.am.model.Domain;
-import io.gravitee.am.service.AuditService;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -61,14 +60,17 @@ public class AbstractUserEndpoint {
         }
         Set<String> schemaSet = new HashSet<>();
         // check duplicate and check if values are supported
-        schemas.forEach(schema -> {
-            if (!schemaSet.add(schema)) {
-                throw new InvalidSyntaxException("Duplicate 'schemas' values are forbidden");
-            }
-            if (!restrictedSchemas.contains(schema)) {
-                throw new InvalidSyntaxException("The 'schemas' attribute MUST only contain values defined as 'schema' and 'schemaExtensions' for the resource's defined type");
-            }
-        });
+        schemas.forEach(
+                schema -> {
+                    if (!schemaSet.add(schema)) {
+                        throw new InvalidSyntaxException(
+                                "Duplicate 'schemas' values are forbidden");
+                    }
+                    if (!restrictedSchemas.contains(schema)) {
+                        throw new InvalidSyntaxException(
+                                "The 'schemas' attribute MUST only contain values defined as 'schema' and 'schemaExtensions' for the resource's defined type");
+                    }
+                });
     }
 
     protected String location(HttpServerRequest request) {
@@ -80,9 +82,13 @@ public class AbstractUserEndpoint {
                 && domain.getScim().isIdpSelectionEnabled()
                 && !StringUtils.isEmpty(domain.getScim().getIdpSelectionRule())) {
             try {
-                SimpleAuthenticationContext authenticationContext = new SimpleAuthenticationContext(new VertxHttpServerRequest(context.request().getDelegate()));
+                SimpleAuthenticationContext authenticationContext =
+                        new SimpleAuthenticationContext(
+                                new VertxHttpServerRequest(context.request().getDelegate()));
                 authenticationContext.attributes().putAll(context.data());
-                return authenticationContext.getTemplateEngine().getValue(domain.getScim().getIdpSelectionRule(), String.class);
+                return authenticationContext
+                        .getTemplateEngine()
+                        .getValue(domain.getScim().getIdpSelectionRule(), String.class);
             } catch (Exception ex) {
                 logger.error("An error has occurred when evaluating IdP selection rule", ex);
             }

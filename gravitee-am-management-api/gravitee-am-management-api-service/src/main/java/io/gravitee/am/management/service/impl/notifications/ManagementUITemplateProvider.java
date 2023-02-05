@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.service.impl.notifications;
@@ -20,6 +18,7 @@ import freemarker.core.TemplateClassResolver;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -48,15 +47,17 @@ public class ManagementUITemplateProvider implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws IOException {
         config.setNewBuiltinClassResolver(TemplateClassResolver.SAFER_RESOLVER);
-        config.setTemplateLoader(new FileTemplateLoader(new File(URLDecoder.decode(templatesPath, StandardCharsets.UTF_8))));
+        config.setTemplateLoader(
+                new FileTemplateLoader(
+                        new File(URLDecoder.decode(templatesPath, StandardCharsets.UTF_8))));
     }
 
-    public String getNotificationContent(String name, Map<String, Object> parameters) throws IOException, TemplateException {
+    public String getNotificationContent(String name, Map<String, Object> parameters)
+            throws IOException, TemplateException {
         String templateName = name + TEMPLATE_EXT;
         final Template template = config.getTemplate(templateName);
         StringWriter result = new StringWriter();
         template.process(parameters, result);
         return result.toString();
     }
-
 }

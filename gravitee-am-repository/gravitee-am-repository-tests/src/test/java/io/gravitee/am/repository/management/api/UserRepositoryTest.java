@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
+
+import static java.time.ZoneOffset.UTC;
 
 import io.gravitee.am.common.analytics.Field;
 import io.gravitee.am.common.oidc.StandardClaims;
@@ -32,6 +32,7 @@ import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.management.api.search.FilterCriteria;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,18 +43,16 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-import static java.time.ZoneOffset.UTC;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class UserRepositoryTest extends AbstractManagementTest {
-    public static final DateTimeFormatter UTC_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    public static final DateTimeFormatter UTC_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     public static final String ORGANIZATION_ID = "orga#1";
     public static final String CUSTOM_ADDITIONAL_FIELD = "custom";
-    @Autowired
-    private UserRepository userRepository;
+    @Autowired private UserRepository userRepository;
 
     @Test
     public void testFindByDomain() throws TechnicalException {
@@ -65,7 +64,8 @@ public class UserRepositoryTest extends AbstractManagementTest {
         userRepository.create(user).blockingGet();
 
         // fetch users
-        TestSubscriber<User> testSubscriber = userRepository.findAll(ReferenceType.DOMAIN, "testDomain").test();
+        TestSubscriber<User> testSubscriber =
+                userRepository.findAll(ReferenceType.DOMAIN, "testDomain").test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -84,7 +84,14 @@ public class UserRepositoryTest extends AbstractManagementTest {
         userRepository.create(user).blockingGet();
 
         // fetch users
-        TestObserver<User> testObserver = userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, "testDomain", user.getUsername(), user.getSource()).test();
+        TestObserver<User> testObserver =
+                userRepository
+                        .findByUsernameAndSource(
+                                ReferenceType.DOMAIN,
+                                "testDomain",
+                                user.getUsername(),
+                                user.getSource())
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -102,7 +109,8 @@ public class UserRepositoryTest extends AbstractManagementTest {
         userRepository.create(user).blockingGet();
 
         // fetch users
-        TestObserver<Page<User>> testObserver = userRepository.findAll(ReferenceType.DOMAIN, user.getReferenceId(), 0, 10).test();
+        TestObserver<Page<User>> testObserver =
+                userRepository.findAll(ReferenceType.DOMAIN, user.getReferenceId(), 0, 10).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -138,7 +146,14 @@ public class UserRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(u -> u.getX509Certificates().size() == 1);
         testObserver.assertValue(u -> u.getAdditionalInformation().size() == 3);
         testObserver.assertValue(u -> u.getFactors().size() == 1);
-        testObserver.assertValue(u -> u.getAdditionalInformation().get(StandardClaims.LOCALE).equals(userCreated.getAdditionalInformation().get(StandardClaims.LOCALE)));
+        testObserver.assertValue(
+                u ->
+                        u.getAdditionalInformation()
+                                .get(StandardClaims.LOCALE)
+                                .equals(
+                                        userCreated
+                                                .getAdditionalInformation()
+                                                .get(StandardClaims.LOCALE)));
         testObserver.assertValue(u -> u.getPreferredLanguage() == null);
     }
 
@@ -157,8 +172,16 @@ public class UserRepositoryTest extends AbstractManagementTest {
         testObserver.assertNoErrors();
         testObserver.assertValue(u -> u.getUsername().equals(user.getUsername()));
         testObserver.assertValue(u -> u.getAdditionalInformation().size() == 3);
-        testObserver.assertValue(u -> u.getPreferredLanguage().equals(userCreated.getPreferredLanguage()));
-        testObserver.assertValue(u -> u.getAdditionalInformation().get(StandardClaims.LOCALE).equals(userCreated.getAdditionalInformation().get(StandardClaims.LOCALE)));
+        testObserver.assertValue(
+                u -> u.getPreferredLanguage().equals(userCreated.getPreferredLanguage()));
+        testObserver.assertValue(
+                u ->
+                        u.getAdditionalInformation()
+                                .get(StandardClaims.LOCALE)
+                                .equals(
+                                        userCreated
+                                                .getAdditionalInformation()
+                                                .get(StandardClaims.LOCALE)));
     }
 
     @Test
@@ -168,7 +191,8 @@ public class UserRepositoryTest extends AbstractManagementTest {
         User userCreated = userRepository.create(user).blockingGet();
 
         // fetch user
-        TestSubscriber<User> testObserver = userRepository.findByIdIn(Arrays.asList(userCreated.getId())).test();
+        TestSubscriber<User> testObserver =
+                userRepository.findByIdIn(Arrays.asList(userCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -183,7 +207,14 @@ public class UserRepositoryTest extends AbstractManagementTest {
         User userCreated = userRepository.create(user).blockingGet();
 
         // fetch user
-        TestObserver<User> testObserver = userRepository.findByExternalIdAndSource(userCreated.getReferenceType(), userCreated.getReferenceId(), userCreated.getExternalId(), userCreated.getSource()).test();
+        TestObserver<User> testObserver =
+                userRepository
+                        .findByExternalIdAndSource(
+                                userCreated.getReferenceType(),
+                                userCreated.getReferenceId(),
+                                userCreated.getExternalId(),
+                                userCreated.getSource())
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -216,7 +247,14 @@ public class UserRepositoryTest extends AbstractManagementTest {
         User userCreated = userRepository.create(user).blockingGet();
 
         // fetch user
-        TestObserver<User> testObserver = userRepository.findByExternalIdAndSource(userCreated.getReferenceType(), userCreated.getReferenceId(), userCreated.getExternalId()+"unknown", userCreated.getSource()).test();
+        TestObserver<User> testObserver =
+                userRepository
+                        .findByExternalIdAndSource(
+                                userCreated.getReferenceType(),
+                                userCreated.getReferenceId(),
+                                userCreated.getExternalId() + "unknown",
+                                userCreated.getSource())
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -224,64 +262,63 @@ public class UserRepositoryTest extends AbstractManagementTest {
         testObserver.assertNoValues();
     }
 
-
     private User buildUser() {
         User user = new User();
         String random = UUID.randomUUID().toString();
         user.setReferenceType(ReferenceType.DOMAIN);
-        user.setReferenceId("domain"+random);
-        user.setUsername("username"+random);
-        user.setEmail(random+"@acme.fr");
+        user.setReferenceId("domain" + random);
+        user.setUsername("username" + random);
+        user.setEmail(random + "@acme.fr");
         user.setAccountLockedAt(new Date());
         user.setAccountLockedUntil(new Date());
         user.setAccountNonExpired(true);
         user.setAccountNonLocked(true);
-        user.setClient("client"+random);
+        user.setClient("client" + random);
         user.setCreatedAt(new Date());
         user.setMfaEnrollmentSkippedAt(new Date());
         user.setCredentialsNonExpired(true);
-        user.setDisplayName("display"+random);
+        user.setDisplayName("display" + random);
         user.setEnabled(true);
-        user.setExternalId("external"+random);
+        user.setExternalId("external" + random);
         user.setInternal(false);
-        user.setLastName("last"+random);
+        user.setLastName("last" + random);
         user.setLoggedAt(new Date());
         user.setLastPasswordReset(new Date());
-        user.setFirstName("first"+random);
+        user.setFirstName("first" + random);
         user.setLoginsCount(5l);
         user.setNewsletter(false);
-        user.setNickName("nick"+random);
+        user.setNickName("nick" + random);
         user.setSource("test");
 
         Attribute attribute = new Attribute();
         attribute.setPrimary(true);
         attribute.setType("attrType");
-        attribute.setValue("val"+random);
+        attribute.setValue("val" + random);
         user.setEmails(Arrays.asList(attribute));
         user.setPhotos(Arrays.asList(attribute));
         user.setPhoneNumbers(Arrays.asList(attribute));
         user.setIms(Arrays.asList(attribute));
 
-        user.setEntitlements(Arrays.asList("ent"+random));
-        user.setRoles(Arrays.asList("role"+random));
-        user.setDynamicRoles(Arrays.asList("dynamic_role"+random));
+        user.setEntitlements(Arrays.asList("ent" + random));
+        user.setRoles(Arrays.asList("role" + random));
+        user.setDynamicRoles(Arrays.asList("dynamic_role" + random));
 
         Address addr = new Address();
         addr.setCountry("fr");
         user.setAddresses(Arrays.asList(addr));
 
         Certificate certificate = new Certificate();
-        certificate.setValue("cert"+random);
+        certificate.setValue("cert" + random);
         user.setX509Certificates(Arrays.asList(certificate));
 
         EnrolledFactor fact = new EnrolledFactor();
-        fact.setAppId("app"+random);
+        fact.setAppId("app" + random);
         fact.setSecurity(new EnrolledFactorSecurity("a", "b", Collections.singletonMap("a", "b")));
         fact.setChannel(new EnrolledFactorChannel(EnrolledFactorChannel.Type.EMAIL, "e@e"));
         user.setFactors(Arrays.asList(fact));
 
         Map<String, Object> info = new HashMap<>();
-        info.put(StandardClaims.EMAIL, random+"@info.acme.fr");
+        info.put(StandardClaims.EMAIL, random + "@info.acme.fr");
         info.put(StandardClaims.LOCALE, "en");
         info.put(CUSTOM_ADDITIONAL_FIELD, "custom-value");
         user.setAdditionalInformation(info);
@@ -298,7 +335,10 @@ public class UserRepositoryTest extends AbstractManagementTest {
         User userCreated = userRepository.create(user).blockingGet();
 
         // fetch user
-        TestObserver<User> testObserver = userRepository.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userCreated.getId()).test();
+        TestObserver<User> testObserver =
+                userRepository
+                        .findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userCreated.getId())
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -323,7 +363,10 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        testObserver.assertValue(u -> u.getUsername().equals(user.getUsername()) && u.getAdditionalInformation().containsKey("email"));
+        testObserver.assertValue(
+                u ->
+                        u.getUsername().equals(user.getUsername())
+                                && u.getAdditionalInformation().containsKey("email"));
     }
 
     @Test
@@ -392,23 +435,26 @@ public class UserRepositoryTest extends AbstractManagementTest {
         user.setReferenceType(ReferenceType.DOMAIN);
         userRepository.create(user).blockingGet();
 
-        final long usersDomain1 = userRepository.findAll(ReferenceType.DOMAIN, DOMAIN_1).count().blockingGet();
+        final long usersDomain1 =
+                userRepository.findAll(ReferenceType.DOMAIN, DOMAIN_1).count().blockingGet();
         Assert.assertEquals("Domain1 should have 2 users", 2, usersDomain1);
-        long usersDomain2 = userRepository.findAll(ReferenceType.DOMAIN, DOMAIN_2).count().blockingGet();
+        long usersDomain2 =
+                userRepository.findAll(ReferenceType.DOMAIN, DOMAIN_2).count().blockingGet();
         Assert.assertEquals("Domain2 should have 1 users", 1, usersDomain2);
 
         // delete user
-        TestObserver testObserver1 = userRepository.deleteByReference(ReferenceType.DOMAIN, DOMAIN_1).test();
+        TestObserver testObserver1 =
+                userRepository.deleteByReference(ReferenceType.DOMAIN, DOMAIN_1).test();
         testObserver1.awaitTerminalEvent();
 
         // fetch user
-        final TestSubscriber<User> find = userRepository.findAll(ReferenceType.DOMAIN, DOMAIN_1).test();
+        final TestSubscriber<User> find =
+                userRepository.findAll(ReferenceType.DOMAIN, DOMAIN_1).test();
         find.awaitTerminalEvent();
         find.assertNoValues();
 
         usersDomain2 = userRepository.findAll(ReferenceType.DOMAIN, DOMAIN_2).count().blockingGet();
         Assert.assertEquals("Domain2 should have 1 users", 1, usersDomain2);
-
     }
 
     @Test
@@ -484,25 +530,35 @@ public class UserRepositoryTest extends AbstractManagementTest {
         userRepository.create(user3).blockingGet();
 
         // fetch user (page 0)
-        TestObserver<Page<User>> testObserverP0 = userRepository.search(ReferenceType.DOMAIN, domain, "testUsername*", 0, 2).test();
+        TestObserver<Page<User>> testObserverP0 =
+                userRepository.search(ReferenceType.DOMAIN, domain, "testUsername*", 0, 2).test();
         testObserverP0.awaitTerminalEvent();
 
         testObserverP0.assertComplete();
         testObserverP0.assertNoErrors();
         testObserverP0.assertValue(users -> users.getData().size() == 2);
-        testObserverP0.assertValue(users -> {
-            Iterator<User> it = users.getData().iterator();
-            return it.next().getUsername().equals(user1.getUsername()) && it.next().getUsername().equals(user2.getUsername());
-        });
+        testObserverP0.assertValue(
+                users -> {
+                    Iterator<User> it = users.getData().iterator();
+                    return it.next().getUsername().equals(user1.getUsername())
+                            && it.next().getUsername().equals(user2.getUsername());
+                });
 
         // fetch user (page 1)
-        TestObserver<Page<User>> testObserverP1 = userRepository.search(ReferenceType.DOMAIN, domain, "testUsername*", 1, 2).test();
+        TestObserver<Page<User>> testObserverP1 =
+                userRepository.search(ReferenceType.DOMAIN, domain, "testUsername*", 1, 2).test();
         testObserverP1.awaitTerminalEvent();
 
         testObserverP1.assertComplete();
         testObserverP1.assertNoErrors();
         testObserverP1.assertValue(users -> users.getData().size() == 1);
-        testObserverP1.assertValue(users -> users.getData().iterator().next().getUsername().equals(user3.getUsername()));
+        testObserverP1.assertValue(
+                users ->
+                        users.getData()
+                                .iterator()
+                                .next()
+                                .getUsername()
+                                .equals(user3.getUsername()));
     }
 
     @Test
@@ -549,7 +605,8 @@ public class UserRepositoryTest extends AbstractManagementTest {
         FilterCriteria criteria = new FilterCriteria();
         criteria.setOperator("and");
         criteria.setFilterComponents(Arrays.asList(criteriaDate, criteriaName));
-        TestObserver<Page<User>> testObserverP0 = userRepository.search(ReferenceType.DOMAIN, domain, criteria, 0, 4).test();
+        TestObserver<Page<User>> testObserverP0 =
+                userRepository.search(ReferenceType.DOMAIN, domain, criteria, 0, 4).test();
         testObserverP0.awaitTerminalEvent();
 
         testObserverP0.assertComplete();
@@ -557,7 +614,8 @@ public class UserRepositoryTest extends AbstractManagementTest {
         testObserverP0.assertValue(users -> users.getData().size() == 3);
 
         // fetch user (page 1)
-        TestObserver<Page<User>> testObserverP1 = userRepository.search(ReferenceType.DOMAIN, domain, criteria, 1, 2).test();
+        TestObserver<Page<User>> testObserverP1 =
+                userRepository.search(ReferenceType.DOMAIN, domain, criteria, 1, 2).test();
         testObserverP1.awaitTerminalEvent();
 
         testObserverP1.assertComplete();
@@ -593,7 +651,8 @@ public class UserRepositoryTest extends AbstractManagementTest {
         criteria.setFilterValue("testUsername");
         criteria.setOperator("sw");
         criteria.setQuoteFilterValue(true);
-        TestObserver<Page<User>> testObserverP0 = userRepository.search(ReferenceType.DOMAIN, domain, criteria, 0, 4).test();
+        TestObserver<Page<User>> testObserverP0 =
+                userRepository.search(ReferenceType.DOMAIN, domain, criteria, 0, 4).test();
         testObserverP0.awaitTerminalEvent();
 
         testObserverP0.assertComplete();
@@ -601,7 +660,8 @@ public class UserRepositoryTest extends AbstractManagementTest {
         testObserverP0.assertValue(users -> users.getData().size() == 3);
 
         // fetch user (page 1)
-        TestObserver<Page<User>> testObserverP1 = userRepository.search(ReferenceType.DOMAIN, domain, criteria, 1, 2).test();
+        TestObserver<Page<User>> testObserverP1 =
+                userRepository.search(ReferenceType.DOMAIN, domain, criteria, 1, 2).test();
         testObserverP1.awaitTerminalEvent();
 
         testObserverP1.assertComplete();
@@ -637,7 +697,8 @@ public class UserRepositoryTest extends AbstractManagementTest {
         criteria.setFilterValue("testUsername");
         criteria.setOperator("sw");
         criteria.setQuoteFilterValue(true);
-        final TestSubscriber<User> testObserverP0 = userRepository.search(ReferenceType.DOMAIN, domain, criteria).test();
+        final TestSubscriber<User> testObserverP0 =
+                userRepository.search(ReferenceType.DOMAIN, domain, criteria).test();
         testObserverP0.awaitTerminalEvent();
 
         testObserverP0.assertComplete();
@@ -675,7 +736,8 @@ public class UserRepositoryTest extends AbstractManagementTest {
         criteria.setFilterValue("gname");
         criteria.setOperator("sw");
         criteria.setQuoteFilterValue(true);
-        TestObserver<Page<User>> testObserverP0 = userRepository.search(ReferenceType.DOMAIN, domain, criteria, 0, 4).test();
+        TestObserver<Page<User>> testObserverP0 =
+                userRepository.search(ReferenceType.DOMAIN, domain, criteria, 0, 4).test();
         testObserverP0.awaitTerminalEvent();
 
         testObserverP0.assertComplete();
@@ -683,7 +745,8 @@ public class UserRepositoryTest extends AbstractManagementTest {
         testObserverP0.assertValue(users -> users.getData().size() == 2);
 
         // fetch user (page 1)
-        TestObserver<Page<User>> testObserverP1 = userRepository.search(ReferenceType.DOMAIN, domain, criteria, 1, 1).test();
+        TestObserver<Page<User>> testObserverP1 =
+                userRepository.search(ReferenceType.DOMAIN, domain, criteria, 1, 1).test();
         testObserverP1.awaitTerminalEvent();
 
         testObserverP1.assertComplete();
@@ -713,14 +776,20 @@ public class UserRepositoryTest extends AbstractManagementTest {
         criteria.setFilterValue("gname1");
         criteria.setOperator("eq");
         criteria.setQuoteFilterValue(true);
-        TestObserver<Page<User>> testObserverP0 = userRepository.search(ReferenceType.DOMAIN, domain, criteria, 0, 4).test();
+        TestObserver<Page<User>> testObserverP0 =
+                userRepository.search(ReferenceType.DOMAIN, domain, criteria, 0, 4).test();
         testObserverP0.awaitTerminalEvent();
 
         testObserverP0.assertComplete();
         testObserverP0.assertNoErrors();
         testObserverP0.assertValue(users -> users.getData().size() == 1);
-        testObserverP0.assertValue(users -> users.getData().iterator().next().getUsername().equals(user1.getUsername()));
-
+        testObserverP0.assertValue(
+                users ->
+                        users.getData()
+                                .iterator()
+                                .next()
+                                .getUsername()
+                                .equals(user1.getUsername()));
     }
 
     @Test
@@ -731,13 +800,15 @@ public class UserRepositoryTest extends AbstractManagementTest {
         user1.setReferenceType(ReferenceType.DOMAIN);
         user1.setReferenceId(domain);
         user1.setUsername("testUsername1");
-        user1.setAdditionalInformation(Collections.singletonMap(CUSTOM_ADDITIONAL_FIELD, "custom-value1"));
+        user1.setAdditionalInformation(
+                Collections.singletonMap(CUSTOM_ADDITIONAL_FIELD, "custom-value1"));
         userRepository.create(user1).blockingGet();
 
         User user2 = new User();
         user2.setReferenceType(ReferenceType.DOMAIN);
         user2.setReferenceId(domain);
-        user2.setAdditionalInformation(Collections.singletonMap(CUSTOM_ADDITIONAL_FIELD, "custom-value2"));
+        user2.setAdditionalInformation(
+                Collections.singletonMap(CUSTOM_ADDITIONAL_FIELD, "custom-value2"));
         userRepository.create(user2).blockingGet();
 
         FilterCriteria criteria = new FilterCriteria();
@@ -745,13 +816,20 @@ public class UserRepositoryTest extends AbstractManagementTest {
         criteria.setFilterValue("custom-value1");
         criteria.setOperator("eq");
         criteria.setQuoteFilterValue(true);
-        TestObserver<Page<User>> testObserverP0 = userRepository.search(ReferenceType.DOMAIN, domain, criteria, 0, 4).test();
+        TestObserver<Page<User>> testObserverP0 =
+                userRepository.search(ReferenceType.DOMAIN, domain, criteria, 0, 4).test();
         testObserverP0.awaitTerminalEvent();
 
         testObserverP0.assertComplete();
         testObserverP0.assertNoErrors();
         testObserverP0.assertValue(users -> users.getData().size() == 1);
-        testObserverP0.assertValue(users -> users.getData().iterator().next().getUsername().equals(user1.getUsername()));
+        testObserverP0.assertValue(
+                users ->
+                        users.getData()
+                                .iterator()
+                                .next()
+                                .getUsername()
+                                .equals(user1.getUsername()));
     }
 
     @Test
@@ -762,7 +840,8 @@ public class UserRepositoryTest extends AbstractManagementTest {
         user1.setReferenceType(ReferenceType.DOMAIN);
         user1.setReferenceId(domain);
         user1.setUsername("testUsername1");
-        user1.setAdditionalInformation(Collections.singletonMap(CUSTOM_ADDITIONAL_FIELD, "custom-value1"));
+        user1.setAdditionalInformation(
+                Collections.singletonMap(CUSTOM_ADDITIONAL_FIELD, "custom-value1"));
         userRepository.create(user1).blockingGet();
 
         User user2 = new User();
@@ -774,13 +853,20 @@ public class UserRepositoryTest extends AbstractManagementTest {
         criteria.setFilterName("additionalInformation." + CUSTOM_ADDITIONAL_FIELD);
         criteria.setFilterValue("");
         criteria.setOperator("pr");
-        TestObserver<Page<User>> testObserverP0 = userRepository.search(ReferenceType.DOMAIN, domain, criteria, 0, 4).test();
+        TestObserver<Page<User>> testObserverP0 =
+                userRepository.search(ReferenceType.DOMAIN, domain, criteria, 0, 4).test();
         testObserverP0.awaitTerminalEvent();
 
         testObserverP0.assertComplete();
         testObserverP0.assertNoErrors();
         testObserverP0.assertValue(users -> users.getData().size() == 1);
-        testObserverP0.assertValue(users -> users.getData().iterator().next().getUsername().equals(user1.getUsername()));
+        testObserverP0.assertValue(
+                users ->
+                        users.getData()
+                                .iterator()
+                                .next()
+                                .getUsername()
+                                .equals(user1.getUsername()));
     }
 
     @Test
@@ -804,14 +890,20 @@ public class UserRepositoryTest extends AbstractManagementTest {
         criteria.setFilterName("name.givenName");
         criteria.setFilterValue("");
         criteria.setOperator("pr");
-        TestObserver<Page<User>> testObserverP0 = userRepository.search(ReferenceType.DOMAIN, domain, criteria, 0, 4).test();
+        TestObserver<Page<User>> testObserverP0 =
+                userRepository.search(ReferenceType.DOMAIN, domain, criteria, 0, 4).test();
         testObserverP0.awaitTerminalEvent();
 
         testObserverP0.assertComplete();
         testObserverP0.assertNoErrors();
         testObserverP0.assertValue(users -> users.getData().size() == 1);
-        testObserverP0.assertValue(users -> users.getData().iterator().next().getUsername().equals(user1.getUsername()));
-
+        testObserverP0.assertValue(
+                users ->
+                        users.getData()
+                                .iterator()
+                                .next()
+                                .getUsername()
+                                .equals(user1.getUsername()));
     }
 
     @Test
@@ -837,14 +929,20 @@ public class UserRepositoryTest extends AbstractManagementTest {
         criteria.setFilterValue("gname1");
         criteria.setOperator("ne");
         criteria.setQuoteFilterValue(true);
-        TestObserver<Page<User>> testObserverP0 = userRepository.search(ReferenceType.DOMAIN, domain, criteria, 0, 4).test();
+        TestObserver<Page<User>> testObserverP0 =
+                userRepository.search(ReferenceType.DOMAIN, domain, criteria, 0, 4).test();
         testObserverP0.awaitTerminalEvent();
 
         testObserverP0.assertComplete();
         testObserverP0.assertNoErrors();
         testObserverP0.assertValue(users -> users.getData().size() == 1);
-        testObserverP0.assertValue(users -> users.getData().iterator().next().getUsername().equals(user2.getUsername()));
-
+        testObserverP0.assertValue(
+                users ->
+                        users.getData()
+                                .iterator()
+                                .next()
+                                .getUsername()
+                                .equals(user2.getUsername()));
     }
 
     @Test
@@ -864,7 +962,8 @@ public class UserRepositoryTest extends AbstractManagementTest {
         userRepository.create(user2).blockingGet();
 
         // fetch user
-        TestSubscriber<User> testSubscriber = userRepository.findByDomainAndEmail(domain, "test@test.com", true).test();
+        TestSubscriber<User> testSubscriber =
+                userRepository.findByDomainAndEmail(domain, "test@test.com", true).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -885,11 +984,14 @@ public class UserRepositoryTest extends AbstractManagementTest {
         User user2 = new User();
         user2.setReferenceType(ReferenceType.DOMAIN);
         user2.setReferenceId(domain);
-        user2.setAdditionalInformation(Collections.singletonMap(StandardClaims.EMAIL, "test@Test.com"));// one UPPER case letter
+        user2.setAdditionalInformation(
+                Collections.singletonMap(
+                        StandardClaims.EMAIL, "test@Test.com")); // one UPPER case letter
         userRepository.create(user2).blockingGet();
 
         // fetch user
-        TestSubscriber<User> testSubscriber = userRepository.findByDomainAndEmail(domain, "test@test.com", false).test();
+        TestSubscriber<User> testSubscriber =
+                userRepository.findByDomainAndEmail(domain, "test@test.com", false).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -921,14 +1023,16 @@ public class UserRepositoryTest extends AbstractManagementTest {
         userRepository.create(user2).blockingGet();
 
         // fetch user
-        TestObserver<Page<User>> testObserver = userRepository.search(ReferenceType.DOMAIN, domain, query, 0, 10).test();
+        TestObserver<Page<User>> testObserver =
+                userRepository.search(ReferenceType.DOMAIN, domain, query, 0, 10).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(users -> users.getData().size() == 1);
-        testObserver.assertValue(users -> users.getData().iterator().next().getUsername().equals(user.getUsername()));
-
+        testObserver.assertValue(
+                users ->
+                        users.getData().iterator().next().getUsername().equals(user.getUsername()));
     }
 
     private void testSearch_wildcard(String query) {
@@ -955,14 +1059,14 @@ public class UserRepositoryTest extends AbstractManagementTest {
         userRepository.create(user2).blockingGet();
 
         // fetch user
-        TestObserver<Page<User>> testObserver = userRepository.search(ReferenceType.DOMAIN, domain, query, 0, 10).test();
+        TestObserver<Page<User>> testObserver =
+                userRepository.search(ReferenceType.DOMAIN, domain, query, 0, 10).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(users -> users.getData().size() == 2);
     }
-
 
     @Test
     public void testStat_UserRegistration() throws TechnicalException {
@@ -998,10 +1102,9 @@ public class UserRepositoryTest extends AbstractManagementTest {
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(users -> users.size() == 2);
-        testObserver.assertValue(users -> ((Number)users.get("total")).intValue() == 2);
-        testObserver.assertValue(users -> ((Number)users.get("completed")).intValue() == 1);
+        testObserver.assertValue(users -> ((Number) users.get("total")).intValue() == 2);
+        testObserver.assertValue(users -> ((Number) users.get("completed")).intValue() == 1);
     }
-
 
     @Test
     public void testStat_StatusRepartition() throws TechnicalException {
@@ -1057,17 +1160,19 @@ public class UserRepositoryTest extends AbstractManagementTest {
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(users -> users.size() == 4);
-        testObserver.assertValue(users -> ((Number)users.get("active")).intValue() == 2);
-        testObserver.assertValue(users -> ((Number)users.get("inactive")).intValue() == 1);
-        testObserver.assertValue(users -> ((Number)users.get("disabled")).intValue() == 1);
-        testObserver.assertValue(users -> ((Number)users.get("locked")).intValue() == 1);
+        testObserver.assertValue(users -> ((Number) users.get("active")).intValue() == 2);
+        testObserver.assertValue(users -> ((Number) users.get("inactive")).intValue() == 1);
+        testObserver.assertValue(users -> ((Number) users.get("disabled")).intValue() == 1);
+        testObserver.assertValue(users -> ((Number) users.get("locked")).intValue() == 1);
     }
 
     @Test
     public void testStat_StatusRepartition_byClient() throws TechnicalException {
         final String domain = "domain_status";
-        final String clientId1 = UUID.randomUUID().toString();;
-        final String clientId2 = UUID.randomUUID().toString();;
+        final String clientId1 = UUID.randomUUID().toString();
+        ;
+        final String clientId2 = UUID.randomUUID().toString();
+        ;
 
         // enabled used
         User user = new User();
@@ -1126,10 +1231,10 @@ public class UserRepositoryTest extends AbstractManagementTest {
         testObserver1.assertComplete();
         testObserver1.assertNoErrors();
         testObserver1.assertValue(users -> users.size() == 4);
-        testObserver1.assertValue(users -> ((Number)users.get("active")).intValue() == 1);
-        testObserver1.assertValue(users -> ((Number)users.get("inactive")).intValue() == 0);
-        testObserver1.assertValue(users -> ((Number)users.get("disabled")).intValue() == 1);
-        testObserver1.assertValue(users -> ((Number)users.get("locked")).intValue() == 1);
+        testObserver1.assertValue(users -> ((Number) users.get("active")).intValue() == 1);
+        testObserver1.assertValue(users -> ((Number) users.get("inactive")).intValue() == 0);
+        testObserver1.assertValue(users -> ((Number) users.get("disabled")).intValue() == 1);
+        testObserver1.assertValue(users -> ((Number) users.get("locked")).intValue() == 1);
 
         // fetch for clientId2
         AnalyticsQuery query2 = new AnalyticsQuery();
@@ -1142,9 +1247,9 @@ public class UserRepositoryTest extends AbstractManagementTest {
         testObserver2.assertComplete();
         testObserver2.assertNoErrors();
         testObserver2.assertValue(users -> users.size() == 4);
-        testObserver2.assertValue(users -> ((Number)users.get("active")).intValue() == 1);
-        testObserver2.assertValue(users -> ((Number)users.get("inactive")).intValue() == 1);
-        testObserver2.assertValue(users -> ((Number)users.get("disabled")).intValue() == 0);
-        testObserver2.assertValue(users -> ((Number)users.get("locked")).intValue() == 0);
+        testObserver2.assertValue(users -> ((Number) users.get("active")).intValue() == 1);
+        testObserver2.assertValue(users -> ((Number) users.get("inactive")).intValue() == 1);
+        testObserver2.assertValue(users -> ((Number) users.get("disabled")).intValue() == 0);
+        testObserver2.assertValue(users -> ((Number) users.get("locked")).intValue() == 0);
     }
 }

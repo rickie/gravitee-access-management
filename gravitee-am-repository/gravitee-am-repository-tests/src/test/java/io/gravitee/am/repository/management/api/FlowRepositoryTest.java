@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.flow.Flow;
@@ -21,6 +22,7 @@ import io.gravitee.am.model.flow.Step;
 import io.gravitee.am.model.flow.Type;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,17 +31,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class FlowRepositoryTest extends AbstractManagementTest {
 
-    @Autowired
-    private FlowRepository flowRepository;
+    @Autowired private FlowRepository flowRepository;
 
     @Test
     public void testFindAll() {
@@ -53,14 +51,23 @@ public class FlowRepositoryTest extends AbstractManagementTest {
         Flow flowCreated = flowRepository.create(flow).blockingGet();
         Flow flow2Created = flowRepository.create(flow2).blockingGet();
 
-        TestObserver<List<Flow>> obs = flowRepository.findAll(ReferenceType.DOMAIN, "DOMAIN1").toList().test();
+        TestObserver<List<Flow>> obs =
+                flowRepository.findAll(ReferenceType.DOMAIN, "DOMAIN1").toList().test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
         obs.assertNoErrors();
         obs.assertValue(list -> list.size() == 2);
-        obs.assertValue(list -> list.get(0).getId().equals(flowCreated.getId()) ? list.get(0).getPost().size() == 1 : list.get(0).getPost().size() == 3);
-        obs.assertValue(list -> list.get(0).getId().equals(flowCreated.getId()) ? list.get(0).getPre().size() == 1 : list.get(0).getPre().size() == 2);
+        obs.assertValue(
+                list ->
+                        list.get(0).getId().equals(flowCreated.getId())
+                                ? list.get(0).getPost().size() == 1
+                                : list.get(0).getPost().size() == 3);
+        obs.assertValue(
+                list ->
+                        list.get(0).getId().equals(flowCreated.getId())
+                                ? list.get(0).getPre().size() == 1
+                                : list.get(0).getPre().size() == 2);
     }
 
     @Test
@@ -76,7 +83,11 @@ public class FlowRepositoryTest extends AbstractManagementTest {
         Flow flowCreated = flowRepository.create(flow).blockingGet();
         Flow flow2Created = flowRepository.create(flow2).blockingGet();
 
-        TestObserver<List<Flow>> obs = flowRepository.findByApplication(ReferenceType.DOMAIN, "DOMAIN1", "APP1").toList().test();
+        TestObserver<List<Flow>> obs =
+                flowRepository
+                        .findByApplication(ReferenceType.DOMAIN, "DOMAIN1", "APP1")
+                        .toList()
+                        .test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -93,7 +104,10 @@ public class FlowRepositoryTest extends AbstractManagementTest {
 
         Flow flowCreated = flowRepository.create(flow).blockingGet();
 
-        TestObserver<Flow> obs = flowRepository.findById(ReferenceType.DOMAIN, "DOMAIN1", flowCreated.getId()).test();
+        TestObserver<Flow> obs =
+                flowRepository
+                        .findById(ReferenceType.DOMAIN, "DOMAIN1", flowCreated.getId())
+                        .test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -114,28 +128,80 @@ public class FlowRepositoryTest extends AbstractManagementTest {
         obs.assertValue(o -> o.getPre().size() == flow.getPre().size());
         obs.assertValue(o -> o.getPost().size() == flow.getPost().size());
         // step order should be preserved
-        obs.assertValue(o -> {
-            boolean result = true;
-            for (int i = 0; i < o.getPre().size(); ++i) {
-                result = result && o.getPre().get(i).getName().equals(flow.getPre().get(i).getName());
-                result = result && o.getPre().get(i).getConfiguration().equals(flow.getPre().get(i).getConfiguration());
-                result = result && o.getPre().get(i).getPolicy().equals(flow.getPre().get(i).getPolicy());
-                result = result && o.getPre().get(i).getDescription().equals(flow.getPre().get(i).getDescription());
-                result = result && o.getPre().get(i).getCondition().equals(flow.getPre().get(i).getCondition());
-            }
-            return result;
-        });
-        obs.assertValue(o -> {
-            boolean result = true;
-            for (int i = 0; i < o.getPost().size(); ++i) {
-                result = result && o.getPost().get(i).getName().equals(flow.getPost().get(i).getName());
-                result = result && o.getPost().get(i).getConfiguration().equals(flow.getPost().get(i).getConfiguration());
-                result = result && o.getPost().get(i).getPolicy().equals(flow.getPost().get(i).getPolicy());
-                result = result && o.getPost().get(i).getDescription().equals(flow.getPost().get(i).getDescription());
-                result = result && o.getPost().get(i).getCondition().equals(flow.getPost().get(i).getCondition());
-            }
-            return result;
-        });
+        obs.assertValue(
+                o -> {
+                    boolean result = true;
+                    for (int i = 0; i < o.getPre().size(); ++i) {
+                        result =
+                                result
+                                        && o.getPre()
+                                                .get(i)
+                                                .getName()
+                                                .equals(flow.getPre().get(i).getName());
+                        result =
+                                result
+                                        && o.getPre()
+                                                .get(i)
+                                                .getConfiguration()
+                                                .equals(flow.getPre().get(i).getConfiguration());
+                        result =
+                                result
+                                        && o.getPre()
+                                                .get(i)
+                                                .getPolicy()
+                                                .equals(flow.getPre().get(i).getPolicy());
+                        result =
+                                result
+                                        && o.getPre()
+                                                .get(i)
+                                                .getDescription()
+                                                .equals(flow.getPre().get(i).getDescription());
+                        result =
+                                result
+                                        && o.getPre()
+                                                .get(i)
+                                                .getCondition()
+                                                .equals(flow.getPre().get(i).getCondition());
+                    }
+                    return result;
+                });
+        obs.assertValue(
+                o -> {
+                    boolean result = true;
+                    for (int i = 0; i < o.getPost().size(); ++i) {
+                        result =
+                                result
+                                        && o.getPost()
+                                                .get(i)
+                                                .getName()
+                                                .equals(flow.getPost().get(i).getName());
+                        result =
+                                result
+                                        && o.getPost()
+                                                .get(i)
+                                                .getConfiguration()
+                                                .equals(flow.getPost().get(i).getConfiguration());
+                        result =
+                                result
+                                        && o.getPost()
+                                                .get(i)
+                                                .getPolicy()
+                                                .equals(flow.getPost().get(i).getPolicy());
+                        result =
+                                result
+                                        && o.getPost()
+                                                .get(i)
+                                                .getDescription()
+                                                .equals(flow.getPost().get(i).getDescription());
+                        result =
+                                result
+                                        && o.getPost()
+                                                .get(i)
+                                                .getCondition()
+                                                .equals(flow.getPost().get(i).getCondition());
+                    }
+                    return result;
+                });
     }
 
     @Test
@@ -214,7 +280,10 @@ public class FlowRepositoryTest extends AbstractManagementTest {
 
         obs.assertComplete();
         obs.assertNoErrors();
-        obs.assertValue(o -> o.getName().equals(flowUpdated.getName()) && o.getId().equals(flowCreated.getId()));
+        obs.assertValue(
+                o ->
+                        o.getName().equals(flowUpdated.getName())
+                                && o.getId().equals(flowCreated.getId()));
         obs.assertValue(o -> o.getPre().size() == 2);
         obs.assertValue(o -> o.getPost().size() == 3);
     }
@@ -233,7 +302,10 @@ public class FlowRepositoryTest extends AbstractManagementTest {
 
         obs.assertComplete();
         obs.assertNoErrors();
-        obs.assertValue(o -> o.getName().equals(flowUpdated.getName()) && o.getId().equals(flowCreated.getId()));
+        obs.assertValue(
+                o ->
+                        o.getName().equals(flowUpdated.getName())
+                                && o.getId().equals(flowCreated.getId()));
         obs.assertValue(o -> o.getPre().size() == 0);
         obs.assertValue(o -> o.getPost().size() == 0);
     }

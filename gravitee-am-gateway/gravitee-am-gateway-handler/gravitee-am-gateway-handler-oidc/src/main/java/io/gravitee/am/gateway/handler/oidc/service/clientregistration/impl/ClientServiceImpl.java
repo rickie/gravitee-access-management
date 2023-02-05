@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oidc.service.clientregistration.impl;
@@ -33,6 +31,7 @@ import io.gravitee.am.service.utils.GrantTypeUtils;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,21 +52,22 @@ public class ClientServiceImpl implements ClientService {
     public static final String DEFAULT_CLIENT_NAME = "Unknown Client";
     private final Logger LOGGER = LoggerFactory.getLogger(ClientServiceImpl.class);
 
-    @Autowired
-    private ApplicationService applicationService;
+    @Autowired private ApplicationService applicationService;
 
     @Override
     public Maybe<Client> findById(String id) {
         LOGGER.debug("Find client by ID: {}", id);
-        return applicationService.findById(id)
-                .map(application -> {
-                    Client client = application.toClient();
-                    // Send an empty array in case of no grant types
-                    if (client.getAuthorizedGrantTypes() == null) {
-                        client.setAuthorizedGrantTypes(Collections.emptyList());
-                    }
-                    return client;
-                });
+        return applicationService
+                .findById(id)
+                .map(
+                        application -> {
+                            Client client = application.toClient();
+                            // Send an empty array in case of no grant types
+                            if (client.getAuthorizedGrantTypes() == null) {
+                                client.setAuthorizedGrantTypes(Collections.emptyList());
+                            }
+                            return client;
+                        });
     }
 
     @Override
@@ -118,8 +118,7 @@ public class ClientServiceImpl implements ClientService {
             return Single.error(new InvalidClientMetadataException("No domain set on client"));
         }
 
-        return applicationService.update(convert(client))
-                .map(Application::toClient);
+        return applicationService.update(convert(client)).map(Application::toClient);
     }
 
     @Override
@@ -131,7 +130,8 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public Single<Client> renewClientSecret(String domain, String id, User principal) {
         LOGGER.debug("Renew client secret for client {} in domain {}", id, domain);
-        return applicationService.renewClientSecret(domain, id, principal)
+        return applicationService
+                .renewClientSecret(domain, id, principal)
                 .map(Application::toClient);
     }
 
@@ -163,7 +163,8 @@ public class ClientServiceImpl implements ClientService {
         // if client has only implicit => BROWSER
         // else if client type is native => NATIVE
         // else => WEB
-        if (client.getAuthorizedGrantTypes() == null || client.getAuthorizedGrantTypes().isEmpty()) {
+        if (client.getAuthorizedGrantTypes() == null
+                || client.getAuthorizedGrantTypes().isEmpty()) {
             return ApplicationType.SERVICE;
         }
         if (client.getAuthorizedGrantTypes().size() == 1) {
@@ -237,11 +238,14 @@ public class ClientServiceImpl implements ClientService {
         oAuthSettings.setAccessTokenValiditySeconds(client.getAccessTokenValiditySeconds());
         oAuthSettings.setRefreshTokenValiditySeconds(client.getRefreshTokenValiditySeconds());
         oAuthSettings.setIdTokenValiditySeconds(client.getIdTokenValiditySeconds());
-        oAuthSettings.setEnhanceScopesWithUserPermissions(client.isEnhanceScopesWithUserPermissions());
+        oAuthSettings.setEnhanceScopesWithUserPermissions(
+                client.isEnhanceScopesWithUserPermissions());
         oAuthSettings.setTokenCustomClaims(client.getTokenCustomClaims());
         oAuthSettings.setAuthorizationSignedResponseAlg(client.getAuthorizationSignedResponseAlg());
-        oAuthSettings.setAuthorizationEncryptedResponseAlg(client.getAuthorizationEncryptedResponseAlg());
-        oAuthSettings.setAuthorizationEncryptedResponseEnc(client.getAuthorizationEncryptedResponseEnc());
+        oAuthSettings.setAuthorizationEncryptedResponseAlg(
+                client.getAuthorizationEncryptedResponseAlg());
+        oAuthSettings.setAuthorizationEncryptedResponseEnc(
+                client.getAuthorizationEncryptedResponseEnc());
         oAuthSettings.setPostLogoutRedirectUris(client.getPostLogoutRedirectUris());
         // parameters to control client identity when application authenticate using mtls
         oAuthSettings.setTlsClientAuthSanDns(client.getTlsClientAuthSanDns());
@@ -249,12 +253,14 @@ public class ClientServiceImpl implements ClientService {
         oAuthSettings.setTlsClientAuthSanIp(client.getTlsClientAuthSanIp());
         oAuthSettings.setTlsClientAuthSanUri(client.getTlsClientAuthSanUri());
         oAuthSettings.setTlsClientAuthSubjectDn(client.getTlsClientAuthSubjectDn());
-        oAuthSettings.setTlsClientCertificateBoundAccessTokens((client.isTlsClientCertificateBoundAccessTokens()));
+        oAuthSettings.setTlsClientCertificateBoundAccessTokens(
+                (client.isTlsClientCertificateBoundAccessTokens()));
         oAuthSettings.setAccessTokenValiditySeconds(client.getAccessTokenValiditySeconds());
         oAuthSettings.setRequireParRequest(client.isRequireParRequest());
         // CIBA settings
         oAuthSettings.setBackchannelAuthRequestSignAlg(client.getBackchannelAuthRequestSignAlg());
-        oAuthSettings.setBackchannelClientNotificationEndpoint(client.getBackchannelClientNotificationEndpoint());
+        oAuthSettings.setBackchannelClientNotificationEndpoint(
+                client.getBackchannelClientNotificationEndpoint());
         oAuthSettings.setBackchannelTokenDeliveryMode(client.getBackchannelTokenDeliveryMode());
         oAuthSettings.setBackchannelUserCodeParameter(client.getBackchannelUserCodeParameter());
 
@@ -264,7 +270,9 @@ public class ClientServiceImpl implements ClientService {
 
         // advanced settings
         ApplicationAdvancedSettings advancedSettings = new ApplicationAdvancedSettings();
-        advancedSettings.setSkipConsent(client.getAutoApproveScopes() != null && client.getAutoApproveScopes().contains("true"));
+        advancedSettings.setSkipConsent(
+                client.getAutoApproveScopes() != null
+                        && client.getAutoApproveScopes().contains("true"));
         advancedSettings.setFlowsInherited(client.isFlowsInherited());
         applicationSettings.setAdvanced(advancedSettings);
 

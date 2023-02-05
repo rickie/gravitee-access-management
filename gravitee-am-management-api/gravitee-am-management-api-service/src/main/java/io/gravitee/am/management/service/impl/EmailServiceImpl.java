@@ -1,25 +1,26 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.service.impl;
+
+import static io.gravitee.am.service.utils.UserProfileUtils.preferredLanguage;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapperBuilder;
 import freemarker.template.SimpleHash;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+
 import io.gravitee.am.common.email.Email;
 import io.gravitee.am.common.email.EmailBuilder;
 import io.gravitee.am.common.jwt.Claims;
@@ -41,6 +42,7 @@ import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.EmailAuditBuilder;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,8 +55,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-
-import static io.gravitee.am.service.utils.UserProfileUtils.preferredLanguage;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -77,44 +77,46 @@ public class EmailServiceImpl implements EmailService {
     @Value("${services.certificate.expiryEmailSubject:Certificate will expire soon}")
     private String certificateExpirySubject;
 
-    @Autowired
-    private EmailManager emailManager;
+    @Autowired private EmailManager emailManager;
 
-    @Autowired
-    private io.gravitee.am.service.EmailService emailService;
+    @Autowired private io.gravitee.am.service.EmailService emailService;
 
-    @Autowired
-    private Configuration freemarkerConfiguration;
+    @Autowired private Configuration freemarkerConfiguration;
 
-    @Autowired
-    private AuditService auditService;
+    @Autowired private AuditService auditService;
 
     @Autowired
     @Qualifier("managementJwtBuilder")
     private JWTBuilder jwtBuilder;
 
-    @Autowired
-    private DomainService domainService;
+    @Autowired private DomainService domainService;
 
     @Override
-    public Completable send(Domain domain, Application client, io.gravitee.am.model.Template template, User user) {
+    public Completable send(
+            Domain domain, Application client, io.gravitee.am.model.Template template, User user) {
         if (enabled) {
             // get raw email template
-            return getEmailTemplate(template, user).map(emailTemplate -> {
-                // prepare email
-                Email email = prepareEmail(domain, client, template, emailTemplate, user);
-                // send email
-                sendEmail(email, user);
+            return getEmailTemplate(template, user)
+                    .map(
+                            emailTemplate -> {
+                                // prepare email
+                                Email email =
+                                        prepareEmail(domain, client, template, emailTemplate, user);
+                                // send email
+                                sendEmail(email, user);
 
-                return email;
-            }).ignoreElement();
+                                return email;
+                            })
+                    .ignoreElement();
         }
         return Completable.complete();
     }
 
     @Override
-    public Maybe<io.gravitee.am.model.Email> getEmailTemplate(io.gravitee.am.model.Template template, User user) {
-        return emailManager.getEmail(template, user, getDefaultSubject(template), getDefaultExpireAt(template));
+    public Maybe<io.gravitee.am.model.Email> getEmailTemplate(
+            io.gravitee.am.model.Template template, User user) {
+        return emailManager.getEmail(
+                template, user, getDefaultSubject(template), getDefaultExpireAt(template));
     }
 
     private void sendEmail(Email email, User user) {
@@ -123,36 +125,63 @@ public class EmailServiceImpl implements EmailService {
                 final var locale = preferredLanguage(user, Locale.ENGLISH);
                 final var emailToSend = processEmailTemplate(email, locale);
                 emailService.send(emailToSend);
-                auditService.report(AuditBuilder.builder(EmailAuditBuilder.class).domain(user.getReferenceId()).client(ADMIN_CLIENT).email(email).user(user));
+                auditService.report(
+                        AuditBuilder.builder(EmailAuditBuilder.class)
+                                .domain(user.getReferenceId())
+                                .client(ADMIN_CLIENT)
+                                .email(email)
+                                .user(user));
             } catch (final Exception ex) {
-                auditService.report(AuditBuilder.builder(EmailAuditBuilder.class).domain(user.getReferenceId()).client(ADMIN_CLIENT).email(email).throwable(ex));
+                auditService.report(
+                        AuditBuilder.builder(EmailAuditBuilder.class)
+                                .domain(user.getReferenceId())
+                                .client(ADMIN_CLIENT)
+                                .email(email)
+                                .throwable(ex));
             }
         }
     }
 
     @Override
-    public Maybe<Email> getFinalEmail(Domain domain, Application client, io.gravitee.am.model.Template template, User user, Map<String, Object> params) {
+    public Maybe<Email> getFinalEmail(
+            Domain domain,
+            Application client,
+            io.gravitee.am.model.Template template,
+            User user,
+            Map<String, Object> params) {
         // get raw email template
-        return emailManager.getEmail(template, ReferenceType.DOMAIN, domain.getId(), user, getDefaultSubject(template), getDefaultExpireAt(template))
-                .map(emailTemplate -> {
-                    // prepare email
-                    final var email = prepareEmail(domain, client, template, emailTemplate, user);
+        return emailManager
+                .getEmail(
+                        template,
+                        ReferenceType.DOMAIN,
+                        domain.getId(),
+                        user,
+                        getDefaultSubject(template),
+                        getDefaultExpireAt(template))
+                .map(
+                        emailTemplate -> {
+                            // prepare email
+                            final var email =
+                                    prepareEmail(domain, client, template, emailTemplate, user);
 
-                    if (email.getParams() != null) {
-                        email.getParams().putAll(params);
-                    } else {
-                        email.setParams(params);
-                    }
+                            if (email.getParams() != null) {
+                                email.getParams().putAll(params);
+                            } else {
+                                email.setParams(params);
+                            }
 
-                    // send email
-                    var locale = preferredLanguage(user, Locale.ENGLISH);
-                    return processEmailTemplate(email, locale);
-                });
+                            // send email
+                            var locale = preferredLanguage(user, Locale.ENGLISH);
+                            return processEmailTemplate(email, locale);
+                        });
     }
 
-    private Email processEmailTemplate(Email email, Locale locale) throws IOException, TemplateException {
+    private Email processEmailTemplate(Email email, Locale locale)
+            throws IOException, TemplateException {
         final Template template = freemarkerConfiguration.getTemplate(email.getTemplate());
-        final Template plainTextTemplate = new Template("subject", new StringReader(email.getSubject()), freemarkerConfiguration);
+        final Template plainTextTemplate =
+                new Template(
+                        "subject", new StringReader(email.getSubject()), freemarkerConfiguration);
         // compute email subject
         final String subject = processTemplate(plainTextTemplate, email.getParams(), locale);
         // compute email content
@@ -163,33 +192,62 @@ public class EmailServiceImpl implements EmailService {
         return emailToSend;
     }
 
-    private String processTemplate(Template plainTextTemplate, Map<String, Object> params, Locale preferredLanguage) throws TemplateException, IOException {
+    private String processTemplate(
+            Template plainTextTemplate, Map<String, Object> params, Locale preferredLanguage)
+            throws TemplateException, IOException {
         var result = new StringWriter(1024);
 
         var dataModel = new HashMap<>(params);
-        dataModel.put(FreemarkerMessageResolver.METHOD_NAME, new FreemarkerMessageResolver(this.emailService.getDefaultDictionaryProvider().getDictionaryFor(preferredLanguage)));
+        dataModel.put(
+                FreemarkerMessageResolver.METHOD_NAME,
+                new FreemarkerMessageResolver(
+                        this.emailService
+                                .getDefaultDictionaryProvider()
+                                .getDictionaryFor(preferredLanguage)));
 
-        var env = plainTextTemplate.createProcessingEnvironment(new SimpleHash(dataModel,
-                new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_22).build()), result);
+        var env =
+                plainTextTemplate.createProcessingEnvironment(
+                        new SimpleHash(
+                                dataModel,
+                                new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_22)
+                                        .build()),
+                        result);
         env.process();
 
         return result.toString();
     }
 
-    private Email prepareEmail(Domain domain, Application client, io.gravitee.am.model.Template template, io.gravitee.am.model.Email emailTemplate, User user) {
-        Map<String, Object> params = prepareEmailParams(domain, client, user, emailTemplate.getExpiresAfter(), template.redirectUri());
-        Email email = new EmailBuilder()
-                .to(user.getEmail())
-                .from(emailTemplate.getFrom())
-                .fromName(emailTemplate.getFromName())
-                .subject(emailTemplate.getSubject())
-                .template(emailTemplate.getTemplate())
-                .params(params)
-                .build();
+    private Email prepareEmail(
+            Domain domain,
+            Application client,
+            io.gravitee.am.model.Template template,
+            io.gravitee.am.model.Email emailTemplate,
+            User user) {
+        Map<String, Object> params =
+                prepareEmailParams(
+                        domain,
+                        client,
+                        user,
+                        emailTemplate.getExpiresAfter(),
+                        template.redirectUri());
+        Email email =
+                new EmailBuilder()
+                        .to(user.getEmail())
+                        .from(emailTemplate.getFrom())
+                        .fromName(emailTemplate.getFromName())
+                        .subject(emailTemplate.getSubject())
+                        .template(emailTemplate.getTemplate())
+                        .params(params)
+                        .build();
         return email;
     }
 
-    private Map<String, Object> prepareEmailParams(Domain domain, Application client, User user, Integer expiresAfter, String redirectUri) {
+    private Map<String, Object> prepareEmailParams(
+            Domain domain,
+            Application client,
+            User user,
+            Integer expiresAfter,
+            String redirectUri) {
         // generate a JWT to store user's information and for security purpose
         final Map<String, Object> claims = new HashMap<>();
         Instant now = Instant.now();

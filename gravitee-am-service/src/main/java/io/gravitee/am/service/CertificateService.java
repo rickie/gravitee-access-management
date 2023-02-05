@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
@@ -40,48 +38,55 @@ public interface CertificateService {
 
     /**
      * This method is used to create a default certificate (mainly used when creating a new domain).
+     *
      * @return
      */
     Single<Certificate> create(String domain);
 
     /**
      * Request the generation of a new system certificate for the given domain
+     *
      * @param domain
      * @return the new Certificate
      */
     Single<Certificate> rotate(String domain, User principal);
 
-    default Single<Certificate> create(String domain, NewCertificate newCertificate, User principal) {
+    default Single<Certificate> create(
+            String domain, NewCertificate newCertificate, User principal) {
         return this.create(domain, newCertificate, principal, false);
     }
 
     /**
      * This method is used to create a new certificate. If the isSystem parameter is set to true,
      * the certificate is a <i>Default</i> certificate generate during the domain creation
+     *
      * @param domain
      * @param newCertificate
      * @param principal
      * @param isSystem
      * @return
      */
-    Single<Certificate> create(String domain, NewCertificate newCertificate, User principal, boolean isSystem);
+    Single<Certificate> create(
+            String domain, NewCertificate newCertificate, User principal, boolean isSystem);
 
-    Single<Certificate> update(String domain, String id, UpdateCertificate updateCertificate, User principal);
+    Single<Certificate> update(
+            String domain, String id, UpdateCertificate updateCertificate, User principal);
 
     Completable delete(String certificateId, User principal);
 
     Completable updateExpirationDate(String certificateId, Date expirationDate);
 
-    default Single<Certificate> create(String domain, NewCertificate newCertificate, boolean isSystem) {
+    default Single<Certificate> create(
+            String domain, NewCertificate newCertificate, boolean isSystem) {
         return create(domain, newCertificate, null, isSystem);
     }
 
-    default Single<Certificate> update(String domain, String id, UpdateCertificate updateCertificate) {
+    default Single<Certificate> update(
+            String domain, String id, UpdateCertificate updateCertificate) {
         return update(domain, id, updateCertificate, null);
     }
 
     default Completable delete(String certificateId) {
         return delete(certificateId, null);
     }
-
 }

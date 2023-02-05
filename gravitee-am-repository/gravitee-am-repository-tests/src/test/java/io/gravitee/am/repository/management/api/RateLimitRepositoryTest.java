@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
@@ -20,6 +18,7 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.management.api.search.RateLimitCriteria;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,8 +31,7 @@ import java.util.UUID;
  */
 public class RateLimitRepositoryTest extends AbstractManagementTest {
 
-    @Autowired
-    protected RateLimitRepository repository;
+    @Autowired protected RateLimitRepository repository;
 
     @Test
     public void shouldCreate() {
@@ -64,11 +62,12 @@ public class RateLimitRepositoryTest extends AbstractManagementTest {
     public void shouldFindByCriteria() {
         RateLimit rateLimit = createRateLimit();
         RateLimit createdRateLimit = repository.create(rateLimit).blockingGet();
-        RateLimitCriteria criteria = new RateLimitCriteria.Builder()
-                .userId(createdRateLimit.getUserId())
-                .factorId(createdRateLimit.getFactorId())
-                .client(createdRateLimit.getClient())
-                .build();
+        RateLimitCriteria criteria =
+                new RateLimitCriteria.Builder()
+                        .userId(createdRateLimit.getUserId())
+                        .factorId(createdRateLimit.getFactorId())
+                        .client(createdRateLimit.getClient())
+                        .build();
 
         TestObserver<RateLimit> observer = repository.findByCriteria(criteria).test();
         observer.awaitTerminalEvent();
@@ -82,11 +81,12 @@ public class RateLimitRepositoryTest extends AbstractManagementTest {
     public void shouldNotFindByCriteria_invalidFactorId() {
         RateLimit rateLimit = createRateLimit();
         RateLimit createdRateLimit = repository.create(rateLimit).blockingGet();
-        RateLimitCriteria criteria = new RateLimitCriteria.Builder()
-                .userId(createdRateLimit.getUserId())
-                .factorId("invalid-factor-id")
-                .client(createdRateLimit.getClient())
-                .build();
+        RateLimitCriteria criteria =
+                new RateLimitCriteria.Builder()
+                        .userId(createdRateLimit.getUserId())
+                        .factorId("invalid-factor-id")
+                        .client(createdRateLimit.getClient())
+                        .build();
 
         TestObserver<RateLimit> observer = repository.findByCriteria(criteria).test();
         observer.awaitTerminalEvent();
@@ -117,7 +117,8 @@ public class RateLimitRepositoryTest extends AbstractManagementTest {
         updatedObserver.assertNoErrors();
         updatedObserver.assertValue(obj -> obj.getId().equals(createdRateLimit.getId()));
         updatedObserver.assertValue(obj -> obj.getTokenLeft() == updatableRateLimit.getTokenLeft());
-        updatedObserver.assertValue(obj -> obj.isAllowRequest() == updatableRateLimit.isAllowRequest());
+        updatedObserver.assertValue(
+                obj -> obj.isAllowRequest() == updatableRateLimit.isAllowRequest());
         assertEqualsTo(updatableRateLimit, updatedObserver);
     }
 
@@ -135,7 +136,8 @@ public class RateLimitRepositoryTest extends AbstractManagementTest {
         deleteObserver.awaitTerminalEvent();
         deleteObserver.assertNoErrors();
 
-        TestObserver<RateLimit> afterDeleteObserver = repository.findById(createdRateLimit.getId()).test();
+        TestObserver<RateLimit> afterDeleteObserver =
+                repository.findById(createdRateLimit.getId()).test();
         afterDeleteObserver.awaitTerminalEvent();
         afterDeleteObserver.assertNoErrors();
         afterDeleteObserver.assertNoValues();
@@ -151,17 +153,19 @@ public class RateLimitRepositoryTest extends AbstractManagementTest {
         observer.assertNoErrors();
         observer.assertValue(obj -> obj.getId().equals(createdRateLimit.getId()));
 
-        RateLimitCriteria criteria = new RateLimitCriteria.Builder()
-                .userId(createdRateLimit.getUserId())
-                .factorId(createdRateLimit.getFactorId())
-                .client(createdRateLimit.getClient())
-                .build();
+        RateLimitCriteria criteria =
+                new RateLimitCriteria.Builder()
+                        .userId(createdRateLimit.getUserId())
+                        .factorId(createdRateLimit.getFactorId())
+                        .client(createdRateLimit.getClient())
+                        .build();
 
         TestObserver<Void> deleteObserver = repository.delete(criteria).test();
         deleteObserver.awaitTerminalEvent();
         deleteObserver.assertNoErrors();
 
-        TestObserver<RateLimit> afterDeleteFindObserver = repository.findById(createdRateLimit.getId()).test();
+        TestObserver<RateLimit> afterDeleteFindObserver =
+                repository.findById(createdRateLimit.getId()).test();
         afterDeleteFindObserver.awaitTerminalEvent();
         afterDeleteFindObserver.assertNoErrors();
         afterDeleteFindObserver.assertNoValues();
@@ -169,7 +173,7 @@ public class RateLimitRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldDeleteByUser() {
-        final String userId= "123-xyz";
+        final String userId = "123-xyz";
         RateLimit rateLimit1 = createRateLimit();
         rateLimit1.setUserId(userId);
         RateLimit createdRateLimit1 = repository.create(rateLimit1).blockingGet();
@@ -192,12 +196,14 @@ public class RateLimitRepositoryTest extends AbstractManagementTest {
         deleteObserver.awaitTerminalEvent();
         deleteObserver.assertNoErrors();
 
-        TestObserver<RateLimit> afterDeleteFindObserver = repository.findById(createdRateLimit1.getId()).test();
+        TestObserver<RateLimit> afterDeleteFindObserver =
+                repository.findById(createdRateLimit1.getId()).test();
         afterDeleteFindObserver.awaitTerminalEvent();
         afterDeleteFindObserver.assertNoErrors();
         afterDeleteFindObserver.assertNoValues();
 
-        TestObserver<RateLimit> afterDeleteFindObserver2 = repository.findById(createdRateLimit2.getId()).test();
+        TestObserver<RateLimit> afterDeleteFindObserver2 =
+                repository.findById(createdRateLimit2.getId()).test();
         afterDeleteFindObserver2.awaitTerminalEvent();
         afterDeleteFindObserver2.assertNoErrors();
         afterDeleteFindObserver2.assertNoValues();
@@ -205,7 +211,7 @@ public class RateLimitRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldDeleteByDomain() {
-        final String domainId= "123-xyz";
+        final String domainId = "123-xyz";
         RateLimit rateLimit1 = createRateLimit();
         rateLimit1.setReferenceId(domainId);
         RateLimit createdRateLimit1 = repository.create(rateLimit1).blockingGet();
@@ -224,16 +230,19 @@ public class RateLimitRepositoryTest extends AbstractManagementTest {
         observer2.assertValue(obj -> obj.getId().equals(createdRateLimit2.getId()));
         observer2.assertValue(obj -> obj.getReferenceId().equals(domainId));
 
-        TestObserver<Void> deleteObserver = repository.deleteByDomain(domainId, ReferenceType.DOMAIN).test();
+        TestObserver<Void> deleteObserver =
+                repository.deleteByDomain(domainId, ReferenceType.DOMAIN).test();
         deleteObserver.awaitTerminalEvent();
         deleteObserver.assertNoErrors();
 
-        TestObserver<RateLimit> afterDeleteFindObserver = repository.findById(createdRateLimit1.getId()).test();
+        TestObserver<RateLimit> afterDeleteFindObserver =
+                repository.findById(createdRateLimit1.getId()).test();
         afterDeleteFindObserver.awaitTerminalEvent();
         afterDeleteFindObserver.assertNoErrors();
         afterDeleteFindObserver.assertNoValues();
 
-        TestObserver<RateLimit> afterDeleteFindObserver2 = repository.findById(createdRateLimit2.getId()).test();
+        TestObserver<RateLimit> afterDeleteFindObserver2 =
+                repository.findById(createdRateLimit2.getId()).test();
         afterDeleteFindObserver2.awaitTerminalEvent();
         afterDeleteFindObserver2.assertNoErrors();
         afterDeleteFindObserver2.assertNoValues();
@@ -242,7 +251,8 @@ public class RateLimitRepositoryTest extends AbstractManagementTest {
     private void assertEqualsTo(RateLimit rateLimit, TestObserver<RateLimit> observer) {
         observer.assertValue(observable -> observable.getUserId().equals(rateLimit.getUserId()));
         observer.assertValue(observable -> observable.getClient().equals(rateLimit.getClient()));
-        observer.assertValue(observable -> observable.getFactorId().equals(rateLimit.getFactorId()));
+        observer.assertValue(
+                observable -> observable.getFactorId().equals(rateLimit.getFactorId()));
         observer.assertValue(observable -> observable.getTokenLeft() == rateLimit.getTokenLeft());
     }
 

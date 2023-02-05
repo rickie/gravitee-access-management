@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.impl;
+
+import static io.gravitee.am.model.ReferenceType.ORGANIZATION;
 
 import io.gravitee.am.common.event.Action;
 import io.gravitee.am.common.event.Type;
@@ -33,13 +33,12 @@ import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-
-import static io.gravitee.am.model.ReferenceType.ORGANIZATION;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -47,20 +46,16 @@ import static io.gravitee.am.model.ReferenceType.ORGANIZATION;
  * @author GraviteeSource Team
  */
 @Component
-public class OrganizationUserServiceImpl extends AbstractUserService implements OrganizationUserService {
+public class OrganizationUserServiceImpl extends AbstractUserService
+        implements OrganizationUserService {
 
-    @Lazy
-    @Autowired
-    private OrganizationUserRepository userRepository;
+    @Lazy @Autowired private OrganizationUserRepository userRepository;
 
-    @Autowired
-    private RoleService roleService;
+    @Autowired private RoleService roleService;
 
-    @Autowired
-    private GroupService groupService;
+    @Autowired private GroupService groupService;
 
-    @Autowired
-    protected MembershipService membershipService;
+    @Autowired protected MembershipService membershipService;
 
     @Override
     protected OrganizationUserRepository getUserRepository() {
@@ -71,26 +66,37 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
         return setRoles(null, user);
     }
 
-    public Completable setRoles(io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
+    public Completable setRoles(
+            io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
 
-        final Maybe<Role> defaultRoleObs = roleService.findDefaultRole(user.getReferenceId(), DefaultRole.ORGANIZATION_USER, ORGANIZATION);
+        final Maybe<Role> defaultRoleObs =
+                roleService.findDefaultRole(
+                        user.getReferenceId(), DefaultRole.ORGANIZATION_USER, ORGANIZATION);
         Maybe<Role> roleObs = defaultRoleObs;
 
         if (principal != null && principal.getRoles() != null && !principal.getRoles().isEmpty()) {
             // We allow only one role in AM portal. Get the first (should not append).
-            String roleId =  principal.getRoles().get(0);
+            String roleId = principal.getRoles().get(0);
 
-            roleObs = roleService.findById(user.getReferenceType(), user.getReferenceId(), roleId)
-                    .toMaybe()
-                    .onErrorResumeNext(throwable -> {
-                        if (throwable instanceof RoleNotFoundException) {
-                            return roleService.findById(ReferenceType.PLATFORM, Platform.DEFAULT, roleId).toMaybe()
-                                    .switchIfEmpty(defaultRoleObs)
-                                    .onErrorResumeNext(defaultRoleObs);
-                        } else {
-                            return defaultRoleObs;
-                        }
-                    });
+            roleObs =
+                    roleService
+                            .findById(user.getReferenceType(), user.getReferenceId(), roleId)
+                            .toMaybe()
+                            .onErrorResumeNext(
+                                    throwable -> {
+                                        if (throwable instanceof RoleNotFoundException) {
+                                            return roleService
+                                                    .findById(
+                                                            ReferenceType.PLATFORM,
+                                                            Platform.DEFAULT,
+                                                            roleId)
+                                                    .toMaybe()
+                                                    .switchIfEmpty(defaultRoleObs)
+                                                    .onErrorResumeNext(defaultRoleObs);
+                                        } else {
+                                            return defaultRoleObs;
+                                        }
+                                    });
         }
 
         Membership membership = new Membership();
@@ -99,11 +105,19 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
         membership.setReferenceType(user.getReferenceType());
         membership.setReferenceId(user.getReferenceId());
 
-        return roleObs.switchIfEmpty(Maybe.error(new TechnicalManagementException(String.format("Cannot add user membership to organization %s. Unable to find ORGANIZATION_USER role", user.getReferenceId()))))
-                .flatMapCompletable(role -> {
-                    membership.setRoleId(role.getId());
-                    return membershipService.addOrUpdate(user.getReferenceId(), membership).ignoreElement();
-                });
+        return roleObs.switchIfEmpty(
+                        Maybe.error(
+                                new TechnicalManagementException(
+                                        String.format(
+                                                "Cannot add user membership to organization %s. Unable to find ORGANIZATION_USER role",
+                                                user.getReferenceId()))))
+                .flatMapCompletable(
+                        role -> {
+                            membership.setRoleId(role.getId());
+                            return membershipService
+                                    .addOrUpdate(user.getReferenceId(), membership)
+                                    .ignoreElement();
+                        });
     }
 
     @Override
@@ -111,38 +125,70 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
         LOGGER.debug("Update a user {}", user);
         // updated date
         user.setUpdatedAt(new Date());
-        return userValidator.validate(user).andThen(getUserRepository()
-                .findByUsernameAndSource(ORGANIZATION, user.getReferenceId(), user.getUsername(), user.getSource())
-                .switchIfEmpty(getUserRepository().findById(ORGANIZATION, user.getReferenceId(), user.getId()))
-                .flatMapSingle(oldUser -> {
+        return userValidator
+                .validate(user)
+                .andThen(
+                        getUserRepository()
+                                .findByUsernameAndSource(
+                                        ORGANIZATION,
+                                        user.getReferenceId(),
+                                        user.getUsername(),
+                                        user.getSource())
+                                .switchIfEmpty(
+                                        getUserRepository()
+                                                .findById(
+                                                        ORGANIZATION,
+                                                        user.getReferenceId(),
+                                                        user.getId()))
+                                .flatMapSingle(
+                                        oldUser -> {
+                                            user.setId(oldUser.getId());
+                                            user.setReferenceType(oldUser.getReferenceType());
+                                            user.setReferenceId(oldUser.getReferenceId());
+                                            if (user.getFirstName() != null) {
+                                                user.setDisplayName(
+                                                        user.getFirstName()
+                                                                + (user.getLastName() != null
+                                                                        ? " " + user.getLastName()
+                                                                        : ""));
+                                            }
+                                            user.setSource(oldUser.getSource());
+                                            user.setInternal(oldUser.isInternal());
+                                            user.setUpdatedAt(new Date());
+                                            if (user.getLoginsCount() < oldUser.getLoginsCount()) {
+                                                user.setLoggedAt(oldUser.getLoggedAt());
+                                                user.setLoginsCount(oldUser.getLoginsCount());
+                                            }
 
-                        user.setId(oldUser.getId());
-                        user.setReferenceType(oldUser.getReferenceType());
-                        user.setReferenceId(oldUser.getReferenceId());
-                        if (user.getFirstName() != null) {
-                            user.setDisplayName(user.getFirstName() + (user.getLastName() != null ? " " + user.getLastName() : ""));
-                        }
-                        user.setSource(oldUser.getSource());
-                        user.setInternal(oldUser.isInternal());
-                        user.setUpdatedAt(new Date());
-                        if (user.getLoginsCount() < oldUser.getLoginsCount()) {
-                            user.setLoggedAt(oldUser.getLoggedAt());
-                            user.setLoginsCount(oldUser.getLoginsCount());
-                        }
-
-                        return getUserRepository().update(user);
-                })
-                .flatMap(user1 -> {
-                    // create event for sync process
-                    Event event = new Event(Type.USER, new Payload(user1.getId(), user1.getReferenceType(), user1.getReferenceId(), Action.UPDATE));
-                    return eventService.create(event).flatMap(__ -> Single.just(user1));
-                })
-                .onErrorResumeNext(ex -> {
-                    if (ex instanceof AbstractManagementException) {
-                        return Single.error(ex);
-                    }
-                    LOGGER.error("An error occurs while trying to update a user", ex);
-                    return Single.error(new TechnicalManagementException("An error occurs while trying to update a user", ex));
-                }));
+                                            return getUserRepository().update(user);
+                                        })
+                                .flatMap(
+                                        user1 -> {
+                                            // create event for sync process
+                                            Event event =
+                                                    new Event(
+                                                            Type.USER,
+                                                            new Payload(
+                                                                    user1.getId(),
+                                                                    user1.getReferenceType(),
+                                                                    user1.getReferenceId(),
+                                                                    Action.UPDATE));
+                                            return eventService
+                                                    .create(event)
+                                                    .flatMap(__ -> Single.just(user1));
+                                        })
+                                .onErrorResumeNext(
+                                        ex -> {
+                                            if (ex instanceof AbstractManagementException) {
+                                                return Single.error(ex);
+                                            }
+                                            LOGGER.error(
+                                                    "An error occurs while trying to update a user",
+                                                    ex);
+                                            return Single.error(
+                                                    new TechnicalManagementException(
+                                                            "An error occurs while trying to update a user",
+                                                            ex));
+                                        }));
     }
 }

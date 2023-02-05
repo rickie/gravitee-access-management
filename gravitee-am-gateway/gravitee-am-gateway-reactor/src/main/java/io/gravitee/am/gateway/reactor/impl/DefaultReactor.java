@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.reactor.impl;
@@ -35,6 +33,7 @@ import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.core.http.HttpServerResponse;
 import io.vertx.reactivex.ext.web.Route;
 import io.vertx.reactivex.ext.web.Router;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -44,27 +43,22 @@ import org.springframework.core.env.Environment;
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class DefaultReactor extends AbstractService implements Reactor, EventListener<DomainEvent, Domain>, InitializingBean {
+public class DefaultReactor extends AbstractService
+        implements Reactor, EventListener<DomainEvent, Domain>, InitializingBean {
 
-    @Autowired
-    private Environment environment;
+    @Autowired private Environment environment;
 
-    @Autowired
-    private SecurityDomainHandlerRegistry securityDomainHandlerRegistry;
+    @Autowired private SecurityDomainHandlerRegistry securityDomainHandlerRegistry;
 
-    @Autowired
-    private EventManager eventManager;
+    @Autowired private EventManager eventManager;
 
-    @Autowired
-    private Vertx vertx;
+    @Autowired private Vertx vertx;
 
     private Router router;
 
-    @Autowired
-    private TransactionProcessorFactory transactionHandlerFactory;
+    @Autowired private TransactionProcessorFactory transactionHandlerFactory;
 
-    @Autowired
-    private GatewayMetricProvider gatewayMetricProvider;
+    @Autowired private GatewayMetricProvider gatewayMetricProvider;
 
     @Override
     public void doStart() throws Exception {
@@ -110,15 +104,23 @@ public class DefaultReactor extends AbstractService implements Reactor, EventLis
 
         if (domain.isVhostMode()) {
             // Mount the same router for each virtual host / path.
-            domain.getVhosts().forEach(virtualHost -> this.router.mountSubRouter(sanitizePath(virtualHost.getPath()), VHostRouter.router(domain, virtualHost, domainHandler.router())));
+            domain.getVhosts()
+                    .forEach(
+                            virtualHost ->
+                                    this.router.mountSubRouter(
+                                            sanitizePath(virtualHost.getPath()),
+                                            VHostRouter.router(
+                                                    domain, virtualHost, domainHandler.router())));
         } else {
-            this.router.mountSubRouter(sanitizePath(domain.getPath()), VHostRouter.router(domain, domainHandler.router()));
+            this.router.mountSubRouter(
+                    sanitizePath(domain.getPath()),
+                    VHostRouter.router(domain, domainHandler.router()));
         }
     }
 
     private String sanitizePath(String path) {
 
-        if(path.endsWith("/")) {
+        if (path.endsWith("/")) {
             return path;
         }
 
@@ -128,10 +130,7 @@ public class DefaultReactor extends AbstractService implements Reactor, EventLis
     @Override
     public void unMountDomain(VertxSecurityDomainHandler domainHandler) {
 
-
-        domainHandler.router()
-                .getRoutes()
-                .forEach(Route::remove);
+        domainHandler.router().getRoutes().forEach(Route::remove);
     }
 
     @Override
@@ -145,13 +144,16 @@ public class DefaultReactor extends AbstractService implements Reactor, EventLis
         // Send a NOT_FOUND HTTP status code (404)
         serverResponse.setStatusCode(HttpStatusCode.NOT_FOUND_404);
 
-        String message = environment.getProperty("http.errors[404].message", "No security domain matches the request URI.");
-        serverResponse.headers().set(HttpHeaders.CONTENT_LENGTH, Integer.toString(message.length()));
+        String message =
+                environment.getProperty(
+                        "http.errors[404].message", "No security domain matches the request URI.");
+        serverResponse
+                .headers()
+                .set(HttpHeaders.CONTENT_LENGTH, Integer.toString(message.length()));
         serverResponse.headers().set(HttpHeaders.CONTENT_TYPE, "text/plain");
         serverResponse.headers().set(HttpHeaders.CONNECTION, HttpHeadersValues.CONNECTION_CLOSE);
         serverResponse.write(Buffer.buffer(message));
 
         serverResponse.end();
     }
-
 }

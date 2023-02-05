@@ -1,19 +1,21 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
+
+import static org.mockito.Mockito.*;
+
+import static java.util.Collections.emptyList;
 
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.event.Event;
@@ -32,7 +34,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
-import java.util.Arrays;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -40,8 +42,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static java.util.Collections.emptyList;
-import static org.mockito.Mockito.*;
+import java.util.Arrays;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -50,24 +51,22 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class FlowServiceTest {
 
-    @InjectMocks
-    private FlowService flowService = new FlowServiceImpl();
+    @InjectMocks private FlowService flowService = new FlowServiceImpl();
 
-    @Mock
-    private EventService eventService;
+    @Mock private EventService eventService;
 
-    @Mock
-    private FlowRepository flowRepository;
+    @Mock private FlowRepository flowRepository;
 
-    @Mock
-    private AuditService auditService;
+    @Mock private AuditService auditService;
 
-    private final static String DOMAIN = "domain1";
+    private static final String DOMAIN = "domain1";
 
     @Test
     public void shouldFindAll_flowDoesNotHaveType() {
-        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(new Flow()));
-        TestSubscriber<Flow> testObserver = flowService.findAll(ReferenceType.DOMAIN, DOMAIN).test();
+        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.just(new Flow()));
+        TestSubscriber<Flow> testObserver =
+                flowService.findAll(ReferenceType.DOMAIN, DOMAIN).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -77,7 +76,8 @@ public class FlowServiceTest {
     @Test
     public void shouldFindAll_returnAllWhenEmpty() {
         when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.empty());
-        TestSubscriber<Flow> testObserver = flowService.findAll(ReferenceType.DOMAIN, DOMAIN).test();
+        TestSubscriber<Flow> testObserver =
+                flowService.findAll(ReferenceType.DOMAIN, DOMAIN).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -89,7 +89,8 @@ public class FlowServiceTest {
         var flow = new Flow();
         flow.setType(Type.ROOT);
         when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(flow));
-        TestSubscriber<Flow> testObserver = flowService.findAll(ReferenceType.DOMAIN, DOMAIN).test();
+        TestSubscriber<Flow> testObserver =
+                flowService.findAll(ReferenceType.DOMAIN, DOMAIN).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -108,8 +109,10 @@ public class FlowServiceTest {
         flowApp2.setOrder(0);
         flowApp2.setApplication("appid");
 
-        when(flowRepository.findByApplication(ReferenceType.DOMAIN, DOMAIN, "appid")).thenReturn(Flowable.just(flowApp, flowApp2));
-        TestSubscriber<Flow> testObserver = flowService.findByApplication(ReferenceType.DOMAIN, DOMAIN, "appid").test();
+        when(flowRepository.findByApplication(ReferenceType.DOMAIN, DOMAIN, "appid"))
+                .thenReturn(Flowable.just(flowApp, flowApp2));
+        TestSubscriber<Flow> testObserver =
+                flowService.findByApplication(ReferenceType.DOMAIN, DOMAIN, "appid").test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -118,8 +121,10 @@ public class FlowServiceTest {
 
     @Test
     public void shouldFindByApp_returnAllWhenEmpty() {
-        when(flowRepository.findByApplication(ReferenceType.DOMAIN, DOMAIN, "appid")).thenReturn(Flowable.empty());
-        TestSubscriber<Flow> testObserver = flowService.findByApplication(ReferenceType.DOMAIN, DOMAIN, "appid").test();
+        when(flowRepository.findByApplication(ReferenceType.DOMAIN, DOMAIN, "appid"))
+                .thenReturn(Flowable.empty());
+        TestSubscriber<Flow> testObserver =
+                flowService.findByApplication(ReferenceType.DOMAIN, DOMAIN, "appid").test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -142,8 +147,10 @@ public class FlowServiceTest {
         flowApp2.setOrder(0);
         flowApp2.setApplication("appid");
 
-        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(flow, flowApp, flowApp2));
-        TestSubscriber<Flow> testObserver = flowService.findAll(ReferenceType.DOMAIN, DOMAIN).test();
+        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.just(flow, flowApp, flowApp2));
+        TestSubscriber<Flow> testObserver =
+                flowService.findAll(ReferenceType.DOMAIN, DOMAIN).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -165,8 +172,10 @@ public class FlowServiceTest {
         flowApp.setOrder(0);
         flowApp.setApplication("appid");
 
-        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(flow, flow2, flowApp));
-        TestSubscriber<Flow> testObserver = flowService.findAll(ReferenceType.DOMAIN, DOMAIN, true).test();
+        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.just(flow, flow2, flowApp));
+        TestSubscriber<Flow> testObserver =
+                flowService.findAll(ReferenceType.DOMAIN, DOMAIN, true).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -175,7 +184,8 @@ public class FlowServiceTest {
 
     @Test
     public void shouldNotFindAll_technicalException() {
-        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.error(TechnicalException::new));
+        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.error(TechnicalException::new));
         TestObserver testObserver = new TestObserver();
         flowService.findAll(ReferenceType.DOMAIN, DOMAIN).toList().subscribe(testObserver);
 
@@ -189,7 +199,8 @@ public class FlowServiceTest {
         when(flowRepository.create(any(Flow.class))).thenReturn(Single.just(new Flow()));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = flowService.create(ReferenceType.DOMAIN, DOMAIN, newFlow).test();
+        TestObserver testObserver =
+                flowService.create(ReferenceType.DOMAIN, DOMAIN, newFlow).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -202,9 +213,11 @@ public class FlowServiceTest {
     @Test
     public void shouldCreate_technicalException() {
         Flow newFlow = mock(Flow.class);
-        when(flowRepository.create(any(Flow.class))).thenReturn(Single.error(TechnicalException::new));
+        when(flowRepository.create(any(Flow.class)))
+                .thenReturn(Single.error(TechnicalException::new));
 
-        TestObserver testObserver = flowService.create(ReferenceType.DOMAIN, DOMAIN, newFlow).test();
+        TestObserver testObserver =
+                flowService.create(ReferenceType.DOMAIN, DOMAIN, newFlow).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertError(TechnicalManagementException.class);
@@ -219,11 +232,13 @@ public class FlowServiceTest {
         when(updateFlow.getType()).thenReturn(Type.ROOT);
         Flow existingFlow = new Flow();
         existingFlow.setType(Type.ROOT);
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-flow")).thenReturn(Maybe.just(existingFlow));
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-flow"))
+                .thenReturn(Maybe.just(existingFlow));
         when(flowRepository.update(any(Flow.class))).thenReturn(Single.just(new Flow()));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = flowService.update(ReferenceType.DOMAIN, DOMAIN, "my-flow", updateFlow).test();
+        TestObserver testObserver =
+                flowService.update(ReferenceType.DOMAIN, DOMAIN, "my-flow", updateFlow).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -234,16 +249,17 @@ public class FlowServiceTest {
         verify(eventService, times(1)).create(any());
     }
 
-
     @Test
     public void shouldNotUpdate_TypeChange() {
         Flow updateFlow = Mockito.mock(Flow.class);
         when(updateFlow.getType()).thenReturn(Type.ROOT);
         Flow existingFlow = new Flow();
         existingFlow.setType(Type.LOGIN);
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-flow")).thenReturn(Maybe.just(existingFlow));
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-flow"))
+                .thenReturn(Maybe.just(existingFlow));
 
-        TestObserver testObserver = flowService.update(ReferenceType.DOMAIN, DOMAIN, "my-flow", updateFlow).test();
+        TestObserver testObserver =
+                flowService.update(ReferenceType.DOMAIN, DOMAIN, "my-flow", updateFlow).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(InvalidParameterException.class);
 
@@ -265,28 +281,34 @@ public class FlowServiceTest {
         updateFlow.setPost(Arrays.asList(new Step()));
         updateFlow.setType(Type.ROOT);
 
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, ID)).thenReturn(Maybe.just(existingFlow));
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, ID))
+                .thenReturn(Maybe.just(existingFlow));
         when(flowRepository.update(any(Flow.class))).thenReturn(Single.just(new Flow()));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = flowService.update(ReferenceType.DOMAIN, DOMAIN, ID, updateFlow).test();
+        TestObserver testObserver =
+                flowService.update(ReferenceType.DOMAIN, DOMAIN, ID, updateFlow).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
         verify(flowRepository, times(1)).findById(ReferenceType.DOMAIN, DOMAIN, ID);
-        verify(flowRepository, times(1)).update(argThat(flow -> flow.getPost().isEmpty() && !flow.getPre().isEmpty()));
+        verify(flowRepository, times(1))
+                .update(argThat(flow -> flow.getPost().isEmpty() && !flow.getPre().isEmpty()));
         verify(eventService, times(1)).create(any());
     }
 
     @Test
     public void shouldUpdate_technicalException() {
         Flow updateFlow = Mockito.mock(Flow.class);
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-flow")).thenReturn(Maybe.error(TechnicalException::new));
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-flow"))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
         TestObserver testObserver = new TestObserver();
-        flowService.update(ReferenceType.DOMAIN, DOMAIN, "my-flow", updateFlow).subscribe(testObserver);
+        flowService
+                .update(ReferenceType.DOMAIN, DOMAIN, "my-flow", updateFlow)
+                .subscribe(testObserver);
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -297,10 +319,13 @@ public class FlowServiceTest {
 
     @Test
     public void shouldUpdate_flowNotFound() {
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-flow")).thenReturn(Maybe.empty());
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-flow"))
+                .thenReturn(Maybe.empty());
 
         TestObserver testObserver = new TestObserver();
-        flowService.update(ReferenceType.DOMAIN, DOMAIN, "my-flow", new Flow()).subscribe(testObserver);
+        flowService
+                .update(ReferenceType.DOMAIN, DOMAIN, "my-flow", new Flow())
+                .subscribe(testObserver);
 
         testObserver.assertError(FlowNotFoundException.class);
         testObserver.assertNotComplete();
@@ -359,10 +384,15 @@ public class FlowServiceTest {
         newFlow2.setOrder(0);
 
         when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.empty());
-        when(flowRepository.create(any(Flow.class))).thenReturn(Single.just(newFlow), Single.just(newFlow2));
+        when(flowRepository.create(any(Flow.class)))
+                .thenReturn(Single.just(newFlow), Single.just(newFlow2));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = flowService.createOrUpdate(ReferenceType.DOMAIN, DOMAIN, Arrays.asList(newFlow, newFlow2)).test();
+        TestObserver testObserver =
+                flowService
+                        .createOrUpdate(
+                                ReferenceType.DOMAIN, DOMAIN, Arrays.asList(newFlow, newFlow2))
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -393,13 +423,23 @@ public class FlowServiceTest {
         existingFlow2.setType(Type.ROOT);
         existingFlow2.setOrder(0);
 
-        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(existingFlow, existingFlow2));
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, updateFlow.getId())).thenReturn(Maybe.just(existingFlow));
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, updateFlow2.getId())).thenReturn(Maybe.just(existingFlow2));
-        when(flowRepository.update(any(Flow.class))).thenReturn(Single.just(updateFlow), Single.just(updateFlow2));
+        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.just(existingFlow, existingFlow2));
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, updateFlow.getId()))
+                .thenReturn(Maybe.just(existingFlow));
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, updateFlow2.getId()))
+                .thenReturn(Maybe.just(existingFlow2));
+        when(flowRepository.update(any(Flow.class)))
+                .thenReturn(Single.just(updateFlow), Single.just(updateFlow2));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = flowService.createOrUpdate(ReferenceType.DOMAIN, DOMAIN, Arrays.asList(updateFlow, updateFlow2)).test();
+        TestObserver testObserver =
+                flowService
+                        .createOrUpdate(
+                                ReferenceType.DOMAIN,
+                                DOMAIN,
+                                Arrays.asList(updateFlow, updateFlow2))
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -425,13 +465,21 @@ public class FlowServiceTest {
         updateFlow2.setType(Type.ROOT);
         updateFlow2.setOrder(0);
 
-        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(existingFlow));
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, updateFlow.getId())).thenReturn(Maybe.just(existingFlow));
+        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.just(existingFlow));
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, updateFlow.getId()))
+                .thenReturn(Maybe.just(existingFlow));
         when(flowRepository.update(any(Flow.class))).thenReturn(Single.just(updateFlow2));
         when(flowRepository.create(any(Flow.class))).thenReturn(Single.just(updateFlow));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = flowService.createOrUpdate(ReferenceType.DOMAIN, DOMAIN, Arrays.asList(updateFlow, updateFlow2)).test();
+        TestObserver testObserver =
+                flowService
+                        .createOrUpdate(
+                                ReferenceType.DOMAIN,
+                                DOMAIN,
+                                Arrays.asList(updateFlow, updateFlow2))
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -458,9 +506,16 @@ public class FlowServiceTest {
         existingFlow2.setId("flow2");
         existingFlow2.setType(Type.ROOT);
 
-        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(existingFlow, existingFlow2));
+        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.just(existingFlow, existingFlow2));
 
-        TestObserver testObserver = flowService.createOrUpdate(ReferenceType.DOMAIN, DOMAIN, Arrays.asList(updateFlow, updateFlow2)).test();
+        TestObserver testObserver =
+                flowService
+                        .createOrUpdate(
+                                ReferenceType.DOMAIN,
+                                DOMAIN,
+                                Arrays.asList(updateFlow, updateFlow2))
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertError(InvalidParameterException.class);
@@ -475,7 +530,11 @@ public class FlowServiceTest {
         updateFlow.setType(Type.LOGIN);
         updateFlow.setId("flow1");
 
-        TestObserver testObserver = flowService.createOrUpdate(ReferenceType.DOMAIN, DOMAIN, Arrays.asList(updateFlow, updateFlow)).test();
+        TestObserver testObserver =
+                flowService
+                        .createOrUpdate(
+                                ReferenceType.DOMAIN, DOMAIN, Arrays.asList(updateFlow, updateFlow))
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertError(InvalidParameterException.class);
@@ -483,7 +542,6 @@ public class FlowServiceTest {
         verify(flowRepository, never()).update(any(Flow.class));
         verify(flowRepository, never()).create(any(Flow.class));
     }
-
 
     @Test
     public void shouldUpdateAllFlows_WithDelete() {
@@ -498,14 +556,19 @@ public class FlowServiceTest {
         existingFlow2.setId("flow2");
         existingFlow2.setType(Type.ROOT);
 
-        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(existingFlow, existingFlow2));
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, existingFlow2.getId())).thenReturn(Maybe.just(existingFlow2));
+        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.just(existingFlow, existingFlow2));
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, existingFlow2.getId()))
+                .thenReturn(Maybe.just(existingFlow2));
         when(flowRepository.findById(existingFlow.getId())).thenReturn(Maybe.just(existingFlow));
         when(flowRepository.update(any(Flow.class))).thenReturn(Single.just(new Flow()));
         when(flowRepository.delete(any())).thenReturn(Completable.complete());
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = flowService.createOrUpdate(ReferenceType.DOMAIN, DOMAIN, Arrays.asList(updateFlow2)).test();
+        TestObserver testObserver =
+                flowService
+                        .createOrUpdate(ReferenceType.DOMAIN, DOMAIN, Arrays.asList(updateFlow2))
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -516,5 +579,4 @@ public class FlowServiceTest {
         verify(flowRepository, never()).create(any(Flow.class));
         verify(eventService, times(2)).create(any());
     }
-
 }

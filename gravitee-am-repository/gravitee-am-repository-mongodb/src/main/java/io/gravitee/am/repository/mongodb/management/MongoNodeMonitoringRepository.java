@@ -1,21 +1,22 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.*;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.repository.mongodb.management.internal.model.MonitoringMongo;
 import io.gravitee.node.api.Monitoring;
 import io.gravitee.node.api.NodeMonitoringRepository;
@@ -23,23 +24,24 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.mongodb.client.model.Filters.*;
+import javax.annotation.PostConstruct;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class MongoNodeMonitoringRepository extends AbstractManagementMongoRepository implements NodeMonitoringRepository {
+public class MongoNodeMonitoringRepository extends AbstractManagementMongoRepository
+        implements NodeMonitoringRepository {
 
     private static final String FIELD_NODE_ID = "nodeId";
     private static final String FIELD_TYPE = "type";
@@ -55,7 +57,10 @@ public class MongoNodeMonitoringRepository extends AbstractManagementMongoReposi
 
     @Override
     public Maybe<Monitoring> findByNodeIdAndType(String nodeId, String type) {
-        return Observable.fromPublisher(collection.find(and(eq(FIELD_NODE_ID, nodeId), eq(FIELD_TYPE, type))).first())
+        return Observable.fromPublisher(
+                        collection
+                                .find(and(eq(FIELD_NODE_ID, nodeId), eq(FIELD_TYPE, type)))
+                                .first())
                 .firstElement()
                 .map(this::convert);
     }
@@ -68,7 +73,9 @@ public class MongoNodeMonitoringRepository extends AbstractManagementMongoReposi
 
     @Override
     public Single<Monitoring> update(Monitoring monitoring) {
-        return Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, monitoring.getId()), convert(monitoring)))
+        return Single.fromPublisher(
+                        collection.replaceOne(
+                                eq(FIELD_ID, monitoring.getId()), convert(monitoring)))
                 .map(updateResult -> monitoring);
     }
 

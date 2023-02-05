@@ -1,24 +1,23 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.account.services;
 
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.gateway.handler.account.services.impl.AccountServiceImpl;
 import io.gravitee.am.gateway.handler.common.auth.idp.IdentityProviderManager;
-import io.gravitee.am.gateway.handler.common.user.UserService;
 import io.gravitee.am.identityprovider.api.DefaultUser;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.identityprovider.api.UserProvider;
@@ -32,6 +31,7 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -40,8 +40,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Map;
 
-import static org.mockito.Mockito.*;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -49,26 +47,19 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class AccountServiceTest {
 
-    @Mock
-    private CredentialService credentialService;
+    @Mock private CredentialService credentialService;
 
-    @Mock
-    private UserValidator userValidator;
+    @Mock private UserValidator userValidator;
 
-    @Mock
-    private UserRepository userRepository;
+    @Mock private UserRepository userRepository;
 
-    @Mock
-    private IdentityProviderManager identityProviderManager;
+    @Mock private IdentityProviderManager identityProviderManager;
 
-    @Mock
-    private AuditService auditService;
+    @Mock private AuditService auditService;
 
-    @Mock
-    private Domain domain;
+    @Mock private Domain domain;
 
-    @InjectMocks
-    private AccountService accountService = new AccountServiceImpl();
+    @InjectMocks private AccountService accountService = new AccountServiceImpl();
 
     @Test
     public void shouldRemoveWebAuthnCredentials_nominalCase() {
@@ -82,7 +73,8 @@ public class AccountServiceTest {
         when(credentialService.findById(credentialId)).thenReturn(Maybe.just(credential));
         when(credentialService.delete(credentialId)).thenReturn(Completable.complete());
 
-        TestObserver testObserver = accountService.removeWebAuthnCredential(userId, credentialId, principal).test();
+        TestObserver testObserver =
+                accountService.removeWebAuthnCredential(userId, credentialId, principal).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -100,7 +92,8 @@ public class AccountServiceTest {
 
         when(credentialService.findById(credentialId)).thenReturn(Maybe.empty());
 
-        TestObserver testObserver = accountService.removeWebAuthnCredential(userId, credentialId, principal).test();
+        TestObserver testObserver =
+                accountService.removeWebAuthnCredential(userId, credentialId, principal).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -120,7 +113,8 @@ public class AccountServiceTest {
 
         when(credentialService.findById(credentialId)).thenReturn(Maybe.just(credential));
 
-        TestObserver testObserver = accountService.removeWebAuthnCredential(userId, credentialId, principal).test();
+        TestObserver testObserver =
+                accountService.removeWebAuthnCredential(userId, credentialId, principal).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -136,7 +130,7 @@ public class AccountServiceTest {
         final io.gravitee.am.model.User userUpdate = new io.gravitee.am.model.User();
         userUpdate.setSource("source");
         userUpdate.setId(userId);
-        userUpdate.setExternalId("ext-"+userId);
+        userUpdate.setExternalId("ext-" + userId);
         userUpdate.setAddress(Map.of("street", "my street", "city", "my city"));
         userUpdate.setBirthdate("01/01/1970");
         userUpdate.setDisplayName("Display Name");
@@ -155,7 +149,8 @@ public class AccountServiceTest {
         final UserProvider userProvider = mock(UserProvider.class);
 
         when(userValidator.validate(userUpdate)).thenReturn(Completable.complete());
-        when(identityProviderManager.getUserProvider(userUpdate.getSource())).thenReturn(Maybe.just(userProvider));
+        when(identityProviderManager.getUserProvider(userUpdate.getSource()))
+                .thenReturn(Maybe.just(userProvider));
         when(userProvider.update(any(), any())).thenReturn(Single.just(new DefaultUser()));
         when(userRepository.update(any())).thenReturn(Single.just(userUpdate));
 
@@ -164,18 +159,65 @@ public class AccountServiceTest {
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(userProvider).update(any(), argThat(idpUser ->
-                userUpdate.getFirstName().equals(idpUser.getFirstName()) &&
-                        userUpdate.getLastName().equals(idpUser.getLastName()) &&
-                        userUpdate.getNickName().equals(idpUser.getAdditionalInformation().get(StandardClaims.NICKNAME)) &&
-                        userUpdate.getMiddleName().equals(idpUser.getAdditionalInformation().get(StandardClaims.MIDDLE_NAME)) &&
-                        userUpdate.getBirthdate().equals(idpUser.getAdditionalInformation().get(StandardClaims.BIRTHDATE)) &&
-                        userUpdate.getPicture().equals(idpUser.getAdditionalInformation().get(StandardClaims.PICTURE)) &&
-                        userUpdate.getProfile().equals(idpUser.getAdditionalInformation().get(StandardClaims.PROFILE)) &&
-                        userUpdate.getWebsite().equals(idpUser.getAdditionalInformation().get(StandardClaims.WEBSITE)) &&
-                        userUpdate.getEmail().equals(idpUser.getEmail())&&
-                        userUpdate.getPhoneNumber().equals(idpUser.getAdditionalInformation().get(StandardClaims.PHONE_NUMBER))
-        ));
+        verify(userProvider)
+                .update(
+                        any(),
+                        argThat(
+                                idpUser ->
+                                        userUpdate.getFirstName().equals(idpUser.getFirstName())
+                                                && userUpdate
+                                                        .getLastName()
+                                                        .equals(idpUser.getLastName())
+                                                && userUpdate
+                                                        .getNickName()
+                                                        .equals(
+                                                                idpUser.getAdditionalInformation()
+                                                                        .get(
+                                                                                StandardClaims
+                                                                                        .NICKNAME))
+                                                && userUpdate
+                                                        .getMiddleName()
+                                                        .equals(
+                                                                idpUser.getAdditionalInformation()
+                                                                        .get(
+                                                                                StandardClaims
+                                                                                        .MIDDLE_NAME))
+                                                && userUpdate
+                                                        .getBirthdate()
+                                                        .equals(
+                                                                idpUser.getAdditionalInformation()
+                                                                        .get(
+                                                                                StandardClaims
+                                                                                        .BIRTHDATE))
+                                                && userUpdate
+                                                        .getPicture()
+                                                        .equals(
+                                                                idpUser.getAdditionalInformation()
+                                                                        .get(
+                                                                                StandardClaims
+                                                                                        .PICTURE))
+                                                && userUpdate
+                                                        .getProfile()
+                                                        .equals(
+                                                                idpUser.getAdditionalInformation()
+                                                                        .get(
+                                                                                StandardClaims
+                                                                                        .PROFILE))
+                                                && userUpdate
+                                                        .getWebsite()
+                                                        .equals(
+                                                                idpUser.getAdditionalInformation()
+                                                                        .get(
+                                                                                StandardClaims
+                                                                                        .WEBSITE))
+                                                && userUpdate.getEmail().equals(idpUser.getEmail())
+                                                && userUpdate
+                                                        .getPhoneNumber()
+                                                        .equals(
+                                                                idpUser.getAdditionalInformation()
+                                                                        .get(
+                                                                                StandardClaims
+                                                                                        .PHONE_NUMBER))));
         verify(userRepository).update(any());
     }
 }

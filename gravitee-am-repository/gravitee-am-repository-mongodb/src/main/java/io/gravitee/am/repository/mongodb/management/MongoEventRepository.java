@@ -1,47 +1,49 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.*;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
-import io.gravitee.am.common.utils.RandomString;
+
 import io.gravitee.am.common.event.Action;
+import io.gravitee.am.common.event.Type;
+import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.model.common.event.Payload;
-import io.gravitee.am.common.event.Type;
 import io.gravitee.am.repository.management.api.EventRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.EventMongo;
 import io.reactivex.*;
+
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static com.mongodb.client.model.Filters.*;
+import javax.annotation.PostConstruct;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class MongoEventRepository extends AbstractManagementMongoRepository implements EventRepository {
+public class MongoEventRepository extends AbstractManagementMongoRepository
+        implements EventRepository {
 
     private MongoCollection<EventMongo> eventsCollection;
 
@@ -64,20 +66,28 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
 
     @Override
     public Maybe<Event> findById(String id) {
-        return Observable.fromPublisher(eventsCollection.find(eq(FIELD_ID, id)).first()).map(this::convert).firstElement();
+        return Observable.fromPublisher(eventsCollection.find(eq(FIELD_ID, id)).first())
+                .map(this::convert)
+                .firstElement();
     }
 
     @Override
     public Single<Event> create(Event item) {
         EventMongo event = convert(item);
         event.setId(event.getId() == null ? RandomString.generate() : event.getId());
-        return Single.fromPublisher(eventsCollection.insertOne(event)).flatMap(success -> { item.setId(event.getId()); return Single.just(item); });
+        return Single.fromPublisher(eventsCollection.insertOne(event))
+                .flatMap(
+                        success -> {
+                            item.setId(event.getId());
+                            return Single.just(item);
+                        });
     }
 
     @Override
     public Single<Event> update(Event item) {
         EventMongo event = convert(item);
-        return Single.fromPublisher(eventsCollection.replaceOne(eq(FIELD_ID, event.getId()), event)).flatMap(updateResult -> Single.just(item));
+        return Single.fromPublisher(eventsCollection.replaceOne(eq(FIELD_ID, event.getId()), event))
+                .flatMap(updateResult -> Single.just(item));
     }
 
     @Override

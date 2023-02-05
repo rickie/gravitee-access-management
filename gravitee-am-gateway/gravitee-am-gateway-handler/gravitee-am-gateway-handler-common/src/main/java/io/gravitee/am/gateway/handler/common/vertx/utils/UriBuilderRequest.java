@@ -1,34 +1,34 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.vertx.utils;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
+
+import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toMap;
 
 import io.gravitee.am.common.web.UriBuilder;
 import io.gravitee.common.http.HttpHeaders;
 import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Map.Entry;
-
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toMap;
 
 /**
  * Handle proxy specific things such as resolving external url via X-Forwarded-* proxy headers
@@ -50,12 +50,16 @@ public class UriBuilderRequest {
 
     /**
      * Resolve proxy request
+     *
      * @param request original request
      * @param path request path
      * @param parameters request query params
      * @return request uri representation
      */
-    public static String resolveProxyRequest(final HttpServerRequest request, final String path, final Map<String, String> parameters) {
+    public static String resolveProxyRequest(
+            final HttpServerRequest request,
+            final String path,
+            final Map<String, String> parameters) {
         return resolveProxyRequest(request, path, parameters, false);
     }
 
@@ -65,13 +69,18 @@ public class UriBuilderRequest {
 
     /**
      * Resolve proxy request
+     *
      * @param request original request
      * @param path request path
      * @param parameters request query params
      * @param encoded if request query params should be encoded
      * @return request uri representation
      */
-    public static String resolveProxyRequest(final HttpServerRequest request, final String path, final Map<String, String> parameters, boolean encoded) {
+    public static String resolveProxyRequest(
+            final HttpServerRequest request,
+            final String path,
+            final Map<String, String> parameters,
+            boolean encoded) {
 
         final MultiMap queryParameters;
 
@@ -86,20 +95,29 @@ public class UriBuilderRequest {
     }
 
     private static Map<String, String> getSafeParameters(Map<String, String> parameters) {
-        return parameters.entrySet()
-                .stream().filter(entry -> nonNull(entry.getValue()))
+        return parameters.entrySet().stream()
+                .filter(entry -> nonNull(entry.getValue()))
                 .collect(toMap(Entry::getKey, Entry::getValue));
     }
 
-    public static String resolveProxyRequest(final HttpServerRequest request, final String path, final MultiMap parameters) {
+    public static String resolveProxyRequest(
+            final HttpServerRequest request, final String path, final MultiMap parameters) {
         return resolveProxyRequest(request, path, parameters, false);
     }
 
-    public static String resolveProxyRequest(final HttpServerRequest request, final String path, final MultiMap parameters, boolean encoded) {
+    public static String resolveProxyRequest(
+            final HttpServerRequest request,
+            final String path,
+            final MultiMap parameters,
+            boolean encoded) {
         return resolve(request, path, parameters, encoded);
     }
 
-    private static String resolve(final HttpServerRequest request, final String path, final MultiMap parameters, boolean encoded) {
+    private static String resolve(
+            final HttpServerRequest request,
+            final String path,
+            final MultiMap parameters,
+            boolean encoded) {
         UriBuilder builder = UriBuilder.newInstance();
 
         // scheme
@@ -123,7 +141,9 @@ public class UriBuilderRequest {
         String forwardedPath = request.getHeader(X_FORWARDED_PREFIX);
         if (forwardedPath != null && !forwardedPath.isEmpty()) {
             // remove trailing slash
-            forwardedPath = forwardedPath.substring(0, forwardedPath.length() - (forwardedPath.endsWith("/") ? 1 : 0));
+            forwardedPath =
+                    forwardedPath.substring(
+                            0, forwardedPath.length() - (forwardedPath.endsWith("/") ? 1 : 0));
             builder.path(forwardedPath + path);
         } else {
             builder.path(path);
@@ -133,10 +153,14 @@ public class UriBuilderRequest {
             builder.parameters(parameters);
         } else {
             if (parameters != null) {
-                parameters.forEach(entry -> {
-                    // some parameters can be already URL encoded, decode first
-                    builder.addParameter(entry.getKey(), UriBuilder.encodeURIComponent(UriBuilder.decodeURIComponent(entry.getValue())));
-                });
+                parameters.forEach(
+                        entry -> {
+                            // some parameters can be already URL encoded, decode first
+                            builder.addParameter(
+                                    entry.getKey(),
+                                    UriBuilder.encodeURIComponent(
+                                            UriBuilder.decodeURIComponent(entry.getValue())));
+                        });
             }
         }
         return builder.buildString();

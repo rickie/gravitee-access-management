@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.authentication.filter;
+
+import static java.util.stream.Collectors.toList;
 
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.common.jwt.JWT;
@@ -26,6 +26,7 @@ import io.gravitee.am.management.service.OrganizationUserService;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.User;
 import io.gravitee.common.http.HttpHeaders;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -44,11 +45,6 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
@@ -57,13 +53,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.toList;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFilter implements InitializingBean {
+public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFilter
+        implements InitializingBean {
 
     @Value("${jwt.cookie-path:/}")
     private String jwtCookiePath;
@@ -81,11 +82,9 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
     @Qualifier("managementJwtParser")
     private JWTParser jwtParser;
 
-    @Autowired
-    private OrganizationUserService userService;
+    @Autowired private OrganizationUserService userService;
 
-    @Autowired
-    private Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint;
+    @Autowired private Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint;
 
     public JWTAuthenticationFilter(RequestMatcher requiresAuthenticationRequestMatcher) {
         super(requiresAuthenticationRequestMatcher);
@@ -96,7 +95,9 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(
+            HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException {
         String authToken;
 
         // first check Authorization request header
@@ -110,12 +111,14 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
             if (request.getCookies() == null) {
                 optionalStringToken = Optional.empty();
             } else {
-                optionalStringToken = Arrays.stream(request.getCookies())
-                        .filter(cookie -> authCookieName.equals(cookie.getName()))
-                        .findAny();
+                optionalStringToken =
+                        Arrays.stream(request.getCookies())
+                                .filter(cookie -> authCookieName.equals(cookie.getName()))
+                                .findAny();
             }
 
-            if (optionalStringToken.isEmpty() || !optionalStringToken.get().getValue().startsWith("Bearer ")) {
+            if (optionalStringToken.isEmpty()
+                    || !optionalStringToken.get().getValue().startsWith("Bearer ")) {
                 throw new BadCredentialsException("No JWT token found");
             }
             authToken = optionalStringToken.get().getValue().substring(7);
@@ -126,18 +129,27 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
             Map<String, Object> claims = new HashMap<>(payload);
             claims.put(Claims.ip_address, remoteAddress(request));
             claims.put(Claims.user_agent, userAgent(request));
-            User orgUser = userService.findById(ReferenceType.ORGANIZATION, (String)payload.get("org"), (String) claims.get(StandardClaims.SUB)).blockingGet();
-            if (orgUser.getLastLogoutAt() != null && orgUser.getLastLogoutAt().after(new Date(payload.getIat()*1000))) {
+            User orgUser =
+                    userService
+                            .findById(
+                                    ReferenceType.ORGANIZATION,
+                                    (String) payload.get("org"),
+                                    (String) claims.get(StandardClaims.SUB))
+                            .blockingGet();
+            if (orgUser.getLastLogoutAt() != null
+                    && orgUser.getLastLogoutAt().after(new Date(payload.getIat() * 1000))) {
                 throw new SessionAuthenticationException("Session expired");
             }
-            DefaultUser user = new DefaultUser((String) claims.get(StandardClaims.PREFERRED_USERNAME));
+            DefaultUser user =
+                    new DefaultUser((String) claims.get(StandardClaims.PREFERRED_USERNAME));
             user.setId((String) claims.get(StandardClaims.SUB));
             user.setAdditionalInformation(claims);
             user.setRoles((List<String>) claims.get(CustomClaims.ROLES));
             // check for roles
             List<GrantedAuthority> authorities;
             if (user.getRoles() != null) {
-                authorities = user.getRoles().stream().map(SimpleGrantedAuthority::new).collect(toList());
+                authorities =
+                        user.getRoles().stream().map(SimpleGrantedAuthority::new).collect(toList());
             } else {
                 authorities = AuthorityUtils.NO_AUTHORITIES;
             }
@@ -149,7 +161,12 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain chain,
+            Authentication authResult)
+            throws IOException, ServletException {
         super.successfulAuthentication(request, response, chain, authResult);
 
         // As this is a REST authentication, after success we need to continue the request normally
@@ -171,22 +188,26 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
         @Override
         public Authentication authenticate(Authentication authentication)
                 throws AuthenticationException {
-            // We only use JWT library to authenticate the user, authentication manager is not required
-            throw new UnsupportedOperationException("No authentication should be done with this AuthenticationManager");
+            // We only use JWT library to authenticate the user, authentication manager is not
+            // required
+            throw new UnsupportedOperationException(
+                    "No authentication should be done with this AuthenticationManager");
         }
-
     }
 
     private class JWTAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
         @Override
-        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-            // We do not need to do anything extra on REST authentication success, because there is no page to redirect to
+        public void onAuthenticationSuccess(
+                HttpServletRequest request,
+                HttpServletResponse response,
+                Authentication authentication) {
+            // We do not need to do anything extra on REST authentication success, because there is
+            // no page to redirect to
         }
     }
 
     private class JWTAuthenticationFailureHandler implements AuthenticationFailureHandler {
-
 
         public JWTAuthenticationFailureHandler() {
             super();
@@ -194,7 +215,11 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
         }
 
         @Override
-        public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+        public void onAuthenticationFailure(
+                HttpServletRequest request,
+                HttpServletResponse response,
+                AuthenticationException exception)
+                throws IOException, ServletException {
             http401UnauthorizedEntryPoint.commence(request, response, exception);
         }
     }
@@ -210,7 +235,8 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
             idx = remoteAddress.indexOf(':');
 
-            remoteAddress = (idx != -1) ? remoteAddress.substring(0, idx).trim() : remoteAddress.trim();
+            remoteAddress =
+                    (idx != -1) ? remoteAddress.substring(0, idx).trim() : remoteAddress.trim();
         } else {
             remoteAddress = httpServerRequest.getRemoteAddr();
         }

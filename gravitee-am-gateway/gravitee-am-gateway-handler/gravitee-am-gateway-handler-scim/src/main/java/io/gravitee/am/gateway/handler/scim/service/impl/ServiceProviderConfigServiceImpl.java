@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.scim.service.impl;
@@ -31,14 +29,16 @@ public class ServiceProviderConfigServiceImpl implements ServiceProviderConfigSe
 
     @Override
     public Single<ServiceProviderConfiguration> get() {
-        ServiceProviderConfiguration serviceProviderConfiguration = new ServiceProviderConfiguration();
+        ServiceProviderConfiguration serviceProviderConfiguration =
+                new ServiceProviderConfiguration();
         serviceProviderConfiguration.setPatch(new ComplexType(true));
         serviceProviderConfiguration.setBulk(new ComplexType(false));
         serviceProviderConfiguration.setFilter(new ComplexType(true));
         serviceProviderConfiguration.setChangePassword(new ComplexType(false));
         serviceProviderConfiguration.setSort(new ComplexType(false));
         serviceProviderConfiguration.setEtag(new ComplexType(false));
-        serviceProviderConfiguration.setAuthenticationSchemes(Collections.singletonList(AuthenticationScheme.OAUTH_BEARER_TOKEN));
+        serviceProviderConfiguration.setAuthenticationSchemes(
+                Collections.singletonList(AuthenticationScheme.OAUTH_BEARER_TOKEN));
 
         return Single.just(serviceProviderConfiguration);
     }

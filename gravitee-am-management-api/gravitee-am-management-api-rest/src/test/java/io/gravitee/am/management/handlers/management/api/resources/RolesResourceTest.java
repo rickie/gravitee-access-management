@@ -1,19 +1,23 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.resources;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Domain;
@@ -26,19 +30,15 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+
 import org.junit.Test;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -70,7 +70,8 @@ public class RolesResourceTest extends JerseySpringTest {
 
         final Response response = target("domains").path(domainId).path("roles").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
-        JsonArray pageArray = new JsonObject(readEntity(response, String.class)).getJsonArray("data");
+        JsonArray pageArray =
+                new JsonObject(readEntity(response, String.class)).getJsonArray("data");
         assertTrue(pageArray.size() == 2);
     }
 
@@ -95,18 +96,29 @@ public class RolesResourceTest extends JerseySpringTest {
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Single.just(roles)).when(roleService).findByDomain(domainId);
-        doReturn(Single.just(pagedRoles)).when(roleService).searchByDomain(domainId, "*role-2-name*", 0, 50);
+        doReturn(Single.just(pagedRoles))
+                .when(roleService)
+                .searchByDomain(domainId, "*role-2-name*", 0, 50);
 
-        final Response response = target("domains").path(domainId).path("roles").queryParam("q", "*role-2-name*").request().get();
+        final Response response =
+                target("domains")
+                        .path(domainId)
+                        .path("roles")
+                        .queryParam("q", "*role-2-name*")
+                        .request()
+                        .get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
-        JsonArray pageArray = new JsonObject(readEntity(response, String.class)).getJsonArray("data");
+        JsonArray pageArray =
+                new JsonObject(readEntity(response, String.class)).getJsonArray("data");
         assertTrue(pageArray.size() == 2);
     }
 
     @Test
     public void shouldGetRoles_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(Single.error(new TechnicalManagementException("error occurs"))).when(roleService).findByDomain(domainId);
+        doReturn(Single.error(new TechnicalManagementException("error occurs")))
+                .when(roleService)
+                .findByDomain(domainId);
 
         final Response response = target("domains").path(domainId).path("roles").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -128,10 +140,8 @@ public class RolesResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Single.just(role)).when(roleService).create(eq(domainId), any(), any());
 
-        final Response response = target("domains")
-                .path(domainId)
-                .path("roles")
-                .request().post(Entity.json(newRole));
+        final Response response =
+                target("domains").path(domainId).path("roles").request().post(Entity.json(newRole));
         assertEquals(HttpStatusCode.CREATED_201, response.getStatus());
     }
 }

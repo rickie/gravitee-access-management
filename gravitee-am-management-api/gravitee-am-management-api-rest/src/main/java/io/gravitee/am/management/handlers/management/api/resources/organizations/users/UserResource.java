@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.users;
@@ -28,7 +26,6 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.IdentityProviderService;
-import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.exception.UserInvalidException;
 import io.gravitee.am.service.model.UpdateUser;
 import io.gravitee.common.http.MediaType;
@@ -38,6 +35,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.inject.Named;
@@ -57,47 +55,59 @@ import javax.ws.rs.core.Response;
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public class UserResource extends AbstractResource {
 
-    @Context
-    private ResourceContext resourceContext;
+    @Context private ResourceContext resourceContext;
 
     @Autowired
     @Named("managementOrganizationUserService")
     private OrganizationUserService organizationUserService;
 
-    @Autowired
-    private IdentityProviderService identityProviderService;
+    @Autowired private IdentityProviderService identityProviderService;
 
-    @Autowired
-    private IdentityProviderManager identityProviderManager;
+    @Autowired private IdentityProviderManager identityProviderManager;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Get a user",
-            notes = "User must have the ORGANIZATION_USER[READ] permission on the specified organization")
+    @ApiOperation(
+            value = "Get a user",
+            notes =
+                    "User must have the ORGANIZATION_USER[READ] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "User successfully fetched", response = UserEntity.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(
+                code = 200,
+                message = "User successfully fetched",
+                response = UserEntity.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void get(
             @PathParam("organizationId") String organizationId,
             @PathParam("user") String user,
             @Suspended final AsyncResponse response) {
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.READ)
-                .andThen(organizationUserService.findById(ReferenceType.ORGANIZATION, organizationId, user)
-                        .map(UserEntity::new)
-                        .flatMap(this::enhanceIdentityProvider))
+        checkPermission(
+                        ReferenceType.ORGANIZATION,
+                        organizationId,
+                        Permission.ORGANIZATION_USER,
+                        Acl.READ)
+                .andThen(
+                        organizationUserService
+                                .findById(ReferenceType.ORGANIZATION, organizationId, user)
+                                .map(UserEntity::new)
+                                .flatMap(this::enhanceIdentityProvider))
                 .subscribe(response::resume, response::resume);
     }
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Update a user",
+    @ApiOperation(
+            value = "Update a user",
             nickname = "updateOrganizationUser",
-            notes = "User must have the ORGANIZATION_USER[UPDATE] permission on the specified organization")
+            notes =
+                    "User must have the ORGANIZATION_USER[UPDATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 201, message = "User successfully updated", response = User.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 201, message = "User successfully updated", response = User.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void updateUser(
             @PathParam("organizationId") String organizationId,
             @PathParam("user") String user,
@@ -105,8 +115,18 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.UPDATE)
-                .andThen(organizationUserService.update(ReferenceType.ORGANIZATION, organizationId, user, updateUser, authenticatedUser))
+        checkPermission(
+                        ReferenceType.ORGANIZATION,
+                        organizationId,
+                        Permission.ORGANIZATION_USER,
+                        Acl.UPDATE)
+                .andThen(
+                        organizationUserService.update(
+                                ReferenceType.ORGANIZATION,
+                                organizationId,
+                                user,
+                                updateUser,
+                                authenticatedUser))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -114,12 +134,18 @@ public class UserResource extends AbstractResource {
     @Path("/status")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Update a user status",
+    @ApiOperation(
+            value = "Update a user status",
             nickname = "updateOrganizationUserStatus",
-            notes = "User must have the ORGANIZATION_USER[UPDATE] permission on the specified organization")
+            notes =
+                    "User must have the ORGANIZATION_USER[UPDATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 201, message = "User status successfully updated", response = User.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(
+                code = 201,
+                message = "User status successfully updated",
+                response = User.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void updateUserStatus(
             @PathParam("organizationId") String organizationId,
             @PathParam("user") String user,
@@ -127,8 +153,18 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.UPDATE)
-                .andThen(organizationUserService.updateStatus(ReferenceType.ORGANIZATION, organizationId, user, status.isEnabled(), authenticatedUser))
+        checkPermission(
+                        ReferenceType.ORGANIZATION,
+                        organizationId,
+                        Permission.ORGANIZATION_USER,
+                        Acl.UPDATE)
+                .andThen(
+                        organizationUserService.updateStatus(
+                                ReferenceType.ORGANIZATION,
+                                organizationId,
+                                user,
+                                status.isEnabled(),
+                                authenticatedUser))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -139,10 +175,15 @@ public class UserResource extends AbstractResource {
     @ApiOperation(
             nickname = "updateOrganisationUsername",
             value = "Update a user username",
-            notes = "User must have the ORGANIZATION_USER[UPDATE] permission on the specified organization")
+            notes =
+                    "User must have the ORGANIZATION_USER[UPDATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 201, message = "User username successfully updated", response = User.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(
+                code = 201,
+                message = "User username successfully updated",
+                response = User.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void updateUsername(
             @PathParam("organizationId") String organizationId,
             @PathParam("user") String userId,
@@ -150,38 +191,62 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.UPDATE)
-                .andThen(organizationUserService.updateUsername(ReferenceType.ORGANIZATION, organizationId, userId, username.getUsername(), authenticatedUser))
+        checkPermission(
+                        ReferenceType.ORGANIZATION,
+                        organizationId,
+                        Permission.ORGANIZATION_USER,
+                        Acl.UPDATE)
+                .andThen(
+                        organizationUserService.updateUsername(
+                                ReferenceType.ORGANIZATION,
+                                organizationId,
+                                userId,
+                                username.getUsername(),
+                                authenticatedUser))
                 .subscribe(response::resume, response::resume);
     }
 
-
     @DELETE
-    @ApiOperation(value = "Delete a user",
+    @ApiOperation(
+            value = "Delete a user",
             nickname = "deleteOrganizationUser",
-            notes = "User must have the ORGANIZATION_USER[DELETE] permission on the specified organization")
+            notes =
+                    "User must have the ORGANIZATION_USER[DELETE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 204, message = "User successfully deleted"),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 204, message = "User successfully deleted"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void delete(
             @PathParam("organizationId") String organizationId,
             @PathParam("user") String user,
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.DELETE)
-                .andThen(organizationUserService.delete(ReferenceType.ORGANIZATION, organizationId, user, authenticatedUser))
+        checkPermission(
+                        ReferenceType.ORGANIZATION,
+                        organizationId,
+                        Permission.ORGANIZATION_USER,
+                        Acl.DELETE)
+                .andThen(
+                        organizationUserService.delete(
+                                ReferenceType.ORGANIZATION,
+                                organizationId,
+                                user,
+                                authenticatedUser))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 
     @POST
     @Path("resetPassword")
-    @ApiOperation(value = "Reset password",
+    @ApiOperation(
+            value = "Reset password",
             nickname = "resetOrganizationUserPassword",
-            notes = "User must have the ORGANIZATION_USER[UPDATE] permission on the specified organization")
+            notes =
+                    "User must have the ORGANIZATION_USER[UPDATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Password reset"),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 200, message = "Password reset"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void resetPassword(
             @PathParam("organizationId") String organizationId,
             @PathParam("user") String user,
@@ -189,28 +254,52 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.UPDATE)
-                .andThen(organizationUserService.findById(ReferenceType.ORGANIZATION, organizationId, user)
-                        .filter(existingUser -> IdentityProviderManagerImpl.IDP_GRAVITEE.equals(existingUser.getSource()))
-                        .switchIfEmpty(Maybe.error(new UserInvalidException("Unable to reset password")))
-                        .flatMapCompletable(existingUser -> organizationUserService.resetPassword(organizationId, existingUser, password.getPassword(), authenticatedUser)))
+        checkPermission(
+                        ReferenceType.ORGANIZATION,
+                        organizationId,
+                        Permission.ORGANIZATION_USER,
+                        Acl.UPDATE)
+                .andThen(
+                        organizationUserService
+                                .findById(ReferenceType.ORGANIZATION, organizationId, user)
+                                .filter(
+                                        existingUser ->
+                                                IdentityProviderManagerImpl.IDP_GRAVITEE.equals(
+                                                        existingUser.getSource()))
+                                .switchIfEmpty(
+                                        Maybe.error(
+                                                new UserInvalidException(
+                                                        "Unable to reset password")))
+                                .flatMapCompletable(
+                                        existingUser ->
+                                                organizationUserService.resetPassword(
+                                                        organizationId,
+                                                        existingUser,
+                                                        password.getPassword(),
+                                                        authenticatedUser)))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
-
     }
+
     private Single<UserEntity> enhanceIdentityProvider(UserEntity userEntity) {
         if (userEntity.getSource() != null) {
-            return identityProviderService.findById(userEntity.getSource())
-                    .flatMap(idP -> {
-                        userEntity.setSource(idP.getName());
-                        userEntity.setInternal(false);
-                        // try to load the UserProvider to mark the user as internal or not
-                        // Since Github issue #8695, the UserProvider maybe disabled for MongoDB & JDBC implementation
-                        return identityProviderManager.getUserProvider(userEntity.getSourceId())
-                                .map(up -> {
-                                    userEntity.setInternal(true);
-                                    return userEntity;
-                                }).defaultIfEmpty(userEntity);
-                    })
+            return identityProviderService
+                    .findById(userEntity.getSource())
+                    .flatMap(
+                            idP -> {
+                                userEntity.setSource(idP.getName());
+                                userEntity.setInternal(false);
+                                // try to load the UserProvider to mark the user as internal or not
+                                // Since Github issue #8695, the UserProvider maybe disabled for
+                                // MongoDB & JDBC implementation
+                                return identityProviderManager
+                                        .getUserProvider(userEntity.getSourceId())
+                                        .map(
+                                                up -> {
+                                                    userEntity.setInternal(true);
+                                                    return userEntity;
+                                                })
+                                        .defaultIfEmpty(userEntity);
+                            })
                     .defaultIfEmpty(userEntity)
                     .toSingle();
         }

@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.management.api;
+
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Reporter;
@@ -25,24 +25,25 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
+
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Repository
-public class JdbcReporterRepository extends AbstractJdbcRepository implements ReporterRepository, InitializingBean {
+public class JdbcReporterRepository extends AbstractJdbcRepository
+        implements ReporterRepository, InitializingBean {
 
     public static final String COL_ID = "id";
     public static final String COL_DOMAIN = "domain";
@@ -55,8 +56,7 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
     public static final String COL_CREATED_AT = "created_at";
     public static final String COL_UPDATED_AT = "updated_at";
 
-    @Autowired
-    protected SpringReporterRepository reporterRepository;
+    @Autowired protected SpringReporterRepository reporterRepository;
 
     protected Reporter toEntity(JdbcReporter entity) {
         return mapper.map(entity, Reporter.class);
@@ -65,17 +65,19 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
     protected JdbcReporter toJdbcEntity(Reporter entity) {
         return mapper.map(entity, JdbcReporter.class);
     }
-    private static final List<String> columns = List.of(COL_ID,
-            COL_DOMAIN,
-            COL_ENABLED,
-            COL_TYPE,
-            COL_NAME,
-            COL_DATA_TYPE,
-            COL_CONFIG,
-            COL_IS_SYSTEM,
-            COL_CREATED_AT,
-            COL_UPDATED_AT
-    );
+
+    private static final List<String> columns =
+            List.of(
+                    COL_ID,
+                    COL_DOMAIN,
+                    COL_ENABLED,
+                    COL_TYPE,
+                    COL_NAME,
+                    COL_DATA_TYPE,
+                    COL_CONFIG,
+                    COL_IS_SYSTEM,
+                    COL_CREATED_AT,
+                    COL_UPDATED_AT);
     private String INSERT_STATEMENT;
     private String UPDATE_STATEMENT;
 
@@ -88,22 +90,19 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
     @Override
     public Flowable<Reporter> findAll() {
         LOGGER.debug("findAll()");
-        return reporterRepository.findAll()
-                .map(this::toEntity);
+        return reporterRepository.findAll().map(this::toEntity);
     }
 
     @Override
     public Flowable<Reporter> findByDomain(String domain) {
         LOGGER.debug("findByDomain({})", domain);
-        return reporterRepository.findByDomain(domain)
-                .map(this::toEntity);
+        return reporterRepository.findByDomain(domain).map(this::toEntity);
     }
 
     @Override
     public Maybe<Reporter> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return reporterRepository.findById(id)
-                .map(this::toEntity);
+        return reporterRepository.findById(id).map(this::toEntity);
     }
 
     @Override
@@ -113,7 +112,8 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
 
         TransactionalOperator trx = TransactionalOperator.create(tm);
 
-        DatabaseClient.GenericExecuteSpec insertSpec = template.getDatabaseClient().sql(INSERT_STATEMENT);
+        DatabaseClient.GenericExecuteSpec insertSpec =
+                template.getDatabaseClient().sql(INSERT_STATEMENT);
 
         insertSpec = addQuotedField(insertSpec, COL_ID, item.getId(), String.class);
         insertSpec = addQuotedField(insertSpec, COL_DOMAIN, item.getDomain(), String.class);
@@ -123,8 +123,18 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
         insertSpec = addQuotedField(insertSpec, COL_DATA_TYPE, item.getDataType(), String.class);
         insertSpec = addQuotedField(insertSpec, COL_CONFIG, item.getConfiguration(), String.class);
         insertSpec = addQuotedField(insertSpec, COL_IS_SYSTEM, item.isSystem(), String.class);
-        insertSpec = addQuotedField(insertSpec, COL_CREATED_AT, dateConverter.convertTo(item.getCreatedAt(), null), LocalDateTime.class);
-        insertSpec = addQuotedField(insertSpec, COL_UPDATED_AT, dateConverter.convertTo(item.getUpdatedAt(), null), LocalDateTime.class);
+        insertSpec =
+                addQuotedField(
+                        insertSpec,
+                        COL_CREATED_AT,
+                        dateConverter.convertTo(item.getCreatedAt(), null),
+                        LocalDateTime.class);
+        insertSpec =
+                addQuotedField(
+                        insertSpec,
+                        COL_UPDATED_AT,
+                        dateConverter.convertTo(item.getUpdatedAt(), null),
+                        LocalDateTime.class);
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
         return monoToSingle(action.as(trx::transactional))
@@ -136,7 +146,8 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
         LOGGER.debug("Update reporter with id '{}'", item.getId());
         TransactionalOperator trx = TransactionalOperator.create(tm);
 
-        DatabaseClient.GenericExecuteSpec updateSpec = template.getDatabaseClient().sql(UPDATE_STATEMENT);
+        DatabaseClient.GenericExecuteSpec updateSpec =
+                template.getDatabaseClient().sql(UPDATE_STATEMENT);
 
         updateSpec = addQuotedField(updateSpec, COL_ID, item.getId(), String.class);
         updateSpec = addQuotedField(updateSpec, COL_DOMAIN, item.getDomain(), String.class);
@@ -146,8 +157,18 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
         updateSpec = addQuotedField(updateSpec, COL_DATA_TYPE, item.getDataType(), String.class);
         updateSpec = addQuotedField(updateSpec, COL_CONFIG, item.getConfiguration(), String.class);
         updateSpec = addQuotedField(updateSpec, COL_IS_SYSTEM, item.isSystem(), String.class);
-        updateSpec = addQuotedField(updateSpec, COL_CREATED_AT, dateConverter.convertTo(item.getCreatedAt(), null), LocalDateTime.class);
-        updateSpec = addQuotedField(updateSpec, COL_UPDATED_AT, dateConverter.convertTo(item.getUpdatedAt(), null), LocalDateTime.class);
+        updateSpec =
+                addQuotedField(
+                        updateSpec,
+                        COL_CREATED_AT,
+                        dateConverter.convertTo(item.getCreatedAt(), null),
+                        LocalDateTime.class);
+        updateSpec =
+                addQuotedField(
+                        updateSpec,
+                        COL_UPDATED_AT,
+                        dateConverter.convertTo(item.getUpdatedAt(), null),
+                        LocalDateTime.class);
 
         Mono<Integer> action = updateSpec.fetch().rowsUpdated();
         return monoToSingle(action.as(trx::transactional))
@@ -159,5 +180,4 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
         LOGGER.debug("delete({})", id);
         return reporterRepository.deleteById(id);
     }
-
 }

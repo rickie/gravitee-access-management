@@ -1,19 +1,22 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization.consent;
+
+import static io.gravitee.am.gateway.handler.oauth2.service.utils.OAuth2Constants.SCOPE_PREFIX;
+import static io.gravitee.am.gateway.handler.oauth2.service.utils.OAuth2Constants.USER_OAUTH_APPROVAL;
+import static io.gravitee.am.service.impl.user.activity.utils.ConsentUtils.canSaveIp;
+import static io.gravitee.am.service.impl.user.activity.utils.ConsentUtils.canSaveUserAgent;
 
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.common.utils.ConstantKeys;
@@ -25,7 +28,6 @@ import io.gravitee.am.identityprovider.api.DefaultUser;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.service.impl.user.activity.utils.ConsentUtils;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -36,11 +38,6 @@ import io.vertx.reactivex.ext.web.Session;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static io.gravitee.am.gateway.handler.oauth2.service.utils.OAuth2Constants.SCOPE_PREFIX;
-import static io.gravitee.am.gateway.handler.oauth2.service.utils.OAuth2Constants.USER_OAUTH_APPROVAL;
-import static io.gravitee.am.service.impl.user.activity.utils.ConsentUtils.canSaveIp;
-import static io.gravitee.am.service.impl.user.activity.utils.ConsentUtils.canSaveUserAgent;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -61,18 +58,25 @@ public class UserConsentProcessHandler implements Handler<RoutingContext> {
         final HttpServerRequest request = routingContext.request();
         final Session session = routingContext.session();
         final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final io.gravitee.am.model.User user = ((User) routingContext.user().getDelegate()).getUser();
-        final AuthorizationRequest authorizationRequest = routingContext.get(ConstantKeys.AUTHORIZATION_REQUEST_CONTEXT_KEY);
+        final io.gravitee.am.model.User user =
+                ((User) routingContext.user().getDelegate()).getUser();
+        final AuthorizationRequest authorizationRequest =
+                routingContext.get(ConstantKeys.AUTHORIZATION_REQUEST_CONTEXT_KEY);
 
         // get user consent
         MultiMap params = routingContext.request().formAttributes();
-        Map<String, String> userConsent = params.entries().stream()
-                .filter(entry -> entry.getKey().startsWith(SCOPE_PREFIX))
-                .collect(Collectors.toMap(Map.Entry::getKey, scopeEntry -> params.get(USER_OAUTH_APPROVAL)));
+        Map<String, String> userConsent =
+                params.entries().stream()
+                        .filter(entry -> entry.getKey().startsWith(SCOPE_PREFIX))
+                        .collect(
+                                Collectors.toMap(
+                                        Map.Entry::getKey,
+                                        scopeEntry -> params.get(USER_OAUTH_APPROVAL)));
 
-        final Set<String> requestedConsent = userConsent.keySet().stream()
-                .map(requestedScope -> requestedScope.replace(SCOPE_PREFIX, ""))
-                .collect(Collectors.toSet());
+        final Set<String> requestedConsent =
+                userConsent.keySet().stream()
+                        .map(requestedScope -> requestedScope.replace(SCOPE_PREFIX, ""))
+                        .collect(Collectors.toSet());
 
         // compute user consent that have been approved / denied
         Set<String> approvedConsent = new HashSet<>();
@@ -82,46 +86,65 @@ public class UserConsentProcessHandler implements Handler<RoutingContext> {
             value = value == null ? "" : value.toLowerCase();
             if ("true".equals(value) || value.startsWith("approve")) {
                 approvedConsent.add(requestedScope);
-                approvals.add(new ScopeApproval(authorizationRequest.transactionId(), user.getId(), client.getClientId(), domain.getId(),
-                        requestedScope, ScopeApproval.ApprovalStatus.APPROVED));
+                approvals.add(
+                        new ScopeApproval(
+                                authorizationRequest.transactionId(),
+                                user.getId(),
+                                client.getClientId(),
+                                domain.getId(),
+                                requestedScope,
+                                ScopeApproval.ApprovalStatus.APPROVED));
             } else {
-                approvals.add(new ScopeApproval(authorizationRequest.transactionId(), user.getId(), client.getClientId(), domain.getId(),
-                        requestedScope, ScopeApproval.ApprovalStatus.DENIED));
+                approvals.add(
+                        new ScopeApproval(
+                                authorizationRequest.transactionId(),
+                                user.getId(),
+                                client.getClientId(),
+                                domain.getId(),
+                                requestedScope,
+                                ScopeApproval.ApprovalStatus.DENIED));
             }
         }
 
         // save consent
-        saveConsent(routingContext, request, user, client, approvals, h -> {
-            if (h.failed()) {
-                routingContext.fail(h.cause());
-                return;
-            }
+        saveConsent(
+                routingContext,
+                request,
+                user,
+                client,
+                approvals,
+                h -> {
+                    if (h.failed()) {
+                        routingContext.fail(h.cause());
+                        return;
+                    }
 
-            boolean approved = !approvedConsent.isEmpty() || requestedConsent.isEmpty();
-            authorizationRequest.setApproved(approved);
-            authorizationRequest.setScopes(approvedConsent);
-            authorizationRequest.setConsents(h.result());
-            session.put(ConstantKeys.USER_CONSENT_COMPLETED_KEY, true);
-            session.put(ConstantKeys.USER_CONSENT_APPROVED_KEY, approved);
-            routingContext.next();
-        });
+                    boolean approved = !approvedConsent.isEmpty() || requestedConsent.isEmpty();
+                    authorizationRequest.setApproved(approved);
+                    authorizationRequest.setScopes(approvedConsent);
+                    authorizationRequest.setConsents(h.result());
+                    session.put(ConstantKeys.USER_CONSENT_COMPLETED_KEY, true);
+                    session.put(ConstantKeys.USER_CONSENT_APPROVED_KEY, approved);
+                    routingContext.next();
+                });
     }
 
-    private void saveConsent(RoutingContext context,
-                             HttpServerRequest request,
-                             io.gravitee.am.model.User endUser,
-                             Client client,
-                             List<ScopeApproval> approvals, Handler<AsyncResult<List<ScopeApproval>>> handler) {
-        userConsentService.saveConsent(client, approvals, getAuthenticatedUser(context, request, endUser))
+    private void saveConsent(
+            RoutingContext context,
+            HttpServerRequest request,
+            io.gravitee.am.model.User endUser,
+            Client client,
+            List<ScopeApproval> approvals,
+            Handler<AsyncResult<List<ScopeApproval>>> handler) {
+        userConsentService
+                .saveConsent(client, approvals, getAuthenticatedUser(context, request, endUser))
                 .subscribe(
                         approvals1 -> handler.handle(Future.succeededFuture(approvals1)),
-                        error -> handler.handle(Future.failedFuture(error))
-                );
+                        error -> handler.handle(Future.failedFuture(error)));
     }
 
-    private io.gravitee.am.identityprovider.api.User getAuthenticatedUser(RoutingContext context,
-                                                                          HttpServerRequest request,
-                                                                          io.gravitee.am.model.User user) {
+    private io.gravitee.am.identityprovider.api.User getAuthenticatedUser(
+            RoutingContext context, HttpServerRequest request, io.gravitee.am.model.User user) {
         DefaultUser authenticatedUser = new DefaultUser(user.getUsername());
         authenticatedUser.setId(user.getId());
         Map<String, Object> additionalInformation = new HashMap<>(user.getAdditionalInformation());
@@ -129,7 +152,7 @@ public class UserConsentProcessHandler implements Handler<RoutingContext> {
         if (canSaveIp(context)) {
             additionalInformation.put(Claims.ip_address, RequestUtils.remoteAddress(request));
         }
-        if (canSaveUserAgent(context)){
+        if (canSaveUserAgent(context)) {
             additionalInformation.put(Claims.user_agent, RequestUtils.userAgent(request));
         }
         additionalInformation.put(Claims.domain, domain.getId());

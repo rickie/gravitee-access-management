@@ -1,24 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.gravitee.am.management.service.NewsletterService;
 import io.reactivex.Single;
 import io.vertx.reactivex.ext.web.client.WebClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -28,8 +28,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -51,8 +49,7 @@ public class NewsletterServiceImpl implements NewsletterService, InitializingBea
     @Value("${newsletter.enabled:true}")
     private boolean newsletterEnabled = true;
 
-    @Autowired
-    private ObjectMapper mapper;
+    @Autowired private ObjectMapper mapper;
 
     @Autowired
     @Qualifier("newsletterWebClient")
@@ -60,13 +57,19 @@ public class NewsletterServiceImpl implements NewsletterService, InitializingBea
 
     @Override
     public void subscribe(Object user) {
-        executorService.execute(() -> {
-            client.post(newsletterURI).sendJson(user, handler -> {
-                if (handler.failed()) {
-                    LOGGER.error("An error has occurred while register newsletter for a user", handler.cause());
-                }
-            });
-        });
+        executorService.execute(
+                () -> {
+                    client.post(newsletterURI)
+                            .sendJson(
+                                    user,
+                                    handler -> {
+                                        if (handler.failed()) {
+                                            LOGGER.error(
+                                                    "An error has occurred while register newsletter for a user",
+                                                    handler.cause());
+                                        }
+                                    });
+                });
     }
 
     @Override
@@ -80,16 +83,18 @@ public class NewsletterServiceImpl implements NewsletterService, InitializingBea
             taglinesPath = "/" + taglinesPath;
         }
 
-        return client
-                .getAbs(newsletterURI + taglinesPath)
+        return client.getAbs(newsletterURI + taglinesPath)
                 .rxSend()
-                .map(res -> {
-                    if (res.statusCode() != 200) {
-                        LOGGER.error("An error has occurred when reading the newsletter taglines response: " + res.statusMessage());
-                        return Collections.emptyList();
-                    }
-                    return mapper.readValue(res.bodyAsString(), List.class);
-                });
+                .map(
+                        res -> {
+                            if (res.statusCode() != 200) {
+                                LOGGER.error(
+                                        "An error has occurred when reading the newsletter taglines response: "
+                                                + res.statusMessage());
+                                return Collections.emptyList();
+                            }
+                            return mapper.readValue(res.bodyAsString(), List.class);
+                        });
     }
 
     @Override

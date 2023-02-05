@@ -1,22 +1,23 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.email.impl;
 
+import static java.lang.String.format;
+
 import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Configuration;
+
 import io.gravitee.am.common.event.EmailEvent;
 import io.gravitee.am.common.event.EventManager;
 import io.gravitee.am.gateway.handler.common.email.EmailManager;
@@ -28,6 +29,7 @@ import io.gravitee.am.repository.management.api.EmailRepository;
 import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -38,33 +40,27 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
-import static java.lang.String.format;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class EmailManagerImpl extends AbstractService implements EmailManager, InitializingBean, EventListener<EmailEvent, Payload> {
+public class EmailManagerImpl extends AbstractService
+        implements EmailManager, InitializingBean, EventListener<EmailEvent, Payload> {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailManagerImpl.class);
     private static final String TEMPLATE_SUFFIX = ".html";
     private ConcurrentMap<String, Email> emails = new ConcurrentHashMap<>();
     private ConcurrentMap<String, Email> emailTemplates = new ConcurrentHashMap<>();
 
-    @Autowired
-    private EmailRepository emailRepository;
+    @Autowired private EmailRepository emailRepository;
 
-    @Autowired
-    private Domain domain;
+    @Autowired private Domain domain;
 
-    @Autowired
-    private EventManager eventManager;
+    @Autowired private EventManager eventManager;
 
-    @Autowired
-    private Configuration configuration;
+    @Autowired private Configuration configuration;
 
-    @Autowired
-    private StringTemplateLoader templateLoader;
+    @Autowired private StringTemplateLoader templateLoader;
 
     @Value("${email.subject:[Gravitee.io] %s}")
     private String subject;
@@ -75,10 +71,15 @@ public class EmailManagerImpl extends AbstractService implements EmailManager, I
     @Override
     public void afterPropertiesSet() {
         logger.info("Initializing emails for domain {}", domain.getName());
-        emailRepository.findAll(ReferenceType.DOMAIN, domain.getId())
+        emailRepository
+                .findAll(ReferenceType.DOMAIN, domain.getId())
                 .subscribe(
                         email -> updateEmail(email),
-                        error -> logger.error("Unable to initialize emails for domain {}", domain.getName(), error));
+                        error ->
+                                logger.error(
+                                        "Unable to initialize emails for domain {}",
+                                        domain.getName(),
+                                        error));
     }
 
     @Override
@@ -99,7 +100,8 @@ public class EmailManagerImpl extends AbstractService implements EmailManager, I
 
     @Override
     public void onEvent(Event<EmailEvent, Payload> event) {
-        if (event.content().getReferenceType() == ReferenceType.DOMAIN && domain.getId().equals(event.content().getReferenceId())) {
+        if (event.content().getReferenceType() == ReferenceType.DOMAIN
+                && domain.getId().equals(event.content().getReferenceId())) {
             switch (event.type()) {
                 case DEPLOY:
                 case UPDATE:
@@ -125,15 +127,28 @@ public class EmailManagerImpl extends AbstractService implements EmailManager, I
 
         if (templateFound) {
             Email customEmail = emailTemplates.get(template);
-            return create(template, customEmail.getFrom(), customEmail.getFromName(), customEmail.getSubject(), customEmail.getExpiresAfter());
+            return create(
+                    template,
+                    customEmail.getFrom(),
+                    customEmail.getFromName(),
+                    customEmail.getSubject(),
+                    customEmail.getExpiresAfter());
         } else {
-            Email result = create(template, defaultFrom, null, format(subject, defaultSubject), defaultExpiresAfter);
-            result.setDefaultTemplate(true); // Object created here because user doesn't redefine template in the UI
+            Email result =
+                    create(
+                            template,
+                            defaultFrom,
+                            null,
+                            format(subject, defaultSubject),
+                            defaultExpiresAfter);
+            result.setDefaultTemplate(
+                    true); // Object created here because user doesn't redefine template in the UI
             return result;
         }
     }
 
-    private Email create(String template, String from, String fromName, String subject, int expiresAt) {
+    private Email create(
+            String template, String from, String fromName, String subject, int expiresAt) {
         Email email = new Email();
         email.setTemplate(template);
         email.setFrom(from);
@@ -145,8 +160,13 @@ public class EmailManagerImpl extends AbstractService implements EmailManager, I
 
     private void updateEmail(String emailId, EmailEvent emailEvent) {
         final String eventType = emailEvent.toString().toLowerCase();
-        logger.info("Domain {} has received {} email event for {}", domain.getName(), eventType, emailId);
-        emailRepository.findById(emailId)
+        logger.info(
+                "Domain {} has received {} email event for {}",
+                domain.getName(),
+                eventType,
+                emailId);
+        emailRepository
+                .findById(emailId)
                 .subscribe(
                         email -> {
                             // check if email has been disabled
@@ -155,14 +175,24 @@ public class EmailManagerImpl extends AbstractService implements EmailManager, I
                             } else {
                                 updateEmail(email);
                             }
-                            logger.info("Email {} {}d for domain {}", emailId, eventType, domain.getName());
+                            logger.info(
+                                    "Email {} {}d for domain {}",
+                                    emailId,
+                                    eventType,
+                                    domain.getName());
                         },
-                        error -> logger.error("Unable to {} email for domain {}", eventType, domain.getName(), error),
+                        error ->
+                                logger.error(
+                                        "Unable to {} email for domain {}",
+                                        eventType,
+                                        domain.getName(),
+                                        error),
                         () -> logger.error("No email found with id {}", emailId));
     }
 
     private void removeEmail(String emailId) {
-        logger.info("Domain {} has received email event, delete email {}", domain.getName(), emailId);
+        logger.info(
+                "Domain {} has received email event, delete email {}", domain.getName(), emailId);
         Email deletedEmail = emails.remove(emailId);
         if (deletedEmail != null) {
             emailTemplates.remove(getTemplateName(deletedEmail));

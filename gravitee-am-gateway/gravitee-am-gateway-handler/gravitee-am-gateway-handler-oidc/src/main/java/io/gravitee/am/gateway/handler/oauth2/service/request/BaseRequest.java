@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.service.request;
@@ -191,14 +189,10 @@ public abstract class BaseRequest implements Request {
         this.sslSession = sslSession;
     }
 
-    /**
-     * Request origin : scheme/host/port triple.
-     */
+    /** Request origin : scheme/host/port triple. */
     private String origin;
 
-    /**
-     * All query parameters that do not belong to the OAuth 2.0/OIDC specifications
-     */
+    /** All query parameters that do not belong to the OAuth 2.0/OIDC specifications */
     private MultiValueMap<String, String> additionalParameters = new LinkedMultiValueMap<>();
 
     public String getOrigin() {
@@ -227,11 +221,9 @@ public abstract class BaseRequest implements Request {
     }
 
     /**
-     * ---------------------------------------------
-     * ---------------------------------------------
+     * --------------------------------------------- ---------------------------------------------
      * The following getters are mainly used for evaluable context (EL)
-     * ---------------------------------------------
-     * ---------------------------------------------
+     * --------------------------------------------- ---------------------------------------------
      */
     public String getId() {
         return id;
@@ -306,13 +298,10 @@ public abstract class BaseRequest implements Request {
     }
 
     /**
-     * ---------------------------------------------
-     * ---------------------------------------------
+     * --------------------------------------------- ---------------------------------------------
      * The following information is not required for the OAuth 2.0/OIDC use cases
-     * ---------------------------------------------
-     * ---------------------------------------------
+     * --------------------------------------------- ---------------------------------------------
      */
-
     @Override
     public Metrics metrics() {
         return null;

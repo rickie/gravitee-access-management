@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.model;
@@ -23,6 +21,7 @@ import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.utils.PermissionSettingUtils;
 import io.gravitee.am.service.utils.SetterUtils;
 import io.gravitee.risk.assessment.api.assessment.settings.RiskAssessmentSettings;
+
 import java.util.Optional;
 import java.util.Set;
 
@@ -116,7 +115,8 @@ public class PatchApplicationSettings {
 
     public ApplicationSettings patch(ApplicationSettings _toPatch) {
         // create new object for audit purpose (patch json result)
-        ApplicationSettings toPatch = _toPatch == null ? new ApplicationSettings() : new ApplicationSettings(_toPatch);
+        ApplicationSettings toPatch =
+                _toPatch == null ? new ApplicationSettings() : new ApplicationSettings(_toPatch);
 
         // set values
         SetterUtils.safeSet(toPatch::setAccount, this.getAccount());
@@ -130,7 +130,8 @@ public class PatchApplicationSettings {
             toPatch.setAdvanced(this.getAdvanced().get().patch(toPatch.getAdvanced()));
         }
         if (this.getPasswordSettings() != null && this.getPasswordSettings().isPresent()) {
-            toPatch.setPasswordSettings(this.getPasswordSettings().get().patch(toPatch.getPasswordSettings()));
+            toPatch.setPasswordSettings(
+                    this.getPasswordSettings().get().patch(toPatch.getPasswordSettings()));
         }
         if (this.getMfa() != null && this.getMfa().isPresent()) {
             toPatch.setMfa(this.getMfa().get().patch(toPatch.getMfa()));

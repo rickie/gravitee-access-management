@@ -1,40 +1,42 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.in;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Organization;
 import io.gravitee.am.repository.management.api.OrganizationRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.OrganizationMongo;
 import io.reactivex.*;
+
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.in;
+import javax.annotation.PostConstruct;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class MongoOrganizationRepository extends AbstractManagementMongoRepository implements OrganizationRepository {
+public class MongoOrganizationRepository extends AbstractManagementMongoRepository
+        implements OrganizationRepository {
 
     private MongoCollection<OrganizationMongo> collection;
     private static final String HRID_KEY = "hrids";
@@ -64,12 +66,17 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
         organization.setId(item.getId() == null ? RandomString.generate() : item.getId());
 
         return Single.fromPublisher(collection.insertOne(organization))
-                .flatMap(success -> { item.setId(organization.getId()); return Single.just(item); });
+                .flatMap(
+                        success -> {
+                            item.setId(organization.getId());
+                            return Single.just(item);
+                        });
     }
 
     @Override
     public Single<Organization> update(Organization item) {
-        return Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, item.getId()), convert(item)))
+        return Single.fromPublisher(
+                        collection.replaceOne(eq(FIELD_ID, item.getId()), convert(item)))
                 .flatMap(updateResult -> Single.just(item));
     }
 

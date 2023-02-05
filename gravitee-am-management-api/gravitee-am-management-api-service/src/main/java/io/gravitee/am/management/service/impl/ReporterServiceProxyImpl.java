@@ -1,21 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.service.AbstractSensitiveProxy;
@@ -33,6 +32,7 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -43,19 +43,16 @@ import java.util.Optional;
  * @author GraviteeSource Team
  */
 @Component
-public class ReporterServiceProxyImpl extends AbstractSensitiveProxy implements ReporterServiceProxy {
+public class ReporterServiceProxyImpl extends AbstractSensitiveProxy
+        implements ReporterServiceProxy {
 
-    @Autowired
-    private ReporterPluginService reporterPluginService;
+    @Autowired private ReporterPluginService reporterPluginService;
 
-    @Autowired
-    private io.gravitee.am.service.ReporterService reporterService;
+    @Autowired private io.gravitee.am.service.ReporterService reporterService;
 
-    @Autowired
-    private AuditService auditService;
+    @Autowired private AuditService auditService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
     @Override
     public Flowable<Reporter> findAll() {
@@ -69,7 +66,9 @@ public class ReporterServiceProxyImpl extends AbstractSensitiveProxy implements 
 
     @Override
     public Maybe<Reporter> findById(String id) {
-        return reporterService.findById(id).flatMap(reporter -> filterSensitiveData(reporter).toMaybe());
+        return reporterService
+                .findById(id)
+                .flatMap(reporter -> filterSensitiveData(reporter).toMaybe());
     }
 
     @Override
@@ -83,24 +82,84 @@ public class ReporterServiceProxyImpl extends AbstractSensitiveProxy implements 
     }
 
     @Override
-    public Single<Reporter> create(String domain, NewReporter newReporter, User principal, boolean system) {
-        return reporterService.create(domain, newReporter, principal, system)
+    public Single<Reporter> create(
+            String domain, NewReporter newReporter, User principal, boolean system) {
+        return reporterService
+                .create(domain, newReporter, principal, system)
                 .flatMap(this::filterSensitiveData)
-                .doOnSuccess(reporter1 -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_CREATED).reporter(reporter1)))
-                .doOnError(throwable -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_CREATED).throwable(throwable)));
+                .doOnSuccess(
+                        reporter1 ->
+                                auditService.report(
+                                        AuditBuilder.builder(ReporterAuditBuilder.class)
+                                                .principal(principal)
+                                                .type(EventType.REPORTER_CREATED)
+                                                .reporter(reporter1)))
+                .doOnError(
+                        throwable ->
+                                auditService.report(
+                                        AuditBuilder.builder(ReporterAuditBuilder.class)
+                                                .principal(principal)
+                                                .type(EventType.REPORTER_CREATED)
+                                                .throwable(throwable)));
     }
 
     @Override
-    public Single<Reporter> update(String domain, String id, UpdateReporter updateReporter, User principal, boolean isUpgrader) {
-        return reporterService.findById(id)
+    public Single<Reporter> update(
+            String domain,
+            String id,
+            UpdateReporter updateReporter,
+            User principal,
+            boolean isUpgrader) {
+        return reporterService
+                .findById(id)
                 .switchIfEmpty(Single.error(new ReporterNotFoundException(id)))
-                .flatMap(oldReporter -> filterSensitiveData(oldReporter)
-                        .flatMap(safeOldReporter -> updateSensitiveData(updateReporter, oldReporter)
-                                .flatMap(reporterToUpdate -> reporterService.update(domain, id, reporterToUpdate, principal, isUpgrader))
-                                .flatMap(this::filterSensitiveData)
-                                .doOnSuccess(reporter1 -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_UPDATED).oldValue(safeOldReporter).reporter(reporter1)))
-                                .doOnError(throwable -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_UPDATED).throwable(throwable))))
-                );
+                .flatMap(
+                        oldReporter ->
+                                filterSensitiveData(oldReporter)
+                                        .flatMap(
+                                                safeOldReporter ->
+                                                        updateSensitiveData(
+                                                                        updateReporter, oldReporter)
+                                                                .flatMap(
+                                                                        reporterToUpdate ->
+                                                                                reporterService
+                                                                                        .update(
+                                                                                                domain,
+                                                                                                id,
+                                                                                                reporterToUpdate,
+                                                                                                principal,
+                                                                                                isUpgrader))
+                                                                .flatMap(this::filterSensitiveData)
+                                                                .doOnSuccess(
+                                                                        reporter1 ->
+                                                                                auditService.report(
+                                                                                        AuditBuilder
+                                                                                                .builder(
+                                                                                                        ReporterAuditBuilder
+                                                                                                                .class)
+                                                                                                .principal(
+                                                                                                        principal)
+                                                                                                .type(
+                                                                                                        EventType
+                                                                                                                .REPORTER_UPDATED)
+                                                                                                .oldValue(
+                                                                                                        safeOldReporter)
+                                                                                                .reporter(
+                                                                                                        reporter1)))
+                                                                .doOnError(
+                                                                        throwable ->
+                                                                                auditService.report(
+                                                                                        AuditBuilder
+                                                                                                .builder(
+                                                                                                        ReporterAuditBuilder
+                                                                                                                .class)
+                                                                                                .principal(
+                                                                                                        principal)
+                                                                                                .type(
+                                                                                                        EventType
+                                                                                                                .REPORTER_UPDATED)
+                                                                                                .throwable(
+                                                                                                        throwable)))));
     }
 
     @Override
@@ -109,41 +168,60 @@ public class ReporterServiceProxyImpl extends AbstractSensitiveProxy implements 
     }
 
     @Override
-    public String createReporterConfig(String domain){
+    public String createReporterConfig(String domain) {
         return reporterService.createReporterConfig(domain);
-    };
+    }
+    ;
 
     private Single<Reporter> filterSensitiveData(Reporter reporter) {
-        return reporterPluginService.getSchema(reporter.getType())
+        return reporterPluginService
+                .getSchema(reporter.getType())
                 .map(Optional::ofNullable)
                 .switchIfEmpty(Maybe.just(Optional.empty()))
                 .toSingle()
-                .map(schema -> {
-                    // Duplicate the object to avoid side effect
-                    var filteredEntity = new Reporter(reporter);
-                    if (schema.isPresent()) {
-                        var schemaNode = objectMapper.readTree(schema.get());
-                        var configurationNode = objectMapper.readTree(filteredEntity.getConfiguration());
-                        super.filterSensitiveData(schemaNode, configurationNode, filteredEntity::setConfiguration);
-                    } else {
-                        // not schema , remove all the configuration to avoid sensitive data leak
-                        // this case may happen when the plugin zip file has been removed from the plugins directory
-                        // (set empty object to avoid NullPointer on the UI)
-                        filteredEntity.setConfiguration(DEFAULT_SCHEMA_CONFIG);
-                    }
-                    return filteredEntity;
-                });
+                .map(
+                        schema -> {
+                            // Duplicate the object to avoid side effect
+                            var filteredEntity = new Reporter(reporter);
+                            if (schema.isPresent()) {
+                                var schemaNode = objectMapper.readTree(schema.get());
+                                var configurationNode =
+                                        objectMapper.readTree(filteredEntity.getConfiguration());
+                                super.filterSensitiveData(
+                                        schemaNode,
+                                        configurationNode,
+                                        filteredEntity::setConfiguration);
+                            } else {
+                                // not schema , remove all the configuration to avoid sensitive data
+                                // leak
+                                // this case may happen when the plugin zip file has been removed
+                                // from the plugins directory
+                                // (set empty object to avoid NullPointer on the UI)
+                                filteredEntity.setConfiguration(DEFAULT_SCHEMA_CONFIG);
+                            }
+                            return filteredEntity;
+                        });
     }
 
-    private Single<UpdateReporter> updateSensitiveData(UpdateReporter updateReporter, Reporter oldReporter) {
-        return reporterPluginService.getSchema(oldReporter.getType())
-                .switchIfEmpty(Single.error(new ReporterPluginSchemaNotFoundException(oldReporter.getType())))
-                .map(schema -> {
-                    var updateConfig = objectMapper.readTree(updateReporter.getConfiguration());
-                    var oldConfig = objectMapper.readTree(oldReporter.getConfiguration());
-                    var schemaConfig = objectMapper.readTree(schema);
-                    super.updateSensitiveData(updateConfig, oldConfig, schemaConfig, updateReporter::setConfiguration);
-                    return updateReporter;
-                });
+    private Single<UpdateReporter> updateSensitiveData(
+            UpdateReporter updateReporter, Reporter oldReporter) {
+        return reporterPluginService
+                .getSchema(oldReporter.getType())
+                .switchIfEmpty(
+                        Single.error(
+                                new ReporterPluginSchemaNotFoundException(oldReporter.getType())))
+                .map(
+                        schema -> {
+                            var updateConfig =
+                                    objectMapper.readTree(updateReporter.getConfiguration());
+                            var oldConfig = objectMapper.readTree(oldReporter.getConfiguration());
+                            var schemaConfig = objectMapper.readTree(schema);
+                            super.updateSensitiveData(
+                                    updateConfig,
+                                    oldConfig,
+                                    schemaConfig,
+                                    updateReporter::setConfiguration);
+                            return updateReporter;
+                        });
     }
 }

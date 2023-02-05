@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
+
+import static java.util.stream.Collectors.toCollection;
 
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.account.AccountSettings;
@@ -28,6 +28,7 @@ import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,16 +36,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toCollection;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class ApplicationRepositoryTest extends AbstractManagementTest {
 
-    @Autowired
-    private ApplicationRepository applicationRepository;
+    @Autowired private ApplicationRepository applicationRepository;
 
     @Test
     public void testFindByDomain() throws TechnicalException {
@@ -55,7 +53,8 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         applicationRepository.create(application).blockingGet();
 
         // fetch applications
-        TestObserver<Page<Application>> testObserver = applicationRepository.findByDomain("testDomain", 0, Integer.MAX_VALUE).test();
+        TestObserver<Page<Application>> testObserver =
+                applicationRepository.findByDomain("testDomain", 0, Integer.MAX_VALUE).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -77,14 +76,16 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         applicationRepository.create(application).blockingGet();
 
         // fetch applications
-        TestSubscriber<Application> testSubscriber = applicationRepository.findByDomainAndExtensionGrant("testDomain", "test-grant").test();
+        TestSubscriber<Application> testSubscriber =
+                applicationRepository
+                        .findByDomainAndExtensionGrant("testDomain", "test-grant")
+                        .test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
         testSubscriber.assertNoErrors();
         testSubscriber.assertValueCount(1);
     }
-
 
     @Test
     public void testFindByDomainAndClientId() {
@@ -101,7 +102,8 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         Application createdApplication = applicationRepository.create(application).blockingGet();
 
         // fetch applications
-        TestObserver<Application> testObserver = applicationRepository.findByDomainAndClientId("testDomain", "clientId1").test();
+        TestObserver<Application> testObserver =
+                applicationRepository.findByDomainAndClientId("testDomain", "clientId1").test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -123,12 +125,16 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         app2.setDomain("testDomainPagination");
         applicationRepository.create(app2).blockingGet();
 
-        TestObserver<Page<Application>> testObserver = applicationRepository.findByDomain("testDomainPagination", 1, 1).test();
+        TestObserver<Page<Application>> testObserver =
+                applicationRepository.findByDomain("testDomainPagination", 1, 1).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        testObserver.assertValue(pageApplications -> pageApplications.getTotalCount() == 2 && pageApplications.getData().size() == 1);
+        testObserver.assertValue(
+                pageApplications ->
+                        pageApplications.getTotalCount() == 2
+                                && pageApplications.getData().size() == 1);
     }
 
     @Test
@@ -138,7 +144,8 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         Application appCreated = applicationRepository.create(app).blockingGet();
 
         // fetch app
-        TestObserver<Application> testObserver = applicationRepository.findById(appCreated.getId()).test();
+        TestObserver<Application> testObserver =
+                applicationRepository.findById(appCreated.getId()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -153,8 +160,13 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         Application appCreated = applicationRepository.create(app).blockingGet();
 
         // fetch app
-        final String next = appCreated.getIdentityProviders().stream().map(ApplicationIdentityProvider::getIdentity).iterator().next();
-        TestSubscriber<Application> testSubscriber = applicationRepository.findByIdentityProvider(next).test();
+        final String next =
+                appCreated.getIdentityProviders().stream()
+                        .map(ApplicationIdentityProvider::getIdentity)
+                        .iterator()
+                        .next();
+        TestSubscriber<Application> testSubscriber =
+                applicationRepository.findByIdentityProvider(next).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -175,20 +187,42 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(a -> a.getIdentityProviders().size() == 2);
         testObserver.assertValue(a -> a.getSettings() != null);
         testObserver.assertValue(a -> a.getSettings().getOauth() != null);
-        testObserver.assertValue(a -> a.getSettings().getOauth().getGrantTypes().containsAll(Arrays.asList("authorization_code")));
-        testObserver.assertValue(a -> a.getSettings().getOauth().getBackchannelAuthRequestSignAlg().equals("test"));
+        testObserver.assertValue(
+                a ->
+                        a.getSettings()
+                                .getOauth()
+                                .getGrantTypes()
+                                .containsAll(Arrays.asList("authorization_code")));
+        testObserver.assertValue(
+                a -> a.getSettings().getOauth().getBackchannelAuthRequestSignAlg().equals("test"));
         testObserver.assertValue(a -> a.getSettings().getOauth().isBackchannelUserCodeParameter());
-        testObserver.assertValue(a -> a.getSettings().getOauth().getBackchannelClientNotificationEndpoint().equals("ciba_endpoint"));
-        testObserver.assertValue(a -> a.getSettings().getOauth().getBackchannelTokenDeliveryMode().equals("poll"));
+        testObserver.assertValue(
+                a ->
+                        a.getSettings()
+                                .getOauth()
+                                .getBackchannelClientNotificationEndpoint()
+                                .equals("ciba_endpoint"));
+        testObserver.assertValue(
+                a -> a.getSettings().getOauth().getBackchannelTokenDeliveryMode().equals("poll"));
         testObserver.assertValue(a -> a.getSettings().getOauth().getScopeSettings().size() == 1);
-        testObserver.assertValue(a -> a.getSettings().getOauth().getScopeSettings().get(0).isDefaultScope());
-        testObserver.assertValue(a -> a.getSettings().getOauth().getScopeSettings().get(0).getScopeApproval() == 42);
-        testObserver.assertValue(a -> a.getSettings().getOauth().getScopeSettings().get(0).getScope().equals("scopename"));
+        testObserver.assertValue(
+                a -> a.getSettings().getOauth().getScopeSettings().get(0).isDefaultScope());
+        testObserver.assertValue(
+                a -> a.getSettings().getOauth().getScopeSettings().get(0).getScopeApproval() == 42);
+        testObserver.assertValue(
+                a ->
+                        a.getSettings()
+                                .getOauth()
+                                .getScopeSettings()
+                                .get(0)
+                                .getScope()
+                                .equals("scopename"));
         testObserver.assertValue(a -> a.getMetadata() != null);
         testObserver.assertValue(a -> a.getMetadata().containsKey("key1"));
-        testObserver.assertValue(a -> a.getSettings() != null && a.getSettings().getAccount() != null );
-        testObserver.assertValue(a -> a.getSettings().getAccount().isResetPasswordInvalidateTokens());
-
+        testObserver.assertValue(
+                a -> a.getSettings() != null && a.getSettings().getAccount() != null);
+        testObserver.assertValue(
+                a -> a.getSettings().getAccount().isResetPasswordInvalidateTokens());
     }
 
     private static Application buildApplication() {
@@ -213,12 +247,13 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
     }
 
     private static TreeSet<ApplicationIdentityProvider> getProviderSettings() {
-         return Stream.of(getIdentityProviderSettings(), getIdentityProviderSettings())
-                 .collect(toCollection(TreeSet::new));
+        return Stream.of(getIdentityProviderSettings(), getIdentityProviderSettings())
+                .collect(toCollection(TreeSet::new));
     }
 
     private static ApplicationIdentityProvider getIdentityProviderSettings() {
-        final ApplicationIdentityProvider applicationIdentityProvider = new ApplicationIdentityProvider();
+        final ApplicationIdentityProvider applicationIdentityProvider =
+                new ApplicationIdentityProvider();
         applicationIdentityProvider.setIdentity(UUID.randomUUID().toString());
         applicationIdentityProvider.setSelectionRule(UUID.randomUUID().toString());
         applicationIdentityProvider.setPriority(new Random().nextInt());
@@ -291,7 +326,8 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         Application appCreated = applicationRepository.create(app).blockingGet();
 
         // fetch app
-        TestObserver<Application> testObserver = applicationRepository.findById(appCreated.getId()).test();
+        TestObserver<Application> testObserver =
+                applicationRepository.findById(appCreated.getId()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -320,15 +356,16 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         applicationRepository.create(app2).blockingGet();
 
         // fetch user
-        TestObserver<Page<Application>> testObserver = applicationRepository.search(domain, "clientId", 0, Integer.MAX_VALUE).test();
+        TestObserver<Page<Application>> testObserver =
+                applicationRepository.search(domain, "clientId", 0, Integer.MAX_VALUE).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(apps -> apps.getData().size() == 1);
         testObserver.assertValue(apps -> apps.getTotalCount() == 1);
-        testObserver.assertValue(apps -> apps.getData().iterator().next().getName().equals(app.getName()));
-
+        testObserver.assertValue(
+                apps -> apps.getData().iterator().next().getName().equals(app.getName()));
     }
 
     @Test
@@ -361,7 +398,8 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         applicationRepository.create(app4).blockingGet();
 
         // fetch apps
-        TestObserver<Page<Application>> testObserver = applicationRepository.search(domain, "clientId*", 0, Integer.MAX_VALUE).test();
+        TestObserver<Page<Application>> testObserver =
+                applicationRepository.search(domain, "clientId*", 0, Integer.MAX_VALUE).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -369,5 +407,4 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(apps -> apps.getData().size() == 3);
         testObserver.assertValue(apps -> apps.getTotalCount() == 3);
     }
-
 }

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
@@ -22,6 +20,7 @@ import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -34,8 +33,7 @@ import java.util.UUID;
  */
 public class UserNotificationRepositoryTest extends AbstractManagementTest {
 
-    @Autowired
-    private UserNotificationRepository repository;
+    @Autowired private UserNotificationRepository repository;
 
     @Test
     public void testFindByAudienceAndStatus() throws TechnicalException {
@@ -61,7 +59,10 @@ public class UserNotificationRepositoryTest extends AbstractManagementTest {
         userNotification.setStatus(UserNotificationStatus.UNREAD);
         repository.create(userNotification).blockingGet();
 
-        final TestSubscriber<UserNotification> testSubscriber = repository.findAllByAudienceAndStatus("audid", UserNotificationStatus.UNREAD).test();
+        final TestSubscriber<UserNotification> testSubscriber =
+                repository
+                        .findAllByAudienceAndStatus("audid", UserNotificationStatus.UNREAD)
+                        .test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -69,30 +70,45 @@ public class UserNotificationRepositoryTest extends AbstractManagementTest {
         testSubscriber.assertValueCount(2);
     }
 
-
     @Test
     public void testMarkAsRead() throws TechnicalException {
         UserNotification userNotification = createUserNotification();
         UserNotification createdNotification = repository.create(userNotification).blockingGet();
 
-        TestSubscriber<UserNotification> testSubscriber = repository.findAllByAudienceAndStatus(createdNotification.getAudienceId(), UserNotificationStatus.UNREAD).test();
+        TestSubscriber<UserNotification> testSubscriber =
+                repository
+                        .findAllByAudienceAndStatus(
+                                createdNotification.getAudienceId(), UserNotificationStatus.UNREAD)
+                        .test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
         testSubscriber.assertNoErrors();
         testSubscriber.assertValueCount(1);
 
-        final TestObserver<Void> update = repository.updateNotificationStatus(createdNotification.getId(), UserNotificationStatus.READ).test();
+        final TestObserver<Void> update =
+                repository
+                        .updateNotificationStatus(
+                                createdNotification.getId(), UserNotificationStatus.READ)
+                        .test();
         update.awaitTerminalEvent();
         update.assertNoErrors();
 
-        testSubscriber = repository.findAllByAudienceAndStatus(createdNotification.getAudienceId(), UserNotificationStatus.UNREAD).test();
+        testSubscriber =
+                repository
+                        .findAllByAudienceAndStatus(
+                                createdNotification.getAudienceId(), UserNotificationStatus.UNREAD)
+                        .test();
         testSubscriber.awaitTerminalEvent();
         testSubscriber.assertComplete();
         testSubscriber.assertNoErrors();
         testSubscriber.assertValueCount(0);
 
-        testSubscriber = repository.findAllByAudienceAndStatus(createdNotification.getAudienceId(), UserNotificationStatus.READ).test();
+        testSubscriber =
+                repository
+                        .findAllByAudienceAndStatus(
+                                createdNotification.getAudienceId(), UserNotificationStatus.READ)
+                        .test();
         testSubscriber.awaitTerminalEvent();
         testSubscriber.assertComplete();
         testSubscriber.assertNoErrors();
@@ -104,7 +120,8 @@ public class UserNotificationRepositoryTest extends AbstractManagementTest {
         UserNotification userNotification = createUserNotification();
         UserNotification notification = repository.create(userNotification).blockingGet();
 
-        TestObserver<UserNotification> testObserver = repository.findById(notification.getId()).test();
+        TestObserver<UserNotification> testObserver =
+                repository.findById(notification.getId()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -132,12 +149,20 @@ public class UserNotificationRepositoryTest extends AbstractManagementTest {
         assertEquals(userNotification, testObserver);
     }
 
-    private void assertEquals(UserNotification userNotification, TestObserver<UserNotification> testObserver) {
-        testObserver.assertValue(userNotifCreated -> userNotifCreated.getAudienceId().equals(userNotification.getAudienceId())
-                        &&  userNotifCreated.getReferenceType().equals(userNotification.getReferenceType())
-                        &&  userNotifCreated.getReferenceId().equals(userNotification.getReferenceId())
-                        &&  userNotifCreated.getMessage().equals(userNotification.getMessage())
-                );
+    private void assertEquals(
+            UserNotification userNotification, TestObserver<UserNotification> testObserver) {
+        testObserver.assertValue(
+                userNotifCreated ->
+                        userNotifCreated.getAudienceId().equals(userNotification.getAudienceId())
+                                && userNotifCreated
+                                        .getReferenceType()
+                                        .equals(userNotification.getReferenceType())
+                                && userNotifCreated
+                                        .getReferenceId()
+                                        .equals(userNotification.getReferenceId())
+                                && userNotifCreated
+                                        .getMessage()
+                                        .equals(userNotification.getMessage()));
     }
 
     private UserNotification createUserNotification() {
@@ -168,7 +193,6 @@ public class UserNotificationRepositoryTest extends AbstractManagementTest {
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         assertEquals(updatedTag, testObserver);
-
     }
 
     @Test
@@ -176,9 +200,8 @@ public class UserNotificationRepositoryTest extends AbstractManagementTest {
         UserNotification userNotification = createUserNotification();
         UserNotification notification = repository.create(userNotification).blockingGet();
 
-
-
-        TestObserver<UserNotification> testObserver = repository.findById(notification.getId()).test();
+        TestObserver<UserNotification> testObserver =
+                repository.findById(notification.getId()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -190,10 +213,10 @@ public class UserNotificationRepositoryTest extends AbstractManagementTest {
         testObserver.assertNoErrors();
 
         // fetch tag
-        final TestObserver<UserNotification> test = repository.findById(notification.getId()).test();
+        final TestObserver<UserNotification> test =
+                repository.findById(notification.getId()).test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
         test.assertNoValues();
     }
-
 }

@@ -1,19 +1,21 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.authentication.controller;
+
+import static io.gravitee.am.management.handlers.management.api.authentication.provider.generator.RedirectCookieGenerator.DEFAULT_REDIRECT_COOKIE_NAME;
+
+import static java.util.Collections.emptyList;
 
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.identityprovider.api.common.Request;
@@ -24,6 +26,7 @@ import io.gravitee.am.service.OrganizationService;
 import io.gravitee.am.service.ReCaptchaService;
 import io.gravitee.common.http.HttpHeaders;
 import io.reactivex.Maybe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,15 +36,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.gravitee.am.management.handlers.management.api.authentication.provider.generator.RedirectCookieGenerator.DEFAULT_REDIRECT_COOKIE_NAME;
-import static java.util.Collections.emptyList;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -56,6 +56,7 @@ public class LoginController {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoginController.class);
     private static final String LOGIN_VIEW = "login";
     private static final Map<String, String> socialProviderTypes;
+
     static {
         Map<String, String> sMap = new HashMap<>();
         sMap.put("github-am-idp", "github");
@@ -68,52 +69,78 @@ public class LoginController {
         socialProviderTypes = Collections.unmodifiableMap(sMap);
     }
 
-    @Autowired
-    private OrganizationService organizationService;
+    @Autowired private OrganizationService organizationService;
 
-    @Autowired
-    private IdentityProviderManager identityProviderManager;
+    @Autowired private IdentityProviderManager identityProviderManager;
 
-    @Autowired
-    private ReCaptchaService reCaptchaService;
+    @Autowired private ReCaptchaService reCaptchaService;
 
     @RequestMapping(value = "/login")
-    public ModelAndView login(HttpServletRequest request, @RequestParam(value=ORGANIZATION_PARAMETER_NAME, defaultValue = "DEFAULT") String organizationId) {
+    public ModelAndView login(
+            HttpServletRequest request,
+            @RequestParam(value = ORGANIZATION_PARAMETER_NAME, defaultValue = "DEFAULT")
+                    String organizationId) {
         Map<String, Object> params = new HashMap<>();
 
         // fetch domain social identity providers
         List<IdentityProvider> socialProviders = null;
         try {
-            socialProviders = organizationService.findById(organizationId)
-                    .map(org -> Optional.ofNullable(org.getIdentities()).orElse(emptyList()))
-                    .blockingGet()
-                    .stream()
-                    .map(identity -> identityProviderManager.getIdentityProvider(identity))
-                    .filter(Objects::nonNull)
-                    .filter(IdentityProvider::isExternal)
-                    .collect(Collectors.toList());
+            socialProviders =
+                    organizationService
+                            .findById(organizationId)
+                            .map(
+                                    org ->
+                                            Optional.ofNullable(org.getIdentities())
+                                                    .orElse(emptyList()))
+                            .blockingGet()
+                            .stream()
+                            .map(identity -> identityProviderManager.getIdentityProvider(identity))
+                            .filter(Objects::nonNull)
+                            .filter(IdentityProvider::isExternal)
+                            .collect(Collectors.toList());
         } catch (Exception ex) {
-            LOGGER.error("An error has occurred while loading the organization social providers. It probably means that a social provider is not well started", ex);
+            LOGGER.error(
+                    "An error has occurred while loading the organization social providers. It probably means that a social provider is not well started",
+                    ex);
         }
 
         // enhance social providers data
         if (socialProviders != null && !socialProviders.isEmpty()) {
-            Set<IdentityProvider> enhancedSocialProviders = socialProviders.stream().map(identityProvider -> {
-                // get social identity provider type (currently use for display purpose (logo, description, ...)
-                identityProvider.setType(socialProviderTypes.getOrDefault(identityProvider.getType(), identityProvider.getType()));
-                return identityProvider;
-            }).collect(Collectors.toSet());
+            Set<IdentityProvider> enhancedSocialProviders =
+                    socialProviders.stream()
+                            .map(
+                                    identityProvider -> {
+                                        // get social identity provider type (currently use for
+                                        // display purpose (logo, description, ...)
+                                        identityProvider.setType(
+                                                socialProviderTypes.getOrDefault(
+                                                        identityProvider.getType(),
+                                                        identityProvider.getType()));
+                                        return identityProvider;
+                                    })
+                            .collect(Collectors.toSet());
 
             Map<String, String> authorizeUrls = new HashMap<>();
-            socialProviders.forEach(identity -> {
-                String identityId = identity.getId();
-                SocialAuthenticationProvider socialAuthenticationProvider = (SocialAuthenticationProvider) identityProviderManager.get(identityId);
-                if (socialAuthenticationProvider != null) {
-                    final Maybe<Optional<Request>> maybe = socialAuthenticationProvider.asyncSignInUrl(buildRedirectUri(request, identityId), RandomString.generate()).map(Optional::ofNullable);
-                    maybe.blockingGet()
-                            .ifPresent(idpAuthzRequest -> authorizeUrls.put(identityId, idpAuthzRequest.getUri()));
-                }
-            });
+            socialProviders.forEach(
+                    identity -> {
+                        String identityId = identity.getId();
+                        SocialAuthenticationProvider socialAuthenticationProvider =
+                                (SocialAuthenticationProvider)
+                                        identityProviderManager.get(identityId);
+                        if (socialAuthenticationProvider != null) {
+                            final Maybe<Optional<Request>> maybe =
+                                    socialAuthenticationProvider
+                                            .asyncSignInUrl(
+                                                    buildRedirectUri(request, identityId),
+                                                    RandomString.generate())
+                                            .map(Optional::ofNullable);
+                            maybe.blockingGet()
+                                    .ifPresent(
+                                            idpAuthzRequest ->
+                                                    authorizeUrls.put(
+                                                            identityId, idpAuthzRequest.getUri()));
+                        }
+                    });
 
             params.put("oauth2Providers", enhancedSocialProviders);
             params.put("socialProviders", enhancedSocialProviders);
@@ -128,7 +155,8 @@ public class LoginController {
     }
 
     @RequestMapping(value = "/login/callback")
-    public void loginCallback(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void loginCallback(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
 
         // Redirect to the original request.
         response.sendRedirect((String) request.getAttribute(DEFAULT_REDIRECT_COOKIE_NAME));
@@ -169,5 +197,4 @@ public class LoginController {
 
         return builder.build().toUriString();
     }
-
 }

@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.impl;
+
+import static java.util.Optional.ofNullable;
 
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.common.event.Action;
@@ -41,6 +41,7 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +52,6 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.List;
 
-import static java.util.Optional.ofNullable;
-
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -62,65 +61,92 @@ import static java.util.Optional.ofNullable;
 @Primary
 public class IdentityProviderServiceImpl implements IdentityProviderService {
 
-    /**
-     * Logger.
-     */
+    /** Logger. */
     private final Logger LOGGER = LoggerFactory.getLogger(IdentityProviderServiceImpl.class);
 
-    @Lazy
-    @Autowired
-    private IdentityProviderRepository identityProviderRepository;
+    @Lazy @Autowired private IdentityProviderRepository identityProviderRepository;
 
-    @Autowired
-    private ApplicationService applicationService;
+    @Autowired private ApplicationService applicationService;
 
-    @Autowired
-    private EventService eventService;
+    @Autowired private EventService eventService;
 
-    @Autowired
-    private AuditService auditService;
+    @Autowired private AuditService auditService;
 
     @Override
     public Flowable<IdentityProvider> findAll() {
         LOGGER.debug("Find all identity providers");
-        return identityProviderRepository.findAll()
-                .onErrorResumeNext(ex -> {
-                    LOGGER.error("An error occurs while trying to find all identity providers", ex);
-                    return Flowable.error(new TechnicalManagementException("An error occurs while trying to find all identity providers", ex));
-                });
+        return identityProviderRepository
+                .findAll()
+                .onErrorResumeNext(
+                        ex -> {
+                            LOGGER.error(
+                                    "An error occurs while trying to find all identity providers",
+                                    ex);
+                            return Flowable.error(
+                                    new TechnicalManagementException(
+                                            "An error occurs while trying to find all identity providers",
+                                            ex));
+                        });
     }
 
     @Override
-    public Single<IdentityProvider> findById(ReferenceType referenceType, String referenceId, String id) {
+    public Single<IdentityProvider> findById(
+            ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("Find identity provider by ID: {}", id);
-        return identityProviderRepository.findById(referenceType, referenceId, id)
-                .onErrorResumeNext(ex -> {
-                    LOGGER.error("An error occurs while trying to find an identity provider using its ID: {}", id, ex);
-                    return Maybe.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to find an identity provider using its ID: %s", id), ex));
-                })
+        return identityProviderRepository
+                .findById(referenceType, referenceId, id)
+                .onErrorResumeNext(
+                        ex -> {
+                            LOGGER.error(
+                                    "An error occurs while trying to find an identity provider using its ID: {}",
+                                    id,
+                                    ex);
+                            return Maybe.error(
+                                    new TechnicalManagementException(
+                                            String.format(
+                                                    "An error occurs while trying to find an identity provider using its ID: %s",
+                                                    id),
+                                            ex));
+                        })
                 .switchIfEmpty(Single.error(new IdentityProviderNotFoundException(id)));
     }
 
     @Override
     public Maybe<IdentityProvider> findById(String id) {
         LOGGER.debug("Find identity provider by ID: {}", id);
-        return identityProviderRepository.findById(id)
-                .onErrorResumeNext(ex -> {
-                    LOGGER.error("An error occurs while trying to find an identity provider using its ID: {}", id, ex);
-                    return Maybe.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to find an identity provider using its ID: %s", id), ex));
-                });
+        return identityProviderRepository
+                .findById(id)
+                .onErrorResumeNext(
+                        ex -> {
+                            LOGGER.error(
+                                    "An error occurs while trying to find an identity provider using its ID: {}",
+                                    id,
+                                    ex);
+                            return Maybe.error(
+                                    new TechnicalManagementException(
+                                            String.format(
+                                                    "An error occurs while trying to find an identity provider using its ID: %s",
+                                                    id),
+                                            ex));
+                        });
     }
 
     @Override
     public Flowable<IdentityProvider> findAll(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("Find identity providers by {}: {}", referenceType, referenceId);
-        return identityProviderRepository.findAll(referenceType, referenceId)
-                .onErrorResumeNext(ex -> {
-                    LOGGER.error("An error occurs while trying to find identity providers by domain", ex);
-                    return Flowable.error(new TechnicalManagementException("An error occurs while trying to find identity providers by " + referenceType.name(), ex));
-                });
+        return identityProviderRepository
+                .findAll(referenceType, referenceId)
+                .onErrorResumeNext(
+                        ex -> {
+                            LOGGER.error(
+                                    "An error occurs while trying to find identity providers by domain",
+                                    ex);
+                            return Flowable.error(
+                                    new TechnicalManagementException(
+                                            "An error occurs while trying to find identity providers by "
+                                                    + referenceType.name(),
+                                            ex));
+                        });
     }
 
     @Override
@@ -135,11 +161,23 @@ public class IdentityProviderServiceImpl implements IdentityProviderService {
     }
 
     @Override
-    public Single<IdentityProvider> create(ReferenceType referenceType, String referenceId, NewIdentityProvider newIdentityProvider, User principal, boolean system) {
-        LOGGER.debug("Create a new identity provider {} for {} {}", newIdentityProvider, referenceType, referenceId);
+    public Single<IdentityProvider> create(
+            ReferenceType referenceType,
+            String referenceId,
+            NewIdentityProvider newIdentityProvider,
+            User principal,
+            boolean system) {
+        LOGGER.debug(
+                "Create a new identity provider {} for {} {}",
+                newIdentityProvider,
+                referenceType,
+                referenceId);
 
         var identityProvider = new IdentityProvider();
-        identityProvider.setId(newIdentityProvider.getId() == null ? RandomString.generate() : newIdentityProvider.getId());
+        identityProvider.setId(
+                newIdentityProvider.getId() == null
+                        ? RandomString.generate()
+                        : newIdentityProvider.getId());
         identityProvider.setReferenceType(referenceType);
         identityProvider.setReferenceId(referenceId);
         identityProvider.setName(newIdentityProvider.getName());
@@ -147,87 +185,188 @@ public class IdentityProviderServiceImpl implements IdentityProviderService {
         identityProvider.setSystem(system);
         identityProvider.setConfiguration(newIdentityProvider.getConfiguration());
         identityProvider.setExternal(newIdentityProvider.isExternal());
-        identityProvider.setDomainWhitelist(ofNullable(newIdentityProvider.getDomainWhitelist()).orElse(List.of()));
+        identityProvider.setDomainWhitelist(
+                ofNullable(newIdentityProvider.getDomainWhitelist()).orElse(List.of()));
         identityProvider.setCreatedAt(new Date());
         identityProvider.setUpdatedAt(identityProvider.getCreatedAt());
 
-        return identityProviderRepository.create(identityProvider)
-                .flatMap(identityProvider1 -> {
-                    // create event for sync process
-                    Event event = new Event(Type.IDENTITY_PROVIDER, new Payload(identityProvider1.getId(), identityProvider1.getReferenceType(), identityProvider1.getReferenceId(), Action.CREATE));
-                    return eventService.create(event).flatMap(__ -> Single.just(identityProvider1));
-                })
-                .onErrorResumeNext(ex -> {
-                    LOGGER.error("An error occurs while trying to create an identity provider", ex);
-                    return Single.error(new TechnicalManagementException("An error occurs while trying to create an identity provider", ex));
-                });
+        return identityProviderRepository
+                .create(identityProvider)
+                .flatMap(
+                        identityProvider1 -> {
+                            // create event for sync process
+                            Event event =
+                                    new Event(
+                                            Type.IDENTITY_PROVIDER,
+                                            new Payload(
+                                                    identityProvider1.getId(),
+                                                    identityProvider1.getReferenceType(),
+                                                    identityProvider1.getReferenceId(),
+                                                    Action.CREATE));
+                            return eventService
+                                    .create(event)
+                                    .flatMap(__ -> Single.just(identityProvider1));
+                        })
+                .onErrorResumeNext(
+                        ex -> {
+                            LOGGER.error(
+                                    "An error occurs while trying to create an identity provider",
+                                    ex);
+                            return Single.error(
+                                    new TechnicalManagementException(
+                                            "An error occurs while trying to create an identity provider",
+                                            ex));
+                        });
     }
 
     @Override
-    public Single<IdentityProvider> update(ReferenceType referenceType, String referenceId, String id, UpdateIdentityProvider updateIdentityProvider, User principal, boolean isUpgrader) {
+    public Single<IdentityProvider> update(
+            ReferenceType referenceType,
+            String referenceId,
+            String id,
+            UpdateIdentityProvider updateIdentityProvider,
+            User principal,
+            boolean isUpgrader) {
         LOGGER.debug("Update an identity provider {} for {} {}", id, referenceType, referenceId);
 
-        return identityProviderRepository.findById(referenceType, referenceId, id)
+        return identityProviderRepository
+                .findById(referenceType, referenceId, id)
                 .switchIfEmpty(Maybe.error(new IdentityProviderNotFoundException(id)))
-                .flatMapSingle(oldIdentity -> {
-                    IdentityProvider identityToUpdate = new IdentityProvider(oldIdentity);
-                    identityToUpdate.setName(updateIdentityProvider.getName());
-                    if (!identityToUpdate.isSystem() || isUpgrader){
-                        identityToUpdate.setConfiguration(updateIdentityProvider.getConfiguration());
-                    }
-                    identityToUpdate.setMappers(updateIdentityProvider.getMappers());
-                    identityToUpdate.setRoleMapper(updateIdentityProvider.getRoleMapper());
-                    identityToUpdate.setDomainWhitelist(ofNullable(updateIdentityProvider.getDomainWhitelist()).orElse(List.of()));
-                    identityToUpdate.setUpdatedAt(new Date());
+                .flatMapSingle(
+                        oldIdentity -> {
+                            IdentityProvider identityToUpdate = new IdentityProvider(oldIdentity);
+                            identityToUpdate.setName(updateIdentityProvider.getName());
+                            if (!identityToUpdate.isSystem() || isUpgrader) {
+                                identityToUpdate.setConfiguration(
+                                        updateIdentityProvider.getConfiguration());
+                            }
+                            identityToUpdate.setMappers(updateIdentityProvider.getMappers());
+                            identityToUpdate.setRoleMapper(updateIdentityProvider.getRoleMapper());
+                            identityToUpdate.setDomainWhitelist(
+                                    ofNullable(updateIdentityProvider.getDomainWhitelist())
+                                            .orElse(List.of()));
+                            identityToUpdate.setUpdatedAt(new Date());
 
-                    return identityProviderRepository.update(identityToUpdate)
-                            .flatMap(identityProvider1 -> {
-                                // create event for sync process
-                                Event event = new Event(Type.IDENTITY_PROVIDER, new Payload(identityProvider1.getId(), identityProvider1.getReferenceType(), identityProvider1.getReferenceId(), Action.UPDATE));
-                                return eventService.create(event).flatMap(__ -> Single.just(identityProvider1));
-                            });
-                })
-                .onErrorResumeNext(ex -> {
-                    if (ex instanceof AbstractManagementException) {
-                        return Single.error(ex);
-                    }
+                            return identityProviderRepository
+                                    .update(identityToUpdate)
+                                    .flatMap(
+                                            identityProvider1 -> {
+                                                // create event for sync process
+                                                Event event =
+                                                        new Event(
+                                                                Type.IDENTITY_PROVIDER,
+                                                                new Payload(
+                                                                        identityProvider1.getId(),
+                                                                        identityProvider1
+                                                                                .getReferenceType(),
+                                                                        identityProvider1
+                                                                                .getReferenceId(),
+                                                                        Action.UPDATE));
+                                                return eventService
+                                                        .create(event)
+                                                        .flatMap(
+                                                                __ ->
+                                                                        Single.just(
+                                                                                identityProvider1));
+                                            });
+                        })
+                .onErrorResumeNext(
+                        ex -> {
+                            if (ex instanceof AbstractManagementException) {
+                                return Single.error(ex);
+                            }
 
-                    LOGGER.error("An error occurs while trying to update an identity provider", ex);
-                    return Single.error(new TechnicalManagementException("An error occurs while trying to update an identity provider", ex));
-                });
+                            LOGGER.error(
+                                    "An error occurs while trying to update an identity provider",
+                                    ex);
+                            return Single.error(
+                                    new TechnicalManagementException(
+                                            "An error occurs while trying to update an identity provider",
+                                            ex));
+                        });
     }
 
     @Override
-    public Completable delete(ReferenceType referenceType, String referenceId, String identityProviderId, User principal) {
+    public Completable delete(
+            ReferenceType referenceType,
+            String referenceId,
+            String identityProviderId,
+            User principal) {
         LOGGER.debug("Delete identity provider {}", identityProviderId);
 
-        return identityProviderRepository.findById(referenceType, referenceId, identityProviderId)
-                .switchIfEmpty(Maybe.error(new IdentityProviderNotFoundException(identityProviderId)))
-                .flatMapSingle(identityProvider -> applicationService.findByIdentityProvider(identityProviderId).count()
-                        .flatMap(applications -> {
-                            if (applications > 0) {
-                                throw new IdentityProviderWithApplicationsException();
+        return identityProviderRepository
+                .findById(referenceType, referenceId, identityProviderId)
+                .switchIfEmpty(
+                        Maybe.error(new IdentityProviderNotFoundException(identityProviderId)))
+                .flatMapSingle(
+                        identityProvider ->
+                                applicationService
+                                        .findByIdentityProvider(identityProviderId)
+                                        .count()
+                                        .flatMap(
+                                                applications -> {
+                                                    if (applications > 0) {
+                                                        throw new IdentityProviderWithApplicationsException();
+                                                    }
+                                                    return Single.just(identityProvider);
+                                                }))
+                .flatMapCompletable(
+                        identityProvider -> {
+
+                            // create event for sync process
+                            Event event =
+                                    new Event(
+                                            Type.IDENTITY_PROVIDER,
+                                            new Payload(
+                                                    identityProviderId,
+                                                    referenceType,
+                                                    referenceId,
+                                                    Action.DELETE));
+
+                            return identityProviderRepository
+                                    .delete(identityProviderId)
+                                    .andThen(eventService.create(event))
+                                    .toCompletable()
+                                    .doOnComplete(
+                                            () ->
+                                                    auditService.report(
+                                                            AuditBuilder.builder(
+                                                                            IdentityProviderAuditBuilder
+                                                                                    .class)
+                                                                    .principal(principal)
+                                                                    .type(
+                                                                            EventType
+                                                                                    .IDENTITY_PROVIDER_DELETED)
+                                                                    .identityProvider(
+                                                                            identityProvider)))
+                                    .doOnError(
+                                            throwable ->
+                                                    auditService.report(
+                                                            AuditBuilder.builder(
+                                                                            IdentityProviderAuditBuilder
+                                                                                    .class)
+                                                                    .principal(principal)
+                                                                    .type(
+                                                                            EventType
+                                                                                    .IDENTITY_PROVIDER_DELETED)
+                                                                    .throwable(throwable)));
+                        })
+                .onErrorResumeNext(
+                        ex -> {
+                            if (ex instanceof AbstractManagementException) {
+                                return Completable.error(ex);
                             }
-                            return Single.just(identityProvider);
-                        }))
-                .flatMapCompletable(identityProvider -> {
 
-                    // create event for sync process
-                    Event event = new Event(Type.IDENTITY_PROVIDER, new Payload(identityProviderId, referenceType, referenceId, Action.DELETE));
-
-                    return identityProviderRepository.delete(identityProviderId)
-                            .andThen(eventService.create(event)).toCompletable()
-                            .doOnComplete(() -> auditService.report(AuditBuilder.builder(IdentityProviderAuditBuilder.class).principal(principal).type(EventType.IDENTITY_PROVIDER_DELETED).identityProvider(identityProvider)))
-                            .doOnError(throwable -> auditService.report(AuditBuilder.builder(IdentityProviderAuditBuilder.class).principal(principal).type(EventType.IDENTITY_PROVIDER_DELETED).throwable(throwable)));
-                })
-                .onErrorResumeNext(ex -> {
-                    if (ex instanceof AbstractManagementException) {
-                        return Completable.error(ex);
-                    }
-
-                    LOGGER.error("An error occurs while trying to delete identity provider: {}", identityProviderId, ex);
-                    return Completable.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to delete identity provider: %s", identityProviderId), ex));
-                });
+                            LOGGER.error(
+                                    "An error occurs while trying to delete identity provider: {}",
+                                    identityProviderId,
+                                    ex);
+                            return Completable.error(
+                                    new TechnicalManagementException(
+                                            String.format(
+                                                    "An error occurs while trying to delete identity provider: %s",
+                                                    identityProviderId),
+                                            ex));
+                        });
     }
 }

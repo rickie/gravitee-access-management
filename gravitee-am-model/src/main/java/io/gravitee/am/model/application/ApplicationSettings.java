@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.model.application;
@@ -21,9 +19,9 @@ import io.gravitee.am.model.PasswordSettings;
 import io.gravitee.am.model.account.AccountSettings;
 import io.gravitee.am.model.login.LoginSettings;
 import io.gravitee.am.model.oidc.Client;
-
 import io.gravitee.risk.assessment.api.assessment.settings.AssessmentSettings;
 import io.gravitee.risk.assessment.api.assessment.settings.RiskAssessmentSettings;
+
 import java.util.Optional;
 
 /**
@@ -31,62 +29,45 @@ import java.util.Optional;
  * @author GraviteeSource Team
  */
 public class ApplicationSettings {
-    /**
-     * OAuth 2.0/OIDC Client settings
-     */
+    /** OAuth 2.0/OIDC Client settings */
     private ApplicationOAuthSettings oauth;
-    /**
-     * SAML 2.0 Service Provider settings
-     */
+    /** SAML 2.0 Service Provider settings */
     private ApplicationSAMLSettings saml;
-    /**
-     * User Account settings
-     */
+    /** User Account settings */
     private AccountSettings account;
-    /**
-     * Login settings
-     */
+    /** Login settings */
     private LoginSettings login;
-    /**
-     * Advanced settings
-     */
+    /** Advanced settings */
     private ApplicationAdvancedSettings advanced;
 
-    /**
-     * Password settings
-     */
+    /** Password settings */
     private PasswordSettings passwordSettings;
 
-    /**
-     * MFA settings
-     */
+    /** MFA settings */
     private MFASettings mfa;
 
-    /**
-     * Cookie settings
-     */
+    /** Cookie settings */
     private CookieSettings cookieSettings;
 
-    /**
-     * Risk Assessment Settings
-     * Note: configuration can be set but effective only if EE
-     */
+    /** Risk Assessment Settings Note: configuration can be set but effective only if EE */
     private RiskAssessmentSettings riskAssessment;
 
-
-    public ApplicationSettings() {
-    }
+    public ApplicationSettings() {}
 
     public ApplicationSettings(ApplicationSettings other) {
         this.oauth = other.oauth != null ? new ApplicationOAuthSettings(other.oauth) : null;
         this.saml = other.saml != null ? new ApplicationSAMLSettings(other.saml) : null;
         this.account = other.account != null ? new AccountSettings(other.account) : null;
         this.login = other.login != null ? new LoginSettings(other.login) : null;
-        this.advanced = other.advanced != null ? new ApplicationAdvancedSettings(other.advanced) : null;
-        this.passwordSettings = Optional.ofNullable(other.passwordSettings).map(PasswordSettings::new).orElse(null);
+        this.advanced =
+                other.advanced != null ? new ApplicationAdvancedSettings(other.advanced) : null;
+        this.passwordSettings =
+                Optional.ofNullable(other.passwordSettings).map(PasswordSettings::new).orElse(null);
         this.mfa = other.mfa != null ? new MFASettings(other.mfa) : null;
-        this.cookieSettings = other.cookieSettings != null ? new CookieSettings(other.cookieSettings) : null;
-        this.riskAssessment = other.riskAssessment != null ? getRiskAssessment(other.riskAssessment) : null;
+        this.cookieSettings =
+                other.cookieSettings != null ? new CookieSettings(other.cookieSettings) : null;
+        this.riskAssessment =
+                other.riskAssessment != null ? getRiskAssessment(other.riskAssessment) : null;
     }
 
     public ApplicationOAuthSettings getOauth() {

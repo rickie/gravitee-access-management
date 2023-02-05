@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.uma.resources.endpoint;
@@ -41,6 +39,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
+ *
+ *
  * <pre>
  * This endpoint is part of the UMA 2.0 Protection API.
  * The permission endpoint defines a means for the Resource Server to request one or more permissions (resource identifiers and corresponding scopes)
@@ -69,27 +69,34 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
         this.extractRequest(context)
                 .flatMap(this::bodyValidation)
                 .map(this::toPermissionRequest)
-                .flatMap(permissionRequests -> permissionTicketService.create(permissionRequests, domain.getId(), client.getId()))
+                .flatMap(
+                        permissionRequests ->
+                                permissionTicketService.create(
+                                        permissionRequests, domain.getId(), client.getId()))
                 .map(PermissionTicketResponse::from)
                 .subscribe(
-                        permission -> context.response()
-                                .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
-                                .putHeader(HttpHeaders.PRAGMA, "no-cache")
-                                .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                .setStatusCode(HttpStatusCode.CREATED_201)
-                                .end(Json.encodePrettily(permission))
-                        , error -> context.fail(error)
-                );
+                        permission ->
+                                context.response()
+                                        .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+                                        .putHeader(HttpHeaders.PRAGMA, "no-cache")
+                                        .putHeader(
+                                                HttpHeaders.CONTENT_TYPE,
+                                                MediaType.APPLICATION_JSON)
+                                        .setStatusCode(HttpStatusCode.CREATED_201)
+                                        .end(Json.encodePrettily(permission)),
+                        error -> context.fail(error));
     }
 
     /**
-     * Specification state :
-     * Requesting multiple permissions might be appropriate, for example, in cases where the resource server expects the requesting party
-     * to need access to several related resources if they need access to any one of the resources
+     * Specification state : Requesting multiple permissions might be appropriate, for example, in
+     * cases where the resource server expects the requesting party to need access to several
+     * related resources if they need access to any one of the resources
      *
-     * Means : Body can either be a JsonArray or a JsonObject, we need to handle both case.
+     * <p>Means : Body can either be a JsonArray or a JsonObject, we need to handle both case.
      *
-     * See <a href="https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-federated-authz-2.0.html#permission-endpoint">here</a>
+     * <p>See <a
+     * href="https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-federated-authz-2.0.html#permission-endpoint">here</a>
+     *
      * @param context RoutingContext
      * @return List of PermissionRequest
      */
@@ -99,15 +106,15 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
 
         try {
             json = context.getBody().toJson();
-        }
-        catch (RuntimeException err) {
-            return Single.error(new InvalidRequestException("Unable to parse body permission request"));
+        } catch (RuntimeException err) {
+            return Single.error(
+                    new InvalidRequestException("Unable to parse body permission request"));
         }
 
-        if(json instanceof JsonArray) {
-            result = convert(((JsonArray)json).getList());
+        if (json instanceof JsonArray) {
+            result = convert(((JsonArray) json).getList());
         } else {
-            result = Arrays.asList(((JsonObject)json).mapTo(PermissionTicketRequest.class));
+            result = Arrays.asList(((JsonObject) json).mapTo(PermissionTicketRequest.class));
         }
         return Single.just(result);
     }
@@ -118,35 +125,53 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
                 .collect(Collectors.toList());
     }
 
-    private List<PermissionRequest> toPermissionRequest(List<PermissionTicketRequest> requestedPermissions) {
+    private List<PermissionRequest> toPermissionRequest(
+            List<PermissionTicketRequest> requestedPermissions) {
         return requestedPermissions.stream()
-                .map(request -> new PermissionRequest().setResourceId(request.getResourceId()).setResourceScopes(request.getResourceScopes()))
+                .map(
+                        request ->
+                                new PermissionRequest()
+                                        .setResourceId(request.getResourceId())
+                                        .setResourceScopes(request.getResourceScopes()))
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Both resource_id & resource_scopes are mandatory fields.
-     */
-    private Single<List<PermissionTicketRequest>> bodyValidation(List<PermissionTicketRequest> toValidate) {
-        if(toValidate.stream().filter(invalidPermissionRequest()).count() > 0) {
-            return Single.error(new InvalidRequestException("resource_id and resource_scopes are mandatory."));
+    /** Both resource_id & resource_scopes are mandatory fields. */
+    private Single<List<PermissionTicketRequest>> bodyValidation(
+            List<PermissionTicketRequest> toValidate) {
+        if (toValidate.stream().filter(invalidPermissionRequest()).count() > 0) {
+            return Single.error(
+                    new InvalidRequestException("resource_id and resource_scopes are mandatory."));
         }
         return Single.just(toValidate);
     }
 
     /**
-     * Rules inspired from specification <a href="https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-federated-authz-2.0.html#permission-endpoint">here</a>
+     * Rules inspired from specification <a
+     * href="https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-federated-authz-2.0.html#permission-endpoint">here</a>
      *
-     * Requesting a permission with no scopes might be appropriate, for example, in cases where an access attempt involves an API call
-     * that is ambiguous without further context (role-based scopes such as user and admin could have this ambiguous quality,
-     * and an explicit client request for a particular scope at the token endpoint later can clarify the desired access).
+     * <p>Requesting a permission with no scopes might be appropriate, for example, in cases where
+     * an access attempt involves an API call that is ambiguous without further context (role-based
+     * scopes such as user and admin could have this ambiguous quality, and an explicit client
+     * request for a particular scope at the token endpoint later can clarify the desired access).
+     *
      * @return
      */
     private static final Predicate<PermissionTicketRequest> invalidPermissionRequest() {
-        return permission -> permission == null ||
-                // Permission resource id is not correct
-                (permission.getResourceId() == null || permission.getResourceId().isEmpty()) ||
-                // Or Permission request contains empty string scopes (only checking for empty scope values, scopes may not be informed as defined into the specification)
-                (permission.getResourceScopes() != null && !permission.getResourceScopes().isEmpty() && permission.getResourceScopes().stream().filter(s -> (s==null || s.isEmpty())).count()>0);
+        return permission ->
+                permission == null
+                        ||
+                        // Permission resource id is not correct
+                        (permission.getResourceId() == null || permission.getResourceId().isEmpty())
+                        ||
+                        // Or Permission request contains empty string scopes (only checking for
+                        // empty scope values, scopes may not be informed as defined into the
+                        // specification)
+                        (permission.getResourceScopes() != null
+                                && !permission.getResourceScopes().isEmpty()
+                                && permission.getResourceScopes().stream()
+                                                .filter(s -> (s == null || s.isEmpty()))
+                                                .count()
+                                        > 0);
     }
 }

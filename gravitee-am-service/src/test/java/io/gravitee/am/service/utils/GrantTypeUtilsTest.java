@@ -1,33 +1,32 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.utils;
+
+import static org.junit.Assert.*;
 
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.application.ApplicationOAuthSettings;
 import io.gravitee.am.model.application.ApplicationSettings;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.Arrays;
 import java.util.Collections;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -49,7 +48,8 @@ public class GrantTypeUtilsTest {
         Application application = new Application();
 
         ApplicationOAuthSettings oAuthSettings = new ApplicationOAuthSettings();
-        oAuthSettings.setGrantTypes(Arrays.asList("authorization_code", "implicit", "refresh_token"));
+        oAuthSettings.setGrantTypes(
+                Arrays.asList("authorization_code", "implicit", "refresh_token"));
         oAuthSettings.setResponseTypes(Arrays.asList("code"));
 
         ApplicationSettings settings = new ApplicationSettings();
@@ -57,7 +57,8 @@ public class GrantTypeUtilsTest {
 
         application.setSettings(settings);
 
-        TestObserver<Application> testObserver = GrantTypeUtils.validateGrantTypes(application).test();
+        TestObserver<Application> testObserver =
+                GrantTypeUtils.validateGrantTypes(application).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
     }
@@ -74,7 +75,8 @@ public class GrantTypeUtilsTest {
 
         application.setSettings(settings);
 
-        TestObserver<Application> testObserver = GrantTypeUtils.validateGrantTypes(application).test();
+        TestObserver<Application> testObserver =
+                GrantTypeUtils.validateGrantTypes(application).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidClientMetadataException.class);
     }
@@ -91,7 +93,8 @@ public class GrantTypeUtilsTest {
 
         application.setSettings(settings);
 
-        TestObserver<Application> testObserver = GrantTypeUtils.validateGrantTypes(application).test();
+        TestObserver<Application> testObserver =
+                GrantTypeUtils.validateGrantTypes(application).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidClientMetadataException.class);
     }
@@ -101,7 +104,7 @@ public class GrantTypeUtilsTest {
         Application application = new Application();
 
         ApplicationOAuthSettings oAuthSettings = new ApplicationOAuthSettings();
-        oAuthSettings.setGrantTypes(Arrays.asList("refresh_token","implicit"));
+        oAuthSettings.setGrantTypes(Arrays.asList("refresh_token", "implicit"));
         oAuthSettings.setResponseTypes(Arrays.asList("token"));
 
         ApplicationSettings settings = new ApplicationSettings();
@@ -109,7 +112,8 @@ public class GrantTypeUtilsTest {
 
         application.setSettings(settings);
 
-        TestObserver<Application> testObserver = GrantTypeUtils.validateGrantTypes(application).test();
+        TestObserver<Application> testObserver =
+                GrantTypeUtils.validateGrantTypes(application).test();
 
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidClientMetadataException.class);
@@ -120,7 +124,7 @@ public class GrantTypeUtilsTest {
         Application application = new Application();
 
         ApplicationOAuthSettings oAuthSettings = new ApplicationOAuthSettings();
-        oAuthSettings.setGrantTypes(Arrays.asList("refresh_token","client_credentials"));
+        oAuthSettings.setGrantTypes(Arrays.asList("refresh_token", "client_credentials"));
         oAuthSettings.setResponseTypes(Collections.emptyList());
 
         ApplicationSettings settings = new ApplicationSettings();
@@ -128,7 +132,8 @@ public class GrantTypeUtilsTest {
 
         application.setSettings(settings);
 
-        TestObserver<Application> testObserver = GrantTypeUtils.validateGrantTypes(application).test();
+        TestObserver<Application> testObserver =
+                GrantTypeUtils.validateGrantTypes(application).test();
 
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidClientMetadataException.class);
@@ -147,10 +152,15 @@ public class GrantTypeUtilsTest {
 
         application.setSettings(settings);
 
-        TestObserver<Application> testObserver = GrantTypeUtils.validateGrantTypes(application).test();
+        TestObserver<Application> testObserver =
+                GrantTypeUtils.validateGrantTypes(application).test();
 
         testObserver.assertError(InvalidClientMetadataException.class);
-        testObserver.assertError(err -> ((Throwable)err).getMessage().startsWith("refresh_token grant type must be associated with"));
+        testObserver.assertError(
+                err ->
+                        ((Throwable) err)
+                                .getMessage()
+                                .startsWith("refresh_token grant type must be associated with"));
         testObserver.assertNotComplete();
     }
 
@@ -159,7 +169,7 @@ public class GrantTypeUtilsTest {
         Application application = new Application();
 
         ApplicationOAuthSettings oAuthSettings = new ApplicationOAuthSettings();
-        oAuthSettings.setGrantTypes(Arrays.asList("refresh_token","authorization_code"));
+        oAuthSettings.setGrantTypes(Arrays.asList("refresh_token", "authorization_code"));
         oAuthSettings.setResponseTypes(Arrays.asList("code"));
 
         ApplicationSettings settings = new ApplicationSettings();
@@ -167,7 +177,8 @@ public class GrantTypeUtilsTest {
 
         application.setSettings(settings);
 
-        TestObserver<Application> testObserver = GrantTypeUtils.validateGrantTypes(application).test();
+        TestObserver<Application> testObserver =
+                GrantTypeUtils.validateGrantTypes(application).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -176,26 +187,29 @@ public class GrantTypeUtilsTest {
     @Test
     public void isSupportedGrantType_empty_grant_type() {
         boolean isSupportedGrantType = GrantTypeUtils.isSupportedGrantType(Arrays.asList());
-        assertFalse("Were expecting to be false",isSupportedGrantType);
+        assertFalse("Were expecting to be false", isSupportedGrantType);
     }
 
     @Test
     public void supportedGrantTypes() {
-        assertTrue("should have at least authorization_code", GrantTypeUtils.getSupportedGrantTypes().contains("authorization_code"));
+        assertTrue(
+                "should have at least authorization_code",
+                GrantTypeUtils.getSupportedGrantTypes().contains("authorization_code"));
     }
 
     @Test
     public void isRedirectUriRequired() {
-        //isRedirectUriRequired("authorization_code",true);//should be true for mobile app, false for web app...
-        isRedirectUriRequired("implicit",true);
-        //isRedirectUriRequired("hybrid",true);
-        isRedirectUriRequired("password",false);
-        isRedirectUriRequired("client_credentials",false);
+        // isRedirectUriRequired("authorization_code",true);//should be true for mobile app, false
+        // for web app...
+        isRedirectUriRequired("implicit", true);
+        // isRedirectUriRequired("hybrid",true);
+        isRedirectUriRequired("password", false);
+        isRedirectUriRequired("client_credentials", false);
     }
 
     private void isRedirectUriRequired(String grant, boolean expected) {
         boolean isValid = GrantTypeUtils.isRedirectUriRequired(Arrays.asList(grant));
-        assertEquals("not expected result for "+grant,expected, isValid);
+        assertEquals("not expected result for " + grant, expected, isValid);
     }
 
     @Test
@@ -212,7 +226,13 @@ public class GrantTypeUtilsTest {
         application.setSettings(settings);
 
         application = GrantTypeUtils.completeGrantTypeCorrespondance(application);
-        assertTrue("was expecting code grant type",application.getSettings().getOauth().getGrantTypes().contains("authorization_code"));
+        assertTrue(
+                "was expecting code grant type",
+                application
+                        .getSettings()
+                        .getOauth()
+                        .getGrantTypes()
+                        .contains("authorization_code"));
     }
 
     @Test
@@ -229,8 +249,16 @@ public class GrantTypeUtilsTest {
         application.setSettings(settings);
 
         application = GrantTypeUtils.completeGrantTypeCorrespondance(application);
-        assertTrue("was expecting code grant type",application.getSettings().getOauth().getGrantTypes().contains("implicit"));
-        assertFalse("was expecting code grant type",application.getSettings().getOauth().getGrantTypes().contains("authorization_code"));
+        assertTrue(
+                "was expecting code grant type",
+                application.getSettings().getOauth().getGrantTypes().contains("implicit"));
+        assertFalse(
+                "was expecting code grant type",
+                application
+                        .getSettings()
+                        .getOauth()
+                        .getGrantTypes()
+                        .contains("authorization_code"));
     }
 
     @Test
@@ -247,8 +275,16 @@ public class GrantTypeUtilsTest {
         application.setSettings(settings);
 
         application = GrantTypeUtils.completeGrantTypeCorrespondance(application);
-        assertFalse("was expecting code grant type",application.getSettings().getOauth().getGrantTypes().contains("implicit"));
-        assertTrue("was expecting code grant type",application.getSettings().getOauth().getGrantTypes().contains("authorization_code"));
+        assertFalse(
+                "was expecting code grant type",
+                application.getSettings().getOauth().getGrantTypes().contains("implicit"));
+        assertTrue(
+                "was expecting code grant type",
+                application
+                        .getSettings()
+                        .getOauth()
+                        .getGrantTypes()
+                        .contains("authorization_code"));
     }
 
     @Test
@@ -265,8 +301,16 @@ public class GrantTypeUtilsTest {
         application.setSettings(settings);
 
         application = GrantTypeUtils.completeGrantTypeCorrespondance(application);
-        assertTrue("was expecting code grant type",application.getSettings().getOauth().getResponseTypes().isEmpty());
-        assertTrue("was expecting code grant type",application.getSettings().getOauth().getGrantTypes().contains("client_credentials"));
+        assertTrue(
+                "was expecting code grant type",
+                application.getSettings().getOauth().getResponseTypes().isEmpty());
+        assertTrue(
+                "was expecting code grant type",
+                application
+                        .getSettings()
+                        .getOauth()
+                        .getGrantTypes()
+                        .contains("client_credentials"));
     }
 
     @Test
@@ -283,7 +327,15 @@ public class GrantTypeUtilsTest {
         application.setSettings(settings);
 
         application = GrantTypeUtils.completeGrantTypeCorrespondance(application);
-        assertTrue("was expecting code grant type",application.getSettings().getOauth().getResponseTypes().contains("code"));
-        assertTrue("was expecting code grant type",application.getSettings().getOauth().getGrantTypes().contains("authorization_code"));
+        assertTrue(
+                "was expecting code grant type",
+                application.getSettings().getOauth().getResponseTypes().contains("code"));
+        assertTrue(
+                "was expecting code grant type",
+                application
+                        .getSettings()
+                        .getOauth()
+                        .getGrantTypes()
+                        .contains("authorization_code"));
     }
 }

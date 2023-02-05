@@ -1,19 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.management.api;
+
+import static org.springframework.data.relational.core.query.Criteria.where;
+
+import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
+import static reactor.adapter.rxjava.RxJava2Adapter.maybeToMono;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToCompletable;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Domain;
@@ -31,12 +36,14 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -45,12 +52,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
-import static reactor.adapter.rxjava.RxJava2Adapter.maybeToMono;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToCompletable;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
@@ -58,14 +59,10 @@ import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 @Repository
 public class JdbcDomainRepository extends AbstractJdbcRepository implements DomainRepository {
 
-    @Autowired
-    private SpringDomainRepository domainRepository;
-    @Autowired
-    private SpringDomainIdentitiesRepository identitiesRepository;
-    @Autowired
-    private SpringDomainTagRepository tagRepository;
-    @Autowired
-    private SpringDomainVHostsRepository vHostsRepository;
+    @Autowired private SpringDomainRepository domainRepository;
+    @Autowired private SpringDomainIdentitiesRepository identitiesRepository;
+    @Autowired private SpringDomainTagRepository tagRepository;
+    @Autowired private SpringDomainVHostsRepository vHostsRepository;
 
     protected Domain toDomain(JdbcDomain entity) {
         return mapper.map(entity, Domain.class);
@@ -102,9 +99,8 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
 
         whereClause = whereClause.and(alertEnableClause);
 
-        return fluxToFlowable(template.select(JdbcDomain.class)
-                .matching(Query.query(whereClause))
-                .all())
+        return fluxToFlowable(
+                        template.select(JdbcDomain.class).matching(Query.query(whereClause)).all())
                 .map(this::toDomain)
                 .flatMap(this::completeDomain);
     }
@@ -122,7 +118,10 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
     @Override
     public Flowable<Domain> findAllByReferenceId(String environmentId) {
         LOGGER.debug("findAllByReferenceId({})", environmentId);
-        Flowable<Domain> domains = domainRepository.findAllByReferenceId(environmentId, ReferenceType.ENVIRONMENT.name()).map(this::toDomain);
+        Flowable<Domain> domains =
+                domainRepository
+                        .findAllByReferenceId(environmentId, ReferenceType.ENVIRONMENT.name())
+                        .map(this::toDomain);
         return domains.flatMap(this::completeDomain);
     }
 
@@ -136,7 +135,11 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
     @Override
     public Maybe<Domain> findByHrid(ReferenceType referenceType, String referenceId, String hrid) {
         LOGGER.debug("findByHrid({})", hrid);
-        Flowable<Domain> domains = domainRepository.findByHrid(referenceId, referenceType.name(), hrid).map(this::toDomain).toFlowable();
+        Flowable<Domain> domains =
+                domainRepository
+                        .findByHrid(referenceId, referenceType.name(), hrid)
+                        .map(this::toDomain)
+                        .toFlowable();
         return domains.flatMap(this::completeDomain).firstElement();
     }
 
@@ -149,9 +152,8 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
         Mono<Integer> insertAction = template.insert(toJdbcDomain(item)).map(__ -> 1); // TODO
         insertAction = persistChildEntities(insertAction, item);
 
-        return monoToSingle(insertAction
-                .as(trx::transactional)
-                .then(maybeToMono(findById(item.getId()))));
+        return monoToSingle(
+                insertAction.as(trx::transactional).then(maybeToMono(findById(item.getId()))));
     }
 
     @Override
@@ -164,107 +166,181 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
         updateAction = updateAction.then(deleteChildEntities(item.getId()));
         updateAction = persistChildEntities(updateAction, item);
 
-        return monoToSingle(updateAction
-                .as(trx::transactional)
-                .then(maybeToMono(findById(item.getId()))));
+        return monoToSingle(
+                updateAction.as(trx::transactional).then(maybeToMono(findById(item.getId()))));
     }
 
     @Override
     public Completable delete(String domainId) {
         LOGGER.debug("delete Domain with id {}", domainId);
         TransactionalOperator trx = TransactionalOperator.create(tm);
-        return monoToCompletable(template.delete(JdbcDomain.class)
-                .matching(Query.query(where("id").is(domainId)))
-                .all()
-                .then(deleteChildEntities(domainId))
-                .as(trx::transactional))
-                .doOnError((error) -> LOGGER.error("unable to delete Domain with id {}", domainId, error));
+        return monoToCompletable(
+                        template.delete(JdbcDomain.class)
+                                .matching(Query.query(where("id").is(domainId)))
+                                .all()
+                                .then(deleteChildEntities(domainId))
+                                .as(trx::transactional))
+                .doOnError(
+                        (error) ->
+                                LOGGER.error(
+                                        "unable to delete Domain with id {}", domainId, error));
     }
 
     @Override
-    public Flowable<Domain> search(String environmentId, String query){
+    public Flowable<Domain> search(String environmentId, String query) {
         LOGGER.debug("search({}, {})", environmentId, query);
 
         boolean wildcardMatch = query.contains("*");
         String wildcardQuery = query.replaceAll("\\*+", "%");
 
-        String search = new StringBuilder("SELECT * FROM domains d WHERE")
+        String search =
+                new StringBuilder("SELECT * FROM domains d WHERE")
+                        .append(" d.reference_type = :refType AND d.reference_id = :refId")
+                        .append(" AND UPPER(d.hrid) " + (wildcardMatch ? "LIKE" : "="))
+                        .append(" :value")
+                        .toString();
 
-                .append(" d.reference_type = :refType AND d.reference_id = :refId")
-                .append(" AND UPPER(d.hrid) " + (wildcardMatch ? "LIKE" : "="))
-                .append(" :value")
-                .toString();
-
-        return fluxToFlowable(template.getDatabaseClient().sql(search)
-                .bind("refType", ReferenceType.ENVIRONMENT.name())
-                .bind("refId", environmentId)
-                .bind("value", wildcardMatch ? wildcardQuery.toUpperCase() : query.toUpperCase())
-                .map(row -> rowMapper.read(JdbcDomain.class, row))
-                .all())
+        return fluxToFlowable(
+                        template.getDatabaseClient()
+                                .sql(search)
+                                .bind("refType", ReferenceType.ENVIRONMENT.name())
+                                .bind("refId", environmentId)
+                                .bind(
+                                        "value",
+                                        wildcardMatch
+                                                ? wildcardQuery.toUpperCase()
+                                                : query.toUpperCase())
+                                .map(row -> rowMapper.read(JdbcDomain.class, row))
+                                .all())
                 .map(this::toDomain)
                 .flatMap(this::completeDomain);
     }
 
     private Flowable<Domain> completeDomain(Domain entity) {
-        return Flowable.just(entity).flatMap(domain ->
-                identitiesRepository.findAllByDomainId(domain.getId()).map(JdbcDomain.Identity::getIdentity).toList().toFlowable().map(idps -> {
-                    domain.setIdentities(new HashSet<>(idps));
-                    return domain;
-                })
-        ).flatMap(domain ->
-                tagRepository.findAllByDomainId(domain.getId()).map(JdbcDomain.Tag::getTag).toList().toFlowable().map(tags -> {
-                    domain.setTags(new HashSet<>(tags));
-                    return domain;
-                })
-        ).flatMap(domain ->
-                vHostsRepository.findAllByDomainId(domain.getId()).map(this::toVirtualHost).toList().toFlowable().map(vhosts -> {
-                    domain.setVhosts(vhosts);
-                    return domain;
-                })
-         );
+        return Flowable.just(entity)
+                .flatMap(
+                        domain ->
+                                identitiesRepository
+                                        .findAllByDomainId(domain.getId())
+                                        .map(JdbcDomain.Identity::getIdentity)
+                                        .toList()
+                                        .toFlowable()
+                                        .map(
+                                                idps -> {
+                                                    domain.setIdentities(new HashSet<>(idps));
+                                                    return domain;
+                                                }))
+                .flatMap(
+                        domain ->
+                                tagRepository
+                                        .findAllByDomainId(domain.getId())
+                                        .map(JdbcDomain.Tag::getTag)
+                                        .toList()
+                                        .toFlowable()
+                                        .map(
+                                                tags -> {
+                                                    domain.setTags(new HashSet<>(tags));
+                                                    return domain;
+                                                }))
+                .flatMap(
+                        domain ->
+                                vHostsRepository
+                                        .findAllByDomainId(domain.getId())
+                                        .map(this::toVirtualHost)
+                                        .toList()
+                                        .toFlowable()
+                                        .map(
+                                                vhosts -> {
+                                                    domain.setVhosts(vhosts);
+                                                    return domain;
+                                                }));
     }
 
     private Mono<Integer> persistChildEntities(Mono<Integer> actionFlow, Domain item) {
         final Set<String> identities = item.getIdentities();
         if (identities != null && !identities.isEmpty()) {
-            actionFlow = actionFlow.then(Flux.fromIterable(identities).concatMap(idp ->
-                            template.getDatabaseClient().sql("INSERT INTO domain_identities(domain_id, identity_id) VALUES(:domain, :idp)")
-                                    .bind("domain", item.getId())
-                                    .bind("idp", idp)
-                                    .fetch().rowsUpdated())
-                    .reduce(Integer::sum));
+            actionFlow =
+                    actionFlow.then(
+                            Flux.fromIterable(identities)
+                                    .concatMap(
+                                            idp ->
+                                                    template.getDatabaseClient()
+                                                            .sql(
+                                                                    "INSERT INTO domain_identities(domain_id, identity_id) VALUES(:domain, :idp)")
+                                                            .bind("domain", item.getId())
+                                                            .bind("idp", idp)
+                                                            .fetch()
+                                                            .rowsUpdated())
+                                    .reduce(Integer::sum));
         }
 
         final Set<String> tags = item.getTags();
         if (tags != null && !tags.isEmpty()) {
-            actionFlow = actionFlow.then(Flux.fromIterable(tags).concatMap(tagValue ->
-                            template.getDatabaseClient().sql("INSERT INTO domain_tags(domain_id, tag) VALUES(:domain, :tag)")
-                                    .bind("domain", item.getId())
-                                    .bind("tag", tagValue)
-                                    .fetch().rowsUpdated())
-                    .reduce(Integer::sum));
+            actionFlow =
+                    actionFlow.then(
+                            Flux.fromIterable(tags)
+                                    .concatMap(
+                                            tagValue ->
+                                                    template.getDatabaseClient()
+                                                            .sql(
+                                                                    "INSERT INTO domain_tags(domain_id, tag) VALUES(:domain, :tag)")
+                                                            .bind("domain", item.getId())
+                                                            .bind("tag", tagValue)
+                                                            .fetch()
+                                                            .rowsUpdated())
+                                    .reduce(Integer::sum));
         }
 
         final List<VirtualHost> virtualHosts = item.getVhosts();
         if (virtualHosts != null && !virtualHosts.isEmpty()) {
-            actionFlow = actionFlow.then(Flux.fromStream(virtualHosts.stream().map(this::toJdbcVHost)).concatMap(jdbcVHost -> {
-                jdbcVHost.setDomainId(item.getId());
-                DatabaseClient.GenericExecuteSpec insert = template.getDatabaseClient().sql("INSERT INTO domain_vhosts(domain_id, host, path, override_entrypoint) VALUES(:domain, :host, :path, :override)")
-                        .bind("domain", item.getId());
-                insert = jdbcVHost.getHost() != null ? insert.bind("host", jdbcVHost.getHost()) : insert.bindNull("host", String.class);
-                insert = jdbcVHost.getPath() != null ? insert.bind("path", jdbcVHost.getPath()) : insert.bindNull("path", String.class);
-                return insert.bind("override", jdbcVHost.isOverrideEntrypoint())
-                        .fetch().rowsUpdated();
-            }).reduce(Integer::sum));
+            actionFlow =
+                    actionFlow.then(
+                            Flux.fromStream(virtualHosts.stream().map(this::toJdbcVHost))
+                                    .concatMap(
+                                            jdbcVHost -> {
+                                                jdbcVHost.setDomainId(item.getId());
+                                                DatabaseClient.GenericExecuteSpec insert =
+                                                        template.getDatabaseClient()
+                                                                .sql(
+                                                                        "INSERT INTO domain_vhosts(domain_id, host, path, override_entrypoint) VALUES(:domain, :host, :path, :override)")
+                                                                .bind("domain", item.getId());
+                                                insert =
+                                                        jdbcVHost.getHost() != null
+                                                                ? insert.bind(
+                                                                        "host", jdbcVHost.getHost())
+                                                                : insert.bindNull(
+                                                                        "host", String.class);
+                                                insert =
+                                                        jdbcVHost.getPath() != null
+                                                                ? insert.bind(
+                                                                        "path", jdbcVHost.getPath())
+                                                                : insert.bindNull(
+                                                                        "path", String.class);
+                                                return insert.bind(
+                                                                "override",
+                                                                jdbcVHost.isOverrideEntrypoint())
+                                                        .fetch()
+                                                        .rowsUpdated();
+                                            })
+                                    .reduce(Integer::sum));
         }
 
         return actionFlow;
     }
 
     private Mono<Integer> deleteChildEntities(String domainId) {
-        Mono<Integer> deleteVirtualHosts = template.delete(JdbcDomain.Vhost.class).matching(Query.query(where("domain_id").is(domainId))).all();
-        Mono<Integer> deleteIdentities = template.delete(JdbcDomain.Identity.class).matching(Query.query(where("domain_id").is(domainId))).all();
-        Mono<Integer> deleteTags = template.delete(JdbcDomain.Tag.class).matching(Query.query(where("domain_id").is(domainId))).all();
+        Mono<Integer> deleteVirtualHosts =
+                template.delete(JdbcDomain.Vhost.class)
+                        .matching(Query.query(where("domain_id").is(domainId)))
+                        .all();
+        Mono<Integer> deleteIdentities =
+                template.delete(JdbcDomain.Identity.class)
+                        .matching(Query.query(where("domain_id").is(domainId)))
+                        .all();
+        Mono<Integer> deleteTags =
+                template.delete(JdbcDomain.Tag.class)
+                        .matching(Query.query(where("domain_id").is(domainId)))
+                        .all();
         return deleteVirtualHosts.then(deleteIdentities).then(deleteTags);
     }
 }

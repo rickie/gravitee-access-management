@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.manager.resource.impl;
@@ -21,8 +19,8 @@ import io.gravitee.am.gateway.handler.manager.resource.ResourceManager;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.event.Payload;
-import io.gravitee.am.plugins.handlers.api.provider.ProviderConfiguration;
 import io.gravitee.am.model.resource.ServiceResource;
+import io.gravitee.am.plugins.handlers.api.provider.ProviderConfiguration;
 import io.gravitee.am.plugins.resource.core.ResourcePluginManager;
 import io.gravitee.am.resource.api.ResourceProvider;
 import io.gravitee.am.service.ServiceResourceService;
@@ -32,6 +30,7 @@ import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Maybe;
 import io.reactivex.schedulers.Schedulers;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -46,21 +45,18 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class ResourceManagerImpl extends AbstractService implements ResourceManager, EventListener<ResourceEvent, Payload>, InitializingBean {
+public class ResourceManagerImpl extends AbstractService
+        implements ResourceManager, EventListener<ResourceEvent, Payload>, InitializingBean {
 
     private static final Logger logger = LoggerFactory.getLogger(ResourceManagerImpl.class);
 
-    @Autowired
-    private ResourcePluginManager resourcePluginManager;
+    @Autowired private ResourcePluginManager resourcePluginManager;
 
-    @Autowired
-    private Domain domain;
+    @Autowired private Domain domain;
 
-    @Autowired
-    private EventManager eventManager;
+    @Autowired private EventManager eventManager;
 
-    @Autowired
-    private ServiceResourceService resourceService;
+    @Autowired private ServiceResourceService resourceService;
 
     private final Map<String, ResourceProvider> resourceProviders = new ConcurrentHashMap<>();
     private final Map<String, ServiceResource> resources = new ConcurrentHashMap<>();
@@ -87,19 +83,29 @@ public class ResourceManagerImpl extends AbstractService implements ResourceMana
     @Override
     public void afterPropertiesSet() throws Exception {
         // load all known resource for the domain on startup
-        resourceService.findByDomain(this.domain.getId())
+        resourceService
+                .findByDomain(this.domain.getId())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         res -> {
-                            var providerConfiguration = new ProviderConfiguration(res.getType(), res.getConfiguration());
-                            ResourceProvider provider = resourcePluginManager.create(providerConfiguration);
+                            var providerConfiguration =
+                                    new ProviderConfiguration(
+                                            res.getType(), res.getConfiguration());
+                            ResourceProvider provider =
+                                    resourcePluginManager.create(providerConfiguration);
                             provider.start();
                             resourceProviders.put(res.getId(), provider);
                             resources.put(res.getId(), res);
-                            logger.info("Resource {} loaded for domain {}", res.getName(), domain.getName());
+                            logger.info(
+                                    "Resource {} loaded for domain {}",
+                                    res.getName(),
+                                    domain.getName());
                         },
-                        error -> logger.error("Unable to initialize resources for domain {}", domain.getName(), error)
-                );
+                        error ->
+                                logger.error(
+                                        "Unable to initialize resources for domain {}",
+                                        domain.getName(),
+                                        error));
     }
 
     public ResourceProvider getResourceProvider(String resourceId) {
@@ -108,7 +114,8 @@ public class ResourceManagerImpl extends AbstractService implements ResourceMana
 
     @Override
     public void onEvent(Event<ResourceEvent, Payload> event) {
-        if (event.content().getReferenceType() == ReferenceType.DOMAIN && domain.getId().equals(event.content().getReferenceId())) {
+        if (event.content().getReferenceType() == ReferenceType.DOMAIN
+                && domain.getId().equals(event.content().getReferenceId())) {
             switch (event.type()) {
                 case DEPLOY:
                 case UPDATE:
@@ -122,23 +129,40 @@ public class ResourceManagerImpl extends AbstractService implements ResourceMana
     }
 
     private void reloadResource(String resourceId) {
-        resourceService.findById(resourceId)
-                .switchIfEmpty(Maybe.error(new ResourceNotFoundException("Resource " + resourceId + " not found")))
-                .map(res -> {
-                    if (needDeployment(res)) {
-                        unloadResource(res.getId());
-                        var provider = resourcePluginManager.create(new ProviderConfiguration(res.getType(), res.getConfiguration()));
-                        provider.start();
-                        this.resources.put(res.getId(), res);
-                        this.resourceProviders.put(resourceId, provider);
-                    }
-                    return res;
-                })
+        resourceService
+                .findById(resourceId)
+                .switchIfEmpty(
+                        Maybe.error(
+                                new ResourceNotFoundException(
+                                        "Resource " + resourceId + " not found")))
+                .map(
+                        res -> {
+                            if (needDeployment(res)) {
+                                unloadResource(res.getId());
+                                var provider =
+                                        resourcePluginManager.create(
+                                                new ProviderConfiguration(
+                                                        res.getType(), res.getConfiguration()));
+                                provider.start();
+                                this.resources.put(res.getId(), res);
+                                this.resourceProviders.put(resourceId, provider);
+                            }
+                            return res;
+                        })
                 .subscribe(
-                        provider -> logger.debug("Initialization of resource provider '{}' successful", resourceId),
-                        error -> logger.error("Initialization of resource provider '{}' failed", resourceId, error),
-                        ()-> logger.debug("Initialization of resource provider provider '{}' already done", resourceId)
-                );
+                        provider ->
+                                logger.debug(
+                                        "Initialization of resource provider '{}' successful",
+                                        resourceId),
+                        error ->
+                                logger.error(
+                                        "Initialization of resource provider '{}' failed",
+                                        resourceId,
+                                        error),
+                        () ->
+                                logger.debug(
+                                        "Initialization of resource provider provider '{}' already done",
+                                        resourceId));
     }
 
     private void unloadResource(String resourceId) {
@@ -154,13 +178,14 @@ public class ResourceManagerImpl extends AbstractService implements ResourceMana
         }
     }
 
-
     /**
      * @param resource
-     * @return true if the Resource has never been deployed or if the deployed version is not up to date
+     * @return true if the Resource has never been deployed or if the deployed version is not up to
+     *     date
      */
     private boolean needDeployment(ServiceResource resource) {
         final ServiceResource deployedResource = this.resources.get(resource.getId());
-        return (deployedResource == null || deployedResource.getUpdatedAt().before(resource.getUpdatedAt()));
+        return (deployedResource == null
+                || deployedResource.getUpdatedAt().before(resource.getUpdatedAt()));
     }
 }

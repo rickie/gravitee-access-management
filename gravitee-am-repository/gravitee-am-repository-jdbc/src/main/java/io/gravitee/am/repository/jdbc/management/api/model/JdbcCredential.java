@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.management.api.model;
@@ -27,34 +25,48 @@ import java.time.LocalDateTime;
  */
 @Table("webauthn_credentials")
 public class JdbcCredential {
-    @Id
-    private String id;
+    @Id private String id;
+
     @Column("reference_type")
     private String referenceType;
+
     @Column("reference_id")
     private String referenceId;
+
     @Column("user_id")
     private String userId;
+
     private String username;
+
     @Column("ip_address")
     private String ipAddress;
+
     @Column("user_agent")
     private String userAgent;
+
     @Column("credential_id")
     private String credentialId;
+
     @Column("public_key")
     private String publicKey;
+
     private long counter;
+
     @Column("aaguid")
     private String aaguid;
+
     @Column("att_stmt_fmt")
     private String attestationStatementFormat;
+
     @Column("att_stmt")
     private String attestationStatement;
+
     @Column("created_at")
     private LocalDateTime createdAt;
+
     @Column("updated_at")
     private LocalDateTime updatedAt;
+
     @Column("accessed_at")
     private LocalDateTime accessedAt;
 
@@ -185,6 +197,4 @@ public class JdbcCredential {
     public void setAccessedAt(LocalDateTime accessedAt) {
         this.accessedAt = accessedAt;
     }
-
-
 }

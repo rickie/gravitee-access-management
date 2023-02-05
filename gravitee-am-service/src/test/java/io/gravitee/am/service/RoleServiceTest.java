@@ -1,19 +1,21 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
+
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.ReferenceType;
@@ -32,6 +34,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -43,10 +46,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -55,19 +54,15 @@ import static org.mockito.Mockito.*;
 public class RoleServiceTest {
 
     public static final String ORGANIZATION_ID = "orga#1";
-    @InjectMocks
-    private RoleService roleService = new RoleServiceImpl();
+    @InjectMocks private RoleService roleService = new RoleServiceImpl();
 
-    @Mock
-    private RoleRepository roleRepository;
+    @Mock private RoleRepository roleRepository;
 
-    @Mock
-    private AuditService auditService;
+    @Mock private AuditService auditService;
 
-    @Mock
-    private EventService eventService;
+    @Mock private EventService eventService;
 
-    private final static String DOMAIN = "domain1";
+    private static final String DOMAIN = "domain1";
 
     @Test
     public void shouldFindById() {
@@ -101,7 +96,8 @@ public class RoleServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(new Role()));
+        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.just(new Role()));
         TestObserver<Set<Role>> testObserver = roleService.findByDomain(DOMAIN).test();
         testObserver.awaitTerminalEvent();
 
@@ -112,7 +108,8 @@ public class RoleServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.error(TechnicalManagementException::new));
+        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.error(TechnicalManagementException::new));
 
         TestObserver testObserver = roleService.findByDomain(DOMAIN).test();
 
@@ -122,8 +119,10 @@ public class RoleServiceTest {
 
     @Test
     public void shouldFindByIdsIn() {
-        when(roleRepository.findByIdIn(Arrays.asList("my-role"))).thenReturn(Flowable.just(new Role()));
-        TestObserver<Set<Role>> testObserver = roleService.findByIdIn(Arrays.asList("my-role")).test();
+        when(roleRepository.findByIdIn(Arrays.asList("my-role")))
+                .thenReturn(Flowable.just(new Role()));
+        TestObserver<Set<Role>> testObserver =
+                roleService.findByIdIn(Arrays.asList("my-role")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -133,7 +132,8 @@ public class RoleServiceTest {
 
     @Test
     public void shouldFindByIdsIn_technicalException() {
-        when(roleRepository.findByIdIn(anyList())).thenReturn(Flowable.error(TechnicalException::new));
+        when(roleRepository.findByIdIn(anyList()))
+                .thenReturn(Flowable.error(TechnicalException::new));
 
         TestObserver testObserver = new TestObserver<>();
         roleService.findByIdIn(Arrays.asList("my-role")).subscribe(testObserver);
@@ -165,7 +165,8 @@ public class RoleServiceTest {
     @Test
     public void shouldCreate_technicalException() {
         NewRole newRole = Mockito.mock(NewRole.class);
-        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.error(TechnicalException::new));
+        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.error(TechnicalException::new));
 
         TestObserver testObserver = new TestObserver();
         roleService.create(DOMAIN, newRole).subscribe(testObserver);
@@ -204,7 +205,8 @@ public class RoleServiceTest {
         Role role = new Role();
         role.setReferenceType(ReferenceType.DOMAIN);
         role.setReferenceId("domain#1");
-        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role")).thenReturn(Maybe.just(role));
+        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role"))
+                .thenReturn(Maybe.just(role));
         when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.empty());
         when(roleRepository.update(any(Role.class))).thenReturn(Single.just(role));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
@@ -224,7 +226,10 @@ public class RoleServiceTest {
     public void shouldUpdate_defaultRolePermissions() {
         UpdateRole updateRole = new UpdateRole();
         updateRole.setName(DefaultRole.DOMAIN_USER.name());
-        updateRole.setPermissions(Permission.flatten(Collections.singletonMap(Permission.DOMAIN, Collections.singleton(Acl.READ))));
+        updateRole.setPermissions(
+                Permission.flatten(
+                        Collections.singletonMap(
+                                Permission.DOMAIN, Collections.singleton(Acl.READ))));
 
         Role role = new Role();
         role.setName(DefaultRole.DOMAIN_USER.name());
@@ -232,18 +237,36 @@ public class RoleServiceTest {
         role.setReferenceType(ReferenceType.ORGANIZATION);
         role.setReferenceId(ORGANIZATION_ID);
 
-        when(roleRepository.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role")).thenReturn(Maybe.just(role));
-        when(roleRepository.findAll(ReferenceType.ORGANIZATION, ORGANIZATION_ID)).thenReturn(Flowable.empty());
-        when(roleRepository.update(argThat(r -> r.getPermissionAcls().equals(Permission.unflatten(updateRole.getPermissions()))))).thenReturn(Single.just(role));
+        when(roleRepository.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role"))
+                .thenReturn(Maybe.just(role));
+        when(roleRepository.findAll(ReferenceType.ORGANIZATION, ORGANIZATION_ID))
+                .thenReturn(Flowable.empty());
+        when(roleRepository.update(
+                        argThat(
+                                r ->
+                                        r.getPermissionAcls()
+                                                .equals(
+                                                        Permission.unflatten(
+                                                                updateRole.getPermissions())))))
+                .thenReturn(Single.just(role));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = roleService.update(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role", updateRole, null).test();
+        TestObserver testObserver =
+                roleService
+                        .update(
+                                ReferenceType.ORGANIZATION,
+                                ORGANIZATION_ID,
+                                "my-role",
+                                updateRole,
+                                null)
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(roleRepository, times(1)).findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role");
+        verify(roleRepository, times(1))
+                .findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role");
         verify(roleRepository, times(1)).findAll(ReferenceType.ORGANIZATION, ORGANIZATION_ID);
         verify(roleRepository, times(1)).update(any(Role.class));
     }
@@ -251,7 +274,8 @@ public class RoleServiceTest {
     @Test
     public void shouldUpdate_technicalException() {
         UpdateRole updateRole = Mockito.mock(UpdateRole.class);
-        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role")).thenReturn(Maybe.error(TechnicalException::new));
+        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role"))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
         TestObserver testObserver = new TestObserver();
         roleService.update(DOMAIN, "my-role", updateRole).subscribe(testObserver);
@@ -274,7 +298,8 @@ public class RoleServiceTest {
         role.setReferenceType(ReferenceType.DOMAIN);
         role.setReferenceId("domain#1");
 
-        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role")).thenReturn(Maybe.just(new Role()));
+        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role"))
+                .thenReturn(Maybe.just(new Role()));
         when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(role));
 
         TestObserver testObserver = new TestObserver();
@@ -289,7 +314,8 @@ public class RoleServiceTest {
     @Test
     public void shouldUpdate_roleNotFound() {
         UpdateRole updateRole = Mockito.mock(UpdateRole.class);
-        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role")).thenReturn(Maybe.empty());
+        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role"))
+                .thenReturn(Maybe.empty());
 
         TestObserver testObserver = new TestObserver();
         roleService.update(DOMAIN, "my-role", updateRole).subscribe(testObserver);
@@ -310,15 +336,25 @@ public class RoleServiceTest {
         role.setReferenceType(ReferenceType.ORGANIZATION);
         role.setReferenceId(ORGANIZATION_ID);
 
-        when(roleRepository.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role")).thenReturn(Maybe.just(role));
+        when(roleRepository.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role"))
+                .thenReturn(Maybe.just(role));
 
-        TestObserver testObserver = roleService.update(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role", updateRole, null).test();
+        TestObserver testObserver =
+                roleService
+                        .update(
+                                ReferenceType.ORGANIZATION,
+                                ORGANIZATION_ID,
+                                "my-role",
+                                updateRole,
+                                null)
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertNotComplete();
         testObserver.assertError(SystemRoleUpdateException.class);
 
-        verify(roleRepository, times(1)).findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role");
+        verify(roleRepository, times(1))
+                .findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role");
         verify(roleRepository, never()).findAll(ReferenceType.ORGANIZATION, ORGANIZATION_ID);
         verify(roleRepository, never()).update(any(Role.class));
     }
@@ -336,24 +372,36 @@ public class RoleServiceTest {
         role.setReferenceType(ReferenceType.ORGANIZATION);
         role.setReferenceId(ORGANIZATION_ID);
 
-        when(roleRepository.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role")).thenReturn(Maybe.just(role));
+        when(roleRepository.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role"))
+                .thenReturn(Maybe.just(role));
 
-        TestObserver testObserver = roleService.update(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role", updateRole, null).test();
+        TestObserver testObserver =
+                roleService
+                        .update(
+                                ReferenceType.ORGANIZATION,
+                                ORGANIZATION_ID,
+                                "my-role",
+                                updateRole,
+                                null)
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertNotComplete();
         testObserver.assertError(DefaultRoleUpdateException.class);
 
-        verify(roleRepository, times(1)).findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role");
+        verify(roleRepository, times(1))
+                .findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role");
         verify(roleRepository, never()).findAll(ReferenceType.ORGANIZATION, ORGANIZATION_ID);
         verify(roleRepository, never()).update(any(Role.class));
     }
 
     @Test
     public void shouldDelete_notExistingRole() {
-        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role")).thenReturn(Maybe.empty());
+        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role"))
+                .thenReturn(Maybe.empty());
 
-        TestObserver testObserver = roleService.delete(ReferenceType.DOMAIN, DOMAIN, "my-role").test();
+        TestObserver testObserver =
+                roleService.delete(ReferenceType.DOMAIN, DOMAIN, "my-role").test();
 
         testObserver.assertError(RoleNotFoundException.class);
         testObserver.assertNotComplete();
@@ -365,10 +413,13 @@ public class RoleServiceTest {
     public void shouldDelete_technicalException() {
 
         when(eventService.create(any(Event.class))).thenReturn(Single.just(new Event()));
-        when(roleRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-role"))).thenReturn(Maybe.just(new Role()));
-        when(roleRepository.delete(anyString())).thenReturn(Completable.error(TechnicalException::new));
+        when(roleRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-role")))
+                .thenReturn(Maybe.just(new Role()));
+        when(roleRepository.delete(anyString()))
+                .thenReturn(Completable.error(TechnicalException::new));
 
-        TestObserver testObserver = roleService.delete(ReferenceType.DOMAIN, DOMAIN, "my-role").test();
+        TestObserver testObserver =
+                roleService.delete(ReferenceType.DOMAIN, DOMAIN, "my-role").test();
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -378,9 +429,11 @@ public class RoleServiceTest {
     public void shouldNotDelete_systemRole() {
         Role role = Mockito.mock(Role.class);
         when(role.isSystem()).thenReturn(true);
-        when(roleRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-role"))).thenReturn(Maybe.just(role));
+        when(roleRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-role")))
+                .thenReturn(Maybe.just(role));
 
-        TestObserver testObserver = roleService.delete(ReferenceType.DOMAIN, DOMAIN, "my-role").test();
+        TestObserver testObserver =
+                roleService.delete(ReferenceType.DOMAIN, DOMAIN, "my-role").test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertNotComplete();
@@ -394,11 +447,13 @@ public class RoleServiceTest {
         Role role = new Role();
         role.setReferenceType(ReferenceType.DOMAIN);
         role.setReferenceId(DOMAIN);
-        when(roleRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-role"))).thenReturn(Maybe.just(role));
+        when(roleRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-role")))
+                .thenReturn(Maybe.just(role));
         when(roleRepository.delete("my-role")).thenReturn(Completable.complete());
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = roleService.delete(ReferenceType.DOMAIN, DOMAIN, "my-role").test();
+        TestObserver testObserver =
+                roleService.delete(ReferenceType.DOMAIN, DOMAIN, "my-role").test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();

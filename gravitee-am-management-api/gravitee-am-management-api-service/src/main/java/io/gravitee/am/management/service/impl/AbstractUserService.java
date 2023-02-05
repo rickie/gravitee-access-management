@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.service.impl;
+
+import static io.gravitee.am.model.ReferenceType.DOMAIN;
 
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.common.oidc.StandardClaims;
@@ -42,6 +42,7 @@ import io.gravitee.am.service.validators.user.UserValidator;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,43 +53,32 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-import static io.gravitee.am.model.ReferenceType.DOMAIN;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
-public abstract class AbstractUserService<T extends io.gravitee.am.service.CommonUserService> implements CommonUserService {
+public abstract class AbstractUserService<T extends io.gravitee.am.service.CommonUserService>
+        implements CommonUserService {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    protected IdentityProviderManager identityProviderManager;
+    @Autowired protected IdentityProviderManager identityProviderManager;
 
-    @Autowired
-    protected PasswordService passwordService;
+    @Autowired protected PasswordService passwordService;
 
-    @Autowired
-    protected UserValidator userValidator;
+    @Autowired protected UserValidator userValidator;
 
-    @Autowired
-    protected AuditService auditService;
+    @Autowired protected AuditService auditService;
 
-    @Autowired
-    protected MembershipService membershipService;
+    @Autowired protected MembershipService membershipService;
 
-    @Autowired
-    protected UserActivityService userActivityService;
+    @Autowired protected UserActivityService userActivityService;
 
-    @Autowired
-    protected RateLimiterService rateLimiterService;
+    @Autowired protected RateLimiterService rateLimiterService;
 
-    @Autowired
-    protected PasswordHistoryService passwordHistoryService;
+    @Autowired protected PasswordHistoryService passwordHistoryService;
 
-    @Autowired
-    protected VerifyAttemptService verifyAttemptService;
-
+    @Autowired protected VerifyAttemptService verifyAttemptService;
 
     protected abstract BiFunction<String, String, Maybe<Application>> checkClientFunction();
 
@@ -100,109 +90,304 @@ public abstract class AbstractUserService<T extends io.gravitee.am.service.Commo
     }
 
     @Override
-    public Single<User> update(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser, io.gravitee.am.identityprovider.api.User principal) {
-        return this.update(referenceType, referenceId, id, updateUser, principal, checkClientFunction());
+    public Single<User> update(
+            ReferenceType referenceType,
+            String referenceId,
+            String id,
+            UpdateUser updateUser,
+            io.gravitee.am.identityprovider.api.User principal) {
+        return this.update(
+                referenceType, referenceId, id, updateUser, principal, checkClientFunction());
     }
 
-    private Single<User> update(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser, io.gravitee.am.identityprovider.api.User principal, BiFunction<String, String, Maybe<Application>> checkClient) {
-        return userValidator.validate(updateUser).andThen(
-                getUserService().findById(referenceType, referenceId, id)
-                        .flatMap(user -> identityProviderManager.getUserProvider(user.getSource())
-                                .switchIfEmpty(Maybe.error(new UserProviderNotFoundException(user.getSource())))
-                                // check client
-                                .flatMapSingle(userProvider -> {
-                                    String client = updateUser.getClient() != null ? updateUser.getClient() : user.getClient();
-                                    if (client != null && referenceType == DOMAIN) {
-                                        return checkClient.apply(referenceId, client)
-                                                .flatMapSingle(client1 -> {
-                                                    updateUser.setClient(client1.getId());
-                                                    return Single.just(userProvider);
-                                                });
-                                    }
-                                    return Single.just(userProvider);
-                                })
-                                // update the idp user
-                                .flatMap(userProvider -> userProvider.findByUsername(user.getUsername())
-                                        .switchIfEmpty(Maybe.error(new UserNotFoundException(user.getUsername())))
-                                        .flatMapSingle(idpUser -> userProvider.update(idpUser.getId(), convert(user.getUsername(), updateUser))))
-                                .flatMap(idpUser -> {
-                                    // set external id
-                                    updateUser.setExternalId(idpUser.getId());
-                                    return getUserService().update(referenceType, referenceId, id, updateUser);
-                                })
-                                .onErrorResumeNext(ex -> {
-                                    if (ex instanceof UserNotFoundException) {
-                                        // idp user does not exist, only update AM user
-                                        return getUserService().update(referenceType, referenceId, id, updateUser);
-                                    }
-                                    return Single.error(ex);
-                                })
-                                .doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).oldValue(user).user(user1)))
-                                .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable)))
-                        ));
+    private Single<User> update(
+            ReferenceType referenceType,
+            String referenceId,
+            String id,
+            UpdateUser updateUser,
+            io.gravitee.am.identityprovider.api.User principal,
+            BiFunction<String, String, Maybe<Application>> checkClient) {
+        return userValidator
+                .validate(updateUser)
+                .andThen(
+                        getUserService()
+                                .findById(referenceType, referenceId, id)
+                                .flatMap(
+                                        user ->
+                                                identityProviderManager
+                                                        .getUserProvider(user.getSource())
+                                                        .switchIfEmpty(
+                                                                Maybe.error(
+                                                                        new UserProviderNotFoundException(
+                                                                                user.getSource())))
+                                                        // check client
+                                                        .flatMapSingle(
+                                                                userProvider -> {
+                                                                    String client =
+                                                                            updateUser.getClient()
+                                                                                            != null
+                                                                                    ? updateUser
+                                                                                            .getClient()
+                                                                                    : user
+                                                                                            .getClient();
+                                                                    if (client != null
+                                                                            && referenceType
+                                                                                    == DOMAIN) {
+                                                                        return checkClient
+                                                                                .apply(
+                                                                                        referenceId,
+                                                                                        client)
+                                                                                .flatMapSingle(
+                                                                                        client1 -> {
+                                                                                            updateUser
+                                                                                                    .setClient(
+                                                                                                            client1
+                                                                                                                    .getId());
+                                                                                            return Single
+                                                                                                    .just(
+                                                                                                            userProvider);
+                                                                                        });
+                                                                    }
+                                                                    return Single.just(
+                                                                            userProvider);
+                                                                })
+                                                        // update the idp user
+                                                        .flatMap(
+                                                                userProvider ->
+                                                                        userProvider
+                                                                                .findByUsername(
+                                                                                        user
+                                                                                                .getUsername())
+                                                                                .switchIfEmpty(
+                                                                                        Maybe.error(
+                                                                                                new UserNotFoundException(
+                                                                                                        user
+                                                                                                                .getUsername())))
+                                                                                .flatMapSingle(
+                                                                                        idpUser ->
+                                                                                                userProvider
+                                                                                                        .update(
+                                                                                                                idpUser
+                                                                                                                        .getId(),
+                                                                                                                convert(
+                                                                                                                        user
+                                                                                                                                .getUsername(),
+                                                                                                                        updateUser))))
+                                                        .flatMap(
+                                                                idpUser -> {
+                                                                    // set external id
+                                                                    updateUser.setExternalId(
+                                                                            idpUser.getId());
+                                                                    return getUserService()
+                                                                            .update(
+                                                                                    referenceType,
+                                                                                    referenceId,
+                                                                                    id,
+                                                                                    updateUser);
+                                                                })
+                                                        .onErrorResumeNext(
+                                                                ex -> {
+                                                                    if (ex
+                                                                            instanceof
+                                                                            UserNotFoundException) {
+                                                                        // idp user does not exist,
+                                                                        // only update AM user
+                                                                        return getUserService()
+                                                                                .update(
+                                                                                        referenceType,
+                                                                                        referenceId,
+                                                                                        id,
+                                                                                        updateUser);
+                                                                    }
+                                                                    return Single.error(ex);
+                                                                })
+                                                        .doOnSuccess(
+                                                                user1 ->
+                                                                        auditService.report(
+                                                                                AuditBuilder
+                                                                                        .builder(
+                                                                                                UserAuditBuilder
+                                                                                                        .class)
+                                                                                        .principal(
+                                                                                                principal)
+                                                                                        .type(
+                                                                                                EventType
+                                                                                                        .USER_UPDATED)
+                                                                                        .oldValue(
+                                                                                                user)
+                                                                                        .user(
+                                                                                                user1)))
+                                                        .doOnError(
+                                                                throwable ->
+                                                                        auditService.report(
+                                                                                AuditBuilder
+                                                                                        .builder(
+                                                                                                UserAuditBuilder
+                                                                                                        .class)
+                                                                                        .principal(
+                                                                                                principal)
+                                                                                        .type(
+                                                                                                EventType
+                                                                                                        .USER_UPDATED)
+                                                                                        .throwable(
+                                                                                                throwable)))));
     }
 
     @Override
-    public Single<User> updateStatus(ReferenceType referenceType, String referenceId, String id, boolean status, io.gravitee.am.identityprovider.api.User principal) {
-        return getUserService().findById(referenceType, referenceId, id)
-                .flatMap(user -> {
-                    user.setEnabled(status);
-                    return getUserService().update(user);
-                })
-                .doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type((status ? EventType.USER_ENABLED : EventType.USER_DISABLED)).user(user1)))
-                .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type((status ? EventType.USER_ENABLED : EventType.USER_DISABLED)).throwable(throwable)));
+    public Single<User> updateStatus(
+            ReferenceType referenceType,
+            String referenceId,
+            String id,
+            boolean status,
+            io.gravitee.am.identityprovider.api.User principal) {
+        return getUserService()
+                .findById(referenceType, referenceId, id)
+                .flatMap(
+                        user -> {
+                            user.setEnabled(status);
+                            return getUserService().update(user);
+                        })
+                .doOnSuccess(
+                        user1 ->
+                                auditService.report(
+                                        AuditBuilder.builder(UserAuditBuilder.class)
+                                                .principal(principal)
+                                                .type(
+                                                        (status
+                                                                ? EventType.USER_ENABLED
+                                                                : EventType.USER_DISABLED))
+                                                .user(user1)))
+                .doOnError(
+                        throwable ->
+                                auditService.report(
+                                        AuditBuilder.builder(UserAuditBuilder.class)
+                                                .principal(principal)
+                                                .type(
+                                                        (status
+                                                                ? EventType.USER_ENABLED
+                                                                : EventType.USER_DISABLED))
+                                                .throwable(throwable)));
     }
 
     @Override
-    public Single<User> updateUsername(ReferenceType referenceType, String referenceId, String id, String username, io.gravitee.am.identityprovider.api.User principal) {
-        return getUserService().findById(referenceType, referenceId, id)
-                               .flatMap(user -> {
-                                   user.setUsername(username);
-                                   return getUserService().update(user);
-                               })
-                               .doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USERNAME_UPDATED).user(user1)))
-                               .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USERNAME_UPDATED).throwable(throwable)));
-
+    public Single<User> updateUsername(
+            ReferenceType referenceType,
+            String referenceId,
+            String id,
+            String username,
+            io.gravitee.am.identityprovider.api.User principal) {
+        return getUserService()
+                .findById(referenceType, referenceId, id)
+                .flatMap(
+                        user -> {
+                            user.setUsername(username);
+                            return getUserService().update(user);
+                        })
+                .doOnSuccess(
+                        user1 ->
+                                auditService.report(
+                                        AuditBuilder.builder(UserAuditBuilder.class)
+                                                .principal(principal)
+                                                .type(EventType.USERNAME_UPDATED)
+                                                .user(user1)))
+                .doOnError(
+                        throwable ->
+                                auditService.report(
+                                        AuditBuilder.builder(UserAuditBuilder.class)
+                                                .principal(principal)
+                                                .type(EventType.USERNAME_UPDATED)
+                                                .throwable(throwable)));
     }
 
     @SuppressWarnings("ReactiveStreamsUnusedPublisher")
     @Override
-    public Completable delete(ReferenceType referenceType, String referenceId, String userId, io.gravitee.am.identityprovider.api.User principal) {
-        return getUserService().findById(referenceType, referenceId, userId)
-                .flatMapCompletable(user -> identityProviderManager.getUserProvider(user.getSource())
-                        .map(Optional::ofNullable)
-                        .flatMapCompletable(optUserProvider -> {
-                            // no user provider found, continue
-                            if (!optUserProvider.isPresent()) {
-                                return Completable.complete();
-                            }
-                            // user has never been created in the identity provider, continue
-                            if (user.getExternalId() == null || user.getExternalId().isEmpty()) {
-                                return Completable.complete();
-                            }
-                            return optUserProvider.get().delete(user.getExternalId())
-                                    .onErrorResumeNext(ex -> {
-                                        if (ex instanceof UserNotFoundException) {
-                                            // idp user does not exist, continue
-                                            return Completable.complete();
-                                        }
-                                        return Completable.error(ex);
-                                    });
-                        })
-                        // Delete trace of user activity
-                        .andThen((DOMAIN.equals(referenceType)) ? userActivityService.deleteByDomainAndUser(referenceId, userId) : Completable.complete())
-                        // Delete rate limit
-                        .andThen(rateLimiterService.deleteByUser(user))
-                        .andThen(verifyAttemptService.deleteByUser(user))
-                        .andThen(getUserService().delete(userId))
-                        // remove from memberships if user is an administrative user
-                        .andThen((ReferenceType.ORGANIZATION != referenceType) ? Completable.complete() :
-                                membershipService.findByMember(userId, MemberType.USER)
-                                        .flatMapCompletable(membership -> membershipService.delete(membership.getId())))
-                        .andThen(passwordHistoryService.deleteByUser(userId))
-                        .doOnComplete(() -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_DELETED).user(user)))
-                        .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_DELETED).throwable(throwable)))
-                );
+    public Completable delete(
+            ReferenceType referenceType,
+            String referenceId,
+            String userId,
+            io.gravitee.am.identityprovider.api.User principal) {
+        return getUserService()
+                .findById(referenceType, referenceId, userId)
+                .flatMapCompletable(
+                        user ->
+                                identityProviderManager
+                                        .getUserProvider(user.getSource())
+                                        .map(Optional::ofNullable)
+                                        .flatMapCompletable(
+                                                optUserProvider -> {
+                                                    // no user provider found, continue
+                                                    if (!optUserProvider.isPresent()) {
+                                                        return Completable.complete();
+                                                    }
+                                                    // user has never been created in the identity
+                                                    // provider, continue
+                                                    if (user.getExternalId() == null
+                                                            || user.getExternalId().isEmpty()) {
+                                                        return Completable.complete();
+                                                    }
+                                                    return optUserProvider
+                                                            .get()
+                                                            .delete(user.getExternalId())
+                                                            .onErrorResumeNext(
+                                                                    ex -> {
+                                                                        if (ex
+                                                                                instanceof
+                                                                                UserNotFoundException) {
+                                                                            // idp user does not
+                                                                            // exist, continue
+                                                                            return Completable
+                                                                                    .complete();
+                                                                        }
+                                                                        return Completable.error(
+                                                                                ex);
+                                                                    });
+                                                })
+                                        // Delete trace of user activity
+                                        .andThen(
+                                                (DOMAIN.equals(referenceType))
+                                                        ? userActivityService.deleteByDomainAndUser(
+                                                                referenceId, userId)
+                                                        : Completable.complete())
+                                        // Delete rate limit
+                                        .andThen(rateLimiterService.deleteByUser(user))
+                                        .andThen(verifyAttemptService.deleteByUser(user))
+                                        .andThen(getUserService().delete(userId))
+                                        // remove from memberships if user is an administrative user
+                                        .andThen(
+                                                (ReferenceType.ORGANIZATION != referenceType)
+                                                        ? Completable.complete()
+                                                        : membershipService
+                                                                .findByMember(
+                                                                        userId, MemberType.USER)
+                                                                .flatMapCompletable(
+                                                                        membership ->
+                                                                                membershipService
+                                                                                        .delete(
+                                                                                                membership
+                                                                                                        .getId())))
+                                        .andThen(passwordHistoryService.deleteByUser(userId))
+                                        .doOnComplete(
+                                                () ->
+                                                        auditService.report(
+                                                                AuditBuilder.builder(
+                                                                                UserAuditBuilder
+                                                                                        .class)
+                                                                        .principal(principal)
+                                                                        .type(
+                                                                                EventType
+                                                                                        .USER_DELETED)
+                                                                        .user(user)))
+                                        .doOnError(
+                                                throwable ->
+                                                        auditService.report(
+                                                                AuditBuilder.builder(
+                                                                                UserAuditBuilder
+                                                                                        .class)
+                                                                        .principal(principal)
+                                                                        .type(
+                                                                                EventType
+                                                                                        .USER_DELETED)
+                                                                        .throwable(throwable))));
     }
 
     protected io.gravitee.am.identityprovider.api.User convert(NewUser newUser) {
@@ -223,7 +408,8 @@ public abstract class AbstractUserService<T extends io.gravitee.am.service.Commo
             additionalInformation.put(StandardClaims.EMAIL, newUser.getEmail());
         }
         if (newUser.getAdditionalInformation() != null) {
-            newUser.getAdditionalInformation().forEach((k, v) -> additionalInformation.putIfAbsent(k, v));
+            newUser.getAdditionalInformation()
+                    .forEach((k, v) -> additionalInformation.putIfAbsent(k, v));
         }
         user.setAdditionalInformation(additionalInformation);
 
@@ -261,7 +447,8 @@ public abstract class AbstractUserService<T extends io.gravitee.am.service.Commo
         user.setAdditionalInformation(newUser.getAdditionalInformation());
     }
 
-    protected io.gravitee.am.identityprovider.api.User convert(String username, UpdateUser updateUser) {
+    protected io.gravitee.am.identityprovider.api.User convert(
+            String username, UpdateUser updateUser) {
         // update additional information
         DefaultUser user = new DefaultUser(username);
         Map<String, Object> additionalInformation = new HashMap<>();
@@ -278,7 +465,9 @@ public abstract class AbstractUserService<T extends io.gravitee.am.service.Commo
             additionalInformation.put(StandardClaims.EMAIL, updateUser.getEmail());
         }
         if (updateUser.getAdditionalInformation() != null) {
-            updateUser.getAdditionalInformation().forEach((k, v) -> additionalInformation.putIfAbsent(k, v));
+            updateUser
+                    .getAdditionalInformation()
+                    .forEach((k, v) -> additionalInformation.putIfAbsent(k, v));
         }
         user.setAdditionalInformation(additionalInformation);
         return user;
@@ -302,7 +491,8 @@ public abstract class AbstractUserService<T extends io.gravitee.am.service.Commo
             additionalInformation.put(StandardClaims.EMAIL, user.getEmail());
         }
         if (user.getAdditionalInformation() != null) {
-            user.getAdditionalInformation().forEach((k, v) -> additionalInformation.putIfAbsent(k, v));
+            user.getAdditionalInformation()
+                    .forEach((k, v) -> additionalInformation.putIfAbsent(k, v));
         }
         idpUser.setAdditionalInformation(additionalInformation);
         return idpUser;

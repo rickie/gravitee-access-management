@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.spring;
@@ -18,6 +16,7 @@ package io.gravitee.am.gateway.spring;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+
 import io.gravitee.am.common.event.EventManager;
 import io.gravitee.am.gateway.configuration.ConfigurationChecker;
 import io.gravitee.am.gateway.event.EventManagerImpl;
@@ -47,6 +46,7 @@ import io.gravitee.plugin.alert.spring.AlertPluginConfiguration;
 import io.gravitee.plugin.core.spring.PluginConfiguration;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.jackson.DatabindCodec;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -58,24 +58,24 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration
 @Import({
-        VertxConfiguration.class,
-        ReactorConfiguration.class,
-        VertxServerConfiguration.class,
-        PluginConfiguration.class,
-        IdentityProviderSpringConfiguration.class,
-        CertificateSpringConfiguration.class,
-        ExtensionGrantSpringConfiguration.class,
-        ReporterSpringConfiguration.class,
-        ProtocolSpringConfiguration.class,
-        PolicySpringConfiguration.class,
-        AlertPluginConfiguration.class,
-        FactorSpringConfiguration.class,
-        ResourceSpringConfiguration.class,
-        BotDetectionSpringConfiguration.class,
-        DeviceIdentifierSpringConfiguration.class,
-        PasswordDictionaryConfiguration.class,
-        AuthenticationDeviceNotifierSpringConfiguration.class,
-        NodeCertificatesConfiguration.class
+    VertxConfiguration.class,
+    ReactorConfiguration.class,
+    VertxServerConfiguration.class,
+    PluginConfiguration.class,
+    IdentityProviderSpringConfiguration.class,
+    CertificateSpringConfiguration.class,
+    ExtensionGrantSpringConfiguration.class,
+    ReporterSpringConfiguration.class,
+    ProtocolSpringConfiguration.class,
+    PolicySpringConfiguration.class,
+    AlertPluginConfiguration.class,
+    FactorSpringConfiguration.class,
+    ResourceSpringConfiguration.class,
+    BotDetectionSpringConfiguration.class,
+    DeviceIdentifierSpringConfiguration.class,
+    PasswordDictionaryConfiguration.class,
+    AuthenticationDeviceNotifierSpringConfiguration.class,
+    NodeCertificatesConfiguration.class
 })
 public class StandaloneConfiguration {
 
@@ -97,9 +97,10 @@ public class StandaloneConfiguration {
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
-        //Enable ObjectMapper to manage Optional type.
-        DatabindCodec.mapper().registerModule(new Jdk8Module());//Manage Optional java type
-        //Json.mapper.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);//Reject duplicated keys
+        // Enable ObjectMapper to manage Optional type.
+        DatabindCodec.mapper().registerModule(new Jdk8Module()); // Manage Optional java type
+        // Json.mapper.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);//Reject duplicated
+        // keys
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         return mapper;
     }

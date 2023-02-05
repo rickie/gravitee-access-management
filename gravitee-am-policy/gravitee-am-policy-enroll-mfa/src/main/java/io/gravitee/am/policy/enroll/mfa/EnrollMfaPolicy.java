@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.policy.enroll.mfa;
+
+import static io.gravitee.am.common.factor.FactorSecurityType.SHARED_SECRET;
 
 import io.gravitee.am.common.factor.FactorDataKeys;
 import io.gravitee.am.common.factor.FactorType;
@@ -38,6 +38,7 @@ import io.gravitee.policy.api.PolicyChain;
 import io.gravitee.policy.api.PolicyResult;
 import io.gravitee.policy.api.annotations.OnRequest;
 import io.reactivex.Single;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ObjectUtils;
@@ -49,8 +50,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
-
-import static io.gravitee.am.common.factor.FactorSecurityType.SHARED_SECRET;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -67,7 +66,8 @@ public class EnrollMfaPolicy {
     }
 
     @OnRequest
-    public void onRequest(Request request, Response response, ExecutionContext context, PolicyChain policyChain) {
+    public void onRequest(
+            Request request, Response response, ExecutionContext context, PolicyChain policyChain) {
         LOGGER.debug("Start enroll MFA policy");
         final String factorId = configuration.getFactorId();
         final String value = configuration.getValue();
@@ -99,8 +99,12 @@ public class EnrollMfaPolicy {
 
             // no need to enroll the same factor
             if (!ObjectUtils.isEmpty(user.getFactors())
-                    && user.getFactors().stream().anyMatch(enrolledFactor -> enrolledFactor.getFactorId().equals(factorId))) {
-                LOGGER.debug("MFA factor with ID [{}] already enrolled for the current user", factorId);
+                    && user.getFactors().stream()
+                            .anyMatch(
+                                    enrolledFactor ->
+                                            enrolledFactor.getFactorId().equals(factorId))) {
+                LOGGER.debug(
+                        "MFA factor with ID [{}] already enrolled for the current user", factorId);
                 policyChain.doNext(request, response);
                 return;
             }
@@ -109,81 +113,133 @@ public class EnrollMfaPolicy {
             final Factor factor = optFactor.get();
             final FactorProvider factorProvider = factorManager.get(factorId);
 
-            if (ObjectUtils.isEmpty(value) &&
-                    !(FactorType.HTTP.getType().equals(factor.getFactorType().getType()) || FactorType.OTP.getType().equals(factor.getFactorType().getType()))
-            ) {
+            if (ObjectUtils.isEmpty(value)
+                    && !(FactorType.HTTP.getType().equals(factor.getFactorType().getType())
+                            || FactorType.OTP.getType().equals(factor.getFactorType().getType()))) {
                 LOGGER.error("Value field is missing");
-                policyChain.failWith(PolicyResult.failure(GATEWAY_POLICY_ENROLL_MFA_ERROR_KEY, "Value field is missing"));
+                policyChain.failWith(
+                        PolicyResult.failure(
+                                GATEWAY_POLICY_ENROLL_MFA_ERROR_KEY, "Value field is missing"));
                 return;
             }
 
             // enroll the MFA factor
             buildEnrolledFactor(factor, factorProvider, user, value, context)
-                    .flatMap(enrolledFactor -> userService.addFactor(user.getId(), enrolledFactor, new DefaultUser(user)))
+                    .flatMap(
+                            enrolledFactor ->
+                                    userService.addFactor(
+                                            user.getId(), enrolledFactor, new DefaultUser(user)))
                     .subscribe(
                             __ -> {
-                                LOGGER.debug("MFA factor with ID [{}] enrolled for user {}", factorId, user.getId());
+                                LOGGER.debug(
+                                        "MFA factor with ID [{}] enrolled for user {}",
+                                        factorId,
+                                        user.getId());
                                 policyChain.doNext(request, response);
                             },
                             error -> {
-                                LOGGER.error("Unable to enroll MFA factor with ID [{}]", factorId, error.getMessage());
-                                policyChain.failWith(PolicyResult.failure(GATEWAY_POLICY_ENROLL_MFA_ERROR_KEY, error.getMessage()));
+                                LOGGER.error(
+                                        "Unable to enroll MFA factor with ID [{}]",
+                                        factorId,
+                                        error.getMessage());
+                                policyChain.failWith(
+                                        PolicyResult.failure(
+                                                GATEWAY_POLICY_ENROLL_MFA_ERROR_KEY,
+                                                error.getMessage()));
                             });
-
 
         } catch (Exception ex) {
             LOGGER.error("An error has occurred for [enroll-mfa] policy", ex);
-            policyChain.failWith(PolicyResult.failure(GATEWAY_POLICY_ENROLL_MFA_ERROR_KEY, ex.getMessage()));
+            policyChain.failWith(
+                    PolicyResult.failure(GATEWAY_POLICY_ENROLL_MFA_ERROR_KEY, ex.getMessage()));
         }
     }
 
-    private Single<EnrolledFactor> buildEnrolledFactor(Factor factor, FactorProvider factorProvider, User user, String value, ExecutionContext context) {
-        return Single.defer(() -> {
-            try {
-                // compute value
-                String enrollmentValue = (!ObjectUtils.isEmpty(value)) ? context.getTemplateEngine().getValue(value, String.class) : null;
-                if (!ObjectUtils.isEmpty(value) && ObjectUtils.isEmpty(enrollmentValue)) {
-                    LOGGER.warn("The expression language set up for Enroll MFA has returned nothing");
-                }
-                // create the enrolled factor
-                EnrolledFactor enrolledFactor = new EnrolledFactor();
-                enrolledFactor.setFactorId(factor.getId());
-                enrolledFactor.setStatus(FactorStatus.PENDING_ACTIVATION);
-                enrolledFactor.setPrimary(configuration.isPrimary());
-                switch (factor.getFactorType()) {
-                    case OTP:
-                        final String otpEnrollmentValue = enrollmentValue != null ? enrollmentValue : SharedSecret.generate();
-                        Map<String, Object> otpAdditionalData = Collections.emptyMap();
-                        if (factorProvider.useVariableFactorSecurity()) {
-                            otpAdditionalData = Collections.singletonMap(FactorDataKeys.KEY_MOVING_FACTOR, generateInitialMovingFactor(user));
+    private Single<EnrolledFactor> buildEnrolledFactor(
+            Factor factor,
+            FactorProvider factorProvider,
+            User user,
+            String value,
+            ExecutionContext context) {
+        return Single.defer(
+                () -> {
+                    try {
+                        // compute value
+                        String enrollmentValue =
+                                (!ObjectUtils.isEmpty(value))
+                                        ? context.getTemplateEngine().getValue(value, String.class)
+                                        : null;
+                        if (!ObjectUtils.isEmpty(value) && ObjectUtils.isEmpty(enrollmentValue)) {
+                            LOGGER.warn(
+                                    "The expression language set up for Enroll MFA has returned nothing");
                         }
-                        enrolledFactor.setSecurity(new EnrolledFactorSecurity(SHARED_SECRET, otpEnrollmentValue, otpAdditionalData));
-                        break;
-                    case SMS:
-                        enrolledFactor.setChannel(new EnrolledFactorChannel(EnrolledFactorChannel.Type.SMS, enrollmentValue));
-                        break;
-                    case CALL:
-                        enrolledFactor.setChannel(new EnrolledFactorChannel(EnrolledFactorChannel.Type.CALL, enrollmentValue));
-                        break;
-                    case EMAIL:
-                        Map<String, Object> additionalData = Collections.singletonMap(FactorDataKeys.KEY_MOVING_FACTOR, generateInitialMovingFactor(user));
-                        enrolledFactor.setSecurity(new EnrolledFactorSecurity(SHARED_SECRET, SharedSecret.generate(), additionalData));
-                        enrolledFactor.setChannel(new EnrolledFactorChannel(EnrolledFactorChannel.Type.EMAIL, enrollmentValue));
-                        break;
-                    case HTTP:
-                        enrolledFactor.setChannel(new EnrolledFactorChannel(EnrolledFactorChannel.Type.HTTP, enrollmentValue));
-                        break;
-                    default:
-                        return Single.error(new IllegalStateException("Unexpected value: " + factor.getFactorType().getType()));
-                }
-                enrolledFactor.setCreatedAt(new Date());
-                enrolledFactor.setUpdatedAt(enrolledFactor.getCreatedAt());
-                return Single.just(enrolledFactor);
-            } catch (Exception ex) {
-                LOGGER.error("An error has occurred when building the enrolled factor", ex);
-                return Single.error(ex);
-            }
-        });
+                        // create the enrolled factor
+                        EnrolledFactor enrolledFactor = new EnrolledFactor();
+                        enrolledFactor.setFactorId(factor.getId());
+                        enrolledFactor.setStatus(FactorStatus.PENDING_ACTIVATION);
+                        enrolledFactor.setPrimary(configuration.isPrimary());
+                        switch (factor.getFactorType()) {
+                            case OTP:
+                                final String otpEnrollmentValue =
+                                        enrollmentValue != null
+                                                ? enrollmentValue
+                                                : SharedSecret.generate();
+                                Map<String, Object> otpAdditionalData = Collections.emptyMap();
+                                if (factorProvider.useVariableFactorSecurity()) {
+                                    otpAdditionalData =
+                                            Collections.singletonMap(
+                                                    FactorDataKeys.KEY_MOVING_FACTOR,
+                                                    generateInitialMovingFactor(user));
+                                }
+                                enrolledFactor.setSecurity(
+                                        new EnrolledFactorSecurity(
+                                                SHARED_SECRET,
+                                                otpEnrollmentValue,
+                                                otpAdditionalData));
+                                break;
+                            case SMS:
+                                enrolledFactor.setChannel(
+                                        new EnrolledFactorChannel(
+                                                EnrolledFactorChannel.Type.SMS, enrollmentValue));
+                                break;
+                            case CALL:
+                                enrolledFactor.setChannel(
+                                        new EnrolledFactorChannel(
+                                                EnrolledFactorChannel.Type.CALL, enrollmentValue));
+                                break;
+                            case EMAIL:
+                                Map<String, Object> additionalData =
+                                        Collections.singletonMap(
+                                                FactorDataKeys.KEY_MOVING_FACTOR,
+                                                generateInitialMovingFactor(user));
+                                enrolledFactor.setSecurity(
+                                        new EnrolledFactorSecurity(
+                                                SHARED_SECRET,
+                                                SharedSecret.generate(),
+                                                additionalData));
+                                enrolledFactor.setChannel(
+                                        new EnrolledFactorChannel(
+                                                EnrolledFactorChannel.Type.EMAIL, enrollmentValue));
+                                break;
+                            case HTTP:
+                                enrolledFactor.setChannel(
+                                        new EnrolledFactorChannel(
+                                                EnrolledFactorChannel.Type.HTTP, enrollmentValue));
+                                break;
+                            default:
+                                return Single.error(
+                                        new IllegalStateException(
+                                                "Unexpected value: "
+                                                        + factor.getFactorType().getType()));
+                        }
+                        enrolledFactor.setCreatedAt(new Date());
+                        enrolledFactor.setUpdatedAt(enrolledFactor.getCreatedAt());
+                        return Single.just(enrolledFactor);
+                    } catch (Exception ex) {
+                        LOGGER.error("An error has occurred when building the enrolled factor", ex);
+                        return Single.error(ex);
+                    }
+                });
     }
 
     private int generateInitialMovingFactor(User endUser) {

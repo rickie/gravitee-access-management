@@ -1,23 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oidc.service.clientregistration;
 
+import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import io.gravitee.am.gateway.handler.oidc.service.jwk.converter.JWKSetDeserializer;
 import io.gravitee.am.model.application.ApplicationScopeSettings;
 import io.gravitee.am.model.oidc.Client;
@@ -29,8 +30,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -144,18 +143,18 @@ public class DynamicClientRegistrationRequest {
      * https://tools.ietf.org/html/rfc7591#section-3.1.1
      ********************************************************************************/
 
-    //https://tools.ietf.org/html/rfc7591#section-4.1.2 : scope is Optional<String> space delimited
+    // https://tools.ietf.org/html/rfc7591#section-4.1.2 : scope is Optional<String> space delimited
     @JsonProperty("scope")
     private Optional<String> scope;
 
     @JsonProperty("software_id")
-    private Optional<String> softwareId; //Should be UUID
+    private Optional<String> softwareId; // Should be UUID
 
     @JsonProperty("software_version")
     private Optional<String> softwareVersion;
 
     @JsonProperty("software_statement")
-    private Optional<String> softwareStatement; //Should be JWT
+    private Optional<String> softwareStatement; // Should be JWT
 
     /*******************************************************************************
      * Client certificate authentication metadata in addition to RFC specification
@@ -459,7 +458,7 @@ public class DynamicClientRegistrationRequest {
     }
 
     public Optional<List<String>> getScope() {
-        if (this.scope == null) return null; //Keep null to avoid patch...
+        if (this.scope == null) return null; // Keep null to avoid patch...
         if (this.scope.isEmpty() || this.scope.get().trim().isEmpty()) {
             return Optional.empty();
         }
@@ -538,7 +537,8 @@ public class DynamicClientRegistrationRequest {
         return tlsClientCertificateBoundAccessTokens;
     }
 
-    public void setTlsClientCertificateBoundAccessTokens(Optional<Boolean> tlsClientCertificateBoundAccessTokens) {
+    public void setTlsClientCertificateBoundAccessTokens(
+            Optional<Boolean> tlsClientCertificateBoundAccessTokens) {
         this.tlsClientCertificateBoundAccessTokens = tlsClientCertificateBoundAccessTokens;
     }
 
@@ -554,7 +554,8 @@ public class DynamicClientRegistrationRequest {
         return authorizationEncryptedResponseAlg;
     }
 
-    public void setAuthorizationEncryptedResponseAlg(Optional<String> authorizationEncryptedResponseAlg) {
+    public void setAuthorizationEncryptedResponseAlg(
+            Optional<String> authorizationEncryptedResponseAlg) {
         this.authorizationEncryptedResponseAlg = authorizationEncryptedResponseAlg;
     }
 
@@ -562,7 +563,8 @@ public class DynamicClientRegistrationRequest {
         return authorizationEncryptedResponseEnc;
     }
 
-    public void setAuthorizationEncryptedResponseEnc(Optional<String> authorizationEncryptedResponseEnc) {
+    public void setAuthorizationEncryptedResponseEnc(
+            Optional<String> authorizationEncryptedResponseEnc) {
         this.authorizationEncryptedResponseEnc = authorizationEncryptedResponseEnc;
     }
 
@@ -594,7 +596,8 @@ public class DynamicClientRegistrationRequest {
         return backchannelClientNotificationEndpoint;
     }
 
-    public void setBackchannelClientNotificationEndpoint(Optional<String> backchannelClientNotificationEndpoint) {
+    public void setBackchannelClientNotificationEndpoint(
+            Optional<String> backchannelClientNotificationEndpoint) {
         this.backchannelClientNotificationEndpoint = backchannelClientNotificationEndpoint;
     }
 
@@ -616,7 +619,9 @@ public class DynamicClientRegistrationRequest {
 
     @Override
     public String toString() {
-        return "ClientPayload{clientName='" + (clientName!=null?clientName.orElse(""):"") + "\'}";
+        return "ClientPayload{clientName='"
+                + (clientName != null ? clientName.orElse("") : "")
+                + "\'}";
     }
 
     public Client patch(Client client) {
@@ -636,25 +641,40 @@ public class DynamicClientRegistrationRequest {
         SetterUtils.safeSet(client::setJwks, this.getJwks());
         SetterUtils.safeSet(client::setSectorIdentifierUri, this.getSectorIdentifierUri());
         SetterUtils.safeSet(client::setSubjectType, this.getSubjectType());
-        SetterUtils.safeSet(client::setIdTokenSignedResponseAlg, this.getIdTokenSignedResponseAlg());
-        SetterUtils.safeSet(client::setIdTokenEncryptedResponseAlg, this.getIdTokenEncryptedResponseAlg());
-        SetterUtils.safeSet(client::setIdTokenEncryptedResponseEnc, this.getIdTokenEncryptedResponseEnc());
-        SetterUtils.safeSet(client::setUserinfoSignedResponseAlg, this.getUserinfoSignedResponseAlg());
-        SetterUtils.safeSet(client::setUserinfoEncryptedResponseAlg, this.getUserinfoEncryptedResponseAlg());
-        SetterUtils.safeSet(client::setUserinfoEncryptedResponseEnc, this.getUserinfoEncryptedResponseEnc());
+        SetterUtils.safeSet(
+                client::setIdTokenSignedResponseAlg, this.getIdTokenSignedResponseAlg());
+        SetterUtils.safeSet(
+                client::setIdTokenEncryptedResponseAlg, this.getIdTokenEncryptedResponseAlg());
+        SetterUtils.safeSet(
+                client::setIdTokenEncryptedResponseEnc, this.getIdTokenEncryptedResponseEnc());
+        SetterUtils.safeSet(
+                client::setUserinfoSignedResponseAlg, this.getUserinfoSignedResponseAlg());
+        SetterUtils.safeSet(
+                client::setUserinfoEncryptedResponseAlg, this.getUserinfoEncryptedResponseAlg());
+        SetterUtils.safeSet(
+                client::setUserinfoEncryptedResponseEnc, this.getUserinfoEncryptedResponseEnc());
         SetterUtils.safeSet(client::setRequestObjectSigningAlg, this.getRequestObjectSigningAlg());
-        SetterUtils.safeSet(client::setRequestObjectEncryptionAlg, this.getRequestObjectEncryptionAlg());
-        SetterUtils.safeSet(client::setRequestObjectEncryptionEnc, this.getRequestObjectEncryptionEnc());
+        SetterUtils.safeSet(
+                client::setRequestObjectEncryptionAlg, this.getRequestObjectEncryptionAlg());
+        SetterUtils.safeSet(
+                client::setRequestObjectEncryptionEnc, this.getRequestObjectEncryptionEnc());
         SetterUtils.safeSet(client::setTokenEndpointAuthMethod, this.getTokenEndpointAuthMethod());
-        SetterUtils.safeSet(client::setTokenEndpointAuthSigningAlg, this.getTokenEndpointAuthSigningAlg());
+        SetterUtils.safeSet(
+                client::setTokenEndpointAuthSigningAlg, this.getTokenEndpointAuthSigningAlg());
         SetterUtils.safeSet(client::setDefaultMaxAge, this.getDefaultMaxAge());
         SetterUtils.safeSet(client::setRequireAuthTime, this.getRequireAuthTime(), boolean.class);
         SetterUtils.safeSet(client::setDefaultACRvalues, this.getDefaultACRvalues());
         SetterUtils.safeSet(client::setInitiateLoginUri, this.getInitiateLoginUri());
         SetterUtils.safeSet(client::setRequestUris, this.getRequestUris());
-        SetterUtils.safeSet(client::setAuthorizationSignedResponseAlg, this.getAuthorizationSignedResponseAlg());
-        SetterUtils.safeSet(client::setAuthorizationEncryptedResponseAlg, this.getAuthorizationEncryptedResponseAlg());
-        SetterUtils.safeSet(client::setAuthorizationEncryptedResponseEnc, this.getAuthorizationEncryptedResponseEnc());
+        SetterUtils.safeSet(
+                client::setAuthorizationSignedResponseAlg,
+                this.getAuthorizationSignedResponseAlg());
+        SetterUtils.safeSet(
+                client::setAuthorizationEncryptedResponseAlg,
+                this.getAuthorizationEncryptedResponseAlg());
+        SetterUtils.safeSet(
+                client::setAuthorizationEncryptedResponseEnc,
+                this.getAuthorizationEncryptedResponseEnc());
 
         /* set oauth2 request metadata */
         updateScopeSettings(client);
@@ -668,7 +688,9 @@ public class DynamicClientRegistrationRequest {
         SetterUtils.safeSet(client::setTlsClientAuthSanEmail, this.getTlsClientAuthSanEmail());
         SetterUtils.safeSet(client::setTlsClientAuthSanIp, this.getTlsClientAuthSanIp());
         SetterUtils.safeSet(client::setTlsClientAuthSanUri, this.getTlsClientAuthSanUri());
-        SetterUtils.safeSet(client::setTlsClientCertificateBoundAccessTokens, this.getTlsClientCertificateBoundAccessTokens());
+        SetterUtils.safeSet(
+                client::setTlsClientCertificateBoundAccessTokens,
+                this.getTlsClientCertificateBoundAccessTokens());
 
         /* set client require_pushed_authorization_requests : https://datatracker.ietf.org/doc/html/draft-ietf-oauth-par#page-16 */
         SetterUtils.safeSet(client::setRequireParRequest, this.getRequireParRequest());
@@ -676,16 +698,24 @@ public class DynamicClientRegistrationRequest {
         /* set OpenID Connect RP-Initiated Logout metadata */
         SetterUtils.safeSet(client::setPostLogoutRedirectUris, this.getPostLogoutRedirectUris());
 
-        SetterUtils.safeSet(client::setBackchannelTokenDeliveryMode, this.getBackchannelTokenDeliveryMode());
-        SetterUtils.safeSet(client::setBackchannelUserCodeParameter, this.getBackchannelUserCodeParameter());
-        SetterUtils.safeSet(client::setBackchannelAuthRequestSignAlg, this.getBackchannelAuthRequestSignAlg());
-        SetterUtils.safeSet(client::setBackchannelClientNotificationEndpoint, this.getBackchannelClientNotificationEndpoint());
+        SetterUtils.safeSet(
+                client::setBackchannelTokenDeliveryMode, this.getBackchannelTokenDeliveryMode());
+        SetterUtils.safeSet(
+                client::setBackchannelUserCodeParameter, this.getBackchannelUserCodeParameter());
+        SetterUtils.safeSet(
+                client::setBackchannelAuthRequestSignAlg, this.getBackchannelAuthRequestSignAlg());
+        SetterUtils.safeSet(
+                client::setBackchannelClientNotificationEndpoint,
+                this.getBackchannelClientNotificationEndpoint());
 
         return client;
     }
 
-    private Optional<ApplicationScopeSettings> getScopeSettings(List<ApplicationScopeSettings> currentClientScopeSettings, String lookup) {
-        return currentClientScopeSettings.stream().filter(setting -> setting.getScope().equalsIgnoreCase(lookup)).findFirst();
+    private Optional<ApplicationScopeSettings> getScopeSettings(
+            List<ApplicationScopeSettings> currentClientScopeSettings, String lookup) {
+        return currentClientScopeSettings.stream()
+                .filter(setting -> setting.getScope().equalsIgnoreCase(lookup))
+                .findFirst();
     }
 
     public Client update(Client client) {
@@ -706,24 +736,37 @@ public class DynamicClientRegistrationRequest {
         SetterUtils.set(client::setSectorIdentifierUri, this.getSectorIdentifierUri());
         SetterUtils.set(client::setSubjectType, this.getSubjectType());
         SetterUtils.set(client::setIdTokenSignedResponseAlg, this.getIdTokenSignedResponseAlg());
-        SetterUtils.set(client::setIdTokenEncryptedResponseAlg, this.getIdTokenEncryptedResponseAlg());
-        SetterUtils.set(client::setIdTokenEncryptedResponseEnc, this.getIdTokenEncryptedResponseEnc());
+        SetterUtils.set(
+                client::setIdTokenEncryptedResponseAlg, this.getIdTokenEncryptedResponseAlg());
+        SetterUtils.set(
+                client::setIdTokenEncryptedResponseEnc, this.getIdTokenEncryptedResponseEnc());
         SetterUtils.set(client::setUserinfoSignedResponseAlg, this.getUserinfoSignedResponseAlg());
-        SetterUtils.set(client::setUserinfoEncryptedResponseAlg, this.getUserinfoEncryptedResponseAlg());
-        SetterUtils.set(client::setUserinfoEncryptedResponseEnc, this.getUserinfoEncryptedResponseEnc());
+        SetterUtils.set(
+                client::setUserinfoEncryptedResponseAlg, this.getUserinfoEncryptedResponseAlg());
+        SetterUtils.set(
+                client::setUserinfoEncryptedResponseEnc, this.getUserinfoEncryptedResponseEnc());
         SetterUtils.set(client::setRequestObjectSigningAlg, this.getRequestObjectSigningAlg());
-        SetterUtils.set(client::setRequestObjectEncryptionAlg, this.getRequestObjectEncryptionAlg());
-        SetterUtils.set(client::setRequestObjectEncryptionEnc, this.getRequestObjectEncryptionEnc());
+        SetterUtils.set(
+                client::setRequestObjectEncryptionAlg, this.getRequestObjectEncryptionAlg());
+        SetterUtils.set(
+                client::setRequestObjectEncryptionEnc, this.getRequestObjectEncryptionEnc());
         SetterUtils.set(client::setTokenEndpointAuthMethod, this.getTokenEndpointAuthMethod());
-        SetterUtils.set(client::setTokenEndpointAuthSigningAlg, this.getTokenEndpointAuthSigningAlg());
+        SetterUtils.set(
+                client::setTokenEndpointAuthSigningAlg, this.getTokenEndpointAuthSigningAlg());
         SetterUtils.set(client::setDefaultMaxAge, this.getDefaultMaxAge());
         SetterUtils.set(client::setRequireAuthTime, this.getRequireAuthTime());
         SetterUtils.set(client::setDefaultACRvalues, this.getDefaultACRvalues());
         SetterUtils.set(client::setInitiateLoginUri, this.getInitiateLoginUri());
         SetterUtils.set(client::setRequestUris, this.getRequestUris());
-        SetterUtils.set(client::setAuthorizationSignedResponseAlg, this.getAuthorizationSignedResponseAlg());
-        SetterUtils.set(client::setAuthorizationEncryptedResponseAlg, this.getAuthorizationEncryptedResponseAlg());
-        SetterUtils.set(client::setAuthorizationEncryptedResponseEnc, this.getAuthorizationEncryptedResponseEnc());
+        SetterUtils.set(
+                client::setAuthorizationSignedResponseAlg,
+                this.getAuthorizationSignedResponseAlg());
+        SetterUtils.set(
+                client::setAuthorizationEncryptedResponseAlg,
+                this.getAuthorizationEncryptedResponseAlg());
+        SetterUtils.set(
+                client::setAuthorizationEncryptedResponseEnc,
+                this.getAuthorizationEncryptedResponseEnc());
 
         /* set oauth2 request metadata */
         updateScopeSettings(client);
@@ -737,7 +780,9 @@ public class DynamicClientRegistrationRequest {
         SetterUtils.safeSet(client::setTlsClientAuthSanEmail, this.getTlsClientAuthSanEmail());
         SetterUtils.safeSet(client::setTlsClientAuthSanIp, this.getTlsClientAuthSanIp());
         SetterUtils.safeSet(client::setTlsClientAuthSanUri, this.getTlsClientAuthSanUri());
-        SetterUtils.safeSet(client::setTlsClientCertificateBoundAccessTokens, this.getTlsClientCertificateBoundAccessTokens());
+        SetterUtils.safeSet(
+                client::setTlsClientCertificateBoundAccessTokens,
+                this.getTlsClientCertificateBoundAccessTokens());
 
         /* set client require_pushed_authorization_requests : https://datatracker.ietf.org/doc/html/draft-ietf-oauth-par#page-16 */
         SetterUtils.safeSet(client::setRequireParRequest, this.getRequireParRequest());
@@ -746,26 +791,43 @@ public class DynamicClientRegistrationRequest {
         SetterUtils.safeSet(client::setPostLogoutRedirectUris, this.getPostLogoutRedirectUris());
 
         /* set OpenID Connect Client-Initiated Backchannel Authentication Flow - Client Metadata  */
-        SetterUtils.safeSet(client::setBackchannelTokenDeliveryMode, this.getBackchannelTokenDeliveryMode());
-        SetterUtils.safeSet(client::setBackchannelUserCodeParameter, this.getBackchannelUserCodeParameter());
-        SetterUtils.safeSet(client::setBackchannelAuthRequestSignAlg, this.getBackchannelAuthRequestSignAlg());
-        SetterUtils.safeSet(client::setBackchannelClientNotificationEndpoint, this.getBackchannelClientNotificationEndpoint());
+        SetterUtils.safeSet(
+                client::setBackchannelTokenDeliveryMode, this.getBackchannelTokenDeliveryMode());
+        SetterUtils.safeSet(
+                client::setBackchannelUserCodeParameter, this.getBackchannelUserCodeParameter());
+        SetterUtils.safeSet(
+                client::setBackchannelAuthRequestSignAlg, this.getBackchannelAuthRequestSignAlg());
+        SetterUtils.safeSet(
+                client::setBackchannelClientNotificationEndpoint,
+                this.getBackchannelClientNotificationEndpoint());
 
         return client;
     }
 
     private void updateScopeSettings(Client client) {
         if (this.getScope() != null) {
-            final List<ApplicationScopeSettings> currentClientScopeSettings = client.getScopeSettings() == null ? new ArrayList<ApplicationScopeSettings>() : client.getScopeSettings();
-            final Optional<List<ApplicationScopeSettings>> scopeSettingsToUpdate = this.getScope().map(scopes -> {
-                return scopes.stream().map(scope -> {
-                    ApplicationScopeSettings newSetting = new ApplicationScopeSettings();
-                    newSetting.setScope(scope);
-                    return getScopeSettings(currentClientScopeSettings, scope).orElse(newSetting);
-                }).collect(Collectors.toList());
-            });
+            final List<ApplicationScopeSettings> currentClientScopeSettings =
+                    client.getScopeSettings() == null
+                            ? new ArrayList<ApplicationScopeSettings>()
+                            : client.getScopeSettings();
+            final Optional<List<ApplicationScopeSettings>> scopeSettingsToUpdate =
+                    this.getScope()
+                            .map(
+                                    scopes -> {
+                                        return scopes.stream()
+                                                .map(
+                                                        scope -> {
+                                                            ApplicationScopeSettings newSetting =
+                                                                    new ApplicationScopeSettings();
+                                                            newSetting.setScope(scope);
+                                                            return getScopeSettings(
+                                                                            currentClientScopeSettings,
+                                                                            scope)
+                                                                    .orElse(newSetting);
+                                                        })
+                                                .collect(Collectors.toList());
+                                    });
             SetterUtils.safeSet(client::setScopeSettings, scopeSettingsToUpdate);
         }
     }
 }
-

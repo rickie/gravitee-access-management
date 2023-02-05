@@ -1,22 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.identityprovider.http.user;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+
 import io.gravitee.am.identityprovider.api.DefaultIdentityProviderMapper;
 import io.gravitee.am.identityprovider.api.DefaultUser;
 import io.gravitee.am.identityprovider.api.User;
@@ -26,6 +28,7 @@ import io.gravitee.am.service.exception.UserAlreadyExistsException;
 import io.gravitee.am.service.exception.UserNotFoundException;
 import io.gravitee.common.http.HttpHeaders;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,25 +40,21 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { HttpUserProviderTestConfiguration.class, HttpUserProviderConfiguration.class }, loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(
+        classes = {HttpUserProviderTestConfiguration.class, HttpUserProviderConfiguration.class},
+        loader = AnnotationConfigContextLoader.class)
 public class HttpUserProviderTest {
 
-    @Autowired
-    private UserProvider userProvider;
+    @Autowired private UserProvider userProvider;
 
-    @Autowired
-    private DefaultIdentityProviderMapper mapper;
+    @Autowired private DefaultIdentityProviderMapper mapper;
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(19998));
+    @Rule public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(19998));
 
     @Before
     public void init() {
@@ -66,10 +65,12 @@ public class HttpUserProviderTest {
     public void shouldCreateUser() {
         DefaultUser user = new DefaultUser("johndoe");
 
-        stubFor(post(urlPathEqualTo("/api/users"))
-                .withHeader(HttpHeaders.CONTENT_TYPE, containing("application/"))
-                .withRequestBody(matching(".*"))
-                .willReturn(okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
+        stubFor(
+                post(urlPathEqualTo("/api/users"))
+                        .withHeader(HttpHeaders.CONTENT_TYPE, containing("application/"))
+                        .withRequestBody(matching(".*"))
+                        .willReturn(
+                                okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
 
         TestObserver<User> testObserver = userProvider.create(user).test();
         testObserver.awaitTerminalEvent();
@@ -83,10 +84,11 @@ public class HttpUserProviderTest {
     public void shouldCreateUser_id_number_type() {
         DefaultUser user = new DefaultUser("johndoe");
 
-        stubFor(post(urlPathEqualTo("/api/users"))
-                .withHeader(HttpHeaders.CONTENT_TYPE, containing("application/"))
-                .withRequestBody(matching(".*"))
-                .willReturn(okJson("{\"id\" : 80100, \"username\" : \"johndoe\"}")));
+        stubFor(
+                post(urlPathEqualTo("/api/users"))
+                        .withHeader(HttpHeaders.CONTENT_TYPE, containing("application/"))
+                        .withRequestBody(matching(".*"))
+                        .willReturn(okJson("{\"id\" : 80100, \"username\" : \"johndoe\"}")));
 
         TestObserver<User> testObserver = userProvider.create(user).test();
         testObserver.awaitTerminalEvent();
@@ -100,10 +102,11 @@ public class HttpUserProviderTest {
     public void shouldCreateUser_userAlreadyExists() {
         DefaultUser user = new DefaultUser("johndoe");
 
-        stubFor(post(urlPathEqualTo("/api/users"))
-                .withHeader(HttpHeaders.CONTENT_TYPE, containing("application/"))
-                .withRequestBody(matching(".*"))
-                .willReturn(badRequest()));
+        stubFor(
+                post(urlPathEqualTo("/api/users"))
+                        .withHeader(HttpHeaders.CONTENT_TYPE, containing("application/"))
+                        .withRequestBody(matching(".*"))
+                        .willReturn(badRequest()));
 
         TestObserver<User> testObserver = userProvider.create(user).test();
         testObserver.awaitTerminalEvent();
@@ -112,9 +115,11 @@ public class HttpUserProviderTest {
 
     @Test
     public void shouldFindUserByUsername() {
-        stubFor(get(urlPathEqualTo("/api/users"))
-                .withQueryParam("username", new EqualToPattern("johndoe"))
-                .willReturn(okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
+        stubFor(
+                get(urlPathEqualTo("/api/users"))
+                        .withQueryParam("username", new EqualToPattern("johndoe"))
+                        .willReturn(
+                                okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
 
         TestObserver<User> testObserver = userProvider.findByUsername("johndoe").test();
         testObserver.awaitTerminalEvent();
@@ -126,9 +131,11 @@ public class HttpUserProviderTest {
 
     @Test
     public void shouldFindUserByUsername_UserMapper() {
-        stubFor(get(urlPathEqualTo("/api/users"))
-                .withQueryParam("username", new EqualToPattern("johndoe"))
-                .willReturn(okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
+        stubFor(
+                get(urlPathEqualTo("/api/users"))
+                        .withQueryParam("username", new EqualToPattern("johndoe"))
+                        .willReturn(
+                                okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
 
         this.mapper.setMappers(Map.of("username", "username", "id", "id", "copy_of_id", "id"));
 
@@ -137,16 +144,21 @@ public class HttpUserProviderTest {
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(u -> "123456789".equals(u.getId()));
-        testObserver.assertValue(u -> u.getAdditionalInformation().containsKey("copy_of_id")
-                && "123456789".equals(u.getAdditionalInformation().get("copy_of_id")));
+        testObserver.assertValue(
+                u ->
+                        u.getAdditionalInformation().containsKey("copy_of_id")
+                                && "123456789"
+                                        .equals(u.getAdditionalInformation().get("copy_of_id")));
         testObserver.assertValue(u -> "johndoe".equals(u.getUsername()));
     }
 
     @Test
     public void shouldFindUserByUsername_arrayResponse() {
-        stubFor(get(urlPathEqualTo("/api/users"))
-                .withQueryParam("username", new EqualToPattern("johndoe"))
-                .willReturn(okJson("[{\"id\" : \"123456789\", \"username\" : \"johndoe\"}]")));
+        stubFor(
+                get(urlPathEqualTo("/api/users"))
+                        .withQueryParam("username", new EqualToPattern("johndoe"))
+                        .willReturn(
+                                okJson("[{\"id\" : \"123456789\", \"username\" : \"johndoe\"}]")));
 
         TestObserver<User> testObserver = userProvider.findByUsername("johndoe").test();
         testObserver.awaitTerminalEvent();
@@ -158,9 +170,11 @@ public class HttpUserProviderTest {
 
     @Test
     public void shouldFindUserByEmail() {
-        stubFor(get(urlPathEqualTo("/api/users"))
-                .withQueryParam("email", new EqualToPattern("johndoe@mail.com"))
-                .willReturn(okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
+        stubFor(
+                get(urlPathEqualTo("/api/users"))
+                        .withQueryParam("email", new EqualToPattern("johndoe@mail.com"))
+                        .willReturn(
+                                okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
 
         TestObserver<User> testObserver = userProvider.findByEmail("johndoe@mail.com").test();
         testObserver.awaitTerminalEvent();
@@ -172,9 +186,11 @@ public class HttpUserProviderTest {
 
     @Test
     public void shouldFindUserByEmail_arrayResponse() {
-        stubFor(get(urlPathEqualTo("/api/users"))
-                .withQueryParam("email", new EqualToPattern("johndoe@mail.com"))
-                .willReturn(okJson("[{\"id\" : \"123456789\", \"username\" : \"johndoe\"}]")));
+        stubFor(
+                get(urlPathEqualTo("/api/users"))
+                        .withQueryParam("email", new EqualToPattern("johndoe@mail.com"))
+                        .willReturn(
+                                okJson("[{\"id\" : \"123456789\", \"username\" : \"johndoe\"}]")));
 
         TestObserver<User> testObserver = userProvider.findByEmail("johndoe@mail.com").test();
         testObserver.awaitTerminalEvent();
@@ -188,10 +204,12 @@ public class HttpUserProviderTest {
     public void shouldUpdateUser() {
         DefaultUser user = new DefaultUser("johndoe");
 
-        stubFor(put(urlPathEqualTo("/api/users/123456789"))
-                .withHeader(HttpHeaders.CONTENT_TYPE, containing("application/"))
-                .withRequestBody(matching(".*"))
-                .willReturn(okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
+        stubFor(
+                put(urlPathEqualTo("/api/users/123456789"))
+                        .withHeader(HttpHeaders.CONTENT_TYPE, containing("application/"))
+                        .withRequestBody(matching(".*"))
+                        .willReturn(
+                                okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
 
         TestObserver<User> testObserver = userProvider.update("123456789", user).test();
         testObserver.awaitTerminalEvent();
@@ -205,10 +223,12 @@ public class HttpUserProviderTest {
     public void shouldUpdateUser_UserMapper() {
         DefaultUser user = new DefaultUser("johndoe");
 
-        stubFor(put(urlPathEqualTo("/api/users/123456789"))
-                .withHeader(HttpHeaders.CONTENT_TYPE, containing("application/"))
-                .withRequestBody(matching(".*"))
-                .willReturn(okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
+        stubFor(
+                put(urlPathEqualTo("/api/users/123456789"))
+                        .withHeader(HttpHeaders.CONTENT_TYPE, containing("application/"))
+                        .withRequestBody(matching(".*"))
+                        .willReturn(
+                                okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
 
         this.mapper.setMappers(Map.of("username", "username", "id", "id", "copy_of_id", "id"));
 
@@ -218,8 +238,11 @@ public class HttpUserProviderTest {
         testObserver.assertNoErrors();
         testObserver.assertValue(u -> "123456789".equals(u.getId()));
         testObserver.assertValue(u -> "johndoe".equals(u.getUsername()));
-        testObserver.assertValue(u -> u.getAdditionalInformation().containsKey("copy_of_id")
-                && "123456789".equals(u.getAdditionalInformation().get("copy_of_id")));
+        testObserver.assertValue(
+                u ->
+                        u.getAdditionalInformation().containsKey("copy_of_id")
+                                && "123456789"
+                                        .equals(u.getAdditionalInformation().get("copy_of_id")));
     }
 
     @Test
@@ -227,10 +250,12 @@ public class HttpUserProviderTest {
         DefaultUser user = new DefaultUser("johndoe");
         user.setId("123456789");
 
-        stubFor(put(urlPathEqualTo("/api/users/123456789"))
-                .withHeader(HttpHeaders.CONTENT_TYPE, containing("application/"))
-                .withRequestBody(matching(".*"))
-                .willReturn(okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
+        stubFor(
+                put(urlPathEqualTo("/api/users/123456789"))
+                        .withHeader(HttpHeaders.CONTENT_TYPE, containing("application/"))
+                        .withRequestBody(matching(".*"))
+                        .willReturn(
+                                okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
 
         TestObserver<User> testObserver = userProvider.updatePassword(user, "password").test();
         testObserver.awaitTerminalEvent();
@@ -244,10 +269,11 @@ public class HttpUserProviderTest {
     public void shouldUpdateUser_userNotFound() {
         DefaultUser user = new DefaultUser("johndoe");
 
-        stubFor(put(urlPathEqualTo("/api/users/123456789"))
-                .withHeader(HttpHeaders.CONTENT_TYPE, containing("application/"))
-                .withRequestBody(matching(".*"))
-                .willReturn(notFound()));
+        stubFor(
+                put(urlPathEqualTo("/api/users/123456789"))
+                        .withHeader(HttpHeaders.CONTENT_TYPE, containing("application/"))
+                        .withRequestBody(matching(".*"))
+                        .willReturn(notFound()));
 
         TestObserver<User> testObserver = userProvider.update("123456789", user).test();
         testObserver.awaitTerminalEvent();
@@ -256,8 +282,7 @@ public class HttpUserProviderTest {
 
     @Test
     public void shouldDeleteUser() {
-        stubFor(delete(urlPathEqualTo("/api/users/123456789"))
-                .willReturn(ok()));
+        stubFor(delete(urlPathEqualTo("/api/users/123456789")).willReturn(ok()));
 
         TestObserver testObserver = userProvider.delete("123456789").test();
         testObserver.awaitTerminalEvent();
@@ -267,8 +292,7 @@ public class HttpUserProviderTest {
 
     @Test
     public void shouldDeleteUser_userNotFound() {
-        stubFor(delete(urlPathEqualTo("/api/users/123456789"))
-                .willReturn(notFound()));
+        stubFor(delete(urlPathEqualTo("/api/users/123456789")).willReturn(notFound()));
 
         TestObserver testObserver = userProvider.delete("123456789").test();
         testObserver.awaitTerminalEvent();

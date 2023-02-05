@@ -1,20 +1,21 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.gravitee.am.gateway.handler.root.resources.handler.rememberdevice;
+
+import static io.gravitee.am.common.utils.ConstantKeys.*;
+
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
 import io.gravitee.am.gateway.handler.root.resources.handler.dummies.SpyRoutingContext;
@@ -23,14 +24,12 @@ import io.gravitee.am.model.MFASettings;
 import io.gravitee.am.model.RememberDeviceSettings;
 import io.gravitee.am.model.oidc.Client;
 import io.vertx.core.http.HttpMethod;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.UUID;
-
-import static io.gravitee.am.common.utils.ConstantKeys.*;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Rémi SULTAN (remi.sultan at graviteesource.com)
@@ -153,7 +152,8 @@ public class RememberDeviceHandlerTest extends RxWebTestBase {
         spyRoutingContext.session().put(DEVICE_ALREADY_EXISTS_KEY, false);
         handler.handle(spyRoutingContext);
 
-        Assert.assertEquals((long) spyRoutingContext.get(REMEMBER_DEVICE_CONSENT_TIME_SECONDS), 36000L);
+        Assert.assertEquals(
+                (long) spyRoutingContext.get(REMEMBER_DEVICE_CONSENT_TIME_SECONDS), 36000L);
         verify(spyRoutingContext, times(0)).fail(405);
         verify(spyRoutingContext, times(1)).next();
     }
@@ -171,7 +171,8 @@ public class RememberDeviceHandlerTest extends RxWebTestBase {
         spyRoutingContext.session().put(DEVICE_ALREADY_EXISTS_KEY, false);
         handler.handle(spyRoutingContext);
 
-        Assert.assertEquals((long) spyRoutingContext.get(REMEMBER_DEVICE_CONSENT_TIME_SECONDS), 300L);
+        Assert.assertEquals(
+                (long) spyRoutingContext.get(REMEMBER_DEVICE_CONSENT_TIME_SECONDS), 300L);
         verify(spyRoutingContext, times(0)).fail(405);
         verify(spyRoutingContext, times(1)).next();
     }

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.model;
@@ -67,10 +65,13 @@ public class PatchApplicationOAuthSettings {
     private Optional<String> softwareStatement;
     private Optional<String> registrationAccessToken;
     private Optional<String> registrationClientUri;
+
     @ApiModelProperty(dataType = "java.lang.Long", required = false)
     private Optional<Date> clientIdIssuedAt;
+
     @ApiModelProperty(dataType = "java.lang.Long", required = false)
     private Optional<Date> clientSecretExpiresAt;
+
     private Optional<Boolean> enhanceScopesWithUserPermissions;
     private Optional<Integer> accessTokenValiditySeconds;
     private Optional<Integer> refreshTokenValiditySeconds;
@@ -402,7 +403,8 @@ public class PatchApplicationOAuthSettings {
         return enhanceScopesWithUserPermissions;
     }
 
-    public void setEnhanceScopesWithUserPermissions(Optional<Boolean> enhanceScopesWithUserPermissions) {
+    public void setEnhanceScopesWithUserPermissions(
+            Optional<Boolean> enhanceScopesWithUserPermissions) {
         this.enhanceScopesWithUserPermissions = enhanceScopesWithUserPermissions;
     }
 
@@ -490,7 +492,8 @@ public class PatchApplicationOAuthSettings {
         return authorizationEncryptedResponseAlg;
     }
 
-    public void setAuthorizationEncryptedResponseAlg(Optional<String> authorizationEncryptedResponseAlg) {
+    public void setAuthorizationEncryptedResponseAlg(
+            Optional<String> authorizationEncryptedResponseAlg) {
         this.authorizationEncryptedResponseAlg = authorizationEncryptedResponseAlg;
     }
 
@@ -498,7 +501,8 @@ public class PatchApplicationOAuthSettings {
         return authorizationEncryptedResponseEnc;
     }
 
-    public void setAuthorizationEncryptedResponseEnc(Optional<String> authorizationEncryptedResponseEnc) {
+    public void setAuthorizationEncryptedResponseEnc(
+            Optional<String> authorizationEncryptedResponseEnc) {
         this.authorizationEncryptedResponseEnc = authorizationEncryptedResponseEnc;
     }
 
@@ -546,7 +550,8 @@ public class PatchApplicationOAuthSettings {
         return tlsClientCertificateBoundAccessTokens;
     }
 
-    public void setTlsClientCertificateBoundAccessTokens(Optional<Boolean> tlsClientCertificateBoundAccessTokens) {
+    public void setTlsClientCertificateBoundAccessTokens(
+            Optional<Boolean> tlsClientCertificateBoundAccessTokens) {
         this.tlsClientCertificateBoundAccessTokens = tlsClientCertificateBoundAccessTokens;
     }
 
@@ -560,7 +565,10 @@ public class PatchApplicationOAuthSettings {
 
     public ApplicationOAuthSettings patch(ApplicationOAuthSettings _toPatch) {
         // create new object for audit purpose (patch json result)
-        ApplicationOAuthSettings toPatch = _toPatch == null ? new ApplicationOAuthSettings() : new ApplicationOAuthSettings(_toPatch);
+        ApplicationOAuthSettings toPatch =
+                _toPatch == null
+                        ? new ApplicationOAuthSettings()
+                        : new ApplicationOAuthSettings(_toPatch);
 
         SetterUtils.safeSet(toPatch::setRedirectUris, this.getRedirectUris());
         SetterUtils.safeSet(toPatch::setResponseTypes, this.getResponseTypes());
@@ -576,19 +584,28 @@ public class PatchApplicationOAuthSettings {
         SetterUtils.safeSet(toPatch::setJwks, this.getJwks());
         SetterUtils.safeSet(toPatch::setSectorIdentifierUri, this.getSectorIdentifierUri());
         SetterUtils.safeSet(toPatch::setSubjectType, this.getSubjectType());
-        SetterUtils.safeSet(toPatch::setIdTokenSignedResponseAlg, this.getIdTokenSignedResponseAlg());
-        SetterUtils.safeSet(toPatch::setIdTokenEncryptedResponseAlg, this.getIdTokenEncryptedResponseAlg());
-        SetterUtils.safeSet(toPatch::setIdTokenEncryptedResponseEnc, this.getIdTokenEncryptedResponseEnc());
+        SetterUtils.safeSet(
+                toPatch::setIdTokenSignedResponseAlg, this.getIdTokenSignedResponseAlg());
+        SetterUtils.safeSet(
+                toPatch::setIdTokenEncryptedResponseAlg, this.getIdTokenEncryptedResponseAlg());
+        SetterUtils.safeSet(
+                toPatch::setIdTokenEncryptedResponseEnc, this.getIdTokenEncryptedResponseEnc());
         SetterUtils.safeSet(toPatch::setPolicyUri, this.getPolicyUri());
         SetterUtils.safeSet(toPatch::setTosUri, this.getTosUri());
-        SetterUtils.safeSet(toPatch::setUserinfoSignedResponseAlg, this.getUserinfoSignedResponseAlg());
-        SetterUtils.safeSet(toPatch::setUserinfoEncryptedResponseAlg, this.getUserinfoEncryptedResponseAlg());
-        SetterUtils.safeSet(toPatch::setUserinfoEncryptedResponseEnc, this.getUserinfoEncryptedResponseEnc());
+        SetterUtils.safeSet(
+                toPatch::setUserinfoSignedResponseAlg, this.getUserinfoSignedResponseAlg());
+        SetterUtils.safeSet(
+                toPatch::setUserinfoEncryptedResponseAlg, this.getUserinfoEncryptedResponseAlg());
+        SetterUtils.safeSet(
+                toPatch::setUserinfoEncryptedResponseEnc, this.getUserinfoEncryptedResponseEnc());
         SetterUtils.safeSet(toPatch::setRequestObjectSigningAlg, this.getRequestObjectSigningAlg());
-        SetterUtils.safeSet(toPatch::setRequestObjectEncryptionAlg, this.getRequestObjectEncryptionAlg());
-        SetterUtils.safeSet(toPatch::setRequestObjectEncryptionEnc, this.getRequestObjectEncryptionEnc());
+        SetterUtils.safeSet(
+                toPatch::setRequestObjectEncryptionAlg, this.getRequestObjectEncryptionAlg());
+        SetterUtils.safeSet(
+                toPatch::setRequestObjectEncryptionEnc, this.getRequestObjectEncryptionEnc());
         SetterUtils.safeSet(toPatch::setTokenEndpointAuthMethod, this.getTokenEndpointAuthMethod());
-        SetterUtils.safeSet(toPatch::setTokenEndpointAuthSigningAlg, this.getTokenEndpointAuthSigningAlg());
+        SetterUtils.safeSet(
+                toPatch::setTokenEndpointAuthSigningAlg, this.getTokenEndpointAuthSigningAlg());
         SetterUtils.safeSet(toPatch::setDefaultMaxAge, this.getDefaultMaxAge());
         SetterUtils.safeSet(toPatch::setRequireAuthTime, this.getRequireAuthTime(), boolean.class);
         SetterUtils.safeSet(toPatch::setDefaultACRvalues, this.getDefaultACRvalues());
@@ -601,9 +618,14 @@ public class PatchApplicationOAuthSettings {
         SetterUtils.safeSet(toPatch::setRegistrationClientUri, this.getRegistrationClientUri());
         SetterUtils.safeSet(toPatch::setClientIdIssuedAt, this.getClientIdIssuedAt());
         SetterUtils.safeSet(toPatch::setClientSecretExpiresAt, this.getClientSecretExpiresAt());
-        SetterUtils.safeSet(toPatch::setEnhanceScopesWithUserPermissions, this.getEnhanceScopesWithUserPermissions(), boolean.class);
-        SetterUtils.safeSet(toPatch::setAccessTokenValiditySeconds, this.getAccessTokenValiditySeconds());
-        SetterUtils.safeSet(toPatch::setRefreshTokenValiditySeconds, this.getRefreshTokenValiditySeconds());
+        SetterUtils.safeSet(
+                toPatch::setEnhanceScopesWithUserPermissions,
+                this.getEnhanceScopesWithUserPermissions(),
+                boolean.class);
+        SetterUtils.safeSet(
+                toPatch::setAccessTokenValiditySeconds, this.getAccessTokenValiditySeconds());
+        SetterUtils.safeSet(
+                toPatch::setRefreshTokenValiditySeconds, this.getRefreshTokenValiditySeconds());
         SetterUtils.safeSet(toPatch::setIdTokenValiditySeconds, this.getIdTokenValiditySeconds());
         SetterUtils.safeSet(toPatch::setTokenCustomClaims, this.getTokenCustomClaims());
         SetterUtils.safeSet(toPatch::setTlsClientAuthSubjectDn, this.getTlsClientAuthSubjectDn());
@@ -611,16 +633,26 @@ public class PatchApplicationOAuthSettings {
         SetterUtils.safeSet(toPatch::setTlsClientAuthSanEmail, this.getTlsClientAuthSanEmail());
         SetterUtils.safeSet(toPatch::setTlsClientAuthSanIp, this.getTlsClientAuthSanIp());
         SetterUtils.safeSet(toPatch::setTlsClientAuthSanUri, this.getTlsClientAuthSanUri());
-        SetterUtils.safeSet(toPatch::setTlsClientCertificateBoundAccessTokens, this.getTlsClientCertificateBoundAccessTokens());
-        SetterUtils.safeSet(toPatch::setAuthorizationSignedResponseAlg, this.getAuthorizationSignedResponseAlg());
-        SetterUtils.safeSet(toPatch::setAuthorizationEncryptedResponseAlg, this.getAuthorizationEncryptedResponseAlg());
-        SetterUtils.safeSet(toPatch::setAuthorizationEncryptedResponseEnc, this.getAuthorizationEncryptedResponseEnc());
+        SetterUtils.safeSet(
+                toPatch::setTlsClientCertificateBoundAccessTokens,
+                this.getTlsClientCertificateBoundAccessTokens());
+        SetterUtils.safeSet(
+                toPatch::setAuthorizationSignedResponseAlg,
+                this.getAuthorizationSignedResponseAlg());
+        SetterUtils.safeSet(
+                toPatch::setAuthorizationEncryptedResponseAlg,
+                this.getAuthorizationEncryptedResponseAlg());
+        SetterUtils.safeSet(
+                toPatch::setAuthorizationEncryptedResponseEnc,
+                this.getAuthorizationEncryptedResponseEnc());
         SetterUtils.safeSet(toPatch::setForcePKCE, this.getForcePKCE());
-        SetterUtils.safeSet(toPatch::setForceS256CodeChallengeMethod, this.getForceS256CodeChallengeMethod());
+        SetterUtils.safeSet(
+                toPatch::setForceS256CodeChallengeMethod, this.getForceS256CodeChallengeMethod());
         SetterUtils.safeSet(toPatch::setPostLogoutRedirectUris, this.getPostLogoutRedirectUris());
         SetterUtils.safeSet(toPatch::setSingleSignOut, this.getSingleSignOut());
         SetterUtils.safeSet(toPatch::setSilentReAuthentication, this.getSilentReAuthentication());
-        SetterUtils.safeSet(toPatch::setDisableRefreshTokenRotation, this.getDisableRefreshTokenRotation());
+        SetterUtils.safeSet(
+                toPatch::setDisableRefreshTokenRotation, this.getDisableRefreshTokenRotation());
         if (this.getScopeSettings() != null && this.getScopeSettings().isPresent()) {
             toPatch.setScopeSettings(this.getScopeSettings().get());
         }

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.service.scope.impl;
@@ -27,6 +25,7 @@ import io.gravitee.am.service.ScopeService;
 import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -44,19 +43,17 @@ import java.util.concurrent.ConcurrentMap;
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class ScopeManagerImpl extends AbstractService implements ScopeManager, InitializingBean, EventListener<ScopeEvent, Payload> {
+public class ScopeManagerImpl extends AbstractService
+        implements ScopeManager, InitializingBean, EventListener<ScopeEvent, Payload> {
 
     private static final Logger logger = LoggerFactory.getLogger(ScopeManagerImpl.class);
     private ConcurrentMap<String, Scope> scopes = new ConcurrentHashMap<>();
 
-    @Autowired
-    private ScopeService scopeService;
+    @Autowired private ScopeService scopeService;
 
-    @Autowired
-    private Domain domain;
+    @Autowired private Domain domain;
 
-    @Autowired
-    private EventManager eventManager;
+    @Autowired private EventManager eventManager;
 
     @Deprecated
     @Value("${legacy.openid.always_enhance_scopes:false}")
@@ -65,17 +62,21 @@ public class ScopeManagerImpl extends AbstractService implements ScopeManager, I
     @Override
     public void afterPropertiesSet() {
         logger.info("Initializing scopes for domain {}", domain.getName());
-        scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE)
+        scopeService
+                .findByDomain(domain.getId(), 0, Integer.MAX_VALUE)
                 .subscribe(
                         scopes -> {
                             updateScopes(scopes);
                             logger.info("Scopes loaded for domain {}", domain.getName());
                         },
-                        error -> logger.error("Unable to initialize scopes for domain {}", domain.getName(), error));
+                        error ->
+                                logger.error(
+                                        "Unable to initialize scopes for domain {}",
+                                        domain.getName(),
+                                        error));
 
         logger.info("Register event listener for scopes events for domain {}", domain.getName());
         eventManager.subscribeForEvents(this, ScopeEvent.class, domain.getId());
-
     }
 
     @Override
@@ -88,7 +89,8 @@ public class ScopeManagerImpl extends AbstractService implements ScopeManager, I
 
     @Override
     public void onEvent(Event<ScopeEvent, Payload> event) {
-        if (event.content().getReferenceType() == ReferenceType.DOMAIN && domain.getId().equals(event.content().getReferenceId())) {
+        if (event.content().getReferenceType() == ReferenceType.DOMAIN
+                && domain.getId().equals(event.content().getReferenceId())) {
             switch (event.type()) {
                 case DEPLOY:
                 case UPDATE:
@@ -112,43 +114,66 @@ public class ScopeManagerImpl extends AbstractService implements ScopeManager, I
     }
 
     private void updateScopes(Set<Scope> scopes) {
-        scopes
-                .stream()
-                .forEach(scope -> {
-                    this.scopes.put(scope.getKey(), scope);
-                    logger.info("Scope {} loaded for domain {}", scope.getKey(), domain.getName());
-                });
+        scopes.stream()
+                .forEach(
+                        scope -> {
+                            this.scopes.put(scope.getKey(), scope);
+                            logger.info(
+                                    "Scope {} loaded for domain {}",
+                                    scope.getKey(),
+                                    domain.getName());
+                        });
     }
 
     private void updateScopes(Page<Scope> scopes) {
-        scopes.getData()
-                .stream()
-                .forEach(scope -> {
-                    this.scopes.put(scope.getKey(), scope);
-                    logger.info("Scope {} loaded for domain {}", scope.getKey(), domain.getName());
-                });
+        scopes.getData().stream()
+                .forEach(
+                        scope -> {
+                            this.scopes.put(scope.getKey(), scope);
+                            logger.info(
+                                    "Scope {} loaded for domain {}",
+                                    scope.getKey(),
+                                    domain.getName());
+                        });
     }
 
     private void updateScope(String scopeId, ScopeEvent scopeEvent) {
         final String eventType = scopeEvent.toString().toLowerCase();
-        logger.info("Domain {} has received {} scope event for {}", domain.getName(), eventType, scopeId);
-        scopeService.findById(scopeId)
+        logger.info(
+                "Domain {} has received {} scope event for {}",
+                domain.getName(),
+                eventType,
+                scopeId);
+        scopeService
+                .findById(scopeId)
                 .subscribe(
                         scope -> {
                             updateScopes(Collections.singleton(scope));
-                            logger.info("Scope {} {}d for domain {}", scopeId, eventType, domain.getName());
+                            logger.info(
+                                    "Scope {} {}d for domain {}",
+                                    scopeId,
+                                    eventType,
+                                    domain.getName());
                         },
-                        error -> logger.error("Unable to {} scope for domain {}", eventType, domain.getName(), error),
+                        error ->
+                                logger.error(
+                                        "Unable to {} scope for domain {}",
+                                        eventType,
+                                        domain.getName(),
+                                        error),
                         () -> logger.error("No scope found with id {}", scopeId));
     }
 
     private void removeScope(String scopeId) {
-        logger.info("Domain {} has received scope event, delete scope {}", domain.getName(), scopeId);
+        logger.info(
+                "Domain {} has received scope event, delete scope {}", domain.getName(), scopeId);
         scopes.values().removeIf(scope -> scopeId.equals(scope.getId()));
     }
 
     public boolean isParameterizedScope(String scopeKey) {
-        return Optional.ofNullable(this.scopes.get(scopeKey)).map(scope -> scope.isParameterized()).orElse(false);
+        return Optional.ofNullable(this.scopes.get(scopeKey))
+                .map(scope -> scope.isParameterized())
+                .orElse(false);
     }
 
     @Override

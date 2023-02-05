@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.identityprovider.ldap.common.authentication;
@@ -18,6 +16,7 @@ package io.gravitee.am.identityprovider.ldap.common.authentication;
 import io.gravitee.am.identityprovider.ldap.common.authentication.encoding.BinaryToTextEncoder;
 import io.gravitee.am.identityprovider.ldap.common.authentication.encoding.PasswordEncoder;
 import io.gravitee.am.identityprovider.ldap.common.config.LdapProviderConfiguration;
+
 import org.ldaptive.*;
 import org.ldaptive.auth.AuthenticationCriteria;
 import org.ldaptive.auth.AuthenticationHandlerResponse;
@@ -42,7 +41,11 @@ public class CompareAuthenticationHandler extends PooledCompareAuthenticationHan
         super(cf);
     }
 
-    public CompareAuthenticationHandler(PooledConnectionFactory connectionFactory, PasswordEncoder passwordEncoder, BinaryToTextEncoder binaryToTextEncoder, LdapProviderConfiguration configuration) {
+    public CompareAuthenticationHandler(
+            PooledConnectionFactory connectionFactory,
+            PasswordEncoder passwordEncoder,
+            BinaryToTextEncoder binaryToTextEncoder,
+            LdapProviderConfiguration configuration) {
         this(connectionFactory);
         this.passwordEncoder = passwordEncoder;
         this.binaryToTextEncoder = binaryToTextEncoder;
@@ -51,40 +54,40 @@ public class CompareAuthenticationHandler extends PooledCompareAuthenticationHan
 
     @Override
     protected AuthenticationHandlerResponse authenticateInternal(
-            final Connection c,
-            final AuthenticationCriteria criteria)
-            throws LdapException
-    {
+            final Connection c, final AuthenticationCriteria criteria) throws LdapException {
         final byte[] hash = passwordEncoder.digestCredential(criteria.getCredential());
         String encodedHash = binaryToTextEncoder.encode(hash);
-        String encodedHashValue = configuration.isHashEncodedByThirdParty() ? encodedHash : String.format("{%s}%s", passwordEncoder.getPasswordSchemeLabel(), encodedHash);
+        String encodedHashValue =
+                configuration.isHashEncodedByThirdParty()
+                        ? encodedHash
+                        : String.format(
+                                "{%s}%s", passwordEncoder.getPasswordSchemeLabel(), encodedHash);
 
-        final LdapAttribute la = new LdapAttribute(getPasswordAttribute(), encodedHashValue.getBytes());
+        final LdapAttribute la =
+                new LdapAttribute(getPasswordAttribute(), encodedHashValue.getBytes());
         final CompareOperation compare = new CompareOperation(c);
         final CompareRequest request = new CompareRequest(criteria.getDn(), la);
         request.setControls(processRequestControls(criteria));
 
         final Response<Boolean> compareResponse = compare.execute(request);
-        return
-                new AuthenticationHandlerResponse(
-                        compareResponse.getResult(),
-                        compareResponse.getResultCode(),
-                        c,
-                        compareResponse.getMessage(),
-                        compareResponse.getControls(),
-                        compareResponse.getMessageId());
+        return new AuthenticationHandlerResponse(
+                compareResponse.getResult(),
+                compareResponse.getResultCode(),
+                c,
+                compareResponse.getMessage(),
+                compareResponse.getControls(),
+                compareResponse.getMessageId());
     }
 
     @Override
     public String toString() {
-        return
-                String.format(
-                        "[%s@%d::factory=%s, passwordAttribute=%s, passwordScheme=%s, controls=%s]",
-                        getClass().getName(),
-                        hashCode(),
-                        getConnectionFactory(),
-                        getPasswordAttribute(),
-                        passwordEncoder.getPasswordSchemeLabel(),
-                        Arrays.toString(getAuthenticationControls()));
+        return String.format(
+                "[%s@%d::factory=%s, passwordAttribute=%s, passwordScheme=%s, controls=%s]",
+                getClass().getName(),
+                hashCode(),
+                getConnectionFactory(),
+                getPasswordAttribute(),
+                passwordEncoder.getPasswordSchemeLabel(),
+                Arrays.toString(getAuthenticationControls()));
     }
 }

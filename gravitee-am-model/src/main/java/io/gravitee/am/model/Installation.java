@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.model;
@@ -31,31 +29,21 @@ public class Installation {
     public static final String COCKPIT_URL = "COCKPIT_URL";
     public static final String COCKPIT_INSTALLATION_STATUS = "COCKPIT_INSTALLATION_STATUS";
 
-    /**
-     * Auto generated id.
-     * This id is generated at the first startup time.
-     */
+    /** Auto generated id. This id is generated at the first startup time. */
     private String id;
 
-    /**
-     * Additional information about this installation.
-     */
+    /** Additional information about this installation. */
     private Map<String, String> additionalInformation = new HashMap<>();
 
-    /**
-     * Creation date.
-     */
+    /** Creation date. */
     @ApiModelProperty(dataType = "java.lang.Long")
     private Date createdAt;
 
-    /**
-     * Last update date.
-     */
+    /** Last update date. */
     @ApiModelProperty(dataType = "java.lang.Long")
     private Date updatedAt;
 
-    public Installation() {
-    }
+    public Installation() {}
 
     public Installation(Installation other) {
 
@@ -64,7 +52,6 @@ public class Installation {
         this.createdAt = other.createdAt;
         this.updatedAt = other.updatedAt;
     }
-
 
     public String getId() {
         return id;

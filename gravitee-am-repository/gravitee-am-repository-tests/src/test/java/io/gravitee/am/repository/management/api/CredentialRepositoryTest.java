@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
@@ -21,6 +19,7 @@ import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,8 +32,7 @@ import java.util.UUID;
  */
 public class CredentialRepositoryTest extends AbstractManagementTest {
 
-    @Autowired
-    private CredentialRepository credentialRepository;
+    @Autowired private CredentialRepository credentialRepository;
 
     @Test
     public void findByUserId() throws TechnicalException {
@@ -43,8 +41,13 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         credentialRepository.create(credential).blockingGet();
 
         // fetch credentials
-        TestSubscriber<Credential> testObserver = credentialRepository
-                .findByUserId(credential.getReferenceType(), credential.getReferenceId(), credential.getUserId()).test();
+        TestSubscriber<Credential> testObserver =
+                credentialRepository
+                        .findByUserId(
+                                credential.getReferenceType(),
+                                credential.getReferenceId(),
+                                credential.getUserId())
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -59,8 +62,13 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         credentialRepository.create(credential).blockingGet();
 
         // fetch credentials
-        TestSubscriber<Credential> testSubscriber = credentialRepository
-                .findByUsername(credential.getReferenceType(), credential.getReferenceId(), credential.getUsername()).test();
+        TestSubscriber<Credential> testSubscriber =
+                credentialRepository
+                        .findByUsername(
+                                credential.getReferenceType(),
+                                credential.getReferenceId(),
+                                credential.getUsername())
+                        .test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -75,8 +83,13 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         credentialRepository.create(credential).blockingGet();
 
         // fetch credentials
-        TestSubscriber<Credential> testSubscriber = credentialRepository
-                .findByCredentialId(credential.getReferenceType(), credential.getReferenceId(), credential.getCredentialId()).test();
+        TestSubscriber<Credential> testSubscriber =
+                credentialRepository
+                        .findByCredentialId(
+                                credential.getReferenceType(),
+                                credential.getReferenceId(),
+                                credential.getCredentialId())
+                        .test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -89,13 +102,13 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         credential.setReferenceType(ReferenceType.DOMAIN);
         credential.setReferenceId("domainId");
         String randomStr = UUID.randomUUID().toString();
-        credential.setCredentialId("cred"+ randomStr);
-        credential.setUserId("uid"+ randomStr);
-        credential.setUsername("uname"+ randomStr);
-        credential.setPublicKey("pub"+ randomStr);
+        credential.setCredentialId("cred" + randomStr);
+        credential.setUserId("uid" + randomStr);
+        credential.setUsername("uname" + randomStr);
+        credential.setPublicKey("pub" + randomStr);
         credential.setAccessedAt(new Date());
-        credential.setUserAgent("uagent"+ randomStr);
-        credential.setIpAddress("ip"+ randomStr);
+        credential.setUserAgent("uagent" + randomStr);
+        credential.setIpAddress("ip" + randomStr);
         return credential;
     }
 
@@ -106,7 +119,8 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         Credential credentialCreated = credentialRepository.create(credential).blockingGet();
 
         // fetch credential
-        TestObserver<Credential> testObserver = credentialRepository.findById(credentialCreated.getId()).test();
+        TestObserver<Credential> testObserver =
+                credentialRepository.findById(credentialCreated.getId()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -150,12 +164,14 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         updateCredential.setId(credentialCreated.getId());
         updateCredential.setCredentialId("updateCredentialId");
 
-        TestObserver<Credential> testObserver = credentialRepository.update(updateCredential).test();
+        TestObserver<Credential> testObserver =
+                credentialRepository.update(updateCredential).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        testObserver.assertValue(c -> c.getCredentialId().equals(updateCredential.getCredentialId()));
+        testObserver.assertValue(
+                c -> c.getCredentialId().equals(updateCredential.getCredentialId()));
     }
 
     @Test
@@ -165,11 +181,13 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         Credential credentialCreated = credentialRepository.create(credential).blockingGet();
 
         // fetch credential
-        TestObserver<Credential> testObserver = credentialRepository.findById(credentialCreated.getId()).test();
+        TestObserver<Credential> testObserver =
+                credentialRepository.findById(credentialCreated.getId()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        testObserver.assertValue(c -> c.getCredentialId().equals(credentialCreated.getCredentialId()));
+        testObserver.assertValue(
+                c -> c.getCredentialId().equals(credentialCreated.getCredentialId()));
 
         // delete credential
         TestObserver testObserver1 = credentialRepository.delete(credentialCreated.getId()).test();
@@ -190,19 +208,29 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         Credential credentialCreated = credentialRepository.create(credential).blockingGet();
 
         // fetch credential
-        TestSubscriber<Credential> testSubscriber = credentialRepository.findByUserId(ReferenceType.DOMAIN, "domain-id", "user-id").test();
+        TestSubscriber<Credential> testSubscriber =
+                credentialRepository
+                        .findByUserId(ReferenceType.DOMAIN, "domain-id", "user-id")
+                        .test();
         testSubscriber.awaitTerminalEvent();
         testSubscriber.assertComplete();
         testSubscriber.assertNoErrors();
         testSubscriber.assertValueCount(1);
-        testSubscriber.assertValue(c -> c.getCredentialId().equals(credentialCreated.getCredentialId()));
+        testSubscriber.assertValue(
+                c -> c.getCredentialId().equals(credentialCreated.getCredentialId()));
 
         // delete credential
-        TestObserver testObserver1 = credentialRepository.deleteByUserId(ReferenceType.DOMAIN, "domain-id", "user-id").test();
+        TestObserver testObserver1 =
+                credentialRepository
+                        .deleteByUserId(ReferenceType.DOMAIN, "domain-id", "user-id")
+                        .test();
         testObserver1.awaitTerminalEvent();
 
         // fetch credential
-        TestSubscriber<Credential> testSubscriber2 = credentialRepository.findByUserId(ReferenceType.DOMAIN, "domain-id", "user-id").test();
+        TestSubscriber<Credential> testSubscriber2 =
+                credentialRepository
+                        .findByUserId(ReferenceType.DOMAIN, "domain-id", "user-id")
+                        .test();
         testSubscriber2.awaitTerminalEvent();
         testSubscriber2.assertComplete();
         testSubscriber2.assertNoErrors();
@@ -220,24 +248,35 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         Credential credentialCreated = credentialRepository.create(credential).blockingGet();
 
         // fetch credential
-        TestSubscriber<Credential> testSubscriber = credentialRepository.findByUserId(ReferenceType.DOMAIN, "domain-id", "user-id").test();
+        TestSubscriber<Credential> testSubscriber =
+                credentialRepository
+                        .findByUserId(ReferenceType.DOMAIN, "domain-id", "user-id")
+                        .test();
         testSubscriber.awaitTerminalEvent();
         testSubscriber.assertComplete();
         testSubscriber.assertNoErrors();
         testSubscriber.assertValueCount(1);
-        testSubscriber.assertValue(c -> c.getCredentialId().equals(credentialCreated.getCredentialId()));
+        testSubscriber.assertValue(
+                c -> c.getCredentialId().equals(credentialCreated.getCredentialId()));
 
         // delete credential
-        TestObserver testObserver1 = credentialRepository.deleteByUserId(ReferenceType.DOMAIN, "domain-id", "wrong-user-id").test();
+        TestObserver testObserver1 =
+                credentialRepository
+                        .deleteByUserId(ReferenceType.DOMAIN, "domain-id", "wrong-user-id")
+                        .test();
         testObserver1.awaitTerminalEvent();
 
         // fetch credential
-        TestSubscriber<Credential> testSubscriber2 = credentialRepository.findByUserId(ReferenceType.DOMAIN, "domain-id", "user-id").test();
+        TestSubscriber<Credential> testSubscriber2 =
+                credentialRepository
+                        .findByUserId(ReferenceType.DOMAIN, "domain-id", "user-id")
+                        .test();
         testSubscriber2.awaitTerminalEvent();
         testSubscriber2.assertComplete();
         testSubscriber2.assertNoErrors();
         testSubscriber.assertValueCount(1);
-        testSubscriber.assertValue(c -> c.getCredentialId().equals(credentialCreated.getCredentialId()));
+        testSubscriber.assertValue(
+                c -> c.getCredentialId().equals(credentialCreated.getCredentialId()));
     }
 
     @Test
@@ -257,18 +296,25 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         credentialRepository.create(credential2).blockingGet();
 
         // fetch credential
-        TestSubscriber<Credential> testSubscriber = credentialRepository.findByUserId(ReferenceType.DOMAIN, "domain-id", "user-id").test();
+        TestSubscriber<Credential> testSubscriber =
+                credentialRepository
+                        .findByUserId(ReferenceType.DOMAIN, "domain-id", "user-id")
+                        .test();
         testSubscriber.awaitTerminalEvent();
         testSubscriber.assertComplete();
         testSubscriber.assertNoErrors();
         testSubscriber.assertValueCount(2);
 
         // delete credentials
-        TestObserver testObserver1 = credentialRepository.deleteByReference(ReferenceType.DOMAIN, "domain-id").test();
+        TestObserver testObserver1 =
+                credentialRepository.deleteByReference(ReferenceType.DOMAIN, "domain-id").test();
         testObserver1.awaitTerminalEvent();
 
         // fetch credential
-        TestSubscriber<Credential> testSubscriber2 = credentialRepository.findByUserId(ReferenceType.DOMAIN, "domain-id", "user-id").test();
+        TestSubscriber<Credential> testSubscriber2 =
+                credentialRepository
+                        .findByUserId(ReferenceType.DOMAIN, "domain-id", "user-id")
+                        .test();
         testSubscriber2.awaitTerminalEvent();
         testSubscriber2.assertComplete();
         testSubscriber2.assertNoErrors();

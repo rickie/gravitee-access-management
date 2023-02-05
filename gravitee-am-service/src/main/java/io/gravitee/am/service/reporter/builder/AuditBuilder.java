@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.reporter.builder;
+
+import static com.fasterxml.jackson.core.JsonToken.VALUE_EMBEDDED_OBJECT;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ContainerNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.diff.JsonDiff;
+
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.common.audit.Status;
 import io.gravitee.am.common.utils.RandomString;
@@ -33,8 +34,6 @@ import io.gravitee.am.reporter.api.audit.model.AuditOutcome;
 
 import java.time.Instant;
 import java.util.Arrays;
-
-import static com.fasterxml.jackson.core.JsonToken.VALUE_EMBEDDED_OBJECT;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -148,7 +147,13 @@ public abstract class AuditBuilder<T> {
         return type;
     }
 
-    protected void setActor(String actorId, String actorType, String actorAlternativeId, String actorDisplayName, ReferenceType actorReferenceType, String actorReferenceId) {
+    protected void setActor(
+            String actorId,
+            String actorType,
+            String actorAlternativeId,
+            String actorDisplayName,
+            ReferenceType actorReferenceType,
+            String actorReferenceId) {
         this.actorId = actorId;
         this.actorType = actorType;
         this.actorAlternativeId = actorAlternativeId;
@@ -157,7 +162,13 @@ public abstract class AuditBuilder<T> {
         this.actorReferenceId = actorReferenceId;
     }
 
-    protected void setTarget(String targetId, String targetType, String targetAlternativeId, String targetDisplayName, ReferenceType targetReferenceType, String targetReferenceId) {
+    protected void setTarget(
+            String targetId,
+            String targetType,
+            String targetAlternativeId,
+            String targetDisplayName,
+            ReferenceType targetReferenceType,
+            String targetReferenceId) {
         this.targetId = targetId;
         this.targetType = targetType;
         this.targetAlternativeId = targetAlternativeId;
@@ -224,19 +235,39 @@ public abstract class AuditBuilder<T> {
             if (newValue != null || oldValue != null) {
                 ContainerNode oldNode;
                 ContainerNode newNode;
-                if (EventType.USER_CONSENT_CONSENTED.equals(type) || EventType.USER_CONSENT_REVOKED.equals(type)) {
+                if (EventType.USER_CONSENT_CONSENTED.equals(type)
+                        || EventType.USER_CONSENT_REVOKED.equals(type)) {
                     oldNode = mapper.createArrayNode();
                     newNode = mapper.createArrayNode();
-                    mapper.convertValue(newValue, ArrayNode.class).forEach(jsonNode -> {
-                        ((ArrayNode) newNode).add(((ObjectNode) jsonNode).remove(Arrays.asList("updatedAt", "createdAt", "expiresAt", "userId", "domain")));
-                    });
+                    mapper.convertValue(newValue, ArrayNode.class)
+                            .forEach(
+                                    jsonNode -> {
+                                        ((ArrayNode) newNode)
+                                                .add(
+                                                        ((ObjectNode) jsonNode)
+                                                                .remove(
+                                                                        Arrays.asList(
+                                                                                "updatedAt",
+                                                                                "createdAt",
+                                                                                "expiresAt",
+                                                                                "userId",
+                                                                                "domain")));
+                                    });
                 } else {
-                    oldNode = oldValue == null
-                            ? mapper.createObjectNode()
-                            : mapper.convertValue(oldValue, ObjectNode.class).remove(Arrays.asList("updatedAt", "createdAt", "lastEvent"));
-                    newNode = newValue == null
-                            ? mapper.createObjectNode()
-                            : mapper.convertValue(newValue, ObjectNode.class).remove(Arrays.asList("updatedAt", "createdAt", "lastEvent"));
+                    oldNode =
+                            oldValue == null
+                                    ? mapper.createObjectNode()
+                                    : mapper.convertValue(oldValue, ObjectNode.class)
+                                            .remove(
+                                                    Arrays.asList(
+                                                            "updatedAt", "createdAt", "lastEvent"));
+                    newNode =
+                            newValue == null
+                                    ? mapper.createObjectNode()
+                                    : mapper.convertValue(newValue, ObjectNode.class)
+                                            .remove(
+                                                    Arrays.asList(
+                                                            "updatedAt", "createdAt", "lastEvent"));
                 }
                 clean(oldNode, null, null);
                 clean(newNode, null, null);

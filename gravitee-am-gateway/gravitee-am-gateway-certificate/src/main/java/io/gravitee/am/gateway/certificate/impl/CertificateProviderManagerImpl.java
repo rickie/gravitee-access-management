@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.certificate.impl;
@@ -24,6 +22,11 @@ import io.gravitee.am.jwt.NoJWTParser;
 import io.gravitee.am.model.Certificate;
 import io.gravitee.am.plugins.certificate.core.CertificatePluginManager;
 import io.gravitee.am.plugins.certificate.core.CertificateProviderConfiguration;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -31,9 +34,6 @@ import java.security.PublicKey;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -41,11 +41,12 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class CertificateProviderManagerImpl implements CertificateProviderManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(CertificateProviderManagerImpl.class);
-    private final ConcurrentMap<String, CertificateProvider> certificateProviders = new ConcurrentHashMap<>();
+    private static final Logger logger =
+            LoggerFactory.getLogger(CertificateProviderManagerImpl.class);
+    private final ConcurrentMap<String, CertificateProvider> certificateProviders =
+            new ConcurrentHashMap<>();
 
-    @Autowired
-    private CertificatePluginManager certificatePluginManager;
+    @Autowired private CertificatePluginManager certificatePluginManager;
 
     @Override
     public void create(Certificate certificate) {
@@ -82,11 +83,15 @@ public class CertificateProviderManagerImpl implements CertificateProviderManage
             if (keyValue instanceof KeyPair) {
                 PrivateKey privateKey = ((KeyPair) keyValue).getPrivate();
                 PublicKey publicKey = ((KeyPair) keyValue).getPublic();
-                certificateProvider.setJwtBuilder(new DefaultJWTBuilder(privateKey, provider.signatureAlgorithm(), providerKey.getKeyId()));
+                certificateProvider.setJwtBuilder(
+                        new DefaultJWTBuilder(
+                                privateKey, provider.signatureAlgorithm(), providerKey.getKeyId()));
                 certificateProvider.setJwtParser(new DefaultJWTParser(publicKey));
             } else {
                 Key sharedKey = (Key) keyValue;
-                certificateProvider.setJwtBuilder(new DefaultJWTBuilder(sharedKey, provider.signatureAlgorithm(), providerKey.getKeyId()));
+                certificateProvider.setJwtBuilder(
+                        new DefaultJWTBuilder(
+                                sharedKey, provider.signatureAlgorithm(), providerKey.getKeyId()));
                 certificateProvider.setJwtParser(new DefaultJWTParser(sharedKey));
             }
         } catch (UnsupportedOperationException ex) {
@@ -103,7 +108,8 @@ public class CertificateProviderManagerImpl implements CertificateProviderManage
     private void deploy(Certificate certificate) {
         // create underline provider
         var providerConfig = new CertificateProviderConfiguration(certificate);
-        io.gravitee.am.certificate.api.CertificateProvider provider = certificatePluginManager.create(providerConfig);
+        io.gravitee.am.certificate.api.CertificateProvider provider =
+                certificatePluginManager.create(providerConfig);
         // create certificate provider
         if (provider != null) {
             CertificateProvider certificateProvider = create(provider);

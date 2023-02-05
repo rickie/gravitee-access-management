@@ -1,21 +1,32 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.service;
 
+import static io.gravitee.am.management.service.impl.notifications.NotificationDefinitionUtils.TYPE_EMAIL_NOTIFIER;
+import static io.gravitee.am.management.service.impl.notifications.NotificationDefinitionUtils.TYPE_UI_NOTIFIER;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.gravitee.am.common.email.Email;
 import io.gravitee.am.management.service.impl.DomainNotifierServiceImpl;
 import io.gravitee.am.management.service.impl.notifications.EmailNotifierConfiguration;
@@ -40,6 +51,7 @@ import io.gravitee.node.api.notifier.NotifierService;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,17 +67,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static io.gravitee.am.management.service.impl.notifications.NotificationDefinitionUtils.TYPE_EMAIL_NOTIFIER;
-import static io.gravitee.am.management.service.impl.notifications.NotificationDefinitionUtils.TYPE_UI_NOTIFIER;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.argThat;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
@@ -77,41 +78,29 @@ public class DomainNotificationServiceTest {
     public static final String ORGANIZATION_ID = "org-" + DOMAIN_ID;
     public static final String ENV_ID = "env-" + DOMAIN_ID;
 
-    @InjectMocks
-    private DomainNotifierServiceImpl cut;
+    @InjectMocks private DomainNotifierServiceImpl cut;
 
-    @Mock
-    private NotifierService notifierService;
+    @Mock private NotifierService notifierService;
 
-    @Mock
-    private MembershipService membershipService;
+    @Mock private MembershipService membershipService;
 
-    @Mock
-    private EnvironmentService environmentService;
+    @Mock private EnvironmentService environmentService;
 
-    @Mock
-    private DomainService domainService;
+    @Mock private DomainService domainService;
 
-    @Mock
-    private RoleService roleService;
+    @Mock private RoleService roleService;
 
-    @Mock
-    private GroupService groupService;
+    @Mock private GroupService groupService;
 
-    @Mock
-    private OrganizationUserService userService;
+    @Mock private OrganizationUserService userService;
 
-    @Mock
-    private EmailNotifierConfiguration emailConfiguration;
+    @Mock private EmailNotifierConfiguration emailConfiguration;
 
-    @Mock
-    private EmailService emailService;
+    @Mock private EmailService emailService;
 
-    @Mock
-    private ObjectMapper mapper;
+    @Mock private ObjectMapper mapper;
 
-    @Mock
-    private org.springframework.core.env.Environment propertiesEnv;
+    @Mock private org.springframework.core.env.Environment propertiesEnv;
 
     private Certificate certificate;
     private Domain domain;
@@ -119,7 +108,10 @@ public class DomainNotificationServiceTest {
 
     @Before
     public void prepareTest() throws Exception {
-        when(propertiesEnv.getProperty("services.certificate.expiryThresholds", String.class, DomainNotifierServiceImpl.DEFAULT_CERTIFICATE_EXPIRY_THRESHOLDS))
+        when(propertiesEnv.getProperty(
+                        "services.certificate.expiryThresholds",
+                        String.class,
+                        DomainNotifierServiceImpl.DEFAULT_CERTIFICATE_EXPIRY_THRESHOLDS))
                 .thenReturn(DomainNotifierServiceImpl.DEFAULT_CERTIFICATE_EXPIRY_THRESHOLDS);
         ReflectionTestUtils.setField(cut, "emailNotifierEnabled", true);
         env = new Environment();
@@ -140,10 +132,13 @@ public class DomainNotificationServiceTest {
 
         final Role role = new Role();
         role.setId("role#1");
-        when(roleService.findSystemRole(SystemRole.DOMAIN_PRIMARY_OWNER, ReferenceType.DOMAIN)).thenReturn(Maybe.just(role));
+        when(roleService.findSystemRole(SystemRole.DOMAIN_PRIMARY_OWNER, ReferenceType.DOMAIN))
+                .thenReturn(Maybe.just(role));
         final Role role2 = new Role();
         role2.setId("role#2");
-        when(roleService.findDefaultRole(ORGANIZATION_ID, DefaultRole.DOMAIN_OWNER, ReferenceType.DOMAIN)).thenReturn(Maybe.just(role2));
+        when(roleService.findDefaultRole(
+                        ORGANIZATION_ID, DefaultRole.DOMAIN_OWNER, ReferenceType.DOMAIN))
+                .thenReturn(Maybe.just(role2));
 
         cut.afterPropertiesSet();
     }
@@ -158,13 +153,17 @@ public class DomainNotificationServiceTest {
         final Membership member = new Membership();
         member.setMemberType(MemberType.USER);
         member.setMemberId("userid");
-        when(membershipService.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any())).thenReturn(Flowable.just(member), Flowable.empty());
+        when(membershipService.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any()))
+                .thenReturn(Flowable.just(member), Flowable.empty());
 
         final User user = new User();
         user.setEmail("user@acme.fr");
-        when(userService.findById(ReferenceType.ORGANIZATION, env.getOrganizationId(), member.getMemberId())).thenReturn(Single.just(user));
+        when(userService.findById(
+                        ReferenceType.ORGANIZATION, env.getOrganizationId(), member.getMemberId()))
+                .thenReturn(Single.just(user));
 
-        when(emailService.getFinalEmail(any(), any(), any(), any(), any())).thenReturn(Maybe.just(new Email()));
+        when(emailService.getFinalEmail(any(), any(), any(), any(), any()))
+                .thenReturn(Maybe.just(new Email()));
 
         cut.registerCertificateExpiration(certificate);
 
@@ -181,20 +180,26 @@ public class DomainNotificationServiceTest {
         final Membership member = new Membership();
         member.setMemberType(MemberType.USER);
         member.setMemberId("userid");
-        when(membershipService.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any())).thenReturn(Flowable.just(member), Flowable.empty());
+        when(membershipService.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any()))
+                .thenReturn(Flowable.just(member), Flowable.empty());
 
         final User user = new User();
         user.setEmail("user@acme.fr");
-        when(userService.findById(ReferenceType.ORGANIZATION, env.getOrganizationId(), member.getMemberId())).thenReturn(Single.just(user));
+        when(userService.findById(
+                        ReferenceType.ORGANIZATION, env.getOrganizationId(), member.getMemberId()))
+                .thenReturn(Single.just(user));
 
-        when(emailService.getFinalEmail(any(), any(), any(), any(), any())).thenReturn(Maybe.just(new Email()));
+        when(emailService.getFinalEmail(any(), any(), any(), any(), any()))
+                .thenReturn(Maybe.just(new Email()));
 
         cut.registerCertificateExpiration(certificate);
 
         Thread.sleep(1000); // wait subscription execution
 
-        verify(notifierService).register(argThat(def -> def.getType().equals(TYPE_UI_NOTIFIER)), any(), any());
-        verify(notifierService).register(argThat(def -> def.getType().equals(TYPE_EMAIL_NOTIFIER)), any(), any());
+        verify(notifierService)
+                .register(argThat(def -> def.getType().equals(TYPE_UI_NOTIFIER)), any(), any());
+        verify(notifierService)
+                .register(argThat(def -> def.getType().equals(TYPE_EMAIL_NOTIFIER)), any(), any());
         verify(groupService, never()).findMembers(any(), any(), any(), anyInt(), anyInt());
     }
 
@@ -203,23 +208,30 @@ public class DomainNotificationServiceTest {
         final Membership member = new Membership();
         member.setMemberType(MemberType.GROUP);
         member.setMemberId("groupId");
-        when(membershipService.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any())).thenReturn(Flowable.just(member), Flowable.empty());
+        when(membershipService.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any()))
+                .thenReturn(Flowable.just(member), Flowable.empty());
 
-        final List<User> tenUsers = IntStream.range(0, 10).mapToObj(x -> {
-            final User user = new User();
-            user.setId("" + x);
-            user.setEmail(x+"@acme.fr");
-            return user;
-        }).collect(Collectors.toList());
+        final List<User> tenUsers =
+                IntStream.range(0, 10)
+                        .mapToObj(
+                                x -> {
+                                    final User user = new User();
+                                    user.setId("" + x);
+                                    user.setEmail(x + "@acme.fr");
+                                    return user;
+                                })
+                        .collect(Collectors.toList());
         final User singleUser = new User();
         singleUser.setId("single");
         singleUser.setEmail("single@acme.fr");
 
-        when(groupService.findMembers(any(), any(), any(), anyInt(), anyInt())).thenReturn(
-                Single.just(new Page<>(tenUsers, 0, 11)),
-                Single.just(new Page<>(Arrays.asList(singleUser), 1, 11)));
+        when(groupService.findMembers(any(), any(), any(), anyInt(), anyInt()))
+                .thenReturn(
+                        Single.just(new Page<>(tenUsers, 0, 11)),
+                        Single.just(new Page<>(Arrays.asList(singleUser), 1, 11)));
 
-        when(emailService.getFinalEmail(any(), any(), any(), any(), any())).thenReturn(Maybe.just(new Email()));
+        when(emailService.getFinalEmail(any(), any(), any(), any(), any()))
+                .thenReturn(Maybe.just(new Email()));
 
         cut.registerCertificateExpiration(certificate);
 
@@ -227,6 +239,5 @@ public class DomainNotificationServiceTest {
 
         verify(notifierService, times(11)).register(any(), any(), any());
         verify(userService, never()).findById(any(), any(), any());
-
     }
 }

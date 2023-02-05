@@ -1,22 +1,26 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.or;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.User;
@@ -37,6 +41,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
@@ -48,16 +53,12 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.in;
-import static com.mongodb.client.model.Filters.or;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
-public abstract class AbstractUserRepository<T extends UserMongo> extends AbstractManagementMongoRepository implements CommonUserRepository {
+public abstract class AbstractUserRepository<T extends UserMongo>
+        extends AbstractManagementMongoRepository implements CommonUserRepository {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     protected static final String FIELD_USERNAME = "username";
     protected static final String FIELD_DISPLAY_NAME = "displayName";
@@ -75,114 +76,227 @@ public abstract class AbstractUserRepository<T extends UserMongo> extends Abstra
     protected void initCollection(String collectionName) {
         usersCollection = mongoOperations.getCollection(collectionName, getMongoClass());
         super.init(usersCollection);
-        super.createIndex(usersCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1));
-        super.createIndex(usersCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_EMAIL, 1));
-        super.createIndex(usersCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_EMAIL_CLAIM, 1));
-        super.createIndex(usersCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_USERNAME, 1));
-        super.createIndex(usersCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_DISPLAY_NAME, 1));
-        super.createIndex(usersCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_FIRST_NAME, 1));
-        super.createIndex(usersCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_LAST_NAME, 1));
-        super.createIndex(usersCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_EXTERNAL_ID, 1));
-        super.createIndex(usersCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_USERNAME, 1).append(FIELD_SOURCE, 1));
-        super.createIndex(usersCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_EXTERNAL_ID, 1).append(FIELD_SOURCE, 1));
+        super.createIndex(
+                usersCollection,
+                new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1));
+        super.createIndex(
+                usersCollection,
+                new Document(FIELD_REFERENCE_TYPE, 1)
+                        .append(FIELD_REFERENCE_ID, 1)
+                        .append(FIELD_EMAIL, 1));
+        super.createIndex(
+                usersCollection,
+                new Document(FIELD_REFERENCE_TYPE, 1)
+                        .append(FIELD_REFERENCE_ID, 1)
+                        .append(FIELD_EMAIL_CLAIM, 1));
+        super.createIndex(
+                usersCollection,
+                new Document(FIELD_REFERENCE_TYPE, 1)
+                        .append(FIELD_REFERENCE_ID, 1)
+                        .append(FIELD_USERNAME, 1));
+        super.createIndex(
+                usersCollection,
+                new Document(FIELD_REFERENCE_TYPE, 1)
+                        .append(FIELD_REFERENCE_ID, 1)
+                        .append(FIELD_DISPLAY_NAME, 1));
+        super.createIndex(
+                usersCollection,
+                new Document(FIELD_REFERENCE_TYPE, 1)
+                        .append(FIELD_REFERENCE_ID, 1)
+                        .append(FIELD_FIRST_NAME, 1));
+        super.createIndex(
+                usersCollection,
+                new Document(FIELD_REFERENCE_TYPE, 1)
+                        .append(FIELD_REFERENCE_ID, 1)
+                        .append(FIELD_LAST_NAME, 1));
+        super.createIndex(
+                usersCollection,
+                new Document(FIELD_REFERENCE_TYPE, 1)
+                        .append(FIELD_REFERENCE_ID, 1)
+                        .append(FIELD_EXTERNAL_ID, 1));
+        super.createIndex(
+                usersCollection,
+                new Document(FIELD_REFERENCE_TYPE, 1)
+                        .append(FIELD_REFERENCE_ID, 1)
+                        .append(FIELD_USERNAME, 1)
+                        .append(FIELD_SOURCE, 1));
+        super.createIndex(
+                usersCollection,
+                new Document(FIELD_REFERENCE_TYPE, 1)
+                        .append(FIELD_REFERENCE_ID, 1)
+                        .append(FIELD_EXTERNAL_ID, 1)
+                        .append(FIELD_SOURCE, 1));
     }
-
 
     @Override
     public Flowable<User> findAll(ReferenceType referenceType, String referenceId) {
-        return Flowable.fromPublisher(usersCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(this::convert);
+        return Flowable.fromPublisher(
+                        usersCollection.find(
+                                and(
+                                        eq(FIELD_REFERENCE_TYPE, referenceType.name()),
+                                        eq(FIELD_REFERENCE_ID, referenceId))))
+                .map(this::convert);
     }
 
     @Override
-    public Single<Page<User>> findAll(ReferenceType referenceType, String referenceId, int page, int size) {
-        Single<Long> countOperation = Observable.fromPublisher(usersCollection.countDocuments(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).first(0l);
-        Single<Set<User>> usersOperation = Observable.fromPublisher(usersCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId))).sort(new BasicDBObject(FIELD_USERNAME, 1)).skip(size * page).limit(size)).map(this::convert).collect(LinkedHashSet::new, Set::add);
-        return Single.zip(countOperation, usersOperation, (count, users) -> new Page<>(users, page, count));
+    public Single<Page<User>> findAll(
+            ReferenceType referenceType, String referenceId, int page, int size) {
+        Single<Long> countOperation =
+                Observable.fromPublisher(
+                                usersCollection.countDocuments(
+                                        and(
+                                                eq(FIELD_REFERENCE_TYPE, referenceType.name()),
+                                                eq(FIELD_REFERENCE_ID, referenceId))))
+                        .first(0l);
+        Single<Set<User>> usersOperation =
+                Observable.fromPublisher(
+                                usersCollection
+                                        .find(
+                                                and(
+                                                        eq(
+                                                                FIELD_REFERENCE_TYPE,
+                                                                referenceType.name()),
+                                                        eq(FIELD_REFERENCE_ID, referenceId)))
+                                        .sort(new BasicDBObject(FIELD_USERNAME, 1))
+                                        .skip(size * page)
+                                        .limit(size))
+                        .map(this::convert)
+                        .collect(LinkedHashSet::new, Set::add);
+        return Single.zip(
+                countOperation, usersOperation, (count, users) -> new Page<>(users, page, count));
     }
 
     @Override
-    public Single<Page<User>> search(ReferenceType referenceType, String referenceId, String query, int page, int size) {
-        Bson searchQuery = or(
-                new BasicDBObject(FIELD_USERNAME, query),
-                new BasicDBObject(FIELD_EMAIL, query),
-                new BasicDBObject(FIELD_EMAIL_CLAIM, query),
-                new BasicDBObject(FIELD_DISPLAY_NAME, query),
-                new BasicDBObject(FIELD_FIRST_NAME, query),
-                new BasicDBObject(FIELD_LAST_NAME, query));
+    public Single<Page<User>> search(
+            ReferenceType referenceType, String referenceId, String query, int page, int size) {
+        Bson searchQuery =
+                or(
+                        new BasicDBObject(FIELD_USERNAME, query),
+                        new BasicDBObject(FIELD_EMAIL, query),
+                        new BasicDBObject(FIELD_EMAIL_CLAIM, query),
+                        new BasicDBObject(FIELD_DISPLAY_NAME, query),
+                        new BasicDBObject(FIELD_FIRST_NAME, query),
+                        new BasicDBObject(FIELD_LAST_NAME, query));
 
         // if query contains wildcard, use the regex query
         if (query.contains("*")) {
             String compactQuery = query.replaceAll("\\*+", ".*");
             String regex = "^" + compactQuery;
             Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-            searchQuery = or(
-                    new BasicDBObject(FIELD_USERNAME, pattern),
-                    new BasicDBObject(FIELD_EMAIL, pattern),
-                    new BasicDBObject(FIELD_EMAIL_CLAIM, pattern),
-                    new BasicDBObject(FIELD_DISPLAY_NAME, pattern),
-                    new BasicDBObject(FIELD_FIRST_NAME, pattern),
-                    new BasicDBObject(FIELD_LAST_NAME, pattern));
+            searchQuery =
+                    or(
+                            new BasicDBObject(FIELD_USERNAME, pattern),
+                            new BasicDBObject(FIELD_EMAIL, pattern),
+                            new BasicDBObject(FIELD_EMAIL_CLAIM, pattern),
+                            new BasicDBObject(FIELD_DISPLAY_NAME, pattern),
+                            new BasicDBObject(FIELD_FIRST_NAME, pattern),
+                            new BasicDBObject(FIELD_LAST_NAME, pattern));
         }
 
-        Bson mongoQuery = and(
-                eq(FIELD_REFERENCE_TYPE, referenceType.name()),
-                eq(FIELD_REFERENCE_ID, referenceId),
-                searchQuery);
+        Bson mongoQuery =
+                and(
+                        eq(FIELD_REFERENCE_TYPE, referenceType.name()),
+                        eq(FIELD_REFERENCE_ID, referenceId),
+                        searchQuery);
 
-        Single<Long> countOperation = Observable.fromPublisher(usersCollection.countDocuments(mongoQuery)).first(0l);
-        Single<Set<User>> usersOperation = Observable.fromPublisher(usersCollection.find(mongoQuery).sort(new BasicDBObject(FIELD_USERNAME, 1)).skip(size * page).limit(size)).map(this::convert).collect(LinkedHashSet::new, Set::add);
-        return Single.zip(countOperation, usersOperation, (count, users) -> new Page<>(users, 0, count));
+        Single<Long> countOperation =
+                Observable.fromPublisher(usersCollection.countDocuments(mongoQuery)).first(0l);
+        Single<Set<User>> usersOperation =
+                Observable.fromPublisher(
+                                usersCollection
+                                        .find(mongoQuery)
+                                        .sort(new BasicDBObject(FIELD_USERNAME, 1))
+                                        .skip(size * page)
+                                        .limit(size))
+                        .map(this::convert)
+                        .collect(LinkedHashSet::new, Set::add);
+        return Single.zip(
+                countOperation, usersOperation, (count, users) -> new Page<>(users, 0, count));
     }
 
     @Override
-    public Single<Page<User>> search(ReferenceType referenceType, String referenceId, FilterCriteria criteria, int page, int size) {
+    public Single<Page<User>> search(
+            ReferenceType referenceType,
+            String referenceId,
+            FilterCriteria criteria,
+            int page,
+            int size) {
         try {
             BasicDBObject searchQuery = BasicDBObject.parse(FilterCriteriaParser.parse(criteria));
 
-            Bson mongoQuery = and(
-                    eq(FIELD_REFERENCE_TYPE, referenceType.name()),
-                    eq(FIELD_REFERENCE_ID, referenceId),
-                    searchQuery);
+            Bson mongoQuery =
+                    and(
+                            eq(FIELD_REFERENCE_TYPE, referenceType.name()),
+                            eq(FIELD_REFERENCE_ID, referenceId),
+                            searchQuery);
 
-            Single<Long> countOperation = Observable.fromPublisher(usersCollection.countDocuments(mongoQuery)).first(0l);
-            Single<Set<User>> usersOperation = Observable.fromPublisher(usersCollection.find(mongoQuery).sort(new BasicDBObject(FIELD_USERNAME, 1)).skip(size * page).limit(size)).map(this::convert).collect(LinkedHashSet::new, Set::add);
-            return Single.zip(countOperation, usersOperation, (count, users) -> new Page<>(users, 0, count));
+            Single<Long> countOperation =
+                    Observable.fromPublisher(usersCollection.countDocuments(mongoQuery)).first(0l);
+            Single<Set<User>> usersOperation =
+                    Observable.fromPublisher(
+                                    usersCollection
+                                            .find(mongoQuery)
+                                            .sort(new BasicDBObject(FIELD_USERNAME, 1))
+                                            .skip(size * page)
+                                            .limit(size))
+                            .map(this::convert)
+                            .collect(LinkedHashSet::new, Set::add);
+            return Single.zip(
+                    countOperation, usersOperation, (count, users) -> new Page<>(users, 0, count));
         } catch (Exception ex) {
             if (ex instanceof IllegalArgumentException) {
                 return Single.error(ex);
             }
-            logger.error("An error has occurred while searching users with criteria {}", criteria, ex);
-            return Single.error(new TechnicalException("An error has occurred while searching users with filter criteria", ex));
+            logger.error(
+                    "An error has occurred while searching users with criteria {}", criteria, ex);
+            return Single.error(
+                    new TechnicalException(
+                            "An error has occurred while searching users with filter criteria",
+                            ex));
         }
-
     }
 
     @Override
-    public Flowable<User> search(ReferenceType referenceType, String referenceId, FilterCriteria criteria) {
+    public Flowable<User> search(
+            ReferenceType referenceType, String referenceId, FilterCriteria criteria) {
         try {
             BasicDBObject searchQuery = BasicDBObject.parse(FilterCriteriaParser.parse(criteria));
 
-            Bson mongoQuery = and(
-                    eq(FIELD_REFERENCE_TYPE, referenceType.name()),
-                    eq(FIELD_REFERENCE_ID, referenceId),
-                    searchQuery);
+            Bson mongoQuery =
+                    and(
+                            eq(FIELD_REFERENCE_TYPE, referenceType.name()),
+                            eq(FIELD_REFERENCE_ID, referenceId),
+                            searchQuery);
 
-            return Flowable.fromPublisher(usersCollection.find(mongoQuery).sort(new BasicDBObject(FIELD_USERNAME, 1))).map(this::convert);
+            return Flowable.fromPublisher(
+                            usersCollection
+                                    .find(mongoQuery)
+                                    .sort(new BasicDBObject(FIELD_USERNAME, 1)))
+                    .map(this::convert);
         } catch (Exception ex) {
             if (ex instanceof IllegalArgumentException) {
                 return Flowable.error(ex);
             }
-            logger.error("An error has occurred while searching users with criteria {}", criteria, ex);
-            return Flowable.error(new TechnicalException("An error has occurred while searching users with filter criteria", ex));
+            logger.error(
+                    "An error has occurred while searching users with criteria {}", criteria, ex);
+            return Flowable.error(
+                    new TechnicalException(
+                            "An error has occurred while searching users with filter criteria",
+                            ex));
         }
-
     }
 
     @Override
-    public Maybe<User> findByUsernameAndSource(ReferenceType referenceType, String referenceId, String username, String source) {
+    public Maybe<User> findByUsernameAndSource(
+            ReferenceType referenceType, String referenceId, String username, String source) {
         return Observable.fromPublisher(
                         usersCollection
-                                .find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_USERNAME, username), eq(FIELD_SOURCE, source)))
+                                .find(
+                                        and(
+                                                eq(FIELD_REFERENCE_TYPE, referenceType.name()),
+                                                eq(FIELD_REFERENCE_ID, referenceId),
+                                                eq(FIELD_USERNAME, username),
+                                                eq(FIELD_SOURCE, source)))
                                 .limit(1)
                                 .first())
                 .firstElement()
@@ -190,10 +304,16 @@ public abstract class AbstractUserRepository<T extends UserMongo> extends Abstra
     }
 
     @Override
-    public Maybe<User> findByExternalIdAndSource(ReferenceType referenceType, String referenceId, String externalId, String source) {
+    public Maybe<User> findByExternalIdAndSource(
+            ReferenceType referenceType, String referenceId, String externalId, String source) {
         return Observable.fromPublisher(
                         usersCollection
-                                .find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_EXTERNAL_ID, externalId), eq(FIELD_SOURCE, source)))
+                                .find(
+                                        and(
+                                                eq(FIELD_REFERENCE_TYPE, referenceType.name()),
+                                                eq(FIELD_REFERENCE_ID, referenceId),
+                                                eq(FIELD_EXTERNAL_ID, externalId),
+                                                eq(FIELD_SOURCE, source)))
                                 .limit(1)
                                 .first())
                 .firstElement()
@@ -207,12 +327,23 @@ public abstract class AbstractUserRepository<T extends UserMongo> extends Abstra
 
     @Override
     public Maybe<User> findById(ReferenceType referenceType, String referenceId, String userId) {
-        return Observable.fromPublisher(usersCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, userId))).first()).firstElement().map(this::convert);
+        return Observable.fromPublisher(
+                        usersCollection
+                                .find(
+                                        and(
+                                                eq(FIELD_REFERENCE_TYPE, referenceType.name()),
+                                                eq(FIELD_REFERENCE_ID, referenceId),
+                                                eq(FIELD_ID, userId)))
+                                .first())
+                .firstElement()
+                .map(this::convert);
     }
 
     @Override
     public Maybe<User> findById(String userId) {
-        return Observable.fromPublisher(usersCollection.find(eq(FIELD_ID, userId)).first()).firstElement().map(this::convert);
+        return Observable.fromPublisher(usersCollection.find(eq(FIELD_ID, userId)).first())
+                .firstElement()
+                .map(this::convert);
     }
 
     @Override
@@ -220,16 +351,18 @@ public abstract class AbstractUserRepository<T extends UserMongo> extends Abstra
         UserMongo user = convert(item);
         user.setId(user.getId() == null ? RandomString.generate() : user.getId());
         return Single.fromPublisher(usersCollection.insertOne((T) user))
-                .flatMap(success -> {
-                    item.setId(user.getId());
-                    return Single.just(item);
-                });
+                .flatMap(
+                        success -> {
+                            item.setId(user.getId());
+                            return Single.just(item);
+                        });
     }
 
     @Override
     public Single<User> update(User item) {
         UserMongo user = convert(item);
-        return Single.fromPublisher(usersCollection.replaceOne(eq(FIELD_ID, user.getId()), (T) user))
+        return Single.fromPublisher(
+                        usersCollection.replaceOne(eq(FIELD_ID, user.getId()), (T) user))
                 .flatMap(updateResult -> Single.just(item));
     }
 
@@ -240,7 +373,11 @@ public abstract class AbstractUserRepository<T extends UserMongo> extends Abstra
 
     @Override
     public Completable deleteByReference(ReferenceType referenceType, String referenceId) {
-        return Completable.fromPublisher(usersCollection.deleteMany(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId))));
+        return Completable.fromPublisher(
+                usersCollection.deleteMany(
+                        and(
+                                eq(FIELD_REFERENCE_TYPE, referenceType.name()),
+                                eq(FIELD_REFERENCE_ID, referenceId))));
     }
 
     protected User convert(T userMongo) {
@@ -346,7 +483,10 @@ public abstract class AbstractUserRepository<T extends UserMongo> extends Abstra
         userMongo.setType(user.getType());
         userMongo.setTitle(user.getTitle());
         userMongo.setPreferredLanguage(user.getPreferredLanguage());
-        userMongo.setAdditionalInformation(user.getAdditionalInformation() != null ? new Document(user.getAdditionalInformation()) : new Document());
+        userMongo.setAdditionalInformation(
+                user.getAdditionalInformation() != null
+                        ? new Document(user.getAdditionalInformation())
+                        : new Document());
         userMongo.setCreatedAt(user.getCreatedAt());
         userMongo.setUpdatedAt(user.getUpdatedAt());
         return userMongo;
@@ -356,95 +496,101 @@ public abstract class AbstractUserRepository<T extends UserMongo> extends Abstra
         if (mongoAttributes == null) {
             return null;
         }
-        return mongoAttributes
-                .stream()
-                .map(mongoAttribute -> {
-                    Attribute modelAttribute = new Attribute();
-                    modelAttribute.setPrimary(mongoAttribute.isPrimary());
-                    modelAttribute.setValue(mongoAttribute.getValue());
-                    modelAttribute.setType(mongoAttribute.getType());
-                    return modelAttribute;
-                }).collect(Collectors.toList());
+        return mongoAttributes.stream()
+                .map(
+                        mongoAttribute -> {
+                            Attribute modelAttribute = new Attribute();
+                            modelAttribute.setPrimary(mongoAttribute.isPrimary());
+                            modelAttribute.setValue(mongoAttribute.getValue());
+                            modelAttribute.setType(mongoAttribute.getType());
+                            return modelAttribute;
+                        })
+                .collect(Collectors.toList());
     }
 
     private List<AttributeMongo> toMongoAttributes(List<Attribute> modelAttributes) {
         if (modelAttributes == null) {
             return null;
         }
-        return modelAttributes
-                .stream()
-                .map(modelAttribute -> {
-                    AttributeMongo mongoAttribute = new AttributeMongo();
-                    mongoAttribute.setPrimary(modelAttribute.isPrimary());
-                    mongoAttribute.setValue(modelAttribute.getValue());
-                    mongoAttribute.setType(modelAttribute.getType());
-                    return mongoAttribute;
-                }).collect(Collectors.toList());
+        return modelAttributes.stream()
+                .map(
+                        modelAttribute -> {
+                            AttributeMongo mongoAttribute = new AttributeMongo();
+                            mongoAttribute.setPrimary(modelAttribute.isPrimary());
+                            mongoAttribute.setValue(modelAttribute.getValue());
+                            mongoAttribute.setType(modelAttribute.getType());
+                            return mongoAttribute;
+                        })
+                .collect(Collectors.toList());
     }
 
     private List<Address> toModelAddresses(List<AddressMongo> mongoAddresses) {
         if (mongoAddresses == null) {
             return null;
         }
-        return mongoAddresses
-                .stream()
-                .map(mongoAddress -> {
-                    Address modelAddress = new Address();
-                    modelAddress.setType(mongoAddress.getType());
-                    modelAddress.setFormatted(mongoAddress.getFormatted());
-                    modelAddress.setStreetAddress(mongoAddress.getStreetAddress());
-                    modelAddress.setCountry(mongoAddress.getCountry());
-                    modelAddress.setLocality(mongoAddress.getLocality());
-                    modelAddress.setPostalCode(mongoAddress.getPostalCode());
-                    modelAddress.setRegion(mongoAddress.getRegion());
-                    modelAddress.setPrimary(mongoAddress.isPrimary());
-                    return modelAddress;
-                }).collect(Collectors.toList());
+        return mongoAddresses.stream()
+                .map(
+                        mongoAddress -> {
+                            Address modelAddress = new Address();
+                            modelAddress.setType(mongoAddress.getType());
+                            modelAddress.setFormatted(mongoAddress.getFormatted());
+                            modelAddress.setStreetAddress(mongoAddress.getStreetAddress());
+                            modelAddress.setCountry(mongoAddress.getCountry());
+                            modelAddress.setLocality(mongoAddress.getLocality());
+                            modelAddress.setPostalCode(mongoAddress.getPostalCode());
+                            modelAddress.setRegion(mongoAddress.getRegion());
+                            modelAddress.setPrimary(mongoAddress.isPrimary());
+                            return modelAddress;
+                        })
+                .collect(Collectors.toList());
     }
 
     private List<AddressMongo> toMongoAddresses(List<Address> modelAddresses) {
         if (modelAddresses == null) {
             return null;
         }
-        return modelAddresses
-                .stream()
-                .map(modelAddress -> {
-                    AddressMongo mongoAddress = new AddressMongo();
-                    mongoAddress.setType(modelAddress.getType());
-                    mongoAddress.setFormatted(modelAddress.getFormatted());
-                    mongoAddress.setStreetAddress(modelAddress.getStreetAddress());
-                    mongoAddress.setCountry(modelAddress.getCountry());
-                    mongoAddress.setLocality(modelAddress.getLocality());
-                    mongoAddress.setPostalCode(modelAddress.getPostalCode());
-                    mongoAddress.setRegion(modelAddress.getRegion());
-                    mongoAddress.setPrimary(modelAddress.isPrimary());
-                    return mongoAddress;
-                }).collect(Collectors.toList());
+        return modelAddresses.stream()
+                .map(
+                        modelAddress -> {
+                            AddressMongo mongoAddress = new AddressMongo();
+                            mongoAddress.setType(modelAddress.getType());
+                            mongoAddress.setFormatted(modelAddress.getFormatted());
+                            mongoAddress.setStreetAddress(modelAddress.getStreetAddress());
+                            mongoAddress.setCountry(modelAddress.getCountry());
+                            mongoAddress.setLocality(modelAddress.getLocality());
+                            mongoAddress.setPostalCode(modelAddress.getPostalCode());
+                            mongoAddress.setRegion(modelAddress.getRegion());
+                            mongoAddress.setPrimary(modelAddress.isPrimary());
+                            return mongoAddress;
+                        })
+                .collect(Collectors.toList());
     }
 
     private List<Certificate> toModelCertificates(List<CertificateMongo> mongoCertificates) {
         if (mongoCertificates == null) {
             return null;
         }
-        return mongoCertificates
-                .stream()
-                .map(mongoCertificate -> {
-                    Certificate modelCertificate = new Certificate();
-                    modelCertificate.setValue(mongoCertificate.getValue());
-                    return modelCertificate;
-                }).collect(Collectors.toList());
+        return mongoCertificates.stream()
+                .map(
+                        mongoCertificate -> {
+                            Certificate modelCertificate = new Certificate();
+                            modelCertificate.setValue(mongoCertificate.getValue());
+                            return modelCertificate;
+                        })
+                .collect(Collectors.toList());
     }
 
     private List<CertificateMongo> toMongoCertificates(List<Certificate> modelCertificates) {
         if (modelCertificates == null) {
             return null;
         }
-        return modelCertificates
-                .stream()
-                .map(modelCertificate -> {
-                    CertificateMongo mongoCertificate = new CertificateMongo();
-                    mongoCertificate.setValue(modelCertificate.getValue());
-                    return mongoCertificate;
-                }).collect(Collectors.toList());
+        return modelCertificates.stream()
+                .map(
+                        modelCertificate -> {
+                            CertificateMongo mongoCertificate = new CertificateMongo();
+                            mongoCertificate.setValue(modelCertificate.getValue());
+                            return mongoCertificate;
+                        })
+                .collect(Collectors.toList());
     }
 }

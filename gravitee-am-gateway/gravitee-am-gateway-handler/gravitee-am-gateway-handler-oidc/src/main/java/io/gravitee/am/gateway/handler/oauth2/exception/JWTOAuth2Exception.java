@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.exception;
@@ -25,8 +23,10 @@ import io.gravitee.am.common.web.UriBuilder;
 import java.net.URISyntaxException;
 
 /**
- * See <a href="https://bitbucket.org/openid/fapi/src/master/Financial_API_JWT_Secured_Authorization_Response_Mode.md#markdown-header-41-the-jwt-response-document">
- *     Error responses</a>
+ * See <a
+ * href="https://bitbucket.org/openid/fapi/src/master/Financial_API_JWT_Secured_Authorization_Response_Mode.md#markdown-header-41-the-jwt-response-document">
+ * Error responses</a>
+ *
  * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author GraviteeSource Team
  */
@@ -36,19 +36,13 @@ public class JWTOAuth2Exception extends OAuth2Exception {
 
     private String state;
 
-    /**
-     * The issuer URL of the authorization server that created the response.
-     */
+    /** The issuer URL of the authorization server that created the response. */
     private String iss;
 
-    /**
-     * The client_id of the client the response is intended for.
-     */
+    /** The client_id of the client the response is intended for. */
     private String aud;
 
-    /**
-     * Expiration of the JWT.
-     */
+    /** Expiration of the JWT. */
     private long exp;
 
     public JWTOAuth2Exception(final OAuth2Exception exception, final String state) {
@@ -97,20 +91,27 @@ public class JWTOAuth2Exception extends OAuth2Exception {
         return jwt;
     }
 
-    public String buildRedirectUri(final String redirectUri, final String responseType, final String responseMode, final String jwt) throws URISyntaxException {
+    public String buildRedirectUri(
+            final String redirectUri,
+            final String responseType,
+            final String responseMode,
+            final String jwt)
+            throws URISyntaxException {
         UriBuilder uriBuilder = UriBuilder.fromURIString(redirectUri);
 
         if (ResponseMode.QUERY_JWT.equalsIgnoreCase(responseMode)) {
             uriBuilder.addParameter(io.gravitee.am.common.oidc.Parameters.RESPONSE, jwt);
         } else if (ResponseMode.FRAGMENT_JWT.equalsIgnoreCase(responseMode)) {
-            uriBuilder.addFragmentParameter(io.gravitee.am.common.oidc.Parameters.RESPONSE,jwt);
+            uriBuilder.addFragmentParameter(io.gravitee.am.common.oidc.Parameters.RESPONSE, jwt);
         } else if (ResponseMode.JWT.equalsIgnoreCase(responseMode)) {
             if (responseType == null || ResponseType.NONE.equalsIgnoreCase(responseType)) {
                 // Nothing to do here
-            } else if (io.gravitee.am.common.oauth2.ResponseType.CODE.equalsIgnoreCase(responseType)) {
+            } else if (io.gravitee.am.common.oauth2.ResponseType.CODE.equalsIgnoreCase(
+                    responseType)) {
                 uriBuilder.addParameter(io.gravitee.am.common.oidc.Parameters.RESPONSE, jwt);
             } else {
-                uriBuilder.addFragmentParameter(io.gravitee.am.common.oidc.Parameters.RESPONSE,jwt);
+                uriBuilder.addFragmentParameter(
+                        io.gravitee.am.common.oidc.Parameters.RESPONSE, jwt);
             }
         }
 

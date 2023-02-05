@@ -1,19 +1,21 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.root.resources.endpoint.user.password;
+
+import static io.gravitee.am.common.utils.ConstantKeys.PASSWORD_HISTORY;
+import static io.gravitee.am.gateway.handler.common.utils.ThymeleafDataHelper.generateData;
+import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
 
 import io.gravitee.am.common.oauth2.Parameters;
 import io.gravitee.am.common.utils.ConstantKeys;
@@ -27,15 +29,12 @@ import io.vertx.core.Handler;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.common.template.TemplateEngine;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static io.gravitee.am.common.utils.ConstantKeys.PASSWORD_HISTORY;
-import static io.gravitee.am.gateway.handler.common.utils.ThymeleafDataHelper.generateData;
-import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -57,7 +56,8 @@ public class ResetPasswordEndpoint extends AbstractEndpoint implements Handler<R
         HttpServerRequest request = routingContext.request();
         // retrieve client (if exists)
         Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        PasswordSettings.getInstance(client, domain).ifPresent(v -> routingContext.put(ConstantKeys.PASSWORD_SETTINGS_PARAM_KEY, v));
+        PasswordSettings.getInstance(client, domain)
+                .ifPresent(v -> routingContext.put(ConstantKeys.PASSWORD_SETTINGS_PARAM_KEY, v));
 
         String error = request.getParam(ConstantKeys.ERROR_PARAM_KEY);
         routingContext.put(ConstantKeys.ERROR_PARAM_KEY, error);
@@ -76,14 +76,28 @@ public class ResetPasswordEndpoint extends AbstractEndpoint implements Handler<R
         params.computeIfAbsent(ConstantKeys.ERROR_DESCRIPTION_PARAM_KEY, val -> errorDescription);
         routingContext.put(ConstantKeys.PARAM_CONTEXT_KEY, params);
 
-        final Map<String, String> actionParams = (client != null) ? Map.of(Parameters.CLIENT_ID, client.getClientId()) : Map.of();
-        routingContext.put(ConstantKeys.ACTION_KEY, UriBuilderRequest.resolveProxyRequest(routingContext.request(), routingContext.request().path(), actionParams));
-        routingContext.put(PASSWORD_HISTORY, UriBuilderRequest.resolveProxyRequest(routingContext.request(), routingContext.get(CONTEXT_PATH) + "/passwordHistory", actionParams, true));
+        final Map<String, String> actionParams =
+                (client != null) ? Map.of(Parameters.CLIENT_ID, client.getClientId()) : Map.of();
+        routingContext.put(
+                ConstantKeys.ACTION_KEY,
+                UriBuilderRequest.resolveProxyRequest(
+                        routingContext.request(), routingContext.request().path(), actionParams));
+        routingContext.put(
+                PASSWORD_HISTORY,
+                UriBuilderRequest.resolveProxyRequest(
+                        routingContext.request(),
+                        routingContext.get(CONTEXT_PATH) + "/passwordHistory",
+                        actionParams,
+                        true));
 
         // render the reset password page
-        this.renderPage(routingContext, generateData(routingContext, domain, client), client, logger, "Unable to render reset password page");
+        this.renderPage(
+                routingContext,
+                generateData(routingContext, domain, client),
+                client,
+                logger,
+                "Unable to render reset password page");
     }
-
 
     @Override
     public String getTemplateSuffix() {

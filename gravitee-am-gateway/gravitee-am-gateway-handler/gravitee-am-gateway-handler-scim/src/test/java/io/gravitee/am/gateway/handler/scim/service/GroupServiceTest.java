@@ -1,23 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.scim.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+
 import io.gravitee.am.gateway.handler.scim.exception.UniquenessException;
 import io.gravitee.am.gateway.handler.scim.model.Group;
 import io.gravitee.am.gateway.handler.scim.model.Member;
@@ -34,6 +36,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,9 +47,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -54,23 +54,17 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class GroupServiceTest {
 
-    @InjectMocks
-    private GroupService groupService = new GroupServiceImpl();
+    @InjectMocks private GroupService groupService = new GroupServiceImpl();
 
-    @Mock
-    private UserRepository userRepository;
+    @Mock private UserRepository userRepository;
 
-    @Mock
-    private GroupRepository groupRepository;
+    @Mock private GroupRepository groupRepository;
 
-    @Mock
-    private Domain domain;
+    @Mock private Domain domain;
 
-    @Mock
-    private ObjectMapper objectMapper;
+    @Mock private ObjectMapper objectMapper;
 
-    @Mock
-    private AuditService auditService;
+    @Mock private AuditService auditService;
 
     @Test
     public void shouldCreateGroup() {
@@ -83,7 +77,9 @@ public class GroupServiceTest {
         when(createdGroup.getName()).thenReturn("my-group");
 
         when(domain.getId()).thenReturn(domainId);
-        when(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), newGroup.getDisplayName())).thenReturn(Maybe.empty());
+        when(groupRepository.findByName(
+                        ReferenceType.DOMAIN, domain.getId(), newGroup.getDisplayName()))
+                .thenReturn(Maybe.empty());
         when(groupRepository.create(any())).thenReturn(Single.just(createdGroup));
 
         TestObserver<Group> testObserver = groupService.create(newGroup, "/", null).test();
@@ -111,11 +107,14 @@ public class GroupServiceTest {
         when(createdGroup.getName()).thenReturn("my-group");
 
         when(domain.getId()).thenReturn(domainId);
-        when(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), newGroup.getDisplayName())).thenReturn(Maybe.empty());
+        when(groupRepository.findByName(
+                        ReferenceType.DOMAIN, domain.getId(), newGroup.getDisplayName()))
+                .thenReturn(Maybe.empty());
         when(userRepository.findByIdIn(any())).thenReturn(Flowable.just(user));
         when(groupRepository.create(any())).thenReturn(Single.just(createdGroup));
 
-        TestObserver<Group> testObserver = groupService.create(newGroup, "https://mydomain/scim/Groups", null).test();
+        TestObserver<Group> testObserver =
+                groupService.create(newGroup, "https://mydomain/scim/Groups", null).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(g -> "my-group".equals(g.getDisplayName()));
@@ -130,7 +129,9 @@ public class GroupServiceTest {
         when(newGroup.getDisplayName()).thenReturn("my-group");
 
         when(domain.getId()).thenReturn(domainId);
-        when(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), newGroup.getDisplayName())).thenReturn(Maybe.just(new io.gravitee.am.model.Group()));
+        when(groupRepository.findByName(
+                        ReferenceType.DOMAIN, domain.getId(), newGroup.getDisplayName()))
+                .thenReturn(Maybe.just(new io.gravitee.am.model.Group()));
 
         TestObserver<Group> testObserver = groupService.create(newGroup, "/", null).test();
         testObserver.assertNotComplete();
@@ -148,11 +149,14 @@ public class GroupServiceTest {
         when(groupNode.get("displayName")).thenReturn(new TextNode("my group"));
 
         Operation operation = mock(Operation.class);
-        doAnswer(invocation -> {
-            ObjectNode arg0 = invocation.getArgument(0);
-            Assert.assertTrue(arg0.get("displayName").asText().equals("my group"));
-            return null;
-        }).when(operation).apply(any());
+        doAnswer(
+                        invocation -> {
+                            ObjectNode arg0 = invocation.getArgument(0);
+                            Assert.assertTrue(arg0.get("displayName").asText().equals("my group"));
+                            return null;
+                        })
+                .when(operation)
+                .apply(any());
 
         PatchOp patchOp = mock(PatchOp.class);
         when(patchOp.getOperations()).thenReturn(Collections.singletonList(operation));
@@ -164,13 +168,18 @@ public class GroupServiceTest {
         when(domain.getName()).thenReturn(domainName);
         when(objectMapper.convertValue(any(), eq(ObjectNode.class))).thenReturn(groupNode);
         when(objectMapper.treeToValue(groupNode, Group.class)).thenReturn(patchGroup);
-        when(groupRepository.findById(groupId)).thenReturn(Maybe.just(new io.gravitee.am.model.Group()));
-        when(groupRepository.findByName(eq(ReferenceType.DOMAIN), anyString(), anyString())).thenReturn(Maybe.empty());
-        doAnswer(invocation -> {
-            io.gravitee.am.model.Group groupToUpdate = invocation.getArgument(0);
-            Assert.assertTrue(groupToUpdate.getName().equals("my group 2"));
-            return Single.just(groupToUpdate);
-        }).when(groupRepository).update(any());
+        when(groupRepository.findById(groupId))
+                .thenReturn(Maybe.just(new io.gravitee.am.model.Group()));
+        when(groupRepository.findByName(eq(ReferenceType.DOMAIN), anyString(), anyString()))
+                .thenReturn(Maybe.empty());
+        doAnswer(
+                        invocation -> {
+                            io.gravitee.am.model.Group groupToUpdate = invocation.getArgument(0);
+                            Assert.assertTrue(groupToUpdate.getName().equals("my group 2"));
+                            return Single.just(groupToUpdate);
+                        })
+                .when(groupRepository)
+                .update(any());
 
         TestObserver<Group> testObserver = groupService.patch(groupId, patchOp, "/", null).test();
         testObserver.assertNoErrors();
@@ -188,11 +197,14 @@ public class GroupServiceTest {
         when(groupNode.get("displayName")).thenReturn(new TextNode("my group"));
 
         Operation operation = mock(Operation.class);
-        doAnswer(invocation -> {
-            ObjectNode arg0 = invocation.getArgument(0);
-            Assert.assertTrue(arg0.get("displayName").asText().equals("my group"));
-            return null;
-        }).when(operation).apply(any());
+        doAnswer(
+                        invocation -> {
+                            ObjectNode arg0 = invocation.getArgument(0);
+                            Assert.assertTrue(arg0.get("displayName").asText().equals("my group"));
+                            return null;
+                        })
+                .when(operation)
+                .apply(any());
 
         PatchOp patchOp = mock(PatchOp.class);
         when(patchOp.getOperations()).thenReturn(Collections.singletonList(operation));
@@ -214,20 +226,31 @@ public class GroupServiceTest {
         existingGroup.setReferenceType(ReferenceType.DOMAIN);
         when(groupRepository.findById(groupId)).thenReturn(Maybe.just(existingGroup));
 
-        when(groupRepository.findByName(eq(ReferenceType.DOMAIN), anyString(), anyString())).thenReturn(Maybe.empty());
-        doAnswer(invocation -> {
-            io.gravitee.am.model.Group groupToUpdate = invocation.getArgument(0);
-            Assert.assertTrue(groupToUpdate.getName().equals("my group 2"));
-            Assert.assertTrue(groupToUpdate.getDescription().equals(existingGroup.getDescription()));
-            Assert.assertTrue(groupToUpdate.getRoles() != null && groupToUpdate.getRoles().get(0).equals(existingGroup.getRoles().get(0)));
+        when(groupRepository.findByName(eq(ReferenceType.DOMAIN), anyString(), anyString()))
+                .thenReturn(Maybe.empty());
+        doAnswer(
+                        invocation -> {
+                            io.gravitee.am.model.Group groupToUpdate = invocation.getArgument(0);
+                            Assert.assertTrue(groupToUpdate.getName().equals("my group 2"));
+                            Assert.assertTrue(
+                                    groupToUpdate
+                                            .getDescription()
+                                            .equals(existingGroup.getDescription()));
+                            Assert.assertTrue(
+                                    groupToUpdate.getRoles() != null
+                                            && groupToUpdate
+                                                    .getRoles()
+                                                    .get(0)
+                                                    .equals(existingGroup.getRoles().get(0)));
 
-            return Single.just(groupToUpdate);
-        }).when(groupRepository).update(any());
+                            return Single.just(groupToUpdate);
+                        })
+                .when(groupRepository)
+                .update(any());
 
         TestObserver<Group> testObserver = groupService.patch(groupId, patchOp, "/", null).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(g -> "my group 2".equals(g.getDisplayName()));
-
     }
 }

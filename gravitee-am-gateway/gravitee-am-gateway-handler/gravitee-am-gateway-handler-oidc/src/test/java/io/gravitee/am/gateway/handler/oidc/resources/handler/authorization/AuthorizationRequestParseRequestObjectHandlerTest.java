@@ -1,19 +1,29 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oidc.resources.handler.authorization;
+
+import static io.gravitee.am.common.utils.ConstantKeys.AUTH_FLOW_CONTEXT_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.REQUEST_PARAMETERS_KEY;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
@@ -31,6 +41,7 @@ import com.nimbusds.jose.util.IOUtils;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.oidc.Parameters;
 import io.gravitee.am.common.utils.ConstantKeys;
@@ -47,6 +58,7 @@ import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.Session;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,17 +73,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.gravitee.am.common.utils.ConstantKeys.AUTH_FLOW_CONTEXT_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.REQUEST_PARAMETERS_KEY;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author GraviteeSource Team
@@ -79,23 +80,21 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizationRequestParseRequestObjectHandlerTest {
 
-    @Mock
-    private RequestObjectService roService;
+    @Mock private RequestObjectService roService;
 
-    @Mock
-    private PushedAuthorizationRequestService parService;
+    @Mock private PushedAuthorizationRequestService parService;
 
-    @Mock
-    private AuthenticationFlowContextService authFlowContextService;
+    @Mock private AuthenticationFlowContextService authFlowContextService;
 
-    @Mock
-    private Domain domain;
+    @Mock private Domain domain;
 
     private AuthorizationRequestParseRequestObjectHandler handler;
 
     @Before
     public void setUp() throws Exception {
-        handler = new AuthorizationRequestParseRequestObjectHandler(roService, domain, parService, authFlowContextService);
+        handler =
+                new AuthorizationRequestParseRequestObjectHandler(
+                        roService, domain, parService, authFlowContextService);
     }
 
     @Test
@@ -109,11 +108,18 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
         final HttpServerRequest request = mock(HttpServerRequest.class);
 
         when(request.getParam(Parameters.REQUEST)).thenReturn(null);
-        when(request.getParam(Parameters.REQUEST_URI)).thenReturn(PushedAuthorizationRequestService.PAR_URN_PREFIX+"somevalue");
+        when(request.getParam(Parameters.REQUEST_URI))
+                .thenReturn(PushedAuthorizationRequestService.PAR_URN_PREFIX + "somevalue");
         when(request.params()).thenReturn(new MultiMap(HeadersMultiMap.httpHeaders()));
         when(context.request()).thenReturn(request);
 
-        when(parService.readFromURI(any(), any(), any())).thenReturn(Single.just(new PlainJWT(new JWTClaimsSet.Builder().claim("parParam1", "parValue1").build())));
+        when(parService.readFromURI(any(), any(), any()))
+                .thenReturn(
+                        Single.just(
+                                new PlainJWT(
+                                        new JWTClaimsSet.Builder()
+                                                .claim("parParam1", "parValue1")
+                                                .build())));
 
         handler.handle(context);
 
@@ -132,14 +138,21 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
         final HttpServerRequest request = mock(HttpServerRequest.class);
 
         when(request.getParam(Parameters.REQUEST)).thenReturn(null);
-        when(request.getParam(Parameters.REQUEST_URI)).thenReturn(PushedAuthorizationRequestService.PAR_URN_PREFIX+"somevalue");
+        when(request.getParam(Parameters.REQUEST_URI))
+                .thenReturn(PushedAuthorizationRequestService.PAR_URN_PREFIX + "somevalue");
         when(request.params()).thenReturn(new MultiMap(HeadersMultiMap.httpHeaders()));
         when(context.request()).thenReturn(request);
 
         final Session session = mock(Session.class);
         when(context.session()).thenReturn(session);
 
-        when(parService.readFromURI(any(), any(), any())).thenReturn(Single.just(new PlainJWT(new JWTClaimsSet.Builder().claim("parParam1", "parValue1").build())));
+        when(parService.readFromURI(any(), any(), any()))
+                .thenReturn(
+                        Single.just(
+                                new PlainJWT(
+                                        new JWTClaimsSet.Builder()
+                                                .claim("parParam1", "parValue1")
+                                                .build())));
 
         final AuthenticationFlowContext authFlowCtx = new AuthenticationFlowContext();
         authFlowCtx.setData(new HashMap<>());
@@ -152,11 +165,16 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
         handler.handle(context);
 
         verify(context).next();
-        verify(authFlowContextService).updateContext(argThat(ctx -> {
-            var hasParValues = ctx.getData().containsKey(REQUEST_PARAMETERS_KEY);
-            var parParams = (Map)ctx.getData().get(REQUEST_PARAMETERS_KEY);
-            return hasParValues && "parValue1".equals(parParams.get("parParam1"));
-        }));
+        verify(authFlowContextService)
+                .updateContext(
+                        argThat(
+                                ctx -> {
+                                    var hasParValues =
+                                            ctx.getData().containsKey(REQUEST_PARAMETERS_KEY);
+                                    var parParams = (Map) ctx.getData().get(REQUEST_PARAMETERS_KEY);
+                                    return hasParValues
+                                            && "parValue1".equals(parParams.get("parParam1"));
+                                }));
         verify(session).put(eq(ConstantKeys.AUTH_FLOW_CONTEXT_VERSION_KEY), anyInt());
         verify(context).put(eq(ConstantKeys.AUTH_FLOW_CONTEXT_KEY), any());
         verify(context).put(eq(ConstantKeys.AUTH_FLOW_CONTEXT_ATTRIBUTES_KEY), any());
@@ -196,7 +214,7 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
         handler.handle(context);
 
         verify(context, never()).next();
-        verify(context).fail(argThat(e -> e instanceof  InvalidRequestException));
+        verify(context).fail(argThat(e -> e instanceof InvalidRequestException));
     }
 
     @Test
@@ -212,11 +230,16 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
         handler.handle(context);
 
         verify(context, never()).next();
-        verify(context).fail(argThat(e -> e instanceof  InvalidRequestException));
+        verify(context).fail(argThat(e -> e instanceof InvalidRequestException));
     }
 
     private RSAKey getRSAKey() throws Exception {
-        File file = new File(getClass().getClassLoader().getResource("postman_request_object/request_object.key").toURI());
+        File file =
+                new File(
+                        getClass()
+                                .getClassLoader()
+                                .getResource("postman_request_object/request_object.key")
+                                .toURI());
         FileInputStream fis = new FileInputStream(file);
         DataInputStream dis = new DataInputStream(fis);
         byte[] keyBytes = new byte[(int) file.length()];
@@ -232,15 +255,17 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
         RSAKey rsaKey = getRSAKey();
         JWSSigner signer = new RSASSASigner(rsaKey);
 
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject("alice")
-                .issuer("https://c2id.com")
-                .expirationTime(new Date(new Date().getTime() + 60 * 1000))
-                .build();
+        JWTClaimsSet claimsSet =
+                new JWTClaimsSet.Builder()
+                        .subject("alice")
+                        .issuer("https://c2id.com")
+                        .expirationTime(new Date(new Date().getTime() + 60 * 1000))
+                        .build();
 
-        SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-signature").build(),
-                claimsSet);
+        SignedJWT signedJWT =
+                new SignedJWT(
+                        new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-signature").build(),
+                        claimsSet);
 
         signedJWT.sign(signer);
 
@@ -253,17 +278,19 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
         RSAKey rsaKey = getRSAKey();
         JWSSigner signer = new RSASSASigner(rsaKey);
 
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject("alice")
-                .issuer("https://c2id.com")
-                .claim("client_id", "unknown_client")
-                .expirationTime(new Date(new Date().getTime() + 60 * 1000))
-                .build();
+        JWTClaimsSet claimsSet =
+                new JWTClaimsSet.Builder()
+                        .subject("alice")
+                        .issuer("https://c2id.com")
+                        .claim("client_id", "unknown_client")
+                        .expirationTime(new Date(new Date().getTime() + 60 * 1000))
+                        .build();
 
         System.out.println(new PlainJWT(claimsSet).serialize());
-        SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-signature").build(),
-                claimsSet);
+        SignedJWT signedJWT =
+                new SignedJWT(
+                        new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-signature").build(),
+                        claimsSet);
 
         signedJWT.sign(signer);
 
@@ -276,17 +303,19 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
         RSAKey rsaKey = getRSAKey();
         JWSSigner signer = new RSASSASigner(rsaKey);
 
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject("alice")
-                .issuer("https://c2id.com")
-                .claim("state", "override-state")
-                .claim("nonce", "override-nonce")
-                .expirationTime(new Date(new Date().getTime() + 60 * 1000))
-                .build();
+        JWTClaimsSet claimsSet =
+                new JWTClaimsSet.Builder()
+                        .subject("alice")
+                        .issuer("https://c2id.com")
+                        .claim("state", "override-state")
+                        .claim("nonce", "override-nonce")
+                        .expirationTime(new Date(new Date().getTime() + 60 * 1000))
+                        .build();
 
-        SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-signature").build(),
-                claimsSet);
+        SignedJWT signedJWT =
+                new SignedJWT(
+                        new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-signature").build(),
+                        claimsSet);
 
         signedJWT.sign(signer);
 
@@ -299,16 +328,18 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
         RSAKey rsaKey = getRSAKey();
         JWSSigner signer = new RSASSASigner(rsaKey);
 
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject("alice")
-                .issuer("https://c2id.com")
-                .claim("max_age", 360000)
-                .expirationTime(new Date(new Date().getTime() + 60 * 1000))
-                .build();
+        JWTClaimsSet claimsSet =
+                new JWTClaimsSet.Builder()
+                        .subject("alice")
+                        .issuer("https://c2id.com")
+                        .claim("max_age", 360000)
+                        .expirationTime(new Date(new Date().getTime() + 60 * 1000))
+                        .build();
 
-        SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-signature").build(),
-                claimsSet);
+        SignedJWT signedJWT =
+                new SignedJWT(
+                        new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-signature").build(),
+                        claimsSet);
 
         signedJWT.sign(signer);
 
@@ -321,16 +352,18 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
         RSAKey rsaKey = getRSAKey();
         JWSSigner signer = new RSASSASigner(rsaKey);
 
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject("alice")
-                .issuer("https://c2id.com")
-                .claim("redirect_uri", "https://op-test:60001/authz_cb")
-                .expirationTime(new Date(new Date().getTime() + 60 * 1000))
-                .build();
+        JWTClaimsSet claimsSet =
+                new JWTClaimsSet.Builder()
+                        .subject("alice")
+                        .issuer("https://c2id.com")
+                        .claim("redirect_uri", "https://op-test:60001/authz_cb")
+                        .expirationTime(new Date(new Date().getTime() + 60 * 1000))
+                        .build();
 
-        SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-signature").build(),
-                claimsSet);
+        SignedJWT signedJWT =
+                new SignedJWT(
+                        new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-signature").build(),
+                        claimsSet);
 
         signedJWT.sign(signer);
 
@@ -343,25 +376,28 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
         RSAKey rsaKey = getRSAKey();
         JWSSigner signer = new RSASSASigner(rsaKey);
 
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject("alice")
-                .issuer("https://c2id.com")
-                .claim("redirect_uri", "https://op-test:60001/authz_cb")
-                .expirationTime(new Date(new Date().getTime() + 60 * 1000))
-                .build();
+        JWTClaimsSet claimsSet =
+                new JWTClaimsSet.Builder()
+                        .subject("alice")
+                        .issuer("https://c2id.com")
+                        .claim("redirect_uri", "https://op-test:60001/authz_cb")
+                        .expirationTime(new Date(new Date().getTime() + 60 * 1000))
+                        .build();
 
-        SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-encryption").build(),
-                claimsSet);
+        SignedJWT signedJWT =
+                new SignedJWT(
+                        new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-encryption").build(),
+                        claimsSet);
 
         signedJWT.sign(signer);
 
         // Create JWE object with signed JWT as payload
-        JWEObject jweObject = new JWEObject(
-                new JWEHeader.Builder(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM)
-                        .contentType("JWT") // required to indicate nested JWT
-                        .build(),
-                new Payload(signedJWT));
+        JWEObject jweObject =
+                new JWEObject(
+                        new JWEHeader.Builder(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM)
+                                .contentType("JWT") // required to indicate nested JWT
+                                .build(),
+                        new Payload(signedJWT));
 
         // Encrypt with the recipient's public key
         jweObject.encrypt(new RSAEncrypter(rsaKey));
@@ -375,25 +411,28 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
         RSAKey rsaKey = getRSAKey();
         JWSSigner signer = new RSASSASigner(rsaKey);
 
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject("alice")
-                .issuer("https://c2id.com")
-                .claim("max_age", 360000)
-                .expirationTime(new Date(new Date().getTime() + 60 * 1000))
-                .build();
+        JWTClaimsSet claimsSet =
+                new JWTClaimsSet.Builder()
+                        .subject("alice")
+                        .issuer("https://c2id.com")
+                        .claim("max_age", 360000)
+                        .expirationTime(new Date(new Date().getTime() + 60 * 1000))
+                        .build();
 
-        SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-signature").build(),
-                claimsSet);
+        SignedJWT signedJWT =
+                new SignedJWT(
+                        new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-signature").build(),
+                        claimsSet);
 
         signedJWT.sign(signer);
 
         // Create JWE object with signed JWT as payload
-        JWEObject jweObject = new JWEObject(
-                new JWEHeader.Builder(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM)
-                        .contentType("JWT") // required to indicate nested JWT
-                        .build(),
-                new Payload(signedJWT));
+        JWEObject jweObject =
+                new JWEObject(
+                        new JWEHeader.Builder(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM)
+                                .contentType("JWT") // required to indicate nested JWT
+                                .build(),
+                        new Payload(signedJWT));
 
         // Encrypt with the recipient's public key
         jweObject.encrypt(new RSAEncrypter(rsaKey));
@@ -407,25 +446,28 @@ public class AuthorizationRequestParseRequestObjectHandlerTest {
         RSAKey rsaKey = getRSAKey();
         JWSSigner signer = new RSASSASigner(rsaKey);
 
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject("alice")
-                .issuer("https://c2id.com")
-                .claim("redirect_uri", "https://op-test:60001/authz_cb")
-                .expirationTime(new Date(new Date().getTime() + 60 * 1000))
-                .build();
+        JWTClaimsSet claimsSet =
+                new JWTClaimsSet.Builder()
+                        .subject("alice")
+                        .issuer("https://c2id.com")
+                        .claim("redirect_uri", "https://op-test:60001/authz_cb")
+                        .expirationTime(new Date(new Date().getTime() + 60 * 1000))
+                        .build();
 
-        SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-signature").build(),
-                claimsSet);
+        SignedJWT signedJWT =
+                new SignedJWT(
+                        new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-signature").build(),
+                        claimsSet);
 
         signedJWT.sign(signer);
 
         // Create JWE object with signed JWT as payload
-        JWEObject jweObject = new JWEObject(
-                new JWEHeader.Builder(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM)
-                        .contentType("JWT") // required to indicate nested JWT
-                        .build(),
-                new Payload(signedJWT));
+        JWEObject jweObject =
+                new JWEObject(
+                        new JWEHeader.Builder(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM)
+                                .contentType("JWT") // required to indicate nested JWT
+                                .build(),
+                        new Payload(signedJWT));
 
         // Encrypt with the recipient's public key
         jweObject.encrypt(new RSAEncrypter(rsaKey));

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
@@ -20,6 +18,7 @@ import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.node.api.notifier.NotificationAcknowledge;
 import io.gravitee.node.api.notifier.NotificationAcknowledgeRepository;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,8 +30,7 @@ import java.util.Date;
  */
 public class NotificationAcknowledgeRepositoryTest extends AbstractManagementTest {
 
-    @Autowired
-    private NotificationAcknowledgeRepository repository;
+    @Autowired private NotificationAcknowledgeRepository repository;
 
     @Test
     public void testFindById() throws TechnicalException {
@@ -47,7 +45,8 @@ public class NotificationAcknowledgeRepositoryTest extends AbstractManagementTes
         acknowledge.setCounter(1);
         repository.create(acknowledge).blockingGet();
 
-        TestObserver<NotificationAcknowledge> testObserver = repository.findById(acknowledge.getId()).test();
+        TestObserver<NotificationAcknowledge> testObserver =
+                repository.findById(acknowledge.getId()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -68,7 +67,8 @@ public class NotificationAcknowledgeRepositoryTest extends AbstractManagementTes
         acknowledge.setCounter(1);
         repository.create(acknowledge).blockingGet();
 
-        TestObserver<NotificationAcknowledge> testObserver = repository.findById(acknowledge.getId()).test();
+        TestObserver<NotificationAcknowledge> testObserver =
+                repository.findById(acknowledge.getId()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -92,7 +92,6 @@ public class NotificationAcknowledgeRepositoryTest extends AbstractManagementTes
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(d -> d.getId().equals(acknowledge.getId()) && d.getCounter() == 2);
-
     }
 
     @Test
@@ -108,7 +107,14 @@ public class NotificationAcknowledgeRepositoryTest extends AbstractManagementTes
         acknowledge.setCounter(1);
         repository.create(acknowledge).blockingGet();
 
-        TestObserver<NotificationAcknowledge> testObserver = repository.findByResourceIdAndTypeAndAudienceId(acknowledge.getResourceId(), acknowledge.getResourceType(), acknowledge.getType(), acknowledge.getAudienceId()).test();
+        TestObserver<NotificationAcknowledge> testObserver =
+                repository
+                        .findByResourceIdAndTypeAndAudienceId(
+                                acknowledge.getResourceId(),
+                                acknowledge.getResourceType(),
+                                acknowledge.getType(),
+                                acknowledge.getAudienceId())
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -118,7 +124,11 @@ public class NotificationAcknowledgeRepositoryTest extends AbstractManagementTes
 
     @Test
     public void testNotFound() throws TechnicalException {
-        final TestObserver<NotificationAcknowledge> test = repository.findByResourceIdAndTypeAndAudienceId("unknown", "unknown", "unknown", "unknonwn").test();
+        final TestObserver<NotificationAcknowledge> test =
+                repository
+                        .findByResourceIdAndTypeAndAudienceId(
+                                "unknown", "unknown", "unknown", "unknonwn")
+                        .test();
         test.awaitTerminalEvent();
         test.assertNoValues();
     }
@@ -136,13 +146,18 @@ public class NotificationAcknowledgeRepositoryTest extends AbstractManagementTes
         acknowledge.setCounter(1);
         repository.create(acknowledge).blockingGet();
 
-        TestObserver<NotificationAcknowledge> testObserver = repository.findById(acknowledge.getId()).test();
+        TestObserver<NotificationAcknowledge> testObserver =
+                repository.findById(acknowledge.getId()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(d -> d.getId().equals(acknowledge.getId()));
 
-        final TestObserver<Void> test = repository.deleteByResourceId(acknowledge.getResourceId(), acknowledge.getResourceType()).test();
+        final TestObserver<Void> test =
+                repository
+                        .deleteByResourceId(
+                                acknowledge.getResourceId(), acknowledge.getResourceType())
+                        .test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
 

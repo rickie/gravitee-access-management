@@ -1,21 +1,22 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.identityprovider.franceconnect.authentication;
 
+import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
+
 import com.google.common.base.Strings;
+
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.oauth2.Parameters;
 import io.gravitee.am.common.oauth2.TokenTypeHint;
@@ -39,6 +40,7 @@ import io.reactivex.Maybe;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.ext.web.client.WebClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,16 +53,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
-
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Import(FranceConnectAuthenticationProviderConfiguration.class)
-public class FranceConnectAuthenticationProvider extends AbstractSocialAuthenticationProvider<FranceConnectIdentityProviderConfiguration> {
+public class FranceConnectAuthenticationProvider
+        extends AbstractSocialAuthenticationProvider<FranceConnectIdentityProviderConfiguration> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FranceConnectAuthenticationProvider.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(FranceConnectAuthenticationProvider.class);
     private static final String CLIENT_ID = "client_id";
     private static final String CLIENT_SECRET = "client_secret";
     private static final String REDIRECT_URI = "redirect_uri";
@@ -72,14 +74,11 @@ public class FranceConnectAuthenticationProvider extends AbstractSocialAuthentic
     @Qualifier("franceConnectWebClient")
     private WebClient client;
 
-    @Autowired
-    private FranceConnectIdentityProviderConfiguration configuration;
+    @Autowired private FranceConnectIdentityProviderConfiguration configuration;
 
-    @Autowired
-    private DefaultIdentityProviderMapper mapper;
+    @Autowired private DefaultIdentityProviderMapper mapper;
 
-    @Autowired
-    private DefaultIdentityProviderRoleMapper roleMapper;
+    @Autowired private DefaultIdentityProviderRoleMapper roleMapper;
 
     @Override
     protected FranceConnectIdentityProviderConfiguration getConfiguration() {
@@ -104,9 +103,11 @@ public class FranceConnectAuthenticationProvider extends AbstractSocialAuthentic
     @Override
     public Request signInUrl(String redirectUri, String state) {
         try {
-            UriBuilder builder = UriBuilder.fromHttpUrl(getConfiguration().getUserAuthorizationUri());
+            UriBuilder builder =
+                    UriBuilder.fromHttpUrl(getConfiguration().getUserAuthorizationUri());
             builder.addParameter(Parameters.CLIENT_ID, getConfiguration().getClientId());
-            if (getConfiguration().getEnvironment() == FranceConnectIdentityProviderConfiguration.Environment.DEVELOPMENT) {
+            if (getConfiguration().getEnvironment()
+                    == FranceConnectIdentityProviderConfiguration.Environment.DEVELOPMENT) {
                 // NOTE: Port is being proxied by nginx. Please have a look to the README.adoc file
                 QueryStringDecoder decoder = new QueryStringDecoder(redirectUri);
                 builder.addParameter(Parameters.REDIRECT_URI, "http://localhost:4242/callback");
@@ -115,14 +116,18 @@ public class FranceConnectAuthenticationProvider extends AbstractSocialAuthentic
             }
 
             builder.addParameter(Parameters.RESPONSE_TYPE, getConfiguration().getResponseType());
-            builder.addParameter(io.gravitee.am.common.oidc.Parameters.NONCE, SecureRandomString.generate());
+            builder.addParameter(
+                    io.gravitee.am.common.oidc.Parameters.NONCE, SecureRandomString.generate());
 
-            if(!StringUtils.isEmpty(state)) {
+            if (!StringUtils.isEmpty(state)) {
                 builder.addParameter(Parameters.STATE, state);
             }
 
-            if (getConfiguration().getScopes() != null && !getConfiguration().getScopes().isEmpty()) {
-                builder.addParameter(Parameters.SCOPE, String.join(SCOPE_DELIMITER, getConfiguration().getScopes()));
+            if (getConfiguration().getScopes() != null
+                    && !getConfiguration().getScopes().isEmpty()) {
+                builder.addParameter(
+                        Parameters.SCOPE,
+                        String.join(SCOPE_DELIMITER, getConfiguration().getScopes()));
             }
 
             Request request = new Request();
@@ -138,7 +143,12 @@ public class FranceConnectAuthenticationProvider extends AbstractSocialAuthentic
     @Override
     protected Maybe<Token> authenticate(Authentication authentication) {
         // prepare body request parameters
-        final String authorizationCode = authentication.getContext().request().parameters().getFirst(configuration.getCodeParameter());
+        final String authorizationCode =
+                authentication
+                        .getContext()
+                        .request()
+                        .parameters()
+                        .getFirst(configuration.getCodeParameter());
         if (authorizationCode == null || authorizationCode.isEmpty()) {
             LOGGER.debug("Authorization code is missing, skip authentication");
             return Maybe.error(new BadCredentialsException("Missing authorization code"));
@@ -147,12 +157,19 @@ public class FranceConnectAuthenticationProvider extends AbstractSocialAuthentic
         urlParameters.add(new BasicNameValuePair(CLIENT_ID, configuration.getClientId()));
         urlParameters.add(new BasicNameValuePair(CLIENT_SECRET, configuration.getClientSecret()));
         urlParameters.add(new BasicNameValuePair(Parameters.GRANT_TYPE, "authorization_code"));
-        if (getConfiguration().getEnvironment() == FranceConnectIdentityProviderConfiguration.Environment.DEVELOPMENT) {
+        if (getConfiguration().getEnvironment()
+                == FranceConnectIdentityProviderConfiguration.Environment.DEVELOPMENT) {
             // NOTE: Port is being proxied by nginx. Please have a look to the README.adoc file
-            QueryStringDecoder decoder = new QueryStringDecoder((String) authentication.getContext().get(REDIRECT_URI));
-            urlParameters.add(new BasicNameValuePair(Parameters.REDIRECT_URI, "http://localhost:4242/callback"));
+            QueryStringDecoder decoder =
+                    new QueryStringDecoder((String) authentication.getContext().get(REDIRECT_URI));
+            urlParameters.add(
+                    new BasicNameValuePair(
+                            Parameters.REDIRECT_URI, "http://localhost:4242/callback"));
         } else {
-            urlParameters.add(new BasicNameValuePair(Parameters.REDIRECT_URI, (String) authentication.getContext().get(REDIRECT_URI)));
+            urlParameters.add(
+                    new BasicNameValuePair(
+                            Parameters.REDIRECT_URI,
+                            (String) authentication.getContext().get(REDIRECT_URI)));
         }
         urlParameters.add(new BasicNameValuePair(CODE, authorizationCode));
         String bodyRequest = URLEncodedUtils.format(urlParameters);
@@ -162,24 +179,27 @@ public class FranceConnectAuthenticationProvider extends AbstractSocialAuthentic
                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED)
                 .rxSendBuffer(Buffer.buffer(bodyRequest))
                 .toMaybe()
-                .map(httpResponse -> {
-                    if (httpResponse.statusCode() != 200) {
-                        throw new BadCredentialsException(httpResponse.statusMessage());
-                    }
+                .map(
+                        httpResponse -> {
+                            if (httpResponse.statusCode() != 200) {
+                                throw new BadCredentialsException(httpResponse.statusMessage());
+                            }
 
-                    JsonObject response = httpResponse.bodyAsJsonObject();
-                    String accessToken = response.getString(ACCESS_TOKEN_PARAMETER);
-                    String idToken = response.getString(ID_TOKEN_PARAMETER);
-                    if (getConfiguration().isStoreOriginalTokens()) {
-                        if (!Strings.isNullOrEmpty(accessToken)) {
-                            authentication.getContext().set(ACCESS_TOKEN_PARAMETER, accessToken);
-                        }
-                    }
-                    if (!Strings.isNullOrEmpty(idToken)) {
-                        authentication.getContext().set(ID_TOKEN_PARAMETER, idToken);
-                    }
-                    return new Token(accessToken, TokenTypeHint.ACCESS_TOKEN);
-                });
+                            JsonObject response = httpResponse.bodyAsJsonObject();
+                            String accessToken = response.getString(ACCESS_TOKEN_PARAMETER);
+                            String idToken = response.getString(ID_TOKEN_PARAMETER);
+                            if (getConfiguration().isStoreOriginalTokens()) {
+                                if (!Strings.isNullOrEmpty(accessToken)) {
+                                    authentication
+                                            .getContext()
+                                            .set(ACCESS_TOKEN_PARAMETER, accessToken);
+                                }
+                            }
+                            if (!Strings.isNullOrEmpty(idToken)) {
+                                authentication.getContext().set(ID_TOKEN_PARAMETER, idToken);
+                            }
+                            return new Token(accessToken, TokenTypeHint.ACCESS_TOKEN);
+                        });
     }
 
     @Override
@@ -188,17 +208,25 @@ public class FranceConnectAuthenticationProvider extends AbstractSocialAuthentic
                 .putHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken.getValue())
                 .rxSend()
                 .toMaybe()
-                .map(httpClientResponse -> {
-                    if (httpClientResponse.statusCode() != 200) {
-                        throw new BadCredentialsException(httpClientResponse.statusMessage());
-                    }
+                .map(
+                        httpClientResponse -> {
+                            if (httpClientResponse.statusCode() != 200) {
+                                throw new BadCredentialsException(
+                                        httpClientResponse.statusMessage());
+                            }
 
-                    return createUser(authentication.getContext(), httpClientResponse.bodyAsJsonObject().getMap());
-                });
+                            return createUser(
+                                    authentication.getContext(),
+                                    httpClientResponse.bodyAsJsonObject().getMap());
+                        });
     }
 
     private User createUser(AuthenticationContext authContext, Map<String, Object> attributes) {
-        String username = (String) attributes.getOrDefault(StandardClaims.PREFERRED_USERNAME, attributes.get(StandardClaims.SUB));
+        String username =
+                (String)
+                        attributes.getOrDefault(
+                                StandardClaims.PREFERRED_USERNAME,
+                                attributes.get(StandardClaims.SUB));
 
         // Looks like the preferred_username can be empty
         if (username == null || username.isEmpty()) {
@@ -221,14 +249,18 @@ public class FranceConnectAuthenticationProvider extends AbstractSocialAuthentic
         // Standard claims
         additionalInformation.put(StandardClaims.SUB, attributes.get(StandardClaims.SUB));
         additionalInformation.put(StandardClaims.NAME, attributes.get(StandardClaims.NAME));
-        additionalInformation.put(StandardClaims.PREFERRED_USERNAME, attributes.get(StandardClaims.PREFERRED_USERNAME));
+        additionalInformation.put(
+                StandardClaims.PREFERRED_USERNAME,
+                attributes.get(StandardClaims.PREFERRED_USERNAME));
 
         // apply user mapping
         additionalInformation.putAll(applyUserMapping(authContext, attributes));
 
         // update username if user mapping has been changed
         if (additionalInformation.containsKey(StandardClaims.PREFERRED_USERNAME)) {
-            ((DefaultUser) user).setUsername((String) additionalInformation.get(StandardClaims.PREFERRED_USERNAME));
+            ((DefaultUser) user)
+                    .setUsername(
+                            (String) additionalInformation.get(StandardClaims.PREFERRED_USERNAME));
         }
         ((DefaultUser) user).setAdditionalInformation(additionalInformation);
 
@@ -248,7 +280,8 @@ public class FranceConnectAuthenticationProvider extends AbstractSocialAuthentic
         // custom GitHub claims
         claims.put(FranceConnectUser.BIRTH_DATE, attributes.get(FranceConnectUser.BIRTH_DATE));
         claims.put(FranceConnectUser.BIRTH_PLACE, attributes.get(FranceConnectUser.BIRTH_PLACE));
-        claims.put(FranceConnectUser.BIRTH_COUNTRY, attributes.get(FranceConnectUser.BIRTH_COUNTRY));
+        claims.put(
+                FranceConnectUser.BIRTH_COUNTRY, attributes.get(FranceConnectUser.BIRTH_COUNTRY));
         claims.put(FranceConnectUser.GENDER, attributes.get(FranceConnectUser.GENDER));
 
         return claims;

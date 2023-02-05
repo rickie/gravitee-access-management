@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.policy.enrich.profile;
@@ -27,6 +25,7 @@ import io.gravitee.policy.api.PolicyChain;
 import io.gravitee.policy.api.PolicyResult;
 import io.gravitee.policy.api.annotations.OnRequest;
 import io.reactivex.Single;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +39,11 @@ import java.util.Map;
 public class EnrichProfilePolicy {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnrichProfilePolicy.class);
-    private static final String GATEWAY_POLICY_ENRICH_PROFILE_ERROR_KEY = "GATEWAY_POLICY_ENRICH_PROFILE_ERROR";
+    private static final String GATEWAY_POLICY_ENRICH_PROFILE_ERROR_KEY =
+            "GATEWAY_POLICY_ENRICH_PROFILE_ERROR";
 
-    public static final String errorMessage = "Unable to update user profile with context information";
+    public static final String errorMessage =
+            "Unable to update user profile with context information";
 
     private EnrichProfilePolicyConfiguration configuration;
 
@@ -51,7 +52,8 @@ public class EnrichProfilePolicy {
     }
 
     @OnRequest
-    public void onRequest(Request request, Response response, ExecutionContext context, PolicyChain policyChain) {
+    public void onRequest(
+            Request request, Response response, ExecutionContext context, PolicyChain policyChain) {
         LOGGER.debug("Start EnrichProfilePolicy.onRequest");
         try {
             if (prepareUserProfile(context)) {
@@ -63,10 +65,14 @@ public class EnrichProfilePolicy {
                                 },
                                 (error) -> {
                                     if (configuration.isExitOnError()) {
-                                        LOGGER.warn("Update of user profile failed!", error.getMessage());
+                                        LOGGER.warn(
+                                                "Update of user profile failed!",
+                                                error.getMessage());
                                         policyChain.failWith(PolicyResult.failure(errorMessage));
                                     } else {
-                                        LOGGER.info("Update of user profile failed!", error.getMessage());
+                                        LOGGER.info(
+                                                "Update of user profile failed!",
+                                                error.getMessage());
                                         policyChain.doNext(request, response);
                                     }
                                 });
@@ -76,7 +82,9 @@ public class EnrichProfilePolicy {
         } catch (Exception e) {
             if (configuration.isExitOnError()) {
                 LOGGER.warn(errorMessage, e);
-                policyChain.failWith(PolicyResult.failure(GATEWAY_POLICY_ENRICH_PROFILE_ERROR_KEY, errorMessage));
+                policyChain.failWith(
+                        PolicyResult.failure(
+                                GATEWAY_POLICY_ENRICH_PROFILE_ERROR_KEY, errorMessage));
             } else {
                 LOGGER.info(errorMessage, e);
                 policyChain.doNext(request, response);
@@ -85,7 +93,7 @@ public class EnrichProfilePolicy {
     }
 
     /**
-     * Complete the user  profile based on the Policy configuration
+     * Complete the user profile based on the Policy configuration
      *
      * @param context
      * @return true if the profile must be updated, false otherwise
@@ -93,7 +101,7 @@ public class EnrichProfilePolicy {
     protected boolean prepareUserProfile(ExecutionContext context) {
         boolean needUpdate = false;
         if (!(configuration.getProperties() == null || configuration.getProperties().isEmpty())) {
-            User user = (User)context.getAttribute("user");
+            User user = (User) context.getAttribute("user");
             if (user != null) {
                 LOGGER.debug("Enrich profile for user '{}'", user.getId());
                 Map<String, Object> additionalInformation = user.getAdditionalInformation();
@@ -104,7 +112,8 @@ public class EnrichProfilePolicy {
 
                 TemplateEngine tplEngine = context.getTemplateEngine();
                 for (Property property : configuration.getProperties()) {
-                    String additionalInfo = tplEngine.getValue(property.getClaimValue(), String.class);
+                    String additionalInfo =
+                            tplEngine.getValue(property.getClaimValue(), String.class);
                     additionalInformation.put(property.getClaim(), additionalInfo);
                 }
 
@@ -120,8 +129,7 @@ public class EnrichProfilePolicy {
 
     protected Single<User> enrichProfile(ExecutionContext context) {
         UserRepository userRepository = context.getComponent(UserRepository.class);
-        User user = (User)context.getAttribute("user");
+        User user = (User) context.getAttribute("user");
         return userRepository.update(user);
     }
-
 }

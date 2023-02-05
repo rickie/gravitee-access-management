@@ -1,21 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.gravitee.am.identityprovider.api.DefaultUser;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.authentication.view.TemplateResolver;
@@ -72,6 +75,7 @@ import io.gravitee.am.service.UserActivityService;
 import io.gravitee.am.service.impl.I18nDictionaryService;
 import io.gravitee.am.service.validators.user.UserValidator;
 import io.reactivex.Single;
+
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
@@ -88,6 +92,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.thymeleaf.TemplateEngine;
 
+import java.io.IOException;
+import java.security.Principal;
+import java.util.List;
+
 import javax.annotation.Priority;
 import javax.inject.Named;
 import javax.ws.rs.client.Entity;
@@ -98,13 +106,6 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import java.io.IOException;
-import java.security.Principal;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -122,137 +123,95 @@ public abstract class JerseySpringTest {
     @Named("managementOrganizationUserService")
     protected OrganizationUserService organizationUserService;
 
-    @Autowired
-    protected DomainService domainService;
+    @Autowired protected DomainService domainService;
 
-    @Autowired
-    protected io.gravitee.am.management.service.UserService userService;
+    @Autowired protected io.gravitee.am.management.service.UserService userService;
 
-    @Autowired
-    protected UserActivityService userActivityService;
+    @Autowired protected UserActivityService userActivityService;
 
-    @Autowired
-    protected ScopeService scopeService;
+    @Autowired protected ScopeService scopeService;
 
-    @Autowired
-    protected RoleService roleService;
+    @Autowired protected RoleService roleService;
 
-    @Autowired
-    protected IdentityProviderServiceProxy identityProviderService;
+    @Autowired protected IdentityProviderServiceProxy identityProviderService;
 
-    @Autowired
-    protected ExtensionGrantService extensionGrantService;
+    @Autowired protected ExtensionGrantService extensionGrantService;
 
-    @Autowired
-    protected CertificateServiceProxy certificateService;
+    @Autowired protected CertificateServiceProxy certificateService;
 
-    @Autowired
-    protected CertificatePluginService certificatePluginService;
+    @Autowired protected CertificatePluginService certificatePluginService;
 
-    @Autowired
-    protected TokenService tokenService;
+    @Autowired protected TokenService tokenService;
 
-    @Autowired
-    protected ExtensionGrantPluginService extensionGrantPluginService;
+    @Autowired protected ExtensionGrantPluginService extensionGrantPluginService;
 
-    @Autowired
-    protected IdentityProviderPluginService identityProviderPluginService;
+    @Autowired protected IdentityProviderPluginService identityProviderPluginService;
 
-    @Autowired
-    protected CertificateManager certificateManager;
+    @Autowired protected CertificateManager certificateManager;
 
-    @Autowired
-    protected IdentityProviderManager identityProviderManager;
+    @Autowired protected IdentityProviderManager identityProviderManager;
 
-    @Autowired
-    protected EmailTemplateService emailTemplateService;
+    @Autowired protected EmailTemplateService emailTemplateService;
 
-    @Autowired
-    protected EmailManager emailManager;
+    @Autowired protected EmailManager emailManager;
 
-    @Autowired
-    protected FormService formService;
+    @Autowired protected FormService formService;
 
-    @Autowired
-    protected UserValidator userValidator;
+    @Autowired protected UserValidator userValidator;
 
-    @Autowired
-    protected ScopeApprovalService scopeApprovalService;
+    @Autowired protected ScopeApprovalService scopeApprovalService;
 
-    @Autowired
-    protected AuditService auditService;
+    @Autowired protected AuditService auditService;
 
-    @Autowired
-    protected AuditReporterManager AuditReporterManager;
+    @Autowired protected AuditReporterManager AuditReporterManager;
 
-    @Autowired
-    protected ReporterServiceProxy reporterService;
+    @Autowired protected ReporterServiceProxy reporterService;
 
-    @Autowired
-    protected TagService tagService;
+    @Autowired protected TagService tagService;
 
-    @Autowired
-    protected GroupService groupService;
+    @Autowired protected GroupService groupService;
 
-    @Autowired
-    protected ApplicationService applicationService;
+    @Autowired protected ApplicationService applicationService;
 
-    @Autowired
-    protected FactorService factorService;
+    @Autowired protected FactorService factorService;
 
-    @Autowired
-    protected FactorPluginService factorPluginService;
+    @Autowired protected FactorPluginService factorPluginService;
 
-    @Autowired
-    protected PermissionService permissionService;
+    @Autowired protected PermissionService permissionService;
 
-    @Autowired
-    protected OrganizationService organizationService;
+    @Autowired protected OrganizationService organizationService;
 
-    @Autowired
-    protected MembershipService membershipService;
+    @Autowired protected MembershipService membershipService;
 
-    @Autowired
-    protected EntrypointService entrypointService;
+    @Autowired protected EntrypointService entrypointService;
 
-    @Autowired
-    protected CredentialService credentialService;
+    @Autowired protected CredentialService credentialService;
 
-    @Autowired
-    protected FlowService flowService;
+    @Autowired protected FlowService flowService;
 
-    @Autowired
-    protected ResourcePluginService resourcePluginService;
+    @Autowired protected ResourcePluginService resourcePluginService;
 
-    @Autowired
-    protected BotDetectionPluginService botDetectionPluginService;
+    @Autowired protected BotDetectionPluginService botDetectionPluginService;
 
-    @Autowired
-    protected BotDetectionServiceProxy botDetectionService;
+    @Autowired protected BotDetectionServiceProxy botDetectionService;
 
-    @Autowired
-    protected DeviceIdentifierPluginService deviceIdentifierPluginService;
+    @Autowired protected DeviceIdentifierPluginService deviceIdentifierPluginService;
 
-    @Autowired
-    protected DeviceIdentifierService deviceIdentifierService;
+    @Autowired protected DeviceIdentifierService deviceIdentifierService;
 
-    @Autowired
-    protected DeviceService deviceService;
+    @Autowired protected DeviceService deviceService;
 
-    @Autowired
-    protected AuthenticationDeviceNotifierPluginService authDeviceNotifierPluginService;
+    @Autowired protected AuthenticationDeviceNotifierPluginService authDeviceNotifierPluginService;
 
-    @Autowired
-    protected ThemeService themeService;
+    @Autowired protected ThemeService themeService;
 
-    @Autowired
-    protected PreviewService previewService;
-    @Autowired
-    protected I18nDictionaryService i18nDictionaryService;
+    @Autowired protected PreviewService previewService;
+    @Autowired protected I18nDictionaryService i18nDictionaryService;
 
     @Before
     public void init() {
-        when(permissionService.hasPermission(any(User.class), any(PermissionAcls.class))).thenReturn(Single.just(true));
+        when(permissionService.hasPermission(any(User.class), any(PermissionAcls.class)))
+                .thenReturn(Single.just(true));
     }
 
     @Configuration
@@ -523,7 +482,6 @@ public abstract class JerseySpringTest {
         public TemplateResolver templateResolver() {
             return mock(TemplateResolver.class);
         }
-
     }
 
     private JerseyTest _jerseyTest;
@@ -531,7 +489,12 @@ public abstract class JerseySpringTest {
     public final WebTarget target(final String path) {
 
         if ("domains".equals(path)) {
-            return _jerseyTest.target("organizations").path("DEFAULT").path("environments").path("DEFAULT").path(path);
+            return _jerseyTest
+                    .target("organizations")
+                    .path("DEFAULT")
+                    .path("environments")
+                    .path("DEFAULT")
+                    .path(path);
         }
 
         return _jerseyTest.target(path);
@@ -549,55 +512,57 @@ public abstract class JerseySpringTest {
 
     @Autowired
     public void setApplicationContext(final ApplicationContext context) {
-        _jerseyTest = new JerseyTest() {
-            @Override
-            protected Application configure() {
-                ResourceConfig application = new ManagementApplication();
-                application.register(AuthenticationFilter.class);
-                application.property("contextConfig", context);
+        _jerseyTest =
+                new JerseyTest() {
+                    @Override
+                    protected Application configure() {
+                        ResourceConfig application = new ManagementApplication();
+                        application.register(AuthenticationFilter.class);
+                        application.property("contextConfig", context);
 
-                return application;
-            }
-        };
+                        return application;
+                    }
+                };
     }
 
     @Priority(50)
     public static class AuthenticationFilter implements ContainerRequestFilter {
         @Override
         public void filter(final ContainerRequestContext requestContext) throws IOException {
-            requestContext.setSecurityContext(new SecurityContext() {
-                @Override
-                public Principal getUserPrincipal() {
-                    User endUser = new DefaultUser(USER_NAME);
-                    return new UsernamePasswordAuthenticationToken(endUser, null);
-                }
+            requestContext.setSecurityContext(
+                    new SecurityContext() {
+                        @Override
+                        public Principal getUserPrincipal() {
+                            User endUser = new DefaultUser(USER_NAME);
+                            return new UsernamePasswordAuthenticationToken(endUser, null);
+                        }
 
-                @Override
-                public boolean isUserInRole(String string) {
-                    return true;
-                }
+                        @Override
+                        public boolean isUserInRole(String string) {
+                            return true;
+                        }
 
-                @Override
-                public boolean isSecure() {
-                    return true;
-                }
+                        @Override
+                        public boolean isSecure() {
+                            return true;
+                        }
 
-                @Override
-                public String getAuthenticationScheme() {
-                    return "BASIC";
-                }
-            });
+                        @Override
+                        public String getAuthenticationScheme() {
+                            return "BASIC";
+                        }
+                    });
         }
     }
 
     /**
-     * Allows to read response entity using object mapper instead of jersey's own implementation.
-     * It is especially useful to ensure objects are deserialized from json using same feature (ex: lower cased enum, ...).
+     * Allows to read response entity using object mapper instead of jersey's own implementation. It
+     * is especially useful to ensure objects are deserialized from json using same feature (ex:
+     * lower cased enum, ...).
      *
      * @param response the jaxrs response.
      * @param clazz the type of entity
      * @param <T> the expected type of entity.
-     *
      * @return the deserialized entity.
      */
     protected <T> T readEntity(Response response, Class<T> clazz) {
@@ -616,26 +581,33 @@ public abstract class JerseySpringTest {
     protected <T> List<T> readListEntity(Response response, Class<T> entityClazz) {
 
         try {
-            return objectMapper.readValue(response.readEntity(String.class), objectMapper.getTypeFactory().constructCollectionType(List.class, entityClazz));
+            return objectMapper.readValue(
+                    response.readEntity(String.class),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, entityClazz));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     /**
-     * Allows to put entity using object mapper instead of jersey's own implementation.
-     * It is especially useful to ensure objects are serialized to json using same feature (ex: lower cased enum, ...).
+     * Allows to put entity using object mapper instead of jersey's own implementation. It is
+     * especially useful to ensure objects are serialized to json using same feature (ex: lower
+     * cased enum, ...).
      *
      * @param webTarget the jersey web target.
      * @param value the entity to put.
      * @param <T> the type of entity.
-     *
      * @return the resulted {@link Response}.
      */
     protected <T> Response put(WebTarget webTarget, T value) {
 
         try {
-            return webTarget.request().put(Entity.entity(objectMapper.writeValueAsString(value), MediaType.APPLICATION_JSON_TYPE));
+            return webTarget
+                    .request()
+                    .put(
+                            Entity.entity(
+                                    objectMapper.writeValueAsString(value),
+                                    MediaType.APPLICATION_JSON_TYPE));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -644,7 +616,12 @@ public abstract class JerseySpringTest {
     protected <T> Response post(WebTarget webTarget, T value) {
 
         try {
-            return webTarget.request().post(Entity.entity(objectMapper.writeValueAsString(value), MediaType.APPLICATION_JSON_TYPE));
+            return webTarget
+                    .request()
+                    .post(
+                            Entity.entity(
+                                    objectMapper.writeValueAsString(value),
+                                    MediaType.APPLICATION_JSON_TYPE));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

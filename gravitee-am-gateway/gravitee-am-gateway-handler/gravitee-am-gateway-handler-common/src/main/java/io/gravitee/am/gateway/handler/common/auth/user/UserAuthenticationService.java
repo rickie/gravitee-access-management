@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.auth.user;
@@ -31,13 +29,15 @@ import io.reactivex.Single;
 public interface UserAuthenticationService {
 
     /**
-     * Method called when a user has been authenticated by any means (login, extension-grant, token ...)
+     * Method called when a user has been authenticated by any means (login, extension-grant, token
+     * ...)
      *
      * @param principal Authenticated user
      * @param afterAuthentication if authentication has been done by login action
      * @return user fetch or create from the repository
      */
-    Single<User> connect(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication);
+    Single<User> connect(
+            io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication);
 
     /**
      * Method called when a user has been authenticated from a previous authentication step
@@ -50,7 +50,9 @@ public interface UserAuthenticationService {
     /**
      * Use to find a pre-authenticated user (from a previous authentication step)
      *
-     * The user should be present in gravitee repository and should be retrieved from the user last identity provider
+     * <p>The user should be present in gravitee repository and should be retrieved from the user
+     * last identity provider
+     *
      * @param subject user technical id
      * @param request http request
      * @return Pre-authenticated user
@@ -60,7 +62,9 @@ public interface UserAuthenticationService {
     /**
      * Use to find a pre-authenticated user (from a previous authentication step)
      *
-     * The user should be present in gravitee repository and should be retrieved from the user last identity provider
+     * <p>The user should be present in gravitee repository and should be retrieved from the user
+     * last identity provider
+     *
      * @param principal user end-user
      * @return Pre-authenticated user
      */
@@ -75,7 +79,11 @@ public interface UserAuthenticationService {
      * @param user End-User to lock
      * @return
      */
-    Completable lockAccount(LoginAttemptCriteria criteria, AccountSettings accountSettings, Client client, User user);
+    Completable lockAccount(
+            LoginAttemptCriteria criteria,
+            AccountSettings accountSettings,
+            Client client,
+            User user);
 
     default Single<User> connect(io.gravitee.am.identityprovider.api.User principal) {
         return connect(principal, true);

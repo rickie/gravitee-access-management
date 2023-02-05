@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
@@ -20,6 +18,7 @@ import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,8 +34,7 @@ import java.util.Map;
  */
 public class CertificateRepositoryTest extends AbstractManagementTest {
 
-    @Autowired
-    private CertificateRepository certificateRepository;
+    @Autowired private CertificateRepository certificateRepository;
 
     @Test
     public void testFindByDomain() throws TechnicalException {
@@ -47,7 +45,8 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
         certificateRepository.create(certificate).blockingGet();
 
         // fetch certificates
-        TestSubscriber<Certificate> testSubscriber = certificateRepository.findByDomain("DomainTestFindByDomain").test();
+        TestSubscriber<Certificate> testSubscriber =
+                certificateRepository.findByDomain("DomainTestFindByDomain").test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -55,7 +54,7 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
         testSubscriber.assertValueCount(1);
     }
 
-    private Certificate  buildCertificate() {
+    private Certificate buildCertificate() {
         Map<String, Object> data = new HashMap<>();
         data.put("key", "value");
         data.put("key2", "value2");
@@ -86,7 +85,8 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
         Certificate certificateCreated = certificateRepository.create(certificate).blockingGet();
 
         // fetch certificate
-        TestObserver<Certificate> testObserver = certificateRepository.findById(certificateCreated.getId()).test();
+        TestObserver<Certificate> testObserver =
+                certificateRepository.findById(certificateCreated.getId()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -97,8 +97,12 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(d -> d.getDomain().equals(certificate.getDomain()));
         testObserver.assertValue(d -> d.getType().equals(certificate.getType()));
         testObserver.assertValue(d -> certificate.getMetadata().size() == d.getMetadata().size());
-        testObserver.assertValue(d -> certificate.getMetadata().keySet().containsAll(d.getMetadata().keySet()));
-        testObserver.assertValue(d -> !certificate.getMetadata().containsKey("file") || certificate.getMetadata().get("file") instanceof byte[]);
+        testObserver.assertValue(
+                d -> certificate.getMetadata().keySet().containsAll(d.getMetadata().keySet()));
+        testObserver.assertValue(
+                d ->
+                        !certificate.getMetadata().containsKey("file")
+                                || certificate.getMetadata().get("file") instanceof byte[]);
         testObserver.assertValue(d -> d.getExpiresAt() != null);
         testObserver.assertValue(d -> d.isSystem());
     }
@@ -117,7 +121,8 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        testObserver.assertValue(domainCreated -> domainCreated.getName().equals(certificate.getName()));
+        testObserver.assertValue(
+                domainCreated -> domainCreated.getName().equals(certificate.getName()));
     }
 
     @Test
@@ -131,7 +136,8 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
         updatedCertificate.setId(certificateCreated.getId());
         updatedCertificate.setName("testUpdatedName");
 
-        TestObserver<Certificate> testObserver = certificateRepository.update(updatedCertificate).test();
+        TestObserver<Certificate> testObserver =
+                certificateRepository.update(updatedCertificate).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -146,19 +152,23 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
 
         final Date exp = new Date(Instant.now().plus(5, ChronoUnit.DAYS).toEpochMilli());
 
-        final TestObserver<Void> testObserver = certificateRepository.updateExpirationDate(certificateCreated.getId(), exp).test();
+        final TestObserver<Void> testObserver =
+                certificateRepository.updateExpirationDate(certificateCreated.getId(), exp).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
 
-        TestObserver<Certificate> testUpdatedValueObs = certificateRepository.findById(certificateCreated.getId()).test();
+        TestObserver<Certificate> testUpdatedValueObs =
+                certificateRepository.findById(certificateCreated.getId()).test();
         testUpdatedValueObs.awaitTerminalEvent();
         testUpdatedValueObs.assertComplete();
         testUpdatedValueObs.assertNoErrors();
         testUpdatedValueObs.assertValue(d -> d.getId().equals(certificateCreated.getId()));
-        testUpdatedValueObs.assertValue(d -> {
-            // MSSQL may have few ms drift so we only evaluate at the second level
-            return d.getExpiresAt().toInstant().getEpochSecond() == d.getExpiresAt().toInstant().getEpochSecond();
-        });
+        testUpdatedValueObs.assertValue(
+                d -> {
+                    // MSSQL may have few ms drift so we only evaluate at the second level
+                    return d.getExpiresAt().toInstant().getEpochSecond()
+                            == d.getExpiresAt().toInstant().getEpochSecond();
+                });
     }
 
     @Test
@@ -168,14 +178,16 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
         Certificate certificateCreated = certificateRepository.create(certificate).blockingGet();
 
         // fetch certificate
-        TestObserver<Certificate> testObserver = certificateRepository.findById(certificateCreated.getId()).test();
+        TestObserver<Certificate> testObserver =
+                certificateRepository.findById(certificateCreated.getId()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(d -> d.getName().equals(certificateCreated.getName()));
 
         // delete domain
-        TestObserver testObserver1 = certificateRepository.delete(certificateCreated.getId()).test();
+        TestObserver testObserver1 =
+                certificateRepository.delete(certificateCreated.getId()).test();
         testObserver1.awaitTerminalEvent();
 
         // fetch domain

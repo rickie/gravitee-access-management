@@ -1,23 +1,35 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
 
+import static io.gravitee.am.service.impl.CertificateServiceImpl.DEFAULT_CERTIFICATE_PLUGIN;
+
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.Certificate;
@@ -38,6 +50,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -60,18 +73,6 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static io.gravitee.am.service.impl.CertificateServiceImpl.DEFAULT_CERTIFICATE_PLUGIN;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.argThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -83,40 +84,32 @@ public class CertificateServiceTest {
     public static String certificateSchemaDefinition;
     public static String certificateConfiguration;
     public static String certificateConfigurationWithOptions;
-    @InjectMocks
-    private CertificateService certificateService = new CertificateServiceImpl();
+    @InjectMocks private CertificateService certificateService = new CertificateServiceImpl();
 
-    @Mock
-    private CertificateRepository certificateRepository;
+    @Mock private CertificateRepository certificateRepository;
 
-    @Mock
-    private ApplicationService applicationService;
+    @Mock private ApplicationService applicationService;
 
-    @Mock
-    private EventService eventService;
+    @Mock private EventService eventService;
 
-    @Spy
-    private ObjectMapper objectMapper;
+    @Spy private ObjectMapper objectMapper;
 
-    @Mock
-    private AuditService auditService;
+    @Mock private AuditService auditService;
 
-    @Mock
-    private Environment environment;
+    @Mock private Environment environment;
 
-    @Mock
-    private CertificatePluginService certificatePluginService;
+    @Mock private CertificatePluginService certificatePluginService;
 
-    @Mock
-    private TaskManager taskManager;
+    @Mock private TaskManager taskManager;
 
-    private final static String DOMAIN = "domain1";
+    private static final String DOMAIN = "domain1";
 
     @BeforeClass
     public static void readCertificateSchemaDefinition() throws Exception {
         certificateSchemaDefinition = loadResource("certificate-schema-definition.json");
         certificateConfiguration = loadResource("certificate-configuration.json");
-        certificateConfigurationWithOptions = loadResource("certificate-configuration-with-options.json");
+        certificateConfigurationWithOptions =
+                loadResource("certificate-configuration-with-options.json");
     }
 
     @Before
@@ -126,14 +119,16 @@ public class CertificateServiceTest {
     }
 
     private static String loadResource(String name) throws IOException {
-        try (InputStream input = CertificateServiceTest.class.getClassLoader().getResourceAsStream(name)) {
+        try (InputStream input =
+                CertificateServiceTest.class.getClassLoader().getResourceAsStream(name)) {
             return IOUtil.readLines(input).stream().collect(Collectors.joining());
         }
     }
 
     @Test
     public void shouldFindById() {
-        when(certificateRepository.findById("my-certificate")).thenReturn(Maybe.just(new Certificate()));
+        when(certificateRepository.findById("my-certificate"))
+                .thenReturn(Maybe.just(new Certificate()));
         TestObserver testObserver = certificateService.findById("my-certificate").test();
 
         testObserver.awaitTerminalEvent();
@@ -153,7 +148,8 @@ public class CertificateServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(certificateRepository.findById("my-certificate")).thenReturn(Maybe.error(TechnicalException::new));
+        when(certificateRepository.findById("my-certificate"))
+                .thenReturn(Maybe.error(TechnicalException::new));
         TestObserver testObserver = new TestObserver();
         certificateService.findById("my-certificate").subscribe(testObserver);
 
@@ -163,7 +159,8 @@ public class CertificateServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(certificateRepository.findByDomain(DOMAIN)).thenReturn(Flowable.just(new Certificate()));
+        when(certificateRepository.findByDomain(DOMAIN))
+                .thenReturn(Flowable.just(new Certificate()));
         TestSubscriber<Certificate> testSubscriber = certificateService.findByDomain(DOMAIN).test();
         testSubscriber.awaitTerminalEvent();
 
@@ -174,7 +171,8 @@ public class CertificateServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(certificateRepository.findByDomain(DOMAIN)).thenReturn(Flowable.error(TechnicalException::new));
+        when(certificateRepository.findByDomain(DOMAIN))
+                .thenReturn(Flowable.error(TechnicalException::new));
 
         TestSubscriber testObserver = certificateService.findByDomain(DOMAIN).test();
 
@@ -207,7 +205,8 @@ public class CertificateServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(certificateRepository.findById("my-certificate")).thenReturn(Maybe.error(TechnicalException::new));
+        when(certificateRepository.findById("my-certificate"))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
         TestObserver testObserver = certificateService.delete("my-certificate").test();
 
@@ -235,8 +234,10 @@ public class CertificateServiceTest {
 
     @Test
     public void shouldDelete_certificateWithClients() {
-        when(certificateRepository.findById("my-certificate")).thenReturn(Maybe.just(new Certificate()));
-        when(applicationService.findByCertificate("my-certificate")).thenReturn(Flowable.just(new Application()));
+        when(certificateRepository.findById("my-certificate"))
+                .thenReturn(Maybe.just(new Certificate()));
+        when(applicationService.findByCertificate("my-certificate"))
+                .thenReturn(Flowable.just(new Application()));
 
         TestObserver testObserver = certificateService.delete("my-certificate").test();
 
@@ -266,7 +267,8 @@ public class CertificateServiceTest {
         testObserver.assertError(IllegalArgumentException.class);
     }
 
-    private TestObserver<Certificate> defaultCertificate(int keySize, String algorithm, boolean shouldBeSuccessful) throws Exception {
+    private TestObserver<Certificate> defaultCertificate(
+            int keySize, String algorithm, boolean shouldBeSuccessful) throws Exception {
         initializeCertificatSettings(keySize, algorithm);
 
         when(certificateRepository.create(any())).thenReturn(Single.just(new Certificate()));
@@ -285,23 +287,33 @@ public class CertificateServiceTest {
         testObserver.awaitTerminalEvent();
 
         if (shouldBeSuccessful) {
-            verify(certificateRepository).create(argThat(cert -> cert.isSystem()
-                    && cert.getDomain().equals(DOMAIN_NAME)
-                    && cert.getName().equals("Default")
-            ));
+            verify(certificateRepository)
+                    .create(
+                            argThat(
+                                    cert ->
+                                            cert.isSystem()
+                                                    && cert.getDomain().equals(DOMAIN_NAME)
+                                                    && cert.getName().equals("Default")));
         }
 
         return testObserver;
     }
 
     private void initializeCertificatSettings(int keySize, String algorithm) {
-        when(environment.getProperty(eq("domains.certificates.default.keysize"), any(), any())).thenReturn(keySize);
-        when(environment.getProperty(eq("domains.certificates.default.validity"), any(), any())).thenReturn(365);
-        when(environment.getProperty(eq("domains.certificates.default.name"), any(), any())).thenReturn("cn=Gravitee.io");
-        when(environment.getProperty(eq("domains.certificates.default.algorithm"), any(), any())).thenReturn(algorithm);
-        when(environment.getProperty(eq("domains.certificates.default.alias"), any(), any())).thenReturn("default");
-        when(environment.getProperty(eq("domains.certificates.default.keypass"), any(), any())).thenReturn("gravitee");
-        when(environment.getProperty(eq("domains.certificates.default.storepass"), any(), any())).thenReturn("gravitee");
+        when(environment.getProperty(eq("domains.certificates.default.keysize"), any(), any()))
+                .thenReturn(keySize);
+        when(environment.getProperty(eq("domains.certificates.default.validity"), any(), any()))
+                .thenReturn(365);
+        when(environment.getProperty(eq("domains.certificates.default.name"), any(), any()))
+                .thenReturn("cn=Gravitee.io");
+        when(environment.getProperty(eq("domains.certificates.default.algorithm"), any(), any()))
+                .thenReturn(algorithm);
+        when(environment.getProperty(eq("domains.certificates.default.alias"), any(), any()))
+                .thenReturn("default");
+        when(environment.getProperty(eq("domains.certificates.default.keypass"), any(), any()))
+                .thenReturn("gravitee");
+        when(environment.getProperty(eq("domains.certificates.default.storepass"), any(), any()))
+                .thenReturn("gravitee");
     }
 
     @Test
@@ -313,8 +325,10 @@ public class CertificateServiceTest {
         certOldest.setName("Cert-1");
         certOldest.setConfiguration(certificateConfiguration);
         certOldest.setType(DEFAULT_CERTIFICATE_PLUGIN);
-        certOldest.setCreatedAt(new Date(now.minusYears(3).toInstant(ZoneOffset.UTC).toEpochMilli()));
-        certOldest.setExpiresAt(new Date(now.minusYears(2).toInstant(ZoneOffset.UTC).toEpochMilli()));
+        certOldest.setCreatedAt(
+                new Date(now.minusYears(3).toInstant(ZoneOffset.UTC).toEpochMilli()));
+        certOldest.setExpiresAt(
+                new Date(now.minusYears(2).toInstant(ZoneOffset.UTC).toEpochMilli()));
 
         final Certificate certIntermediate = new Certificate();
         certIntermediate.setSystem(true);
@@ -322,8 +336,10 @@ public class CertificateServiceTest {
         certIntermediate.setName("Cert-2");
         certIntermediate.setConfiguration(certificateConfiguration);
         certIntermediate.setType(DEFAULT_CERTIFICATE_PLUGIN);
-        certIntermediate.setCreatedAt(new Date(now.minusYears(2).toInstant(ZoneOffset.UTC).toEpochMilli()));
-        certIntermediate.setExpiresAt(new Date(now.minusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli()));
+        certIntermediate.setCreatedAt(
+                new Date(now.minusYears(2).toInstant(ZoneOffset.UTC).toEpochMilli()));
+        certIntermediate.setExpiresAt(
+                new Date(now.minusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli()));
 
         final Certificate certLatest = new Certificate();
         certLatest.setSystem(true);
@@ -332,7 +348,8 @@ public class CertificateServiceTest {
         certLatest.setName("Cert-3");
         certLatest.setConfiguration(certificateConfigurationWithOptions);
         certLatest.setType(DEFAULT_CERTIFICATE_PLUGIN);
-        certLatest.setCreatedAt(new Date(now.minusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli()));
+        certLatest.setCreatedAt(
+                new Date(now.minusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli()));
         certLatest.setExpiresAt(new Date(now.plusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli()));
 
         final Certificate certCustom = new Certificate();
@@ -341,10 +358,13 @@ public class CertificateServiceTest {
         certCustom.setName("Cert-4");
         certCustom.setConfiguration(certificateConfiguration);
         certCustom.setType(DEFAULT_CERTIFICATE_PLUGIN);
-        certCustom.setCreatedAt(new Date(now.minusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli()));
-        certCustom.setExpiresAt(new Date(now.plusDays(10).toInstant(ZoneOffset.UTC).toEpochMilli()));
+        certCustom.setCreatedAt(
+                new Date(now.minusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli()));
+        certCustom.setExpiresAt(
+                new Date(now.plusDays(10).toInstant(ZoneOffset.UTC).toEpochMilli()));
 
-        when(certificateRepository.findByDomain(eq(DOMAIN))).thenReturn(Flowable.just(certOldest, certLatest, certIntermediate, certCustom));
+        when(certificateRepository.findByDomain(eq(DOMAIN)))
+                .thenReturn(Flowable.just(certOldest, certLatest, certIntermediate, certCustom));
 
         initializeCertificatSettings(2048, "SHA256withRSA");
 
@@ -358,30 +378,50 @@ public class CertificateServiceTest {
         when(certificatePluginService.getSchema(DEFAULT_CERTIFICATE_PLUGIN))
                 .thenReturn(Maybe.just(certificateSchemaDefinition));
 
-        TestObserver<Certificate> testObserver = certificateService.rotate(DOMAIN, mock(User.class)).test();
+        TestObserver<Certificate> testObserver =
+                certificateService.rotate(DOMAIN, mock(User.class)).test();
         testObserver.awaitTerminalEvent();
 
-        verify(certificateRepository).create(argThat(cert -> cert.isSystem()
-                && cert.getDomain().equals(DOMAIN)
-                && cert.getName().matches("Default\\s[\\d-\\s:]+")
-                && cert.getConfiguration().contains("[\"sig\"]")
-                && cert.getConfiguration().contains("RS256")
-        ));
-        verify(taskManager).schedule(argThat(task -> {
-            boolean result = task.kind().equals(AssignSystemCertificate.class.getSimpleName());
-            result &= task.type().equals(TaskType.SIMPLE);
-            var definition = task.getDefinition();
-            result &= definition.getDelay() == 1;
-            result &= definition.getUnit().equals(TimeUnit.MINUTES);
-            if (definition instanceof AssignSystemCertificateDefinition) {
-                result &= ((AssignSystemCertificateDefinition) definition).getDomainId().equals(DOMAIN);
-                result &= ((AssignSystemCertificateDefinition) definition).getDeprecatedCertificate().equals(certLatest.getId());
-                result &= ((AssignSystemCertificateDefinition) definition).getRenewedCertificate() != null;
-            } else {
-                result = false;
-            }
-            return result;
-        }));
+        verify(certificateRepository)
+                .create(
+                        argThat(
+                                cert ->
+                                        cert.isSystem()
+                                                && cert.getDomain().equals(DOMAIN)
+                                                && cert.getName().matches("Default\\s[\\d-\\s:]+")
+                                                && cert.getConfiguration().contains("[\"sig\"]")
+                                                && cert.getConfiguration().contains("RS256")));
+        verify(taskManager)
+                .schedule(
+                        argThat(
+                                task -> {
+                                    boolean result =
+                                            task.kind()
+                                                    .equals(
+                                                            AssignSystemCertificate.class
+                                                                    .getSimpleName());
+                                    result &= task.type().equals(TaskType.SIMPLE);
+                                    var definition = task.getDefinition();
+                                    result &= definition.getDelay() == 1;
+                                    result &= definition.getUnit().equals(TimeUnit.MINUTES);
+                                    if (definition instanceof AssignSystemCertificateDefinition) {
+                                        result &=
+                                                ((AssignSystemCertificateDefinition) definition)
+                                                        .getDomainId()
+                                                        .equals(DOMAIN);
+                                        result &=
+                                                ((AssignSystemCertificateDefinition) definition)
+                                                        .getDeprecatedCertificate()
+                                                        .equals(certLatest.getId());
+                                        result &=
+                                                ((AssignSystemCertificateDefinition) definition)
+                                                                .getRenewedCertificate()
+                                                        != null;
+                                    } else {
+                                        result = false;
+                                    }
+                                    return result;
+                                }));
     }
 
     @Test
@@ -394,8 +434,10 @@ public class CertificateServiceTest {
         certCustom.setName("Cert-4");
         certCustom.setConfiguration(certificateConfiguration);
         certCustom.setType(DEFAULT_CERTIFICATE_PLUGIN);
-        certCustom.setCreatedAt(new Date(now.minusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli()));
-        certCustom.setExpiresAt(new Date(now.plusDays(10).toInstant(ZoneOffset.UTC).toEpochMilli()));
+        certCustom.setCreatedAt(
+                new Date(now.minusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli()));
+        certCustom.setExpiresAt(
+                new Date(now.plusDays(10).toInstant(ZoneOffset.UTC).toEpochMilli()));
 
         when(certificateRepository.findByDomain(eq(DOMAIN))).thenReturn(Flowable.just(certCustom));
 
@@ -409,15 +451,19 @@ public class CertificateServiceTest {
         when(certificatePluginService.getSchema(DEFAULT_CERTIFICATE_PLUGIN))
                 .thenReturn(Maybe.just(certificateSchemaDefinition));
 
-        TestObserver<Certificate> testObserver = certificateService.rotate(DOMAIN, mock(User.class)).test();
+        TestObserver<Certificate> testObserver =
+                certificateService.rotate(DOMAIN, mock(User.class)).test();
         testObserver.awaitTerminalEvent();
 
-        verify(certificateRepository).create(argThat(cert -> cert.isSystem()
-                && cert.getDomain().equals(DOMAIN)
-                && cert.getName().equals("Default")
-                && !cert.getConfiguration().contains("[\"sig\"]")
-                && !cert.getConfiguration().contains("RS256")
-        ));
+        verify(certificateRepository)
+                .create(
+                        argThat(
+                                cert ->
+                                        cert.isSystem()
+                                                && cert.getDomain().equals(DOMAIN)
+                                                && cert.getName().equals("Default")
+                                                && !cert.getConfiguration().contains("[\"sig\"]")
+                                                && !cert.getConfiguration().contains("RS256")));
         verify(taskManager, never()).schedule(any());
     }
 }

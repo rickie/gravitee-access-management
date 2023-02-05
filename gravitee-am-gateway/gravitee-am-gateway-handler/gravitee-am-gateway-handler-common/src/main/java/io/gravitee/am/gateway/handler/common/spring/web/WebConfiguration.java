@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.spring.web;
@@ -33,6 +31,7 @@ import io.gravitee.am.gateway.handler.common.vertx.web.handler.impl.PolicyChainH
 import io.gravitee.am.service.AuthenticationFlowContextService;
 import io.gravitee.am.service.UserService;
 import io.vertx.core.http.CookieSameSite;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -66,18 +65,22 @@ public class WebConfiguration {
     }
 
     @Bean
-    public CookieSessionHandler sessionHandler(JWTService jwtService, CertificateManager certificateManager, UserService userService) {
+    public CookieSessionHandler sessionHandler(
+            JWTService jwtService, CertificateManager certificateManager, UserService userService) {
         return new CookieSessionHandler(jwtService, certificateManager, userService);
     }
 
     @Bean
-    public SSOSessionHandler ssoSessionHandler(ClientSyncService clientSyncService, AuthenticationFlowContextService authenticationFlowContextService) {
+    public SSOSessionHandler ssoSessionHandler(
+            ClientSyncService clientSyncService,
+            AuthenticationFlowContextService authenticationFlowContextService) {
         return new SSOSessionHandler(clientSyncService, authenticationFlowContextService);
     }
 
     @Bean
-    public CookieHandler cookieHandler(@Value("${http.cookie.secure:false}") boolean cookieSecure,
-                                       @Value("${http.cookie.sameSite:Lax}") String sameSite) {
+    public CookieHandler cookieHandler(
+            @Value("${http.cookie.secure:false}") boolean cookieSecure,
+            @Value("${http.cookie.sameSite:Lax}") String sameSite) {
         return new CookieHandler(cookieSecure, CookieSameSite.valueOf(sameSite.toUpperCase()));
     }
 

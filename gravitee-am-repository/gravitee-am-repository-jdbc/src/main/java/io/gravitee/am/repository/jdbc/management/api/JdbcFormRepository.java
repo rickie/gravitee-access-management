@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.management.api;
+
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Form;
@@ -26,10 +26,9 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -38,8 +37,7 @@ import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 @Repository
 public class JdbcFormRepository extends AbstractJdbcRepository implements FormRepository {
 
-    @Autowired
-    private SpringFormRepository formRepository;
+    @Autowired private SpringFormRepository formRepository;
 
     protected Form toEntity(JdbcForm entity) {
         return mapper.map(entity, Form.class);
@@ -50,51 +48,59 @@ public class JdbcFormRepository extends AbstractJdbcRepository implements FormRe
     }
 
     @Override
-    public Flowable<Form>  findAll(ReferenceType referenceType, String referenceId) {
+    public Flowable<Form> findAll(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findAll({}, {})", referenceType, referenceId);
-        return formRepository.findAll(referenceType.name(), referenceId)
-                .map(this::toEntity);
+        return formRepository.findAll(referenceType.name(), referenceId).map(this::toEntity);
     }
 
     @Override
-    public Flowable<Form> findAll(ReferenceType referenceType) {LOGGER.debug("findAll({})", referenceType);
-        return formRepository.findAll(referenceType.name())
-                .map(this::toEntity);
+    public Flowable<Form> findAll(ReferenceType referenceType) {
+        LOGGER.debug("findAll({})", referenceType);
+        return formRepository.findAll(referenceType.name()).map(this::toEntity);
     }
 
     @Override
-    public Flowable<Form> findByClient(ReferenceType referenceType, String referenceId, String client) {
+    public Flowable<Form> findByClient(
+            ReferenceType referenceType, String referenceId, String client) {
         LOGGER.debug("findByClient({}, {}, {})", referenceType, referenceId, client);
-        return formRepository.findByClient(referenceType.name(), referenceId, client)
+        return formRepository
+                .findByClient(referenceType.name(), referenceId, client)
                 .map(this::toEntity);
     }
 
     @Override
-    public Maybe<Form> findByTemplate(ReferenceType referenceType, String referenceId, String template) {
+    public Maybe<Form> findByTemplate(
+            ReferenceType referenceType, String referenceId, String template) {
         LOGGER.debug("findByTemplate({}, {}, {})", referenceType, referenceId, template);
-        return formRepository.findByTemplate(referenceType.name(), referenceId, template)
+        return formRepository
+                .findByTemplate(referenceType.name(), referenceId, template)
                 .map(this::toEntity);
     }
 
     @Override
-    public Maybe<Form> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template) {
-        LOGGER.debug("findByClientAndTemplate({}, {}, {}, {})", referenceType, referenceId, client, template);
-        return formRepository.findByClientAndTemplate(referenceType.name(), referenceId, client, template)
+    public Maybe<Form> findByClientAndTemplate(
+            ReferenceType referenceType, String referenceId, String client, String template) {
+        LOGGER.debug(
+                "findByClientAndTemplate({}, {}, {}, {})",
+                referenceType,
+                referenceId,
+                client,
+                template);
+        return formRepository
+                .findByClientAndTemplate(referenceType.name(), referenceId, client, template)
                 .map(this::toEntity);
     }
 
     @Override
     public Maybe<Form> findById(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("findById({}, {}, {})", referenceType, referenceId, id);
-        return formRepository.findById(referenceType.name(), referenceId, id)
-                .map(this::toEntity);
+        return formRepository.findById(referenceType.name(), referenceId, id).map(this::toEntity);
     }
 
     @Override
     public Maybe<Form> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return formRepository.findById(id)
-                .map(this::toEntity);
+        return formRepository.findById(id).map(this::toEntity);
     }
 
     @Override
@@ -108,8 +114,7 @@ public class JdbcFormRepository extends AbstractJdbcRepository implements FormRe
     @Override
     public Single<Form> update(Form item) {
         LOGGER.debug("update forms with id {}", item.getId());
-        return this.formRepository.save(toJdbcEntity(item))
-                .map(this::toEntity);
+        return this.formRepository.save(toJdbcEntity(item)).map(this::toEntity);
     }
 
     @Override

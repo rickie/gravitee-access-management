@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
@@ -31,7 +29,8 @@ import java.util.concurrent.TimeUnit;
  * @author GraviteeSource Team
  */
 public interface RateLimiterService {
-    Single<Boolean> tryConsume(String userId, String factorId, String applicationId, String domainId);
+    Single<Boolean> tryConsume(
+            String userId, String factorId, String applicationId, String domainId);
 
     boolean isRateLimitEnabled();
 
@@ -39,14 +38,16 @@ public interface RateLimiterService {
 
     Completable deleteByDomain(Domain domain, ReferenceType referenceType);
 
-    default void calculateAndSetTokenLeft(RateLimit rateLimit, String timeUnit, int timePeriod, int limit) {
+    default void calculateAndSetTokenLeft(
+            RateLimit rateLimit, String timeUnit, int timePeriod, int limit) {
         final int consumeOne = 1;
         long now = Instant.now().toEpochMilli();
         long lastRequested = rateLimit.getUpdatedAt().toInstant().toEpochMilli();
         long timeElapsed = now - lastRequested;
         long periodDuration = timePeriodToMillSeconds(timeUnit, timePeriod) / limit;
-        // We need to know how many tokens could be generated in between current time and the last request time (which is timeElapsed variable)
-        //periodDuration is calculated form timeUnit and timePeriod
+        // We need to know how many tokens could be generated in between current time and the last
+        // request time (which is timeElapsed variable)
+        // periodDuration is calculated form timeUnit and timePeriod
         long newTokens = Math.max(0, timeElapsed / periodDuration);
         long tokenLeft = Math.max(0, rateLimit.getTokenLeft() + newTokens);
 
@@ -64,7 +65,7 @@ public interface RateLimiterService {
         }
     }
 
-    private long timePeriodToMillSeconds(String timeUnit, int timePeriod){
+    private long timePeriodToMillSeconds(String timeUnit, int timePeriod) {
         ChronoUnit unit = ChronoUnit.valueOf(timeUnit.trim().toUpperCase());
         long seconds = 0;
         switch (unit) {

@@ -1,19 +1,32 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
+
+import static io.gravitee.am.service.validators.email.EmailValidatorImpl.EMAIL_PATTERN;
+import static io.gravitee.am.service.validators.user.UserValidatorImpl.NAME_LAX_PATTERN;
+import static io.gravitee.am.service.validators.user.UserValidatorImpl.NAME_STRICT_PATTERN;
+import static io.gravitee.am.service.validators.user.UserValidatorImpl.USERNAME_PATTERN;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import io.gravitee.am.model.Credential;
 import io.gravitee.am.model.ReferenceType;
@@ -39,6 +52,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -49,20 +63,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 
-import static io.gravitee.am.service.validators.email.EmailValidatorImpl.EMAIL_PATTERN;
-import static io.gravitee.am.service.validators.user.UserValidatorImpl.NAME_LAX_PATTERN;
-import static io.gravitee.am.service.validators.user.UserValidatorImpl.NAME_STRICT_PATTERN;
-import static io.gravitee.am.service.validators.user.UserValidatorImpl.USERNAME_PATTERN;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.argThat;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -70,27 +70,23 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
 
-    @InjectMocks
-    private UserService userService = new UserServiceImpl();
+    @InjectMocks private UserService userService = new UserServiceImpl();
 
     @Spy
-    private UserValidatorImpl userValidator = new UserValidatorImpl(
-            NAME_STRICT_PATTERN,
-            NAME_LAX_PATTERN,
-            USERNAME_PATTERN,
-            new EmailValidatorImpl(EMAIL_PATTERN)
-    );
+    private UserValidatorImpl userValidator =
+            new UserValidatorImpl(
+                    NAME_STRICT_PATTERN,
+                    NAME_LAX_PATTERN,
+                    USERNAME_PATTERN,
+                    new EmailValidatorImpl(EMAIL_PATTERN));
 
-    @Mock
-    private UserRepository userRepository;
+    @Mock private UserRepository userRepository;
 
-    @Mock
-    private EventService eventService;
+    @Mock private EventService eventService;
 
-    @Mock
-    private CredentialService credentialService;
+    @Mock private CredentialService credentialService;
 
-    private final static String DOMAIN = "domain1";
+    private static final String DOMAIN = "domain1";
 
     @Test
     public void shouldFindById() {
@@ -122,10 +118,10 @@ public class UserServiceTest {
         testObserver.assertNotComplete();
     }
 
-
     @Test
     public void shouldFindByDomain() {
-        when(userRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(new User()));
+        when(userRepository.findAll(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.just(new User()));
         TestSubscriber<User> testSubscriber = userService.findByDomain(DOMAIN).test();
         testSubscriber.awaitTerminalEvent();
 
@@ -136,7 +132,8 @@ public class UserServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(userRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.error(TechnicalException::new));
+        when(userRepository.findAll(ReferenceType.DOMAIN, DOMAIN))
+                .thenReturn(Flowable.error(TechnicalException::new));
 
         TestSubscriber testSubscriber = userService.findByDomain(DOMAIN).test();
 
@@ -146,8 +143,9 @@ public class UserServiceTest {
 
     @Test
     public void shouldFindByDomainPagination() {
-        Page pageUsers = new Page(Collections.singleton(new User()), 1 , 1);
-        when(userRepository.findAll(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq(1) , eq(1))).thenReturn(Single.just(pageUsers));
+        Page pageUsers = new Page(Collections.singleton(new User()), 1, 1);
+        when(userRepository.findAll(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq(1), eq(1)))
+                .thenReturn(Single.just(pageUsers));
         TestObserver<Page<User>> testObserver = userService.findByDomain(DOMAIN, 1, 1).test();
         testObserver.awaitTerminalEvent();
 
@@ -158,10 +156,11 @@ public class UserServiceTest {
 
     @Test
     public void shouldFindByDomainPagination_technicalException() {
-        when(userRepository.findAll(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq(1) , eq(1))).thenReturn(Single.error(TechnicalException::new));
+        when(userRepository.findAll(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq(1), eq(1)))
+                .thenReturn(Single.error(TechnicalException::new));
 
         TestObserver testObserver = new TestObserver<>();
-        userService.findByDomain(DOMAIN, 1 , 1).subscribe(testObserver);
+        userService.findByDomain(DOMAIN, 1, 1).subscribe(testObserver);
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -169,7 +168,8 @@ public class UserServiceTest {
 
     @Test
     public void shouldLoadUserByUsernameAndDomain() {
-        when(userRepository.findByUsernameAndDomain(DOMAIN, "my-user")).thenReturn(Maybe.just(new User()));
+        when(userRepository.findByUsernameAndDomain(DOMAIN, "my-user"))
+                .thenReturn(Maybe.just(new User()));
         TestObserver testObserver = userService.findByDomainAndUsername(DOMAIN, "my-user").test();
 
         testObserver.awaitTerminalEvent();
@@ -189,7 +189,8 @@ public class UserServiceTest {
 
     @Test
     public void shouldLoadUserByUsernameAndDomain_technicalException() {
-        when(userRepository.findByUsernameAndDomain(DOMAIN, "my-user")).thenReturn(Maybe.error(TechnicalException::new));
+        when(userRepository.findByUsernameAndDomain(DOMAIN, "my-user"))
+                .thenReturn(Maybe.error(TechnicalException::new));
         TestObserver testObserver = new TestObserver();
         userService.findByDomainAndUsername(DOMAIN, "my-user").subscribe(testObserver);
 
@@ -207,7 +208,9 @@ public class UserServiceTest {
         when(newUser.getUsername()).thenReturn("username");
         when(newUser.getSource()).thenReturn("source");
         when(userRepository.create(any(User.class))).thenReturn(Single.just(user));
-        when(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.empty());
+        when(userRepository.findByUsernameAndSource(
+                        ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource()))
+                .thenReturn(Maybe.empty());
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
         TestObserver testObserver = userService.create(DOMAIN, newUser).test();
@@ -228,7 +231,9 @@ public class UserServiceTest {
 
         NewUser newUser = new NewUser();
         newUser.setEmail("invalid");
-        when(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.empty());
+        when(userRepository.findByUsernameAndSource(
+                        ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource()))
+                .thenReturn(Maybe.empty());
         when(userRepository.create(any(User.class))).thenReturn(Single.just(user));
 
         TestObserver<User> testObserver = userService.create(DOMAIN, newUser).test();
@@ -247,7 +252,9 @@ public class UserServiceTest {
 
         NewUser newUser = new NewUser();
         newUser.setUsername("##&##");
-        when(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.empty());
+        when(userRepository.findByUsernameAndSource(
+                        ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource()))
+                .thenReturn(Maybe.empty());
         when(userRepository.create(any(User.class))).thenReturn(Single.just(user));
 
         TestObserver<User> testObserver = userService.create(DOMAIN, newUser).test();
@@ -263,8 +270,11 @@ public class UserServiceTest {
         NewUser newUser = Mockito.mock(NewUser.class);
         when(newUser.getUsername()).thenReturn("username");
         when(newUser.getSource()).thenReturn("source");
-        when(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.empty());
-        when(userRepository.create(any(User.class))).thenReturn(Single.error(TechnicalException::new));
+        when(userRepository.findByUsernameAndSource(
+                        ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource()))
+                .thenReturn(Maybe.empty());
+        when(userRepository.create(any(User.class)))
+                .thenReturn(Single.error(TechnicalException::new));
 
         TestObserver testObserver = new TestObserver();
         userService.create(DOMAIN, newUser).subscribe(testObserver);
@@ -278,7 +288,9 @@ public class UserServiceTest {
         NewUser newUser = Mockito.mock(NewUser.class);
         when(newUser.getUsername()).thenReturn("username");
         when(newUser.getSource()).thenReturn("source");
-        when(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.just(new User()));
+        when(userRepository.findByUsernameAndSource(
+                        ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource()))
+                .thenReturn(Maybe.just(new User()));
 
         TestObserver testObserver = new TestObserver();
         userService.create(DOMAIN, newUser).subscribe(testObserver);
@@ -294,7 +306,8 @@ public class UserServiceTest {
         user.setReferenceType(ReferenceType.DOMAIN);
         user.setReferenceId(DOMAIN);
 
-        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(Maybe.just(user));
+        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user")))
+                .thenReturn(Maybe.just(user));
         when(userRepository.update(any(User.class))).thenReturn(Single.just(user));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
@@ -304,7 +317,8 @@ public class UserServiceTest {
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(userRepository, times(1)).findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"));
+        verify(userRepository, times(1))
+                .findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"));
         verify(userRepository, times(1)).update(any(User.class));
         verify(eventService, times(1)).create(any());
     }
@@ -323,7 +337,8 @@ public class UserServiceTest {
         user.setDisplayName(UserProfileUtils.buildDisplayName(user));
         when(updateUser.getDisplayName()).thenReturn(user.getDisplayName());
 
-        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(Maybe.just(user));
+        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user")))
+                .thenReturn(Maybe.just(user));
         when(userRepository.update(any(User.class))).thenReturn(Single.just(user));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
@@ -333,8 +348,10 @@ public class UserServiceTest {
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(userRepository, times(1)).findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"));
-        verify(userRepository, times(1)).update(argThat(entity -> "Johanna Doe".equals(entity.getDisplayName())));
+        verify(userRepository, times(1))
+                .findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"));
+        verify(userRepository, times(1))
+                .update(argThat(entity -> "Johanna Doe".equals(entity.getDisplayName())));
         verify(eventService, times(1)).create(any());
     }
 
@@ -353,7 +370,8 @@ public class UserServiceTest {
         user.setLastName("Doe");
         user.setDisplayName(DISPLAYNAME);
 
-        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(Maybe.just(user));
+        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user")))
+                .thenReturn(Maybe.just(user));
         when(userRepository.update(any(User.class))).thenReturn(Single.just(user));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
@@ -363,8 +381,10 @@ public class UserServiceTest {
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(userRepository, times(1)).findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"));
-        verify(userRepository, times(1)).update(argThat(entity -> DISPLAYNAME.equals(entity.getDisplayName())));
+        verify(userRepository, times(1))
+                .findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"));
+        verify(userRepository, times(1))
+                .update(argThat(entity -> DISPLAYNAME.equals(entity.getDisplayName())));
         verify(eventService, times(1)).create(any());
     }
 
@@ -383,7 +403,8 @@ public class UserServiceTest {
         user.setLastName("Doe");
         user.setDisplayName(UserProfileUtils.buildDisplayName(user));
 
-        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(Maybe.just(user));
+        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user")))
+                .thenReturn(Maybe.just(user));
         when(userRepository.update(any(User.class))).thenReturn(Single.just(user));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
@@ -393,8 +414,10 @@ public class UserServiceTest {
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(userRepository, times(1)).findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"));
-        verify(userRepository, times(1)).update(argThat(entity -> DISPLAYNAME.equals(entity.getDisplayName())));
+        verify(userRepository, times(1))
+                .findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"));
+        verify(userRepository, times(1))
+                .update(argThat(entity -> DISPLAYNAME.equals(entity.getDisplayName())));
         verify(eventService, times(1)).create(any());
     }
 
@@ -406,7 +429,8 @@ public class UserServiceTest {
 
         UpdateUser updateUser = new UpdateUser();
         updateUser.setEmail("invalid");
-        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(Maybe.just(user));
+        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user")))
+                .thenReturn(Maybe.just(user));
         when(userRepository.update(any(User.class))).thenReturn(Single.just(user));
 
         TestObserver<User> testObserver = userService.update(DOMAIN, "my-user", updateUser).test();
@@ -425,7 +449,8 @@ public class UserServiceTest {
 
         UpdateUser updateUser = new UpdateUser();
         updateUser.setFirstName("$$^^^^¨¨¨)");
-        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(Maybe.just(user));
+        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user")))
+                .thenReturn(Maybe.just(user));
         when(userRepository.update(any(User.class))).thenReturn(Single.just(user));
 
         TestObserver<User> testObserver = userService.update(DOMAIN, "my-user", updateUser).test();
@@ -439,8 +464,10 @@ public class UserServiceTest {
     @Test
     public void shouldUpdate_technicalException() {
         UpdateUser updateUser = Mockito.mock(UpdateUser.class);
-        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(Maybe.just(new User()));
-        when(userRepository.update(any(User.class))).thenReturn(Single.error(TechnicalException::new));
+        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user")))
+                .thenReturn(Maybe.just(new User()));
+        when(userRepository.update(any(User.class)))
+                .thenReturn(Single.error(TechnicalException::new));
 
         TestObserver testObserver = new TestObserver();
         userService.update(DOMAIN, "my-user", updateUser).subscribe(testObserver);
@@ -452,7 +479,8 @@ public class UserServiceTest {
     @Test
     public void shouldUpdate_userNotFound() {
         UpdateUser updateUser = Mockito.mock(UpdateUser.class);
-        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(Maybe.empty());
+        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user")))
+                .thenReturn(Maybe.empty());
 
         TestObserver testObserver = new TestObserver();
         userService.update(DOMAIN, "my-user", updateUser).subscribe(testObserver);
@@ -471,7 +499,9 @@ public class UserServiceTest {
         when(userRepository.findById("my-user")).thenReturn(Maybe.just(user));
         when(userRepository.delete("my-user")).thenReturn(Completable.complete());
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(credentialService.findByUserId(user.getReferenceType(), user.getReferenceId(), user.getId())).thenReturn(Flowable.empty());
+        when(credentialService.findByUserId(
+                        user.getReferenceType(), user.getReferenceId(), user.getId()))
+                .thenReturn(Flowable.empty());
 
         TestObserver testObserver = userService.delete("my-user").test();
         testObserver.awaitTerminalEvent();
@@ -497,8 +527,11 @@ public class UserServiceTest {
         when(userRepository.findById("my-user")).thenReturn(Maybe.just(user));
         when(userRepository.delete("my-user")).thenReturn(Completable.complete());
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(credentialService.findByUserId(user.getReferenceType(), user.getReferenceId(), user.getId())).thenReturn(Flowable.just(credential));
-        when(credentialService.delete(credential.getId(), false)).thenReturn(Completable.complete());
+        when(credentialService.findByUserId(
+                        user.getReferenceType(), user.getReferenceId(), user.getId()))
+                .thenReturn(Flowable.just(credential));
+        when(credentialService.delete(credential.getId(), false))
+                .thenReturn(Completable.complete());
 
         TestObserver testObserver = userService.delete("my-user").test();
         testObserver.awaitTerminalEvent();

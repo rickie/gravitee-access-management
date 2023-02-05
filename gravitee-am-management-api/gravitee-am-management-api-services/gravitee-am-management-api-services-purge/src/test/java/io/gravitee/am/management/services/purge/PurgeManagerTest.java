@@ -1,27 +1,26 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.services.purge;
+
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.repository.management.api.*;
 import io.gravitee.am.repository.oauth2.api.*;
 import io.gravitee.am.repository.oidc.api.CibaAuthRequestRepository;
 import io.gravitee.am.repository.oidc.api.RequestObjectRepository;
 import io.reactivex.Completable;
-import java.util.Arrays;
-import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +28,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.*;
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -38,44 +38,31 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class PurgeManagerTest {
 
-    @InjectMocks
-    private PurgeManager manager;
-    
-    @Mock
-    private LoginAttemptRepository loginAttemptRepository;
+    @InjectMocks private PurgeManager manager;
 
-    @Mock
-    private PermissionTicketRepository permissionTicketRepository;
+    @Mock private LoginAttemptRepository loginAttemptRepository;
 
-    @Mock
-    private AccessTokenRepository accessTokenRepository;
+    @Mock private PermissionTicketRepository permissionTicketRepository;
 
-    @Mock
-    private RefreshTokenRepository refreshTokenRepository;
+    @Mock private AccessTokenRepository accessTokenRepository;
 
-    @Mock
-    private RequestObjectRepository requestObjectRepository;
+    @Mock private RefreshTokenRepository refreshTokenRepository;
 
-    @Mock
-    private ScopeApprovalRepository scopeApprovalRepository;
+    @Mock private RequestObjectRepository requestObjectRepository;
 
-    @Mock
-    private AuthorizationCodeRepository authorizationCodeRepository;
+    @Mock private ScopeApprovalRepository scopeApprovalRepository;
 
-    @Mock
-    private AuthenticationFlowContextRepository authenticationFlowContextRepository;
+    @Mock private AuthorizationCodeRepository authorizationCodeRepository;
 
-    @Mock
-    private DeviceRepository deviceRepository;
+    @Mock private AuthenticationFlowContextRepository authenticationFlowContextRepository;
 
-    @Mock
-    protected PushedAuthorizationRequestRepository pushedAuthorizationRequestRepository;
+    @Mock private DeviceRepository deviceRepository;
 
-    @Mock
-    protected CibaAuthRequestRepository cibaAuthRequestRepository;
+    @Mock protected PushedAuthorizationRequestRepository pushedAuthorizationRequestRepository;
 
-    @Mock
-    protected UserActivityRepository userActivityRepository;
+    @Mock protected CibaAuthRequestRepository cibaAuthRequestRepository;
+
+    @Mock protected UserActivityRepository userActivityRepository;
 
     @Before
     public void prepare() {
@@ -86,8 +73,10 @@ public class PurgeManagerTest {
         when(scopeApprovalRepository.purgeExpiredData()).thenReturn(Completable.complete());
         when(refreshTokenRepository.purgeExpiredData()).thenReturn(Completable.complete());
         when(requestObjectRepository.purgeExpiredData()).thenReturn(Completable.complete());
-        when(authenticationFlowContextRepository.purgeExpiredData()).thenReturn(Completable.complete());
-        when(pushedAuthorizationRequestRepository.purgeExpiredData()).thenReturn(Completable.complete());
+        when(authenticationFlowContextRepository.purgeExpiredData())
+                .thenReturn(Completable.complete());
+        when(pushedAuthorizationRequestRepository.purgeExpiredData())
+                .thenReturn(Completable.complete());
         when(cibaAuthRequestRepository.purgeExpiredData()).thenReturn(Completable.complete());
         when(deviceRepository.purgeExpiredData()).thenReturn(Completable.complete());
         when(userActivityRepository.purgeExpiredData()).thenReturn(Completable.complete());

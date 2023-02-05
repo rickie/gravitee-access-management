@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.account.services.impl;
@@ -39,6 +37,7 @@ import io.gravitee.am.service.validators.user.UserValidator;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,41 +53,30 @@ public class AccountServiceImpl implements AccountService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
 
-    @Autowired
-    private Domain domain;
+    @Autowired private Domain domain;
 
-    @Autowired
-    private UserRepository userRepository;
+    @Autowired private UserRepository userRepository;
 
-    @Autowired
-    private IdentityProviderManager identityProviderManager;
+    @Autowired private IdentityProviderManager identityProviderManager;
 
-    @Autowired
-    private UserValidator userValidator;
+    @Autowired private UserValidator userValidator;
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
     @Autowired
     private io.gravitee.am.gateway.handler.root.service.user.UserService gatewayUserService;
 
-    @Autowired
-    private PasswordService passwordService;
+    @Autowired private PasswordService passwordService;
 
-    @Autowired
-    private FactorService factorService;
+    @Autowired private FactorService factorService;
 
-    @Autowired
-    private AuditReporterManager auditReporterManager;
+    @Autowired private AuditReporterManager auditReporterManager;
 
-    @Autowired
-    private CredentialService credentialService;
+    @Autowired private CredentialService credentialService;
 
-    @Autowired
-    private ScopeApprovalService scopeApprovalService;
+    @Autowired private ScopeApprovalService scopeApprovalService;
 
-    @Autowired
-    private AuditService auditService;
+    @Autowired private AuditService auditService;
 
     @Override
     public Maybe<User> get(String userId) {
@@ -96,17 +84,31 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Single<Page<Audit>> getActivity(User user, AuditReportableCriteria criteria, int page, int size) {
+    public Single<Page<Audit>> getActivity(
+            User user, AuditReportableCriteria criteria, int page, int size) {
         try {
-            Single<Page<Audit>> reporter = auditReporterManager.getReporter().search(ReferenceType.DOMAIN, user.getReferenceId(), criteria, page, size);
-            return reporter.map(result -> {
-                if (Objects.isNull(result) || Objects.isNull(result.getData())) {
-                    return new Page<>(new ArrayList<>(), 0, 0);
-                }
-                return result;
-            });
+            Single<Page<Audit>> reporter =
+                    auditReporterManager
+                            .getReporter()
+                            .search(
+                                    ReferenceType.DOMAIN,
+                                    user.getReferenceId(),
+                                    criteria,
+                                    page,
+                                    size);
+            return reporter.map(
+                    result -> {
+                        if (Objects.isNull(result) || Objects.isNull(result.getData())) {
+                            return new Page<>(new ArrayList<>(), 0, 0);
+                        }
+                        return result;
+                    });
         } catch (Exception ex) {
-            LOGGER.error("An error occurs during audits search for {}}: {}", ReferenceType.DOMAIN, user.getReferenceId(), ex);
+            LOGGER.error(
+                    "An error occurs during audits search for {}}: {}",
+                    ReferenceType.DOMAIN,
+                    user.getReferenceId(),
+                    ex);
             return Single.error(ex);
         }
     }
@@ -115,38 +117,57 @@ public class AccountServiceImpl implements AccountService {
     public Single<User> update(User user) {
         LOGGER.debug("Update a user {} for domain {}", user.getUsername(), domain.getName());
 
-        return userValidator.validate(user).andThen(identityProviderManager.getUserProvider(user.getSource())
-                .switchIfEmpty(Maybe.error(new UserProviderNotFoundException(user.getSource())))
-                .flatMapSingle(userProvider -> {
-                    if (user.getExternalId() == null) {
-                        return Single.error(new InvalidRequestException("User does not exist in upstream IDP"));
-                    } else {
-                        return userProvider.update(user.getExternalId(), convert(user));
-                    }
-                })
-                .flatMap(idpUser -> {
-                    return userRepository.update(user);
-                })
-                .onErrorResumeNext(ex -> {
-                    if (ex instanceof UserNotFoundException || ex instanceof UserInvalidException) {
-                        // idp user does not exist, only update AM user
-                        // clear password
-                        user.setPassword(null);
-                        return userRepository.update(user);
-                    }
-                    return Single.error(ex);
-                }));
-
+        return userValidator
+                .validate(user)
+                .andThen(
+                        identityProviderManager
+                                .getUserProvider(user.getSource())
+                                .switchIfEmpty(
+                                        Maybe.error(
+                                                new UserProviderNotFoundException(
+                                                        user.getSource())))
+                                .flatMapSingle(
+                                        userProvider -> {
+                                            if (user.getExternalId() == null) {
+                                                return Single.error(
+                                                        new InvalidRequestException(
+                                                                "User does not exist in upstream IDP"));
+                                            } else {
+                                                return userProvider.update(
+                                                        user.getExternalId(), convert(user));
+                                            }
+                                        })
+                                .flatMap(
+                                        idpUser -> {
+                                            return userRepository.update(user);
+                                        })
+                                .onErrorResumeNext(
+                                        ex -> {
+                                            if (ex instanceof UserNotFoundException
+                                                    || ex instanceof UserInvalidException) {
+                                                // idp user does not exist, only update AM user
+                                                // clear password
+                                                user.setPassword(null);
+                                                return userRepository.update(user);
+                                            }
+                                            return Single.error(ex);
+                                        }));
     }
 
     @Override
-    public Single<ResetPasswordResponse> resetPassword(User user, Client client, String password, io.gravitee.am.identityprovider.api.User principal) {
-        return Single.defer(() -> {
-            PasswordSettings passwordSettings = PasswordSettings.getInstance(client, this.domain).orElse(null);
-            passwordService.validate(password, passwordSettings, user);
-            user.setPassword(password);
-            return gatewayUserService.resetPassword(client, user, principal);
-        });
+    public Single<ResetPasswordResponse> resetPassword(
+            User user,
+            Client client,
+            String password,
+            io.gravitee.am.identityprovider.api.User principal) {
+        return Single.defer(
+                () -> {
+                    PasswordSettings passwordSettings =
+                            PasswordSettings.getInstance(client, this.domain).orElse(null);
+                    passwordService.validate(password, passwordSettings, user);
+                    user.setPassword(password);
+                    return gatewayUserService.resetPassword(client, user, principal);
+                });
     }
 
     @Override
@@ -160,62 +181,101 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Single<User> upsertFactor(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
+    public Single<User> upsertFactor(
+            String userId,
+            EnrolledFactor enrolledFactor,
+            io.gravitee.am.identityprovider.api.User principal) {
         return userService.upsertFactor(userId, enrolledFactor, principal);
     }
 
     @Override
-    public Completable removeFactor(String userId, String factorId, io.gravitee.am.identityprovider.api.User principal) {
+    public Completable removeFactor(
+            String userId, String factorId, io.gravitee.am.identityprovider.api.User principal) {
         return userService.removeFactor(userId, factorId, principal);
     }
 
     @Override
     public Single<List<Credential>> getWebAuthnCredentials(User user) {
-        return credentialService.findByUserId(ReferenceType.DOMAIN, user.getReferenceId(), user.getId())
-                .map(credential -> {
-                    removeSensitiveData(credential);
-                    return credential;
-                })
+        return credentialService
+                .findByUserId(ReferenceType.DOMAIN, user.getReferenceId(), user.getId())
+                .map(
+                        credential -> {
+                            removeSensitiveData(credential);
+                            return credential;
+                        })
                 .toList();
     }
 
     @Override
     public Single<Credential> getWebAuthnCredential(String id) {
-        return credentialService.findById(id)
+        return credentialService
+                .findById(id)
                 .switchIfEmpty(Single.error(new CredentialNotFoundException(id)))
-                .map(credential -> {
-                    removeSensitiveData(credential);
-                    return credential;
-                });
+                .map(
+                        credential -> {
+                            removeSensitiveData(credential);
+                            return credential;
+                        });
     }
 
     @Override
-    public Completable removeWebAuthnCredential(String userId, String id, io.gravitee.am.identityprovider.api.User principal) {
-        return credentialService.findById(id)
-                .flatMapCompletable(credential -> {
-                    if (!userId.equals(credential.getUserId())) {
-                        LOGGER.debug("Webauthn credential ID {} does not belong to the user ID {}, skip delete action", id, userId);
-                        return Completable.complete();
-                    }
-                    return credentialService.delete(id)
-                            .doOnComplete(() -> auditService.report(AuditBuilder.builder(CredentialAuditBuilder.class).principal(principal).type(EventType.CREDENTIAL_DELETED).credential(credential)))
-                            .doOnError(throwable -> auditService.report(AuditBuilder.builder(CredentialAuditBuilder.class).principal(principal).type(EventType.CREDENTIAL_DELETED).throwable(throwable)));
-                });
+    public Completable removeWebAuthnCredential(
+            String userId, String id, io.gravitee.am.identityprovider.api.User principal) {
+        return credentialService
+                .findById(id)
+                .flatMapCompletable(
+                        credential -> {
+                            if (!userId.equals(credential.getUserId())) {
+                                LOGGER.debug(
+                                        "Webauthn credential ID {} does not belong to the user ID {}, skip delete action",
+                                        id,
+                                        userId);
+                                return Completable.complete();
+                            }
+                            return credentialService
+                                    .delete(id)
+                                    .doOnComplete(
+                                            () ->
+                                                    auditService.report(
+                                                            AuditBuilder.builder(
+                                                                            CredentialAuditBuilder
+                                                                                    .class)
+                                                                    .principal(principal)
+                                                                    .type(
+                                                                            EventType
+                                                                                    .CREDENTIAL_DELETED)
+                                                                    .credential(credential)))
+                                    .doOnError(
+                                            throwable ->
+                                                    auditService.report(
+                                                            AuditBuilder.builder(
+                                                                            CredentialAuditBuilder
+                                                                                    .class)
+                                                                    .principal(principal)
+                                                                    .type(
+                                                                            EventType
+                                                                                    .CREDENTIAL_DELETED)
+                                                                    .throwable(throwable)));
+                        });
     }
 
     @Override
     public Single<List<ScopeApproval>> getConsentList(User user, Client client) {
-        return scopeApprovalService.findByDomainAndUserAndClient(domain.getId(),  user.getId(), client.getClientId()).toList();
+        return scopeApprovalService
+                .findByDomainAndUserAndClient(domain.getId(), user.getId(), client.getClientId())
+                .toList();
     }
 
     @Override
     public Single<ScopeApproval> getConsent(String id) {
-        return scopeApprovalService.findById(id)
+        return scopeApprovalService
+                .findById(id)
                 .switchIfEmpty(Single.error(new ScopeApprovalNotFoundException(id)));
     }
 
     @Override
-    public Completable removeConsent(String userId, String consentId, io.gravitee.am.identityprovider.api.User principal) {
+    public Completable removeConsent(
+            String userId, String consentId, io.gravitee.am.identityprovider.api.User principal) {
         return scopeApprovalService.revokeByConsent(domain.getId(), userId, consentId, principal);
     }
 
@@ -281,5 +341,4 @@ public class AccountServiceImpl implements AccountService {
         credential.setUsername(null);
         credential.setCounter(null);
     }
-
 }

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.authentication.filter;
@@ -26,6 +24,7 @@ import io.gravitee.am.management.handlers.management.api.authentication.provider
 import io.gravitee.am.management.handlers.management.api.authentication.service.AuthenticationService;
 import io.gravitee.am.model.Environment;
 import io.gravitee.am.service.EnvironmentService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +35,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +42,14 @@ import java.security.Key;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.util.HashMap;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class CockpitAuthenticationFilter extends GenericFilterBean {
 
@@ -59,39 +59,27 @@ public class CockpitAuthenticationFilter extends GenericFilterBean {
     @Value("${cockpit.enabled:false}")
     private boolean enabled;
 
-    /**
-     * Cockpit keystore type for client certificate (mtls) and jwt signature verification.
-     */
+    /** Cockpit keystore type for client certificate (mtls) and jwt signature verification. */
     @Value("${cockpit.keystore.type:#{null}}")
     private String keyStoreType;
 
-    /**
-     * Cockpit keystore path for client mtls and jwt.
-     */
+    /** Cockpit keystore path for client mtls and jwt. */
     @Value("${cockpit.keystore.path:#{null}}")
     private String keyStorePath;
 
-    /**
-     * Cockpit keystore password.
-     */
+    /** Cockpit keystore password. */
     @Value("${cockpit.keystore.password:#{null}}")
     private String keyStorePassword;
 
-    /**
-     * Cockpit key alias.
-     */
+    /** Cockpit key alias. */
     @Value("${cockpit.keystore.key.alias:cockpit-client}")
     private String keyAlias;
 
-    @Autowired
-    @Lazy
-    private JWTGenerator jwtGenerator;
+    @Autowired @Lazy private JWTGenerator jwtGenerator;
 
-    @Autowired
-    private AuthenticationService authenticationService;
+    @Autowired private AuthenticationService authenticationService;
 
-    @Autowired
-    private EnvironmentService environmentService;
+    @Autowired private EnvironmentService environmentService;
 
     private JWTParser jwtParser;
 
@@ -108,7 +96,8 @@ public class CockpitAuthenticationFilter extends GenericFilterBean {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -122,14 +111,20 @@ public class CockpitAuthenticationFilter extends GenericFilterBean {
             } else {
                 try {
                     JWT jwt = jwtParser.parse(token);
-                    UsernamePasswordAuthenticationToken authentication = convertToAuthentication(jwt);
+                    UsernamePasswordAuthenticationToken authentication =
+                            convertToAuthentication(jwt);
                     User principal = authenticationService.onAuthenticationSuccess(authentication);
 
-                    final Environment environment = environmentService.findById((String) jwt.get(Claims.environment), (String) jwt.get(Claims.organization)).blockingGet();
+                    final Environment environment =
+                            environmentService
+                                    .findById(
+                                            (String) jwt.get(Claims.environment),
+                                            (String) jwt.get(Claims.organization))
+                                    .blockingGet();
                     String redirectPath = "";
 
-                    if(environment != null) {
-                        redirectPath = "/environments/"+ environment.getHrids().get(0);
+                    if (environment != null) {
+                        redirectPath = "/environments/" + environment.getHrids().get(0);
                     }
 
                     Cookie jwtAuthenticationCookie = jwtGenerator.generateCookie(principal);
@@ -154,7 +149,8 @@ public class CockpitAuthenticationFilter extends GenericFilterBean {
         user.setId((String) jwt.get(StandardClaims.SUB));
         user.setAdditionalInformation(new HashMap<>());
 
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, AuthorityUtils.NO_AUTHORITIES);
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(user, null, AuthorityUtils.NO_AUTHORITIES);
         HashMap<Object, Object> details = new HashMap<>();
         details.put("source", COCKPIT_SOURCE);
         details.put(StandardClaims.PREFERRED_USERNAME, username);

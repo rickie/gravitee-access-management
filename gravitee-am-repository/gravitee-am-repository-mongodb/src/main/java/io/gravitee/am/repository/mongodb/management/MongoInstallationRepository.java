@@ -1,21 +1,22 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Installation;
 import io.gravitee.am.repository.management.api.InstallationRepository;
@@ -24,18 +25,18 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-
-import static com.mongodb.client.model.Filters.eq;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class MongoInstallationRepository extends AbstractManagementMongoRepository implements InstallationRepository {
+public class MongoInstallationRepository extends AbstractManagementMongoRepository
+        implements InstallationRepository {
 
     private MongoCollection<InstallationMongo> collection;
 
@@ -66,12 +67,17 @@ public class MongoInstallationRepository extends AbstractManagementMongoReposito
         var installation = convert(item);
         installation.setId(item.getId() == null ? RandomString.generate() : item.getId());
         return Single.fromPublisher(collection.insertOne(installation))
-                .flatMap(success -> { item.setId(item.getId()); return Single.just(item); });
+                .flatMap(
+                        success -> {
+                            item.setId(item.getId());
+                            return Single.just(item);
+                        });
     }
 
     @Override
     public Single<Installation> update(Installation item) {
-        return Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, item.getId()), convert(item)))
+        return Single.fromPublisher(
+                        collection.replaceOne(eq(FIELD_ID, item.getId()), convert(item)))
                 .flatMap(updateResult -> Single.just(item));
     }
 

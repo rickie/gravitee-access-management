@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.model.application;
@@ -27,59 +25,55 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * See <a href="https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata">2. Client Metadata</a>
- * See <a href="https://tools.ietf.org/html/rfc7591">OAuth 2.0 Dynamic Client Registration Protocol</a>
+ * See <a href="https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata">2.
+ * Client Metadata</a> See <a href="https://tools.ietf.org/html/rfc7591">OAuth 2.0 Dynamic Client
+ * Registration Protocol</a>
  *
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class ApplicationOAuthSettings {
 
-    private final static int DEFAULT_ACCESS_TOKEN_VALIDITY_SECONDS = 7200;
-    private final static int DEFAULT_REFRESH_TOKEN_VALIDITY_SECONDS = 14400;
-    private final static int DEFAULT_ID_TOKEN_VALIDITY_SECONDS = 14400;
+    private static final int DEFAULT_ACCESS_TOKEN_VALIDITY_SECONDS = 7200;
+    private static final int DEFAULT_REFRESH_TOKEN_VALIDITY_SECONDS = 14400;
+    private static final int DEFAULT_ID_TOKEN_VALIDITY_SECONDS = 14400;
 
-    /**
-     * The client identifier
-     */
+    /** The client identifier */
     private String clientId;
-    /**
-     * The client secret
-     */
+    /** The client secret */
     private String clientSecret;
-    /**
-     * The client type (OAuth 2.0 perspective public or confidential)
-     */
+    /** The client type (OAuth 2.0 perspective public or confidential) */
     private String clientType;
     /**
-     * Array of Redirection URI values used by the Client.
-     * One of these registered Redirection URI values MUST exactly match the redirect_uri parameter value used in each Authorization Requests
+     * Array of Redirection URI values used by the Client. One of these registered Redirection URI
+     * values MUST exactly match the redirect_uri parameter value used in each Authorization
+     * Requests
      */
     private List<String> redirectUris;
     /**
-     * JSON array containing a list of the OAuth 2.0 response_type values that the Client is declaring that it will restrict itself to using.
-     * If omitted, the default is that the Client will use only the code Response Type.
+     * JSON array containing a list of the OAuth 2.0 response_type values that the Client is
+     * declaring that it will restrict itself to using. If omitted, the default is that the Client
+     * will use only the code Response Type.
      */
     private List<String> responseTypes;
     /**
-     * JSON array containing a list of the OAuth 2.0 Grant Types that the Client is declaring that it will restrict itself to using.
-     * If omitted, the default is that the Client will use only the authorization_code Grant Type.
+     * JSON array containing a list of the OAuth 2.0 Grant Types that the Client is declaring that
+     * it will restrict itself to using. If omitted, the default is that the Client will use only
+     * the authorization_code Grant Type.
      */
     private List<String> grantTypes;
     /**
-     * Kind of the application. The default, if omitted, is web. The defined values are native or web.
+     * Kind of the application. The default, if omitted, is web. The defined values are native or
+     * web.
      */
     private String applicationType;
-    /**
-     * Array of e-mail addresses of people responsible for this Client
-     */
+    /** Array of e-mail addresses of people responsible for this Client */
     private List<String> contacts;
-    /**
-     * Name of the Client to be presented to the End-User.
-     */
+    /** Name of the Client to be presented to the End-User. */
     private String clientName;
     /**
-     * URL that references a logo for the Client application. If present, the server SHOULD display this image to the End-User during approval.
+     * URL that references a logo for the Client application. If present, the server SHOULD display
+     * this image to the End-User during approval.
      */
     private String logoUri;
     /**
@@ -87,103 +81,82 @@ public class ApplicationOAuthSettings {
      */
     private String clientUri;
     /**
-     * URL that the Relying Party Client provides to the End-User to read about the how the profile data will be used.
+     * URL that the Relying Party Client provides to the End-User to read about the how the profile
+     * data will be used.
      */
     private String policyUri;
     /**
-     * URL that the Relying Party Client provides to the End-User to read about the Relying Party's terms of service.
+     * URL that the Relying Party Client provides to the End-User to read about the Relying Party's
+     * terms of service.
      */
     private String tosUri;
     /**
-     * URL for the Client's JSON Web Key Set [JWK] document.
-     * If the Client signs requests to the Server, it contains the signing key(s) the Server uses to validate signatures from the Client.
+     * URL for the Client's JSON Web Key Set [JWK] document. If the Client signs requests to the
+     * Server, it contains the signing key(s) the Server uses to validate signatures from the
+     * Client.
      */
     private String jwksUri;
     /**
-     * Client's JSON Web Key Set [JWK] document, passed by value.
-     * The semantics of the jwks parameter are the same as the jwks_uri parameter, other than that the JWK Set is passed by value, rather than by reference.
+     * Client's JSON Web Key Set [JWK] document, passed by value. The semantics of the jwks
+     * parameter are the same as the jwks_uri parameter, other than that the JWK Set is passed by
+     * value, rather than by reference.
      */
     private JWKSet jwks;
-    /**
-     * URL using the https scheme to be used in calculating Pseudonymous Identifiers by the OP.
-     */
+    /** URL using the https scheme to be used in calculating Pseudonymous Identifiers by the OP. */
     private String sectorIdentifierUri;
-    /**
-     * subject_type requested for responses to this Client
-     */
+    /** subject_type requested for responses to this Client */
     private String subjectType;
-    /**
-     * JWS alg algorithm [JWA] REQUIRED for signing the ID Token issued to this Client.
-     */
+    /** JWS alg algorithm [JWA] REQUIRED for signing the ID Token issued to this Client. */
     private String idTokenSignedResponseAlg;
-    /**
-     * JWE alg algorithm [JWA] REQUIRED for encrypting the ID Token issued to this Client.
-     */
+    /** JWE alg algorithm [JWA] REQUIRED for encrypting the ID Token issued to this Client. */
     private String idTokenEncryptedResponseAlg;
-    /**
-     * JWE enc algorithm [JWA] REQUIRED for encrypting the ID Token issued to this Client.
-     */
+    /** JWE enc algorithm [JWA] REQUIRED for encrypting the ID Token issued to this Client. */
     private String idTokenEncryptedResponseEnc;
-    /**
-     * JWS alg algorithm [JWA] REQUIRED for signing UserInfo Responses.
-     */
+    /** JWS alg algorithm [JWA] REQUIRED for signing UserInfo Responses. */
     private String userinfoSignedResponseAlg;
-    /**
-     * JWE [JWE] alg algorithm [JWA] REQUIRED for encrypting UserInfo Responses.
-     */
+    /** JWE [JWE] alg algorithm [JWA] REQUIRED for encrypting UserInfo Responses. */
     private String userinfoEncryptedResponseAlg;
-    /**
-     * JWE enc algorithm [JWA] REQUIRED for encrypting UserInfo Responses.
-     */
+    /** JWE enc algorithm [JWA] REQUIRED for encrypting UserInfo Responses. */
     private String userinfoEncryptedResponseEnc;
     /**
      * JWS [JWS] alg algorithm [JWA] that MUST be used for signing Request Objects sent to the OP.
      */
     private String requestObjectSigningAlg;
     /**
-     * JWE [JWE] alg algorithm [JWA] the RP is declaring that it may use for encrypting Request Objects sent to the OP.
+     * JWE [JWE] alg algorithm [JWA] the RP is declaring that it may use for encrypting Request
+     * Objects sent to the OP.
      */
     private String requestObjectEncryptionAlg;
     /**
-     * JWE enc algorithm [JWA] the RP is declaring that it may use for encrypting Request Objects sent to the OP.
+     * JWE enc algorithm [JWA] the RP is declaring that it may use for encrypting Request Objects
+     * sent to the OP.
      */
     private String requestObjectEncryptionEnc;
-    /**
-     * Requested Client Authentication method for the Token Endpoint.
-     */
+    /** Requested Client Authentication method for the Token Endpoint. */
     private String tokenEndpointAuthMethod;
     /**
-     * [JWS] alg algorithm [JWA] that MUST be used for signing the JWT [JWT] used to authenticate the Client at the Token Endpoint for the private_key_jwt and client_secret_jwt authentication methods.
+     * [JWS] alg algorithm [JWA] that MUST be used for signing the JWT [JWT] used to authenticate
+     * the Client at the Token Endpoint for the private_key_jwt and client_secret_jwt authentication
+     * methods.
      */
     private String tokenEndpointAuthSigningAlg;
-    /**
-     * Default Maximum Authentication Age.
-     */
+    /** Default Maximum Authentication Age. */
     private Integer defaultMaxAge;
-    /**
-     * Boolean value specifying whether the auth_time Claim in the ID Token is REQUIRED.
-     */
+    /** Boolean value specifying whether the auth_time Claim in the ID Token is REQUIRED. */
     private Boolean requireAuthTime = false;
-    /**
-     * Default requested Authentication Context Class Reference values.
-     */
+    /** Default requested Authentication Context Class Reference values. */
     private List<String> defaultACRvalues;
-    /**
-     * URI using the https scheme that a third party can use to initiate a login by the RP,
-     */
+    /** URI using the https scheme that a third party can use to initiate a login by the RP, */
     private String initiateLoginUri;
-    /**
-     * Array of request_uri values that are pre-registered by the RP for use at the OP.
-     */
+    /** Array of request_uri values that are pre-registered by the RP for use at the OP. */
     private List<String> requestUris;
     /**
-     * A unique identifier string (e.g., a Universally Unique Identifier (UUID)) assigned by the client developer or software publisher
-     * used by registration endpoints to identify the client software to be dynamically registered.
+     * A unique identifier string (e.g., a Universally Unique Identifier (UUID)) assigned by the
+     * client developer or software publisher used by registration endpoints to identify the client
+     * software to be dynamically registered.
      */
     private String softwareId;
-    /**
-     * A version identifier string for the client software identified by "software_id".
-     */
+    /** A version identifier string for the client software identified by "software_id". */
     private String softwareVersion;
     /**
      * A software statement containing client metadata values about the client software as claims.
@@ -195,54 +168,46 @@ public class ApplicationOAuthSettings {
 
     private String registrationClientUri;
     /**
-     * Time at which the client identifier was issued.
-     * The time is represented as the number of seconds from 1970-01-01T00:00:00Z as measured in UTC until the date/time of issuance.
+     * Time at which the client identifier was issued. The time is represented as the number of
+     * seconds from 1970-01-01T00:00:00Z as measured in UTC until the date/time of issuance.
      */
     @ApiModelProperty(dataType = "java.lang.Long")
     private Date clientIdIssuedAt;
     /**
-     * REQUIRED if "client_secret" is issued.  Time at which the client secret will expire or 0 if it will not expire.
+     * REQUIRED if "client_secret" is issued. Time at which the client secret will expire or 0 if it
+     * will not expire.
      */
     @ApiModelProperty(dataType = "java.lang.Long")
     private Date clientSecretExpiresAt;
     /**
-     * String containing a space-separated list of scope values (as described in Section 3.3 of OAuth 2.0 [RFC6749]) that the client can use when requesting access tokens.
-     * @Deprecated this attribute is only used for migration purpose
+     * String containing a space-separated list of scope values (as described in Section 3.3 of
+     * OAuth 2.0 [RFC6749]) that the client can use when requesting access tokens. @Deprecated this
+     * attribute is only used for migration purpose
      */
     private List<String> scopes;
     /**
-     * Default scopes if the parameter scope is omitted
-     * @Deprecated this attribute is only used for migration purpose
+     * Default scopes if the parameter scope is omitted @Deprecated this attribute is only used for
+     * migration purpose
      */
     private List<String> defaultScopes;
     /**
-     * Scope approval duration times
-     * @Deprecated this attribute is only used for migration purpose
+     * Scope approval duration times @Deprecated this attribute is only used for migration purpose
      */
     private Map<String, Integer> scopeApprovals;
     /**
-     * List containing scope values (as described in Section 3.3 of OAuth 2.0 [RFC6749]) with related settings that the client can use when requesting access tokens.
+     * List containing scope values (as described in Section 3.3 of OAuth 2.0 [RFC6749]) with
+     * related settings that the client can use when requesting access tokens.
      */
     private List<ApplicationScopeSettings> scopeSettings;
-    /**
-     * Enhance scopes with user roles' permissions
-     */
+    /** Enhance scopes with user roles' permissions */
     private boolean enhanceScopesWithUserPermissions;
-    /**
-     * Access Token validity in seconds
-     */
+    /** Access Token validity in seconds */
     private int accessTokenValiditySeconds = DEFAULT_ACCESS_TOKEN_VALIDITY_SECONDS;
-    /**
-     * Refresh Token validity in seconds
-     */
+    /** Refresh Token validity in seconds */
     private int refreshTokenValiditySeconds = DEFAULT_REFRESH_TOKEN_VALIDITY_SECONDS;
-    /**
-     * ID Token validity in seconds
-     */
+    /** ID Token validity in seconds */
     private int idTokenValiditySeconds = DEFAULT_ID_TOKEN_VALIDITY_SECONDS;
-    /**
-     * Token claims mapping settings
-     */
+    /** Token claims mapping settings */
     private List<TokenClaim> tokenCustomClaims;
 
     private String tlsClientAuthSubjectDn;
@@ -257,19 +222,13 @@ public class ApplicationOAuthSettings {
 
     private boolean tlsClientCertificateBoundAccessTokens;
 
-    /**
-     * JWS alg algorithm [JWA] REQUIRED for signing Authorization Responses.
-     */
+    /** JWS alg algorithm [JWA] REQUIRED for signing Authorization Responses. */
     private String authorizationSignedResponseAlg;
 
-    /**
-     * JWE [JWE] alg algorithm [JWA] REQUIRED for encrypting Authorization Responses.
-     */
+    /** JWE [JWE] alg algorithm [JWA] REQUIRED for encrypting Authorization Responses. */
     private String authorizationEncryptedResponseAlg;
 
-    /**
-     * JWE enc algorithm [JWA] REQUIRED for encrypting Authorization Responses.
-     */
+    /** JWE enc algorithm [JWA] REQUIRED for encrypting Authorization Responses. */
     private String authorizationEncryptedResponseEnc;
 
     /**
@@ -285,18 +244,15 @@ public class ApplicationOAuthSettings {
     private boolean forceS256CodeChallengeMethod;
 
     /**
-     * Array of URLs supplied by the RP to which it MAY request that the End-User's User Agent be redirected using the post_logout_redirect_uri parameter after a logout has been performed.
+     * Array of URLs supplied by the RP to which it MAY request that the End-User's User Agent be
+     * redirected using the post_logout_redirect_uri parameter after a logout has been performed.
      */
     private List<String> postLogoutRedirectUris;
 
-    /**
-     * Specify if the end_session_endpoint should be called on OIDC Provider if available
-     */
+    /** Specify if the end_session_endpoint should be called on OIDC Provider if available */
     private boolean singleSignOut = false;
 
-    /**
-     * Specify if the id_token_hint parameter can be use to (re)authenticate the end-user
-     */
+    /** Specify if the id_token_hint parameter can be use to (re)authenticate the end-user */
     private boolean silentReAuthentication;
 
     /**
@@ -315,15 +271,15 @@ public class ApplicationOAuthSettings {
 
     private boolean disableRefreshTokenRotation;
 
-    public ApplicationOAuthSettings() {
-    }
+    public ApplicationOAuthSettings() {}
 
     public ApplicationOAuthSettings(ApplicationOAuthSettings other) {
         this.clientId = other.clientId;
         this.clientSecret = other.clientSecret;
         this.clientType = other.clientType;
         this.redirectUris = other.redirectUris != null ? new ArrayList<>(other.redirectUris) : null;
-        this.responseTypes = other.responseTypes != null ? new ArrayList<>(other.responseTypes) : null;
+        this.responseTypes =
+                other.responseTypes != null ? new ArrayList<>(other.responseTypes) : null;
         this.grantTypes = other.grantTypes != null ? new ArrayList<>(other.grantTypes) : null;
         this.applicationType = other.applicationType;
         this.contacts = other.contacts != null ? new ArrayList<>(other.contacts) : null;
@@ -349,7 +305,8 @@ public class ApplicationOAuthSettings {
         this.tokenEndpointAuthSigningAlg = other.tokenEndpointAuthSigningAlg;
         this.defaultMaxAge = other.defaultMaxAge;
         this.requireAuthTime = other.requireAuthTime;
-        this.defaultACRvalues = other.defaultACRvalues != null ? new ArrayList<>(other.defaultACRvalues) : null;
+        this.defaultACRvalues =
+                other.defaultACRvalues != null ? new ArrayList<>(other.defaultACRvalues) : null;
         this.initiateLoginUri = other.initiateLoginUri;
         this.requestUris = other.requestUris != null ? new ArrayList<>(other.requestUris) : null;
         this.softwareId = other.softwareId;
@@ -360,14 +317,18 @@ public class ApplicationOAuthSettings {
         this.clientIdIssuedAt = other.clientIdIssuedAt;
         this.clientSecretExpiresAt = other.clientSecretExpiresAt;
         this.scopes = other.scopes != null ? new ArrayList<>(other.scopes) : null;
-        this.defaultScopes = other.defaultScopes != null ? new ArrayList<>(other.defaultScopes) : null;
-        this.scopeApprovals = other.scopeApprovals != null ? new HashMap<>(other.scopeApprovals) : null;
-        this.scopeSettings = other.scopeSettings != null ? new ArrayList<>(other.scopeSettings) : null;
+        this.defaultScopes =
+                other.defaultScopes != null ? new ArrayList<>(other.defaultScopes) : null;
+        this.scopeApprovals =
+                other.scopeApprovals != null ? new HashMap<>(other.scopeApprovals) : null;
+        this.scopeSettings =
+                other.scopeSettings != null ? new ArrayList<>(other.scopeSettings) : null;
         this.enhanceScopesWithUserPermissions = other.enhanceScopesWithUserPermissions;
         this.accessTokenValiditySeconds = other.accessTokenValiditySeconds;
         this.refreshTokenValiditySeconds = other.refreshTokenValiditySeconds;
         this.idTokenValiditySeconds = other.idTokenValiditySeconds;
-        this.tokenCustomClaims = other.tokenCustomClaims != null ? new ArrayList<>(other.tokenCustomClaims) : null;
+        this.tokenCustomClaims =
+                other.tokenCustomClaims != null ? new ArrayList<>(other.tokenCustomClaims) : null;
         this.tlsClientAuthSubjectDn = other.tlsClientAuthSubjectDn;
         this.tlsClientAuthSanDns = other.tlsClientAuthSanDns;
         this.tlsClientAuthSanEmail = other.tlsClientAuthSanEmail;
@@ -712,6 +673,7 @@ public class ApplicationOAuthSettings {
 
     /**
      * user getScopeSettings instead
+     *
      * @return
      */
     @Deprecated
@@ -720,6 +682,7 @@ public class ApplicationOAuthSettings {
     }
     /**
      * user setScopeSettings instead
+     *
      * @return
      */
     @Deprecated
@@ -728,6 +691,7 @@ public class ApplicationOAuthSettings {
     }
     /**
      * user getScopeSettings instead
+     *
      * @return
      */
     @Deprecated
@@ -736,6 +700,7 @@ public class ApplicationOAuthSettings {
     }
     /**
      * user setScopeSettings instead
+     *
      * @return
      */
     @Deprecated
@@ -744,6 +709,7 @@ public class ApplicationOAuthSettings {
     }
     /**
      * user getScopeSettings instead
+     *
      * @return
      */
     @Deprecated
@@ -752,6 +718,7 @@ public class ApplicationOAuthSettings {
     }
     /**
      * user setScopeSettings instead
+     *
      * @return
      */
     @Deprecated
@@ -915,7 +882,8 @@ public class ApplicationOAuthSettings {
         return tlsClientCertificateBoundAccessTokens;
     }
 
-    public void setTlsClientCertificateBoundAccessTokens(boolean tlsClientCertificateBoundAccessTokens) {
+    public void setTlsClientCertificateBoundAccessTokens(
+            boolean tlsClientCertificateBoundAccessTokens) {
         this.tlsClientCertificateBoundAccessTokens = tlsClientCertificateBoundAccessTokens;
     }
 
@@ -939,7 +907,8 @@ public class ApplicationOAuthSettings {
         return backchannelClientNotificationEndpoint;
     }
 
-    public void setBackchannelClientNotificationEndpoint(String backchannelClientNotificationEndpoint) {
+    public void setBackchannelClientNotificationEndpoint(
+            String backchannelClientNotificationEndpoint) {
         this.backchannelClientNotificationEndpoint = backchannelClientNotificationEndpoint;
     }
 

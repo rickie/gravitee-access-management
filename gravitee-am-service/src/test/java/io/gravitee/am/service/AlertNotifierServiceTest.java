@@ -1,27 +1,30 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.identityprovider.api.DefaultUser;
-import io.gravitee.am.service.exception.AlertNotifierNotFoundException;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.alert.AlertNotifier;
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.repository.management.api.AlertNotifierRepository;
 import io.gravitee.am.repository.management.api.search.AlertNotifierCriteria;
+import io.gravitee.am.service.exception.AlertNotifierNotFoundException;
 import io.gravitee.am.service.impl.AlertNotifierServiceImpl;
 import io.gravitee.am.service.model.NewAlertNotifier;
 import io.gravitee.am.service.model.PatchAlertNotifier;
@@ -31,6 +34,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,11 +43,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Date;
 import java.util.Optional;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -59,14 +58,11 @@ public class AlertNotifierServiceTest {
     private static final String CONFIGURATION = "{}";
     private static final String TYPE = "webhook";
 
-    @Mock
-    private AlertNotifierRepository alertNotifierRepository;
+    @Mock private AlertNotifierRepository alertNotifierRepository;
 
-    @Mock
-    private AuditService auditService;
+    @Mock private AuditService auditService;
 
-    @Mock
-    private EventService eventService;
+    @Mock private EventService eventService;
 
     private AlertNotifierService cut;
 
@@ -80,8 +76,10 @@ public class AlertNotifierServiceTest {
         final AlertNotifier alertNotifier = new AlertNotifier();
         alertNotifier.setReferenceType(ReferenceType.DOMAIN);
         alertNotifier.setReferenceId(DOMAIN_ID);
-        when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(Maybe.just(alertNotifier));
-        final TestObserver<AlertNotifier> obs = cut.getById(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID).test();
+        when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID))
+                .thenReturn(Maybe.just(alertNotifier));
+        final TestObserver<AlertNotifier> obs =
+                cut.getById(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID).test();
 
         obs.awaitTerminalEvent();
         obs.assertValue(alertNotifier);
@@ -90,7 +88,8 @@ public class AlertNotifierServiceTest {
     @Test
     public void getByIdNotFound() {
         when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(Maybe.empty());
-        final TestObserver<AlertNotifier> obs = cut.getById(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID).test();
+        final TestObserver<AlertNotifier> obs =
+                cut.getById(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID).test();
 
         obs.awaitTerminalEvent();
         obs.assertError(AlertNotifierNotFoundException.class);
@@ -100,8 +99,10 @@ public class AlertNotifierServiceTest {
     public void findByDomainCriteria() {
         final AlertNotifier alertNotifier = new AlertNotifier();
         final AlertNotifierCriteria criteria = new AlertNotifierCriteria();
-        when(alertNotifierRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(Flowable.just(alertNotifier));
-        final TestSubscriber<AlertNotifier> obs = cut.findByDomainAndCriteria(DOMAIN_ID, criteria).test();
+        when(alertNotifierRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria))
+                .thenReturn(Flowable.just(alertNotifier));
+        final TestSubscriber<AlertNotifier> obs =
+                cut.findByDomainAndCriteria(DOMAIN_ID, criteria).test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -112,8 +113,10 @@ public class AlertNotifierServiceTest {
     public void findByReferenceAndCriteria() {
         final AlertNotifier alertNotifier = new AlertNotifier();
         final AlertNotifierCriteria criteria = new AlertNotifierCriteria();
-        when(alertNotifierRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(Flowable.just(alertNotifier));
-        final TestSubscriber<AlertNotifier> obs = cut.findByReferenceAndCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria).test();
+        when(alertNotifierRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria))
+                .thenReturn(Flowable.just(alertNotifier));
+        final TestSubscriber<AlertNotifier> obs =
+                cut.findByReferenceAndCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria).test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -130,25 +133,33 @@ public class AlertNotifierServiceTest {
         newAlertNotifier.setConfiguration(CONFIGURATION);
         newAlertNotifier.setType(TYPE);
 
-        when(alertNotifierRepository.create(any(AlertNotifier.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(alertNotifierRepository.create(any(AlertNotifier.class)))
+                .thenAnswer(i -> Single.just(i.getArgument(0)));
         when(eventService.create(any(Event.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
 
-        final TestObserver<AlertNotifier> obs = cut.create(ReferenceType.DOMAIN, DOMAIN_ID, newAlertNotifier, new DefaultUser(USERNAME)).test();
+        final TestObserver<AlertNotifier> obs =
+                cut.create(
+                                ReferenceType.DOMAIN,
+                                DOMAIN_ID,
+                                newAlertNotifier,
+                                new DefaultUser(USERNAME))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
-        obs.assertValue(alertNotifier -> {
-            assertNotNull(alertNotifier.getId());
-            assertEquals(NAME, alertNotifier.getName());
-            assertEquals(CONFIGURATION, alertNotifier.getConfiguration());
-            assertEquals(TYPE, alertNotifier.getType());
-            assertEquals(ReferenceType.DOMAIN, alertNotifier.getReferenceType());
-            assertEquals(DOMAIN_ID, alertNotifier.getReferenceId());
-            assertNotNull(alertNotifier.getCreatedAt());
-            assertNotNull(alertNotifier.getUpdatedAt());
+        obs.assertValue(
+                alertNotifier -> {
+                    assertNotNull(alertNotifier.getId());
+                    assertEquals(NAME, alertNotifier.getName());
+                    assertEquals(CONFIGURATION, alertNotifier.getConfiguration());
+                    assertEquals(TYPE, alertNotifier.getType());
+                    assertEquals(ReferenceType.DOMAIN, alertNotifier.getReferenceType());
+                    assertEquals(DOMAIN_ID, alertNotifier.getReferenceId());
+                    assertNotNull(alertNotifier.getCreatedAt());
+                    assertNotNull(alertNotifier.getUpdatedAt());
 
-            return true;
-        });
+                    return true;
+                });
 
         verify(auditService, never()).report(any(AlertNotifierAuditBuilder.class));
     }
@@ -169,26 +180,36 @@ public class AlertNotifierServiceTest {
         alertNotifierToUpdate.setReferenceId(DOMAIN_ID);
         alertNotifierToUpdate.setCreatedAt(createdAt);
 
-        when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(Maybe.just(alertNotifierToUpdate));
-        when(alertNotifierRepository.update(any(AlertNotifier.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID))
+                .thenReturn(Maybe.just(alertNotifierToUpdate));
+        when(alertNotifierRepository.update(any(AlertNotifier.class)))
+                .thenAnswer(i -> Single.just(i.getArgument(0)));
         when(eventService.create(any(Event.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
 
-        final TestObserver<AlertNotifier> obs = cut.update(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID, patchAlertNotifier, new DefaultUser(USERNAME)).test();
+        final TestObserver<AlertNotifier> obs =
+                cut.update(
+                                ReferenceType.DOMAIN,
+                                DOMAIN_ID,
+                                ALERT_NOTIFIER_ID,
+                                patchAlertNotifier,
+                                new DefaultUser(USERNAME))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
-        obs.assertValue(alertNotifier -> {
-            assertNotNull(alertNotifier.getId());
-            assertEquals(NAME, alertNotifier.getName());
-            assertEquals(CONFIGURATION, alertNotifier.getConfiguration());
-            assertEquals(TYPE, alertNotifier.getType());
-            assertEquals(ReferenceType.DOMAIN, alertNotifier.getReferenceType());
-            assertEquals(DOMAIN_ID, alertNotifier.getReferenceId());
-            assertEquals(createdAt, alertNotifier.getCreatedAt());
-            assertNotNull(alertNotifier.getUpdatedAt());
+        obs.assertValue(
+                alertNotifier -> {
+                    assertNotNull(alertNotifier.getId());
+                    assertEquals(NAME, alertNotifier.getName());
+                    assertEquals(CONFIGURATION, alertNotifier.getConfiguration());
+                    assertEquals(TYPE, alertNotifier.getType());
+                    assertEquals(ReferenceType.DOMAIN, alertNotifier.getReferenceType());
+                    assertEquals(DOMAIN_ID, alertNotifier.getReferenceId());
+                    assertEquals(createdAt, alertNotifier.getCreatedAt());
+                    assertNotNull(alertNotifier.getUpdatedAt());
 
-            return true;
-        });
+                    return true;
+                });
 
         verify(auditService, never()).report(any(AlertNotifierAuditBuilder.class));
     }
@@ -201,10 +222,16 @@ public class AlertNotifierServiceTest {
         patchAlertNotifier.setName(Optional.of(NAME));
         patchAlertNotifier.setConfiguration(Optional.of(CONFIGURATION));
 
-
         when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(Maybe.empty());
 
-        final TestObserver<AlertNotifier> obs = cut.update(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID, patchAlertNotifier, new DefaultUser(USERNAME)).test();
+        final TestObserver<AlertNotifier> obs =
+                cut.update(
+                                ReferenceType.DOMAIN,
+                                DOMAIN_ID,
+                                ALERT_NOTIFIER_ID,
+                                patchAlertNotifier,
+                                new DefaultUser(USERNAME))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertError(AlertNotifierNotFoundException.class);

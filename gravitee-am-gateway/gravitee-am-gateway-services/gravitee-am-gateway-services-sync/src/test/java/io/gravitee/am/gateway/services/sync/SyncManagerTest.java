@@ -1,19 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.services.sync;
+
+import static io.gravitee.node.api.Node.META_ENVIRONMENTS;
+import static io.gravitee.node.api.Node.META_ORGANIZATIONS;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+import static java.util.Arrays.asList;
 
 import io.gravitee.am.common.event.Action;
 import io.gravitee.am.common.event.Type;
@@ -25,14 +31,12 @@ import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.model.common.event.Payload;
 import io.gravitee.am.monitoring.provider.GatewayMetricProvider;
 import io.gravitee.am.repository.management.api.DomainRepository;
-import io.gravitee.am.repository.management.api.EnvironmentRepository;
 import io.gravitee.am.repository.management.api.EventRepository;
-import io.gravitee.am.repository.management.api.OrganizationRepository;
 import io.gravitee.common.event.EventManager;
 import io.gravitee.node.api.Node;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
-import io.reactivex.Single;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,12 +46,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
 
 import java.util.*;
-
-import static io.gravitee.node.api.Node.META_ENVIRONMENTS;
-import static io.gravitee.node.api.Node.META_ORGANIZATIONS;
-import static java.util.Arrays.asList;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -60,32 +58,31 @@ public class SyncManagerTest {
     private static final String ENVIRONMENTS_SYSTEM_PROPERTY = "environments";
     private static final String ORGANIZATIONS_SYSTEM_PROPERTY = "organizations";
 
-    @InjectMocks
-    private SyncManager syncManager = new SyncManager();
+    @InjectMocks private SyncManager syncManager = new SyncManager();
 
-    @Mock
-    private EventManager eventManager;
+    @Mock private EventManager eventManager;
 
-    @Mock
-    private SecurityDomainManager securityDomainManager;
+    @Mock private SecurityDomainManager securityDomainManager;
 
-    @Mock
-    private Environment environment;
+    @Mock private Environment environment;
 
-    @Mock
-    private DomainRepository domainRepository;
+    @Mock private DomainRepository domainRepository;
 
-    @Mock
-    private EventRepository eventRepository;
+    @Mock private EventRepository eventRepository;
 
-    @Mock
-    private Node node;
-    @Mock
-    private GatewayMetricProvider gatewayMetricProvider;
+    @Mock private Node node;
+    @Mock private GatewayMetricProvider gatewayMetricProvider;
 
     @Before
     public void before() throws Exception {
-        lenient().when(node.metadata()).thenReturn(Map.of(META_ORGANIZATIONS, new HashSet<>(), META_ENVIRONMENTS, new HashSet<>()));
+        lenient()
+                .when(node.metadata())
+                .thenReturn(
+                        Map.of(
+                                META_ORGANIZATIONS,
+                                new HashSet<>(),
+                                META_ENVIRONMENTS,
+                                new HashSet<>()));
         syncManager.afterPropertiesSet();
     }
 
@@ -171,7 +168,8 @@ public class SyncManagerTest {
         event.setType(Type.DOMAIN);
         event.setPayload(new Payload("domain-1", ReferenceType.DOMAIN, "domain-1", Action.DELETE));
 
-        when(eventRepository.findByTimeFrame(any(Long.class), any(Long.class))).thenReturn(Flowable.just(event));
+        when(eventRepository.findByTimeFrame(any(Long.class), any(Long.class)))
+                .thenReturn(Flowable.just(event));
 
         syncManager.refresh();
 
@@ -201,8 +199,10 @@ public class SyncManagerTest {
         domainToUpdate.setEnabled(true);
         domainToUpdate.setUpdatedAt(new Date());
 
-        when(eventRepository.findByTimeFrame(any(Long.class), any(Long.class))).thenReturn(Flowable.just(event));
-        when(domainRepository.findById(domainToUpdate.getId())).thenReturn(Maybe.just(domainToUpdate));
+        when(eventRepository.findByTimeFrame(any(Long.class), any(Long.class)))
+                .thenReturn(Flowable.just(event));
+        when(domainRepository.findById(domainToUpdate.getId()))
+                .thenReturn(Maybe.just(domainToUpdate));
         when(securityDomainManager.get(domainToUpdate.getId())).thenReturn(domain);
 
         syncManager.refresh();
@@ -223,7 +223,8 @@ public class SyncManagerTest {
         event.setCreatedAt(new Date());
         event.setPayload(new Payload("idp-1", ReferenceType.DOMAIN, "domain-1", Action.UPDATE));
 
-        when(eventRepository.findByTimeFrame(any(Long.class), any(Long.class))).thenReturn(Flowable.just(event, event));
+        when(eventRepository.findByTimeFrame(any(Long.class), any(Long.class)))
+                .thenReturn(Flowable.just(event, event));
 
         syncManager.refresh();
 
@@ -235,42 +236,42 @@ public class SyncManagerTest {
 
     @Test
     public void test_deployDomainWithTag() throws Exception {
-        shouldDeployDomainWithTags("test,toto", new String[]{"test"});
+        shouldDeployDomainWithTags("test,toto", new String[] {"test"});
     }
 
     @Test
     public void test_deployDomainWithUpperCasedTag() throws Exception {
-        shouldDeployDomainWithTags("test,toto", new String[]{"Test"});
+        shouldDeployDomainWithTags("test,toto", new String[] {"Test"});
     }
 
     @Test
     public void test_deployDomainWithAccentTag() throws Exception {
-        shouldDeployDomainWithTags("test,toto", new String[]{"tést"});
+        shouldDeployDomainWithTags("test,toto", new String[] {"tést"});
     }
 
     @Test
     public void test_deployDomainWithUpperCasedAndAccentTag() throws Exception {
-        shouldDeployDomainWithTags("test", new String[]{"Tést"});
+        shouldDeployDomainWithTags("test", new String[] {"Tést"});
     }
 
     @Test
     public void test_deployDomainWithTagExclusion() throws Exception {
-        shouldDeployDomainWithTags("test,!toto", new String[]{"test"});
+        shouldDeployDomainWithTags("test,!toto", new String[] {"test"});
     }
 
     @Test
     public void test_deployDomainWithSpaceAfterComma() throws Exception {
-        shouldDeployDomainWithTags("test, !toto", new String[]{"test"});
+        shouldDeployDomainWithTags("test, !toto", new String[] {"test"});
     }
 
     @Test
     public void test_deployDomainWithSpaceBeforeComma() throws Exception {
-        shouldDeployDomainWithTags("test ,!toto", new String[]{"test"});
+        shouldDeployDomainWithTags("test ,!toto", new String[] {"test"});
     }
 
     @Test
     public void test_deployDomainWithSpaceBeforeTag() throws Exception {
-        shouldDeployDomainWithTags(" test,!toto", new String[]{"test"});
+        shouldDeployDomainWithTags(" test,!toto", new String[] {"test"});
     }
 
     @Test
@@ -340,7 +341,8 @@ public class SyncManagerTest {
         domain2.setReferenceId("env-2");
         domain2.setEnabled(true);
 
-        when(node.metadata()).thenReturn(Map.of(META_ENVIRONMENTS, new HashSet<>(asList("env-1", "env-2"))));
+        when(node.metadata())
+                .thenReturn(Map.of(META_ENVIRONMENTS, new HashSet<>(asList("env-1", "env-2"))));
         when(domainRepository.findAll()).thenReturn(Flowable.just(domain, domain2));
 
         syncManager.afterPropertiesSet();
@@ -402,8 +404,13 @@ public class SyncManagerTest {
         domain2.setReferenceId("env-2");
         domain2.setEnabled(true);
 
-        when(node.metadata()).thenReturn(Map.of(META_ORGANIZATIONS, new HashSet<>(asList("org-1")),
-                META_ENVIRONMENTS, new HashSet<>(asList("env-1", "env-2"))));
+        when(node.metadata())
+                .thenReturn(
+                        Map.of(
+                                META_ORGANIZATIONS,
+                                new HashSet<>(asList("org-1")),
+                                META_ENVIRONMENTS,
+                                new HashSet<>(asList("env-1", "env-2"))));
 
         when(environment.getProperty(ORGANIZATIONS_SYSTEM_PROPERTY)).thenReturn("gravitee");
         when(domainRepository.findAll()).thenReturn(Flowable.just(domain, domain2));
@@ -415,7 +422,6 @@ public class SyncManagerTest {
         verify(securityDomainManager, never()).update(any());
         verify(securityDomainManager, never()).undeploy(any(String.class));
     }
-
 
     @Test
     public void init_test_two_org() throws Exception {
@@ -459,11 +465,18 @@ public class SyncManagerTest {
         domain4.setReferenceId("env-4");
         domain4.setEnabled(true);
 
-        when(node.metadata()).thenReturn(Map.of(META_ORGANIZATIONS, new HashSet<>(asList("org-1", "org-2")),
-                META_ENVIRONMENTS, new HashSet<>(asList("env-1", "env-2", "env-3", "env-4"))));
+        when(node.metadata())
+                .thenReturn(
+                        Map.of(
+                                META_ORGANIZATIONS,
+                                new HashSet<>(asList("org-1", "org-2")),
+                                META_ENVIRONMENTS,
+                                new HashSet<>(asList("env-1", "env-2", "env-3", "env-4"))));
 
-        when(environment.getProperty(ORGANIZATIONS_SYSTEM_PROPERTY)).thenReturn("gravitee,gravitee2");
-        when(domainRepository.findAll()).thenReturn(Flowable.just(domain, domain2, domain3, domain4));
+        when(environment.getProperty(ORGANIZATIONS_SYSTEM_PROPERTY))
+                .thenReturn("gravitee,gravitee2");
+        when(domainRepository.findAll())
+                .thenReturn(Flowable.just(domain, domain2, domain3, domain4));
 
         syncManager.afterPropertiesSet();
         syncManager.refresh();
@@ -519,9 +532,15 @@ public class SyncManagerTest {
         domain4.setReferenceId("env-4");
         domain4.setEnabled(true);
 
-        when(node.metadata()).thenReturn(Map.of(META_ORGANIZATIONS, new HashSet<>(asList("org-1", "org-2")),
-                META_ENVIRONMENTS, new HashSet<>(asList("env-1", "env-4"))));
-        when(domainRepository.findAll()).thenReturn(Flowable.just(domain, domain2, domain3, domain4));
+        when(node.metadata())
+                .thenReturn(
+                        Map.of(
+                                META_ORGANIZATIONS,
+                                new HashSet<>(asList("org-1", "org-2")),
+                                META_ENVIRONMENTS,
+                                new HashSet<>(asList("env-1", "env-4"))));
+        when(domainRepository.findAll())
+                .thenReturn(Flowable.just(domain, domain2, domain3, domain4));
 
         syncManager.afterPropertiesSet();
         syncManager.refresh();
@@ -578,10 +597,16 @@ public class SyncManagerTest {
         domain4.setReferenceId("env-4");
         domain4.setEnabled(true);
 
-        when(node.metadata()).thenReturn(Map.of(META_ORGANIZATIONS, new HashSet<>(asList("org-1", "org-2")),
-                META_ENVIRONMENTS, new HashSet<>(asList("env-1", "env-2", "env-3", "env-4"))));
+        when(node.metadata())
+                .thenReturn(
+                        Map.of(
+                                META_ORGANIZATIONS,
+                                new HashSet<>(asList("org-1", "org-2")),
+                                META_ENVIRONMENTS,
+                                new HashSet<>(asList("env-1", "env-2", "env-3", "env-4"))));
         when(environment.getProperty(SHARDING_TAGS_SYSTEM_PROPERTY)).thenReturn("private");
-        when(domainRepository.findAll()).thenReturn(Flowable.just(domain, domain2, domain3, domain4));
+        when(domainRepository.findAll())
+                .thenReturn(Flowable.just(domain, domain2, domain3, domain4));
 
         syncManager.afterPropertiesSet();
         syncManager.refresh();
@@ -591,7 +616,8 @@ public class SyncManagerTest {
         verify(securityDomainManager, never()).undeploy(any(String.class));
     }
 
-    private void shouldDeployDomainWithTags(final String tags, final String[] domainTags) throws Exception {
+    private void shouldDeployDomainWithTags(final String tags, final String[] domainTags)
+            throws Exception {
         when(environment.getProperty(SHARDING_TAGS_SYSTEM_PROPERTY)).thenReturn(tags);
         syncManager.afterPropertiesSet();
 

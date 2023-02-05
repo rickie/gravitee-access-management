@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.certificate.api;
@@ -31,7 +29,7 @@ public final class RSAKeyUtils {
     public static String toSSHRSAString(RSAPublicKey publicKey) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         /* encode the "ssh-rsa" string */
-        byte[] sshrsa = new byte[]{0, 0, 0, 7, 's', 's', 'h', '-', 'r', 's', 'a'};
+        byte[] sshrsa = new byte[] {0, 0, 0, 7, 's', 's', 'h', '-', 'r', 's', 'a'};
         out.write(sshrsa);
         /* Encode the public exponent */
         BigInteger e = publicKey.getPublicExponent();
@@ -48,10 +46,10 @@ public final class RSAKeyUtils {
 
     private static void encodeUInt32(int value, OutputStream out) throws IOException {
         byte[] tmp = new byte[4];
-        tmp[0] = (byte)((value >>> 24) & 0xff);
-        tmp[1] = (byte)((value >>> 16) & 0xff);
-        tmp[2] = (byte)((value >>> 8) & 0xff);
-        tmp[3] = (byte)(value & 0xff);
+        tmp[0] = (byte) ((value >>> 24) & 0xff);
+        tmp[1] = (byte) ((value >>> 16) & 0xff);
+        tmp[2] = (byte) ((value >>> 8) & 0xff);
+        tmp[3] = (byte) (value & 0xff);
         out.write(tmp);
     }
 }

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.identityprovider.jdbc.configuration;
@@ -30,6 +28,7 @@ import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
 import io.reactivex.Completable;
 import io.reactivex.Single;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -41,8 +40,7 @@ import org.springframework.stereotype.Component;
  */
 public abstract class JdbcAuthenticationProviderConfigurationTest implements InitializingBean {
 
-    @Autowired
-    private ConnectionPool connectionPool;
+    @Autowired private ConnectionPool connectionPool;
 
     public abstract String url();
 
@@ -70,20 +68,44 @@ public abstract class JdbcAuthenticationProviderConfigurationTest implements Ini
     }
 
     protected void initData(Connection connection) {
-        Single.fromPublisher(connection.createStatement("create table users(id varchar(256), username varchar(256), password varchar(256), email varchar(256), metadata text)").execute()).blockingGet();
-        Single.fromPublisher(connection.createStatement("insert into users values('1', 'bob', 'bobspassword', null, null)").execute()).subscribe();
-        Single.fromPublisher(connection.createStatement("insert into users values('2', 'user01', 'user01', 'user01@acme.com', null)").execute()).subscribe();
-        Single.fromPublisher(connection.createStatement("insert into users values('3', 'user02', 'user02', 'common@acme.com', null)").execute()).subscribe();
-        Single.fromPublisher(connection.createStatement("insert into users values('4', 'user03', 'user03', 'common@acme.com', null)").execute()).subscribe();
+        Single.fromPublisher(
+                        connection
+                                .createStatement(
+                                        "create table users(id varchar(256), username varchar(256), password varchar(256), email varchar(256), metadata text)")
+                                .execute())
+                .blockingGet();
+        Single.fromPublisher(
+                        connection
+                                .createStatement(
+                                        "insert into users values('1', 'bob', 'bobspassword', null, null)")
+                                .execute())
+                .subscribe();
+        Single.fromPublisher(
+                        connection
+                                .createStatement(
+                                        "insert into users values('2', 'user01', 'user01', 'user01@acme.com', null)")
+                                .execute())
+                .subscribe();
+        Single.fromPublisher(
+                        connection
+                                .createStatement(
+                                        "insert into users values('3', 'user02', 'user02', 'common@acme.com', null)")
+                                .execute())
+                .subscribe();
+        Single.fromPublisher(
+                        connection
+                                .createStatement(
+                                        "insert into users values('4', 'user03', 'user03', 'common@acme.com', null)")
+                                .execute())
+                .subscribe();
     }
 
     @Bean
     public ConnectionPool connectionPool() {
         ConnectionFactory connectionFactory = ConnectionFactories.get(url());
 
-        ConnectionPoolConfiguration connectionPoolConfiguration = ConnectionPoolConfiguration
-                .builder(connectionFactory)
-                .build();
+        ConnectionPoolConfiguration connectionPoolConfiguration =
+                ConnectionPoolConfiguration.builder(connectionFactory).build();
 
         return new ConnectionPool(connectionPoolConfiguration);
     }
@@ -109,7 +131,8 @@ public abstract class JdbcAuthenticationProviderConfigurationTest implements Ini
         configuration.setUsersTable("users");
         configuration.setSelectUserByUsernameQuery("select * from users where username = %s");
         configuration.setSelectUserByEmailQuery("select * from users where email = %s");
-        configuration.setSelectUserByMultipleFieldsQuery("select * from users where username = %s or email = %s ");
+        configuration.setSelectUserByMultipleFieldsQuery(
+                "select * from users where username = %s or email = %s ");
         configuration.setPasswordEncoder(PasswordEncoder.NONE);
 
         return configuration;

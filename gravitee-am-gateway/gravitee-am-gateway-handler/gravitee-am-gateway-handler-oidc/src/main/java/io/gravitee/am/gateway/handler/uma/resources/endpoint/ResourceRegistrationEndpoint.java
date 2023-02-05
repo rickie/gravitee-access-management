@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.uma.resources.endpoint;
+
+import static io.gravitee.am.gateway.handler.uma.constants.UMAConstants.*;
 
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.jwt.JWT;
@@ -36,9 +36,9 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.ext.web.RoutingContext;
 
-import static io.gravitee.am.gateway.handler.uma.constants.UMAConstants.*;
-
 /**
+ *
+ *
  * <pre>
  * This endpoint is part of the UMA 2.0 Protection API.
  * It enables the resource server (API) to put resources under the protection of the Authorization Server
@@ -64,18 +64,24 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
-        this.resourceService.listByDomainAndClientAndUser(domain.getId(), client.getId(), accessToken.getSub())
+        this.resourceService
+                .listByDomainAndClientAndUser(domain.getId(), client.getId(), accessToken.getSub())
                 .map(Resource::getId)
                 .collect(JsonArray::new, JsonArray::add)
                 .subscribe(
-                        buffer -> context.response()
-                                .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
-                                .putHeader(HttpHeaders.PRAGMA, "no-cache")
-                                .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                .setStatusCode(buffer.isEmpty()?HttpStatusCode.NO_CONTENT_204:HttpStatusCode.OK_200)
-                                .end(Json.encodePrettily(buffer))
-                        , error -> context.fail(error)
-                );
+                        buffer ->
+                                context.response()
+                                        .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+                                        .putHeader(HttpHeaders.PRAGMA, "no-cache")
+                                        .putHeader(
+                                                HttpHeaders.CONTENT_TYPE,
+                                                MediaType.APPLICATION_JSON)
+                                        .setStatusCode(
+                                                buffer.isEmpty()
+                                                        ? HttpStatusCode.NO_CONTENT_204
+                                                        : HttpStatusCode.OK_200)
+                                        .end(Json.encodePrettily(buffer)),
+                        error -> context.fail(error));
     }
 
     public void create(RoutingContext context) {
@@ -84,7 +90,13 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         String basePath = UriBuilderRequest.resolveProxyRequest(context);
 
         this.extractRequest(context)
-                .flatMap(request -> this.resourceService.create(request, domain.getId(), client.getId(), accessToken.getSub()))
+                .flatMap(
+                        request ->
+                                this.resourceService.create(
+                                        request,
+                                        domain.getId(),
+                                        client.getId(),
+                                        accessToken.getSub()))
                 .subscribe(
                         resource -> {
                             final String resourceLocation = resourceLocation(basePath, resource);
@@ -94,10 +106,12 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                     .putHeader(HttpHeaders.LOCATION, resourceLocation)
                                     .setStatusCode(HttpStatusCode.CREATED_201)
-                                    .end(Json.encodePrettily(ResourceResponse.from(resource, resourceLocation)));
-                        }
-                        , error -> context.fail(error)
-                );
+                                    .end(
+                                            Json.encodePrettily(
+                                                    ResourceResponse.from(
+                                                            resource, resourceLocation)));
+                        },
+                        error -> context.fail(error));
     }
 
     public void get(RoutingContext context) {
@@ -105,23 +119,28 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String resource_id = context.request().getParam(RESOURCE_ID);
 
-        this.resourceService.findByDomainAndClientAndUserAndResource(domain.getId(), client.getId(), accessToken.getSub(), resource_id)
+        this.resourceService
+                .findByDomainAndClientAndUserAndResource(
+                        domain.getId(), client.getId(), accessToken.getSub(), resource_id)
                 .switchIfEmpty(Single.error(new ResourceNotFoundException(resource_id)))
                 .subscribe(
-                        resource -> context.response()
-                                .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
-                                .putHeader(HttpHeaders.PRAGMA, "no-cache")
-                                .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                .setStatusCode(HttpStatusCode.OK_200)
-                                .end(Json.encodePrettily(ResourceResponse.from(resource)))
-                        , error -> context.fail(error)
-                );
+                        resource ->
+                                context.response()
+                                        .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+                                        .putHeader(HttpHeaders.PRAGMA, "no-cache")
+                                        .putHeader(
+                                                HttpHeaders.CONTENT_TYPE,
+                                                MediaType.APPLICATION_JSON)
+                                        .setStatusCode(HttpStatusCode.OK_200)
+                                        .end(Json.encodePrettily(ResourceResponse.from(resource))),
+                        error -> context.fail(error));
     }
 
     /**
-     * https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-federated-authz-2.0.html#reg-api
-     * The spec state that if the resource can not be found, it must result in a 404.
-     * By the way this may be better than a 403 to avoid confirming ids to a potential attacks.
+     * https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-federated-authz-2.0.html#reg-api The
+     * spec state that if the resource can not be found, it must result in a 404. By the way this
+     * may be better than a 403 to avoid confirming ids to a potential attacks.
+     *
      * @param context
      */
     public void update(RoutingContext context) {
@@ -130,16 +149,25 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         String resource_id = context.request().getParam(RESOURCE_ID);
 
         this.extractRequest(context)
-                .flatMap(request -> this.resourceService.update(request, domain.getId(), client.getId(), accessToken.getSub(), resource_id))
+                .flatMap(
+                        request ->
+                                this.resourceService.update(
+                                        request,
+                                        domain.getId(),
+                                        client.getId(),
+                                        accessToken.getSub(),
+                                        resource_id))
                 .subscribe(
-                        resource -> context.response()
-                                .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
-                                .putHeader(HttpHeaders.PRAGMA, "no-cache")
-                                .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                .setStatusCode(HttpStatusCode.OK_200)
-                                .end(Json.encodePrettily(ResourceResponse.from(resource)))
-                        , error -> context.fail(error)
-                );
+                        resource ->
+                                context.response()
+                                        .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+                                        .putHeader(HttpHeaders.PRAGMA, "no-cache")
+                                        .putHeader(
+                                                HttpHeaders.CONTENT_TYPE,
+                                                MediaType.APPLICATION_JSON)
+                                        .setStatusCode(HttpStatusCode.OK_200)
+                                        .end(Json.encodePrettily(ResourceResponse.from(resource))),
+                        error -> context.fail(error));
     }
 
     public void delete(RoutingContext context) {
@@ -147,16 +175,19 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String resource_id = context.request().getParam(RESOURCE_ID);
 
-        this.resourceService.delete(domain.getId(), client.getId(), accessToken.getSub(), resource_id)
+        this.resourceService
+                .delete(domain.getId(), client.getId(), accessToken.getSub(), resource_id)
                 .subscribe(
-                        () -> context.response()
-                                .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
-                                .putHeader(HttpHeaders.PRAGMA, "no-cache")
-                                .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                .setStatusCode(HttpStatusCode.NO_CONTENT_204)
-                                .end()
-                        , error -> context.fail(error)
-                );
+                        () ->
+                                context.response()
+                                        .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+                                        .putHeader(HttpHeaders.PRAGMA, "no-cache")
+                                        .putHeader(
+                                                HttpHeaders.CONTENT_TYPE,
+                                                MediaType.APPLICATION_JSON)
+                                        .setStatusCode(HttpStatusCode.NO_CONTENT_204)
+                                        .end(),
+                        error -> context.fail(error));
     }
 
     private Single<NewResource> extractRequest(RoutingContext context) {
@@ -166,7 +197,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
     }
 
     private Single<JsonObject> bodyValidation(JsonObject body) {
-        //Only one field is required from the spec, others are tag as optional
+        // Only one field is required from the spec, others are tag as optional
         if (body == null || !body.containsKey("resource_scopes")) {
             return Single.error(new InvalidRequestException("missing resource_scopes"));
         }

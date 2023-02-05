@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.common.factor.FactorSecurityType;
 import io.gravitee.am.model.Credential;
@@ -33,6 +34,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -42,9 +44,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -52,20 +51,18 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class CredentialServiceTest {
 
-    @InjectMocks
-    private CredentialService credentialService = new CredentialServiceImpl();
+    @InjectMocks private CredentialService credentialService = new CredentialServiceImpl();
 
-    @Mock
-    private CredentialRepository credentialRepository;
+    @Mock private CredentialRepository credentialRepository;
 
-    @Mock
-    private UserService userService;
+    @Mock private UserService userService;
 
-    private final static String DOMAIN = "domain1";
+    private static final String DOMAIN = "domain1";
 
     @Test
     public void shouldFindById() {
-        when(credentialRepository.findById("my-credential")).thenReturn(Maybe.just(new Credential()));
+        when(credentialRepository.findById("my-credential"))
+                .thenReturn(Maybe.just(new Credential()));
         TestObserver testObserver = credentialService.findById("my-credential").test();
 
         testObserver.awaitTerminalEvent();
@@ -85,7 +82,8 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(credentialRepository.findById("my-credential")).thenReturn(Maybe.error(TechnicalException::new));
+        when(credentialRepository.findById("my-credential"))
+                .thenReturn(Maybe.error(TechnicalException::new));
         TestObserver testObserver = new TestObserver();
         credentialService.findById("my-credential").subscribe(testObserver);
 
@@ -95,8 +93,10 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldFindByUserId() {
-        when(credentialRepository.findByUserId(ReferenceType.DOMAIN, DOMAIN, "user-id")).thenReturn(Flowable.just(new Credential()));
-        TestSubscriber<Credential> testSubscriber = credentialService.findByUserId(ReferenceType.DOMAIN, DOMAIN, "user-id").test();
+        when(credentialRepository.findByUserId(ReferenceType.DOMAIN, DOMAIN, "user-id"))
+                .thenReturn(Flowable.just(new Credential()));
+        TestSubscriber<Credential> testSubscriber =
+                credentialService.findByUserId(ReferenceType.DOMAIN, DOMAIN, "user-id").test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -106,9 +106,11 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldFindByUserId_technicalException() {
-        when(credentialRepository.findByUserId(ReferenceType.DOMAIN, DOMAIN, "user-id")).thenReturn(Flowable.error(TechnicalException::new));
+        when(credentialRepository.findByUserId(ReferenceType.DOMAIN, DOMAIN, "user-id"))
+                .thenReturn(Flowable.error(TechnicalException::new));
 
-        TestSubscriber testSubscriber = credentialService.findByUserId(ReferenceType.DOMAIN, DOMAIN, "user-id").test();
+        TestSubscriber testSubscriber =
+                credentialService.findByUserId(ReferenceType.DOMAIN, DOMAIN, "user-id").test();
 
         testSubscriber.assertError(TechnicalManagementException.class);
         testSubscriber.assertNotComplete();
@@ -116,8 +118,10 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldFindByUsername() {
-        when(credentialRepository.findByUsername(ReferenceType.DOMAIN, DOMAIN, "username")).thenReturn(Flowable.just(new Credential()));
-        TestSubscriber<Credential> testObserver = credentialService.findByUsername(ReferenceType.DOMAIN, DOMAIN, "username").test();
+        when(credentialRepository.findByUsername(ReferenceType.DOMAIN, DOMAIN, "username"))
+                .thenReturn(Flowable.just(new Credential()));
+        TestSubscriber<Credential> testObserver =
+                credentialService.findByUsername(ReferenceType.DOMAIN, DOMAIN, "username").test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -127,9 +131,11 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldFindByUsername_technicalException() {
-        when(credentialRepository.findByUsername(ReferenceType.DOMAIN, DOMAIN, "username")).thenReturn(Flowable.error(TechnicalException::new));
+        when(credentialRepository.findByUsername(ReferenceType.DOMAIN, DOMAIN, "username"))
+                .thenReturn(Flowable.error(TechnicalException::new));
 
-        TestSubscriber testSubscriber = credentialService.findByUsername(ReferenceType.DOMAIN, DOMAIN, "username").test();
+        TestSubscriber testSubscriber =
+                credentialService.findByUsername(ReferenceType.DOMAIN, DOMAIN, "username").test();
 
         testSubscriber.assertError(TechnicalManagementException.class);
         testSubscriber.assertNotComplete();
@@ -137,8 +143,12 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldFindByCredentialId() {
-        when(credentialRepository.findByCredentialId(ReferenceType.DOMAIN, DOMAIN, "credentialId")).thenReturn(Flowable.just(new Credential()));
-        TestSubscriber<Credential> testSubscriber = credentialService.findByCredentialId(ReferenceType.DOMAIN, DOMAIN, "credentialId").test();
+        when(credentialRepository.findByCredentialId(ReferenceType.DOMAIN, DOMAIN, "credentialId"))
+                .thenReturn(Flowable.just(new Credential()));
+        TestSubscriber<Credential> testSubscriber =
+                credentialService
+                        .findByCredentialId(ReferenceType.DOMAIN, DOMAIN, "credentialId")
+                        .test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -148,9 +158,13 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldFindByCredentialId_technicalException() {
-        when(credentialRepository.findByCredentialId(ReferenceType.DOMAIN, DOMAIN, "credentialId")).thenReturn(Flowable.error(TechnicalException::new));
+        when(credentialRepository.findByCredentialId(ReferenceType.DOMAIN, DOMAIN, "credentialId"))
+                .thenReturn(Flowable.error(TechnicalException::new));
 
-        TestSubscriber testSubscriber = credentialService.findByCredentialId(ReferenceType.DOMAIN, DOMAIN, "credentialId").test();
+        TestSubscriber testSubscriber =
+                credentialService
+                        .findByCredentialId(ReferenceType.DOMAIN, DOMAIN, "credentialId")
+                        .test();
 
         testSubscriber.assertError(TechnicalManagementException.class);
         testSubscriber.assertNotComplete();
@@ -159,7 +173,8 @@ public class CredentialServiceTest {
     @Test
     public void shouldCreate() {
         Credential newCredential = Mockito.mock(Credential.class);
-        when(credentialRepository.create(any(Credential.class))).thenReturn(Single.just(new Credential()));
+        when(credentialRepository.create(any(Credential.class)))
+                .thenReturn(Single.just(new Credential()));
 
         TestObserver testObserver = credentialService.create(newCredential).test();
         testObserver.awaitTerminalEvent();
@@ -173,7 +188,8 @@ public class CredentialServiceTest {
     @Test
     public void shouldCreate_technicalException() {
         Credential newCredential = Mockito.mock(Credential.class);
-        when(credentialRepository.create(any(Credential.class))).thenReturn(Single.error(TechnicalException::new));
+        when(credentialRepository.create(any(Credential.class)))
+                .thenReturn(Single.error(TechnicalException::new));
 
         TestObserver<Credential> testObserver = new TestObserver<>();
         credentialService.create(newCredential).subscribe(testObserver);
@@ -186,8 +202,10 @@ public class CredentialServiceTest {
     public void shouldUpdate() {
         Credential updateCredential = Mockito.mock(Credential.class);
         when(updateCredential.getId()).thenReturn("my-credential");
-        when(credentialRepository.findById("my-credential")).thenReturn(Maybe.just(new Credential()));
-        when(credentialRepository.update(any(Credential.class))).thenReturn(Single.just(new Credential()));
+        when(credentialRepository.findById("my-credential"))
+                .thenReturn(Maybe.just(new Credential()));
+        when(credentialRepository.update(any(Credential.class)))
+                .thenReturn(Single.just(new Credential()));
 
         TestObserver testObserver = credentialService.update(updateCredential).test();
         testObserver.awaitTerminalEvent();
@@ -203,7 +221,8 @@ public class CredentialServiceTest {
     public void shouldUpdate_technicalException() {
         Credential updateCredential = Mockito.mock(Credential.class);
         when(updateCredential.getId()).thenReturn("my-credential");
-        when(credentialRepository.findById("my-credential")).thenReturn(Maybe.error(TechnicalException::new));
+        when(credentialRepository.findById("my-credential"))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
         TestObserver testObserver = credentialService.update(updateCredential).test();
         testObserver.assertError(TechnicalManagementException.class);
@@ -217,8 +236,10 @@ public class CredentialServiceTest {
     public void shouldUpdate2_technicalException() {
         Credential updateCredential = Mockito.mock(Credential.class);
         when(updateCredential.getId()).thenReturn("my-credential");
-        when(credentialRepository.findById("my-credential")).thenReturn(Maybe.just(new Credential()));
-        when(credentialRepository.update(any(Credential.class))).thenReturn(Single.error(TechnicalException::new));
+        when(credentialRepository.findById("my-credential"))
+                .thenReturn(Maybe.just(new Credential()));
+        when(credentialRepository.update(any(Credential.class)))
+                .thenReturn(Single.error(TechnicalException::new));
 
         TestObserver testObserver = credentialService.update(updateCredential).test();
         testObserver.assertError(TechnicalManagementException.class);
@@ -230,7 +251,8 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(credentialRepository.findById("my-credential")).thenReturn(Maybe.error(TechnicalException::new));
+        when(credentialRepository.findById("my-credential"))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
         TestObserver testObserver = credentialService.delete("my-credential").test();
 

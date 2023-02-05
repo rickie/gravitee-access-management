@@ -1,21 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.root.resources.endpoint.logout;
 
+import static io.gravitee.am.service.impl.user.activity.utils.ConsentUtils.canSaveIp;
+import static io.gravitee.am.service.impl.user.activity.utils.ConsentUtils.canSaveUserAgent;
+
+import static org.springframework.util.CollectionUtils.isEmpty;
+
 import com.google.common.base.Strings;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.common.oidc.Parameters;
@@ -36,18 +40,15 @@ import io.vertx.core.Handler;
 import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import static io.gravitee.am.service.impl.user.activity.utils.ConsentUtils.canSaveIp;
-import static io.gravitee.am.service.impl.user.activity.utils.ConsentUtils.canSaveUserAgent;
-
-import static org.springframework.util.CollectionUtils.isEmpty;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -64,9 +65,10 @@ public abstract class AbstractLogoutEndpoint implements Handler<RoutingContext> 
     private AuthenticationFlowContextService authenticationFlowContextService;
     protected UserService userService;
 
-    public AbstractLogoutEndpoint(Domain domain,
-                                  UserService userService,
-                                  AuthenticationFlowContextService authenticationFlowContextService) {
+    public AbstractLogoutEndpoint(
+            Domain domain,
+            UserService userService,
+            AuthenticationFlowContextService authenticationFlowContextService) {
         this.domain = domain;
         this.userService = userService;
         this.authenticationFlowContextService = authenticationFlowContextService;
@@ -79,22 +81,30 @@ public abstract class AbstractLogoutEndpoint implements Handler<RoutingContext> 
     /**
      * Redirection to RP After Logout
      *
-     * In some cases, the RP will request that the End-User's User Agent to be redirected back to the RP after a logout has been performed.
+     * <p>In some cases, the RP will request that the End-User's User Agent to be redirected back to
+     * the RP after a logout has been performed.
      *
-     * Post-logout redirection is only done when the logout is RP-initiated, in which case the redirection target is the post_logout_redirect_uri parameter value sent by the initiating RP.
+     * <p>Post-logout redirection is only done when the logout is RP-initiated, in which case the
+     * redirection target is the post_logout_redirect_uri parameter value sent by the initiating RP.
      *
-     * An id_token_hint carring an ID Token for the RP is also REQUIRED when requesting post-logout redirection;
-     * if it is not supplied with post_logout_redirect_uri, the OP MUST NOT perform post-logout redirection.
+     * <p>An id_token_hint carring an ID Token for the RP is also REQUIRED when requesting
+     * post-logout redirection; if it is not supplied with post_logout_redirect_uri, the OP MUST NOT
+     * perform post-logout redirection.
      *
-     * The OP also MUST NOT perform post-logout redirection if the post_logout_redirect_uri value supplied does not exactly match one of the previously registered post_logout_redirect_uris values.
+     * <p>The OP also MUST NOT perform post-logout redirection if the post_logout_redirect_uri value
+     * supplied does not exactly match one of the previously registered post_logout_redirect_uris
+     * values.
      *
-     * The post-logout redirection is performed after the OP has finished notifying the RPs that logged in with the OP for that End-User that they are to log out the End-User.
+     * <p>The post-logout redirection is performed after the OP has finished notifying the RPs that
+     * logged in with the OP for that End-User that they are to log out the End-User.
      *
      * @param client the OAuth 2.0 client
      * @param routingContext the routing context
-     * @param endSessionEndpoint the End Session Endpoint of the OIDC provider providing the User info
+     * @param endSessionEndpoint the End Session Endpoint of the OIDC provider providing the User
+     *     info
      */
-    protected void doRedirect(Client client, RoutingContext routingContext, String endSessionEndpoint) {
+    protected void doRedirect(
+            Client client, RoutingContext routingContext, String endSessionEndpoint) {
         final HttpServerRequest request = routingContext.request();
 
         // validate request
@@ -110,37 +120,59 @@ public abstract class AbstractLogoutEndpoint implements Handler<RoutingContext> 
 
         // redirect to target url
         String logoutRedirectUrl = getLogoutRedirectUrl(request.params());
-        final MultiMap originalLogoutQueryParams = routingContext.get(ConstantKeys.PARAM_CONTEXT_KEY);
+        final MultiMap originalLogoutQueryParams =
+                routingContext.get(ConstantKeys.PARAM_CONTEXT_KEY);
         if (originalLogoutQueryParams != null) {
-            // redirect is trigger because of the LogoutCallbackEndpoint, extract the redirect URL from initial logout request
+            // redirect is trigger because of the LogoutCallbackEndpoint, extract the redirect URL
+            // from initial logout request
             logoutRedirectUrl = getLogoutRedirectUrl(originalLogoutQueryParams);
             // clear state set by AM during the OP EndUserSession call
             routingContext.request().params().remove(io.gravitee.am.common.oauth2.Parameters.STATE);
             // restore parameters from the original logout request
             for (Map.Entry<String, String> entry : originalLogoutQueryParams.entries()) {
-                if (!(LOGOUT_URL_PARAMETER.equals(entry.getKey()) || Parameters.POST_LOGOUT_REDIRECT_URI.equals(entry.getKey()))) {
-                    routingContext.request().params().add(entry.getKey(), originalLogoutQueryParams.get(entry.getKey()));
+                if (!(LOGOUT_URL_PARAMETER.equals(entry.getKey())
+                        || Parameters.POST_LOGOUT_REDIRECT_URI.equals(entry.getKey()))) {
+                    routingContext
+                            .request()
+                            .params()
+                            .add(entry.getKey(), originalLogoutQueryParams.get(entry.getKey()));
                 }
             }
         }
 
-        // The OP also MUST NOT perform post-logout redirection if the post_logout_redirect_uri value supplied
+        // The OP also MUST NOT perform post-logout redirection if the post_logout_redirect_uri
+        // value supplied
         // does not exactly match one of the previously registered post_logout_redirect_uris values.
         // if client is null, check security domain options
-        List<String> registeredUris = client != null && !isEmpty(client.getPostLogoutRedirectUris()) ? client.getPostLogoutRedirectUris() : (domain.getOidc() != null ? domain.getOidc().getPostLogoutRedirectUris() : null);
-        if (!isMatchingRedirectUri(logoutRedirectUrl, registeredUris, domain.isRedirectUriStrictMatching() || domain.usePlainFapiProfile())) {
-            routingContext.fail(new InvalidRequestException("The post_logout_redirect_uri MUST match the registered callback URLs"));
+        List<String> registeredUris =
+                client != null && !isEmpty(client.getPostLogoutRedirectUris())
+                        ? client.getPostLogoutRedirectUris()
+                        : (domain.getOidc() != null
+                                ? domain.getOidc().getPostLogoutRedirectUris()
+                                : null);
+        if (!isMatchingRedirectUri(
+                logoutRedirectUrl,
+                registeredUris,
+                domain.isRedirectUriStrictMatching() || domain.usePlainFapiProfile())) {
+            routingContext.fail(
+                    new InvalidRequestException(
+                            "The post_logout_redirect_uri MUST match the registered callback URLs"));
             return;
         }
 
         // redirect the End-User
-        doRedirect0(routingContext, endSessionEndpoint == null ? logoutRedirectUrl : endSessionEndpoint);
+        doRedirect0(
+                routingContext,
+                endSessionEndpoint == null ? logoutRedirectUrl : endSessionEndpoint);
     }
 
     private String getLogoutRedirectUrl(MultiMap params) {
-        String logoutRedirectUrl = !StringUtils.isEmpty(params.get(LOGOUT_URL_PARAMETER)) ?
-                params.get(LOGOUT_URL_PARAMETER) : (!StringUtils.isEmpty(params.get(Parameters.POST_LOGOUT_REDIRECT_URI)) ?
-                params.get(Parameters.POST_LOGOUT_REDIRECT_URI) : DEFAULT_TARGET_URL);
+        String logoutRedirectUrl =
+                !StringUtils.isEmpty(params.get(LOGOUT_URL_PARAMETER))
+                        ? params.get(LOGOUT_URL_PARAMETER)
+                        : (!StringUtils.isEmpty(params.get(Parameters.POST_LOGOUT_REDIRECT_URI))
+                                ? params.get(Parameters.POST_LOGOUT_REDIRECT_URI)
+                                : DEFAULT_TARGET_URL);
         return logoutRedirectUrl;
     }
 
@@ -164,13 +196,28 @@ public abstract class AbstractLogoutEndpoint implements Handler<RoutingContext> 
     }
 
     private void invalidateSession0(RoutingContext routingContext, boolean redirect) {
-        final User endUser = routingContext.get(ConstantKeys.USER_CONTEXT_KEY) != null ?
-                routingContext.get(ConstantKeys.USER_CONTEXT_KEY) :
-                (routingContext.user() != null ? ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User) routingContext.user().getDelegate()).getUser() : null);
+        final User endUser =
+                routingContext.get(ConstantKeys.USER_CONTEXT_KEY) != null
+                        ? routingContext.get(ConstantKeys.USER_CONTEXT_KEY)
+                        : (routingContext.user() != null
+                                ? ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
+                                                routingContext.user().getDelegate())
+                                        .getUser()
+                                : null);
 
         // clear context and session
-        Completable clearSessionCompletable = endUser != null ? userService.logout(endUser, needToInvalidateTokens(routingContext), getAuthenticatedUser(endUser, routingContext)) : Completable.complete();
-        Completable clearContextCompletable = routingContext.session() != null ? authenticationFlowContextService.clearContext(routingContext.session().get(ConstantKeys.TRANSACTION_ID_KEY)) : Completable.complete();
+        Completable clearSessionCompletable =
+                endUser != null
+                        ? userService.logout(
+                                endUser,
+                                needToInvalidateTokens(routingContext),
+                                getAuthenticatedUser(endUser, routingContext))
+                        : Completable.complete();
+        Completable clearContextCompletable =
+                routingContext.session() != null
+                        ? authenticationFlowContextService.clearContext(
+                                routingContext.session().get(ConstantKeys.TRANSACTION_ID_KEY))
+                        : Completable.complete();
 
         clearSessionCompletable
                 .andThen(clearContextCompletable)
@@ -182,20 +229,23 @@ public abstract class AbstractLogoutEndpoint implements Handler<RoutingContext> 
                                 routingContext.session().destroy();
                             }
                             if (redirect) {
-                                doRedirect(routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY), routingContext);
+                                doRedirect(
+                                        routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY),
+                                        routingContext);
                             } else {
                                 routingContext.response().setStatusCode(200).end();
                             }
                         },
-                        error -> routingContext.fail(error)
-                );
+                        error -> routingContext.fail(error));
     }
 
     private boolean needToInvalidateTokens(RoutingContext routingContext) {
-        // look at the invalidate_tokens parameter into the current URL or ino the initial parameters
+        // look at the invalidate_tokens parameter into the current URL or ino the initial
+        // parameters
         // if the Single SignOut is enabled.
         String invalidateTokens = routingContext.request().getParam(INVALIDATE_TOKENS_PARAMETER);
-        if (Strings.isNullOrEmpty(invalidateTokens) && routingContext.data().containsKey(ConstantKeys.PARAM_CONTEXT_KEY)) {
+        if (Strings.isNullOrEmpty(invalidateTokens)
+                && routingContext.data().containsKey(ConstantKeys.PARAM_CONTEXT_KEY)) {
             MultiMap initialQueryParam = routingContext.get(ConstantKeys.PARAM_CONTEXT_KEY);
             if (initialQueryParam.contains(INVALIDATE_TOKENS_PARAMETER)) {
                 invalidateTokens = initialQueryParam.get(INVALIDATE_TOKENS_PARAMETER);
@@ -205,10 +255,13 @@ public abstract class AbstractLogoutEndpoint implements Handler<RoutingContext> 
     }
 
     private void doRedirect0(RoutingContext routingContext, String url) {
-        // state OPTIONAL. Opaque value used by the RP to maintain state between the logout request and the callback to the endpoint specified by the post_logout_redirect_uri parameter.
-        // If included in the logout request, the OP passes this value back to the RP using the state parameter when redirecting the User Agent back to the RP.
+        // state OPTIONAL. Opaque value used by the RP to maintain state between the logout request
+        // and the callback to the endpoint specified by the post_logout_redirect_uri parameter.
+        // If included in the logout request, the OP passes this value back to the RP using the
+        // state parameter when redirecting the User Agent back to the RP.
         UriBuilder uriBuilder = UriBuilder.fromURIString(url);
-        final String state = routingContext.request().getParam(io.gravitee.am.common.oauth2.Parameters.STATE);
+        final String state =
+                routingContext.request().getParam(io.gravitee.am.common.oauth2.Parameters.STATE);
         if (!StringUtils.isEmpty(state)) {
             uriBuilder.addParameter(io.gravitee.am.common.oauth2.Parameters.STATE, state);
         }
@@ -225,7 +278,10 @@ public abstract class AbstractLogoutEndpoint implements Handler<RoutingContext> 
         }
     }
 
-    private boolean isMatchingRedirectUri(String requestedRedirectUri, List<String> registeredRedirectUris, boolean uriStrictMatch) {
+    private boolean isMatchingRedirectUri(
+            String requestedRedirectUri,
+            List<String> registeredRedirectUris,
+            boolean uriStrictMatch) {
         // no registered uris to check, continue
         if (registeredRedirectUris == null) {
             return true;
@@ -239,23 +295,27 @@ public abstract class AbstractLogoutEndpoint implements Handler<RoutingContext> 
             return true;
         }
         // compare values
-        return registeredRedirectUris
-                .stream()
-                .anyMatch(registeredUri -> ParamUtils.redirectMatches(requestedRedirectUri, registeredUri, uriStrictMatch));
-
+        return registeredRedirectUris.stream()
+                .anyMatch(
+                        registeredUri ->
+                                ParamUtils.redirectMatches(
+                                        requestedRedirectUri, registeredUri, uriStrictMatch));
     }
 
-    private io.gravitee.am.identityprovider.api.User getAuthenticatedUser(User endUser, RoutingContext routingContext) {
+    private io.gravitee.am.identityprovider.api.User getAuthenticatedUser(
+            User endUser, RoutingContext routingContext) {
         // override principal user
         DefaultUser principal = new DefaultUser(endUser.getUsername());
         principal.setId(endUser.getId());
         Map<String, Object> additionalInformation = new HashMap<>();
         if (routingContext.session() != null) {
             if (canSaveIp(routingContext)) {
-                additionalInformation.put(Claims.ip_address, RequestUtils.remoteAddress(routingContext.request()));
+                additionalInformation.put(
+                        Claims.ip_address, RequestUtils.remoteAddress(routingContext.request()));
             }
             if (canSaveUserAgent(routingContext)) {
-                additionalInformation.put(Claims.user_agent, RequestUtils.userAgent(routingContext.request()));
+                additionalInformation.put(
+                        Claims.user_agent, RequestUtils.userAgent(routingContext.request()));
             }
         }
         additionalInformation.put(Claims.domain, domain.getId());

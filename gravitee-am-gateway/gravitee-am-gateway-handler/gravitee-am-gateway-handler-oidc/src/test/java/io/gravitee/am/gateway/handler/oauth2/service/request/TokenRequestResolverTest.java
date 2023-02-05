@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.service.request;
+
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidScopeException;
 import io.gravitee.am.gateway.handler.oauth2.service.scope.ScopeManager;
@@ -22,6 +23,7 @@ import io.gravitee.am.model.User;
 import io.gravitee.am.model.application.ApplicationScopeSettings;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,9 +36,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -44,8 +43,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class TokenRequestResolverTest {
 
-    @Mock
-    private ScopeManager scopeManager;
+    @Mock private ScopeManager scopeManager;
 
     private final TokenRequestResolver tokenRequestResolver = new TokenRequestResolver();
 
@@ -54,6 +52,7 @@ public class TokenRequestResolverTest {
         reset(scopeManager);
         tokenRequestResolver.setScopeManager(scopeManager);
     }
+
     @Test
     public void shouldNotResolveTokenRequest_unknownScope() {
         final String scope = "read";
@@ -61,7 +60,8 @@ public class TokenRequestResolverTest {
         tokenRequest.setScopes(Collections.singleton(scope));
         Client client = new Client();
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, null).test();
+        TestObserver<TokenRequest> testObserver =
+                tokenRequestResolver.resolve(tokenRequest, client, null).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidScopeException.class);
     }
@@ -88,14 +88,19 @@ public class TokenRequestResolverTest {
         role.setOauthScopes(userScopes);
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, user).test();
+        TestObserver<TokenRequest> testObserver =
+                tokenRequestResolver.resolve(tokenRequest, client, user).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
         List<String> expectedScopes = new ArrayList<>();
         expectedScopes.add(scope);
         expectedScopes.addAll(userScopes);
-        testObserver.assertValue(request -> request.getScopes().containsAll(expectedScopes) && request.getScopes().contains(scope) && request.getScopes().size() == 4);
+        testObserver.assertValue(
+                request ->
+                        request.getScopes().containsAll(expectedScopes)
+                                && request.getScopes().contains(scope)
+                                && request.getScopes().size() == 4);
     }
 
     @Test
@@ -120,13 +125,19 @@ public class TokenRequestResolverTest {
         role.setOauthScopes(userScopes);
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, user).test();
+        TestObserver<TokenRequest> testObserver =
+                tokenRequestResolver.resolve(tokenRequest, client, user).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        // Request should only be enhanced with the requested scopes for which the user has permission
+        // Request should only be enhanced with the requested scopes for which the user has
+        // permission
         List<String> expectedScopes = new ArrayList<>(reqScopes);
-        testObserver.assertValue(request -> request.getScopes().containsAll(expectedScopes) && request.getScopes().contains(scope) && request.getScopes().size() == 2);
+        testObserver.assertValue(
+                request ->
+                        request.getScopes().containsAll(expectedScopes)
+                                && request.getScopes().contains(scope)
+                                && request.getScopes().size() == 2);
     }
 
     @Test
@@ -152,13 +163,19 @@ public class TokenRequestResolverTest {
         user.setRolesPermissions(Collections.singleton(role));
 
         when(scopeManager.alwaysProvideEnhancedScopes()).thenReturn(true);
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, user).test();
+        TestObserver<TokenRequest> testObserver =
+                tokenRequestResolver.resolve(tokenRequest, client, user).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        // Request should only be enhanced with the requested scopes for which the user has permission
+        // Request should only be enhanced with the requested scopes for which the user has
+        // permission
         List<String> expectedScopes = new ArrayList<>(reqScopes);
-        testObserver.assertValue(request -> request.getScopes().containsAll(expectedScopes) && request.getScopes().contains(scope) && request.getScopes().size() == 4);
+        testObserver.assertValue(
+                request ->
+                        request.getScopes().containsAll(expectedScopes)
+                                && request.getScopes().contains(scope)
+                                && request.getScopes().size() == 4);
     }
 
     @Test
@@ -183,14 +200,20 @@ public class TokenRequestResolverTest {
         role.setOauthScopes(userScopes);
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, user).test();
+        TestObserver<TokenRequest> testObserver =
+                tokenRequestResolver.resolve(tokenRequest, client, user).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        // Request should have been enhanced with all of user's permissions, even though none of them has been requested
+        // Request should have been enhanced with all of user's permissions, even though none of
+        // them has been requested
         List<String> expectedScopes = new ArrayList<>();
         expectedScopes.add(scope);
-        testObserver.assertValue(request -> request.getScopes().containsAll(expectedScopes) && request.getScopes().contains(scope) && request.getScopes().size() == 1);
+        testObserver.assertValue(
+                request ->
+                        request.getScopes().containsAll(expectedScopes)
+                                && request.getScopes().contains(scope)
+                                && request.getScopes().size() == 1);
     }
 
     @Test
@@ -216,14 +239,20 @@ public class TokenRequestResolverTest {
         user.setRolesPermissions(Collections.singleton(role));
 
         when(scopeManager.alwaysProvideEnhancedScopes()).thenReturn(true);
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, user).test();
+        TestObserver<TokenRequest> testObserver =
+                tokenRequestResolver.resolve(tokenRequest, client, user).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        // Request should have been enhanced with all of user's permissions, even though none of them has been requested
+        // Request should have been enhanced with all of user's permissions, even though none of
+        // them has been requested
         List<String> expectedScopes = new ArrayList<>();
         expectedScopes.add(scope);
-        testObserver.assertValue(request -> request.getScopes().containsAll(expectedScopes) && request.getScopes().contains(scope) && request.getScopes().size() == 4);
+        testObserver.assertValue(
+                request ->
+                        request.getScopes().containsAll(expectedScopes)
+                                && request.getScopes().contains(scope)
+                                && request.getScopes().size() == 4);
     }
 
     @Test
@@ -248,15 +277,21 @@ public class TokenRequestResolverTest {
         role.setOauthScopes(userScopes);
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, user).test();
+        TestObserver<TokenRequest> testObserver =
+                tokenRequestResolver.resolve(tokenRequest, client, user).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        // Request should have been enhanced with all of user's permissions as we provided just the openid scope.
+        // Request should have been enhanced with all of user's permissions as we provided just the
+        // openid scope.
         List<String> expectedScopes = new ArrayList<>();
         expectedScopes.add(scope);
         expectedScopes.addAll(userScopes);
-        testObserver.assertValue(request -> request.getScopes().containsAll(expectedScopes) && request.getScopes().contains(scope) && request.getScopes().size() == 4);
+        testObserver.assertValue(
+                request ->
+                        request.getScopes().containsAll(expectedScopes)
+                                && request.getScopes().contains(scope)
+                                && request.getScopes().size() == 4);
     }
 
     @Test
@@ -264,7 +299,8 @@ public class TokenRequestResolverTest {
         TokenRequest tokenRequest = new TokenRequest();
         Client client = new Client();
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, null).test();
+        TestObserver<TokenRequest> testObserver =
+                tokenRequestResolver.resolve(tokenRequest, client, null).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
     }
@@ -279,7 +315,8 @@ public class TokenRequestResolverTest {
         setting.setScope("write");
         client.setScopeSettings(Collections.singletonList(setting));
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, null).test();
+        TestObserver<TokenRequest> testObserver =
+                tokenRequestResolver.resolve(tokenRequest, client, null).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidScopeException.class);
     }
@@ -299,7 +336,8 @@ public class TokenRequestResolverTest {
         role.setOauthScopes(Collections.singletonList("user"));
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, user).test();
+        TestObserver<TokenRequest> testObserver =
+                tokenRequestResolver.resolve(tokenRequest, client, user).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidScopeException.class);
     }
@@ -315,7 +353,8 @@ public class TokenRequestResolverTest {
         setting.setDefaultScope(true);
         client.setScopeSettings(Collections.singletonList(setting));
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(authorizationRequest, client, null).test();
+        TestObserver<TokenRequest> testObserver =
+                tokenRequestResolver.resolve(authorizationRequest, client, null).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(request -> request.getScopes().iterator().next().equals(scope));
@@ -334,10 +373,10 @@ public class TokenRequestResolverTest {
         role.setOauthScopes(Collections.singletonList(scope));
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(authorizationRequest, client, user).test();
+        TestObserver<TokenRequest> testObserver =
+                tokenRequestResolver.resolve(authorizationRequest, client, user).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(request -> request.getScopes().iterator().next().equals(scope));
     }
-
 }

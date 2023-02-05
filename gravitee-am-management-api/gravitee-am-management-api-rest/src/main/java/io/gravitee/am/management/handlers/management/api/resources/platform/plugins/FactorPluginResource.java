@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.resources.platform.plugins;
@@ -40,19 +38,18 @@ import javax.ws.rs.core.Response;
 @Api(tags = {"Plugin", "Factor"})
 public class FactorPluginResource {
 
-    @Context
-    private ResourceContext resourceContext;
+    @Context private ResourceContext resourceContext;
 
-    @Inject
-    private FactorPluginService factorPluginService;
+    @Inject private FactorPluginService factorPluginService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Get a factor plugin",
+    @ApiOperation(
+            value = "Get a factor plugin",
             notes = "There is no particular permission needed. User must be authenticated.")
-    public void get(@PathParam("factor") String factorId,
-                    @Suspended final AsyncResponse response) {
-        factorPluginService.findById(factorId)
+    public void get(@PathParam("factor") String factorId, @Suspended final AsyncResponse response) {
+        factorPluginService
+                .findById(factorId)
                 .switchIfEmpty(Maybe.error(new AuthenticatorPluginNotFoundException(factorId)))
                 .map(policyPlugin -> Response.ok(policyPlugin).build())
                 .subscribe(response::resume, response::resume);
@@ -61,11 +58,13 @@ public class FactorPluginResource {
     @GET
     @Path("schema")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Get a factor plugin's schema",
+    @ApiOperation(
+            value = "Get a factor plugin's schema",
             notes = "There is no particular permission needed. User must be authenticated.")
-    public void getSchema(@PathParam("factor") String factorId,
-                          @Suspended final AsyncResponse response) {
-        factorPluginService.getSchema(factorId)
+    public void getSchema(
+            @PathParam("factor") String factorId, @Suspended final AsyncResponse response) {
+        factorPluginService
+                .getSchema(factorId)
                 .map(policyPluginSchema -> Response.ok(policyPluginSchema).build())
                 .switchIfEmpty(Maybe.just(Response.noContent().build()))
                 .subscribe(response::resume, response::resume);

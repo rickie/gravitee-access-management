@@ -1,19 +1,21 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
+
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.Role;
@@ -34,16 +36,13 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.*;
-
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -54,28 +53,21 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ScopeServiceTest {
 
-    @InjectMocks
-    private ScopeService scopeService = new ScopeServiceImpl();
+    @InjectMocks private ScopeService scopeService = new ScopeServiceImpl();
 
-    @Mock
-    private RoleService roleService;
+    @Mock private RoleService roleService;
 
-    @Mock
-    private ApplicationService applicationService;
+    @Mock private ApplicationService applicationService;
 
-    @Mock
-    private ScopeRepository scopeRepository;
+    @Mock private ScopeRepository scopeRepository;
 
-    @Mock
-    private ScopeApprovalRepository scopeApprovalRepository;
+    @Mock private ScopeApprovalRepository scopeApprovalRepository;
 
-    @Mock
-    private EventService eventService;
+    @Mock private EventService eventService;
 
-    @Mock
-    private AuditService auditService;
+    @Mock private AuditService auditService;
 
-    private final static String DOMAIN = "domain1";
+    private static final String DOMAIN = "domain1";
 
     @Test
     public void shouldFindById() {
@@ -109,8 +101,10 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(scopeRepository.findByDomain(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.singleton(new Scope()),0,1)));
-        TestObserver<Page<Scope>> testObserver = scopeService.findByDomain(DOMAIN, 0, Integer.MAX_VALUE).test();
+        when(scopeRepository.findByDomain(DOMAIN, 0, Integer.MAX_VALUE))
+                .thenReturn(Single.just(new Page<>(Collections.singleton(new Scope()), 0, 1)));
+        TestObserver<Page<Scope>> testObserver =
+                scopeService.findByDomain(DOMAIN, 0, Integer.MAX_VALUE).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -120,7 +114,8 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(scopeRepository.findByDomain(DOMAIN, 0, 1)).thenReturn(Single.error(TechnicalException::new));
+        when(scopeRepository.findByDomain(DOMAIN, 0, 1))
+                .thenReturn(Single.error(TechnicalException::new));
 
         TestObserver testObserver = new TestObserver();
         scopeService.findByDomain(DOMAIN, 0, 1).subscribe(testObserver);
@@ -131,44 +126,54 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldFindByDomainAndKey_technicalException() {
-        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope")).thenReturn(Maybe.error(TechnicalException::new));
-        TestObserver<Scope> testObserver = scopeService.findByDomainAndKey(DOMAIN, "my-scope").test();
+        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope"))
+                .thenReturn(Maybe.error(TechnicalException::new));
+        TestObserver<Scope> testObserver =
+                scopeService.findByDomainAndKey(DOMAIN, "my-scope").test();
         testObserver.assertNotComplete().assertError(TechnicalManagementException.class);
     }
 
     @Test
     public void shouldFindByDomainAndKey() {
-        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope")).thenReturn(Maybe.just(new Scope()));
-        TestObserver<Scope> testObserver = scopeService.findByDomainAndKey(DOMAIN, "my-scope").test();
+        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope"))
+                .thenReturn(Maybe.just(new Scope()));
+        TestObserver<Scope> testObserver =
+                scopeService.findByDomainAndKey(DOMAIN, "my-scope").test();
         testObserver.assertComplete().assertNoErrors().assertValue(Objects::nonNull);
     }
 
     @Test
     public void shouldFindByDomainAndKeys_nullInput() {
-        TestObserver<List<Scope>> testObserver = scopeService.findByDomainAndKeys(DOMAIN, null).test();
+        TestObserver<List<Scope>> testObserver =
+                scopeService.findByDomainAndKeys(DOMAIN, null).test();
         testObserver.assertComplete().assertNoErrors().assertValue(List::isEmpty);
     }
 
     @Test
     public void shouldFindByDomainAndKeys_emptyInput() {
-        TestObserver<List<Scope>> testObserver = scopeService.findByDomainAndKeys(DOMAIN, Collections.emptyList()).test();
+        TestObserver<List<Scope>> testObserver =
+                scopeService.findByDomainAndKeys(DOMAIN, Collections.emptyList()).test();
         testObserver.assertComplete().assertNoErrors().assertValue(List::isEmpty);
     }
 
     @Test
     public void shouldFindByDomainAndKeys_technicalException() {
-        List<String> searchingScopes = Arrays.asList("a","b");
-        when(scopeRepository.findByDomainAndKeys(DOMAIN, searchingScopes)).thenReturn(Flowable.error(TechnicalException::new));
-        TestObserver<List<Scope>> testObserver = scopeService.findByDomainAndKeys(DOMAIN, searchingScopes).test();
+        List<String> searchingScopes = Arrays.asList("a", "b");
+        when(scopeRepository.findByDomainAndKeys(DOMAIN, searchingScopes))
+                .thenReturn(Flowable.error(TechnicalException::new));
+        TestObserver<List<Scope>> testObserver =
+                scopeService.findByDomainAndKeys(DOMAIN, searchingScopes).test();
         testObserver.assertNotComplete().assertError(TechnicalManagementException.class);
     }
 
     @Test
     public void shouldFindByDomainAndKeys() {
-        List<String> searchingScopes = Arrays.asList("a","b");
-        when(scopeRepository.findByDomainAndKeys(DOMAIN, searchingScopes)).thenReturn(Flowable.just(new Scope()));
-        TestObserver<List<Scope>> testObserver = scopeService.findByDomainAndKeys(DOMAIN, searchingScopes).test();
-        testObserver.assertComplete().assertNoErrors().assertValue(scopes -> scopes.size()==1);
+        List<String> searchingScopes = Arrays.asList("a", "b");
+        when(scopeRepository.findByDomainAndKeys(DOMAIN, searchingScopes))
+                .thenReturn(Flowable.just(new Scope()));
+        TestObserver<List<Scope>> testObserver =
+                scopeService.findByDomainAndKeys(DOMAIN, searchingScopes).test();
+        testObserver.assertComplete().assertNoErrors().assertValue(scopes -> scopes.size() == 1);
     }
 
     @Test
@@ -206,12 +211,15 @@ public class ScopeServiceTest {
         testObserver.assertNoErrors();
 
         verify(scopeRepository, times(1)).create(any(Scope.class));
-        verify(scopeRepository, times(1)).create(argThat(new ArgumentMatcher<Scope>() {
-            @Override
-            public boolean matches(Scope scope) {
-                return scope.getKey().equals("MY-SCOPE");
-            }
-        }));
+        verify(scopeRepository, times(1))
+                .create(
+                        argThat(
+                                new ArgumentMatcher<Scope>() {
+                                    @Override
+                                    public boolean matches(Scope scope) {
+                                        return scope.getKey().equals("MY-SCOPE");
+                                    }
+                                }));
         verify(eventService, times(1)).create(any());
     }
 
@@ -230,12 +238,15 @@ public class ScopeServiceTest {
         testObserver.assertNoErrors();
 
         verify(scopeRepository, times(1)).create(any(Scope.class));
-        verify(scopeRepository, times(1)).create(argThat(new ArgumentMatcher<Scope>() {
-            @Override
-            public boolean matches(Scope scope) {
-                return scope.getKey().equals("MY_scope");
-            }
-        }));
+        verify(scopeRepository, times(1))
+                .create(
+                        argThat(
+                                new ArgumentMatcher<Scope>() {
+                                    @Override
+                                    public boolean matches(Scope scope) {
+                                        return scope.getKey().equals("MY_scope");
+                                    }
+                                }));
         verify(eventService, times(1)).create(any());
     }
 
@@ -252,7 +263,7 @@ public class ScopeServiceTest {
         testObserver.assertError(MalformedIconUriException.class);
         testObserver.assertNotComplete();
 
-        verify(scopeRepository, times(1)).findByDomainAndKey(DOMAIN,"my-scope");
+        verify(scopeRepository, times(1)).findByDomainAndKey(DOMAIN, "my-scope");
         verify(scopeRepository, never()).create(any(Scope.class));
     }
 
@@ -260,7 +271,8 @@ public class ScopeServiceTest {
     public void shouldNotCreate_technicalException() {
         NewScope newScope = Mockito.mock(NewScope.class);
         when(newScope.getKey()).thenReturn("my-scope");
-        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope")).thenReturn(Maybe.error(TechnicalException::new));
+        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope"))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
         TestObserver testObserver = new TestObserver();
         scopeService.create(DOMAIN, newScope).subscribe(testObserver);
@@ -275,7 +287,8 @@ public class ScopeServiceTest {
     public void shouldNotCreate_existingScope() {
         NewScope newScope = Mockito.mock(NewScope.class);
         when(newScope.getKey()).thenReturn("my-scope");
-        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope")).thenReturn(Maybe.just(new Scope()));
+        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope"))
+                .thenReturn(Maybe.just(new Scope()));
 
         TestObserver testObserver = new TestObserver();
         scopeService.create(DOMAIN, newScope).subscribe(testObserver);
@@ -307,14 +320,14 @@ public class ScopeServiceTest {
         when(scopeRepository.update(argument.capture())).thenReturn(Single.just(new Scope()));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = scopeService.patch(DOMAIN,scopeId, patch).test();
+        TestObserver testObserver = scopeService.patch(DOMAIN, scopeId, patch).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         verify(scopeRepository, times(1)).update(any(Scope.class));
         assertNotNull(argument.getValue());
-        assertEquals("name",argument.getValue().getName());
-        assertEquals("oldDescription",argument.getValue().getDescription());
+        assertEquals("name", argument.getValue().getName());
+        assertEquals("oldDescription", argument.getValue().getDescription());
         assertFalse(argument.getValue().isDiscovery());
     }
 
@@ -339,14 +352,14 @@ public class ScopeServiceTest {
         when(scopeRepository.update(argument.capture())).thenReturn(Single.just(new Scope()));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = scopeService.patch(DOMAIN,scopeId, patch).test();
+        TestObserver testObserver = scopeService.patch(DOMAIN, scopeId, patch).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         verify(scopeRepository, times(1)).update(any(Scope.class));
         assertNotNull(argument.getValue());
-        assertEquals("name",argument.getValue().getName());
-        assertEquals("oldDescription",argument.getValue().getDescription());
+        assertEquals("name", argument.getValue().getName());
+        assertEquals("oldDescription", argument.getValue().getDescription());
         assertTrue(argument.getValue().isDiscovery());
     }
 
@@ -355,9 +368,11 @@ public class ScopeServiceTest {
         Scope toPatch = new Scope();
         toPatch.setId("toPatchId");
 
-        when(scopeRepository.findById("toPatchId")).thenReturn(Maybe.error(TechnicalException::new));
+        when(scopeRepository.findById("toPatchId"))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
-        TestObserver testObserver = scopeService.patch(DOMAIN,"toPatchId", new PatchScope()).test();
+        TestObserver testObserver =
+                scopeService.patch(DOMAIN, "toPatchId", new PatchScope()).test();
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -369,7 +384,7 @@ public class ScopeServiceTest {
         when(scopeRepository.findById("my-scope")).thenReturn(Maybe.empty());
 
         TestObserver testObserver = new TestObserver();
-        scopeService.patch(DOMAIN, "my-scope",patchScope).subscribe(testObserver);
+        scopeService.patch(DOMAIN, "my-scope", patchScope).subscribe(testObserver);
 
         testObserver.assertError(ScopeNotFoundException.class);
         testObserver.assertNotComplete();
@@ -385,7 +400,7 @@ public class ScopeServiceTest {
         when(scopeRepository.findById("my-scope")).thenReturn(Maybe.just(new Scope()));
 
         TestObserver testObserver = new TestObserver();
-        scopeService.patch(DOMAIN, "my-scope",patchScope).subscribe(testObserver);
+        scopeService.patch(DOMAIN, "my-scope", patchScope).subscribe(testObserver);
 
         testObserver.assertError(MalformedIconUriException.class);
         testObserver.assertNotComplete();
@@ -415,13 +430,13 @@ public class ScopeServiceTest {
         when(scopeRepository.update(argument.capture())).thenReturn(Single.just(new Scope()));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = scopeService.update(DOMAIN,scopeId, updateScope).test();
+        TestObserver testObserver = scopeService.update(DOMAIN, scopeId, updateScope).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         verify(scopeRepository, times(1)).update(any(Scope.class));
         assertNotNull(argument.getValue());
-        assertEquals("name",argument.getValue().getName());
+        assertEquals("name", argument.getValue().getName());
         assertNull(argument.getValue().getDescription());
         assertFalse(argument.getValue().isDiscovery());
     }
@@ -446,13 +461,13 @@ public class ScopeServiceTest {
         when(scopeRepository.update(argument.capture())).thenReturn(Single.just(new Scope()));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = scopeService.update(DOMAIN,scopeId, updateScope).test();
+        TestObserver testObserver = scopeService.update(DOMAIN, scopeId, updateScope).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         verify(scopeRepository, times(1)).update(any(Scope.class));
         assertNotNull(argument.getValue());
-        assertEquals("name",argument.getValue().getName());
+        assertEquals("name", argument.getValue().getName());
         assertNull(argument.getValue().getDescription());
         assertTrue(argument.getValue().isDiscovery());
     }
@@ -478,22 +493,24 @@ public class ScopeServiceTest {
         when(scopeRepository.update(argument.capture())).thenReturn(Single.just(new Scope()));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = scopeService.update(DOMAIN,scopeId, updateScope).test();
+        TestObserver testObserver = scopeService.update(DOMAIN, scopeId, updateScope).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         verify(scopeRepository, times(1)).update(any(Scope.class));
         assertNotNull(argument.getValue());
-        assertEquals("name",argument.getValue().getName());
+        assertEquals("name", argument.getValue().getName());
         assertNull(argument.getValue().getDescription());
         assertTrue(argument.getValue().isDiscovery());
     }
 
     @Test
     public void shouldNotUpdate() {
-        when(scopeRepository.findById("toUpdateId")).thenReturn(Maybe.error(TechnicalException::new));
+        when(scopeRepository.findById("toUpdateId"))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
-        TestObserver testObserver = scopeService.update(DOMAIN,"toUpdateId", new UpdateScope()).test();
+        TestObserver testObserver =
+                scopeService.update(DOMAIN, "toUpdateId", new UpdateScope()).test();
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -507,7 +524,7 @@ public class ScopeServiceTest {
         when(scopeRepository.findById("toUpdateId")).thenReturn(Maybe.just(new Scope()));
 
         TestObserver testObserver = new TestObserver();
-        scopeService.update(DOMAIN, "toUpdateId",updateScope).subscribe(testObserver);
+        scopeService.update(DOMAIN, "toUpdateId", updateScope).subscribe(testObserver);
 
         testObserver.assertError(MalformedIconUriException.class);
         testObserver.assertNotComplete();
@@ -537,13 +554,13 @@ public class ScopeServiceTest {
         when(scopeRepository.update(argument.capture())).thenReturn(Single.just(new Scope()));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        TestObserver testObserver = scopeService.update(DOMAIN,scopeId, updateScope).test();
+        TestObserver testObserver = scopeService.update(DOMAIN, scopeId, updateScope).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         verify(scopeRepository, times(1)).update(any(Scope.class));
         assertNotNull(argument.getValue());
-        assertEquals("name",argument.getValue().getName());
+        assertEquals("name", argument.getValue().getName());
         assertNull(argument.getValue().getDescription());
         assertTrue(argument.getValue().isDiscovery());
     }
@@ -553,9 +570,11 @@ public class ScopeServiceTest {
         Scope toUpdate = new Scope();
         toUpdate.setId("toUpdateId");
 
-        when(scopeRepository.findById("toUpdateId")).thenReturn(Maybe.error(TechnicalException::new));
+        when(scopeRepository.findById("toUpdateId"))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
-        TestObserver testObserver = scopeService.update(DOMAIN,"toUpdateId", new UpdateSystemScope()).test();
+        TestObserver testObserver =
+                scopeService.update(DOMAIN, "toUpdateId", new UpdateSystemScope()).test();
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -610,10 +629,12 @@ public class ScopeServiceTest {
         Scope scope = mock(Scope.class);
         when(scope.getDomain()).thenReturn(DOMAIN);
         when(roleService.findByDomain(DOMAIN)).thenReturn(Single.just(Collections.emptySet()));
-        when(applicationService.findByDomain(DOMAIN)).thenReturn(Single.just(Collections.emptySet()));
+        when(applicationService.findByDomain(DOMAIN))
+                .thenReturn(Single.just(Collections.emptySet()));
         when(scopeRepository.findById("my-scope")).thenReturn(Maybe.just(scope));
         when(scopeRepository.delete("my-scope")).thenReturn(Completable.complete());
-        when(scopeApprovalRepository.deleteByDomainAndScopeKey(scope.getDomain(), scope.getKey())).thenReturn(Completable.complete());
+        when(scopeApprovalRepository.deleteByDomainAndScopeKey(scope.getDomain(), scope.getKey()))
+                .thenReturn(Completable.complete());
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
         TestObserver testObserver = scopeService.delete("my-scope", false).test();
@@ -642,17 +663,21 @@ public class ScopeServiceTest {
 
         ApplicationSettings applicationSettings = mock(ApplicationSettings.class);
         ApplicationOAuthSettings applicationOAuthSettings = mock(ApplicationOAuthSettings.class);
-        when(applicationOAuthSettings.getScopeSettings()).thenReturn(Arrays.asList(new ApplicationScopeSettings("my-scope")));
+        when(applicationOAuthSettings.getScopeSettings())
+                .thenReturn(Arrays.asList(new ApplicationScopeSettings("my-scope")));
         when(applicationSettings.getOauth()).thenReturn(applicationOAuthSettings);
         when(application.getSettings()).thenReturn(applicationSettings);
 
         when(roleService.findByDomain(DOMAIN)).thenReturn(Single.just(Collections.singleton(role)));
-        when(applicationService.findByDomain(DOMAIN)).thenReturn(Single.just(Collections.singleton(application)));
-        when(roleService.update(anyString(), anyString(), any(UpdateRole.class))).thenReturn(Single.just(new Role()));
+        when(applicationService.findByDomain(DOMAIN))
+                .thenReturn(Single.just(Collections.singleton(application)));
+        when(roleService.update(anyString(), anyString(), any(UpdateRole.class)))
+                .thenReturn(Single.just(new Role()));
         when(applicationService.update(any())).thenReturn(Single.just(new Application()));
         when(scopeRepository.findById("my-scope")).thenReturn(Maybe.just(scope));
         when(scopeRepository.delete("my-scope")).thenReturn(Completable.complete());
-        when(scopeApprovalRepository.deleteByDomainAndScopeKey(scope.getDomain(), scope.getKey())).thenReturn(Completable.complete());
+        when(scopeApprovalRepository.deleteByDomainAndScopeKey(scope.getDomain(), scope.getKey()))
+                .thenReturn(Completable.complete());
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
         TestObserver testObserver = scopeService.delete("my-scope", false).test();
@@ -683,7 +708,7 @@ public class ScopeServiceTest {
 
     @Test
     public void validateScope_nullList() {
-        TestObserver<Boolean> testObserver = scopeService.validateScope(DOMAIN,null).test();
+        TestObserver<Boolean> testObserver = scopeService.validateScope(DOMAIN, null).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(isValid -> isValid);
@@ -691,15 +716,21 @@ public class ScopeServiceTest {
 
     @Test
     public void validateScope_unknownScope() {
-        when(scopeRepository.findByDomain(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.singleton(new Scope("valid")),0,1)));
-        TestObserver<Boolean> testObserver = scopeService.validateScope(DOMAIN,Arrays.asList("unknown")).test();
+        when(scopeRepository.findByDomain(DOMAIN, 0, Integer.MAX_VALUE))
+                .thenReturn(
+                        Single.just(new Page<>(Collections.singleton(new Scope("valid")), 0, 1)));
+        TestObserver<Boolean> testObserver =
+                scopeService.validateScope(DOMAIN, Arrays.asList("unknown")).test();
         testObserver.assertError(InvalidClientMetadataException.class);
     }
 
     @Test
     public void validateScope_validScope() {
-        when(scopeRepository.findByDomain(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.singleton(new Scope("valid")),0,1)));
-        TestObserver<Boolean> testObserver = scopeService.validateScope(DOMAIN, Arrays.asList("valid")).test();
+        when(scopeRepository.findByDomain(DOMAIN, 0, Integer.MAX_VALUE))
+                .thenReturn(
+                        Single.just(new Page<>(Collections.singleton(new Scope("valid")), 0, 1)));
+        TestObserver<Boolean> testObserver =
+                scopeService.validateScope(DOMAIN, Arrays.asList("valid")).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(isValid -> isValid);

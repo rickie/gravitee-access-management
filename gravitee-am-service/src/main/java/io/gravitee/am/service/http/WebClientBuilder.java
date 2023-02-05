@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.http;
@@ -20,6 +18,7 @@ import io.vertx.core.net.*;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.ext.web.client.WebClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,21 +98,24 @@ public class WebClientBuilder {
     @Value("${httpClient.ssl.keystore.type:#{null}}")
     private String sslKeyStoreType;
 
-    @Autowired
-    private Environment environment;
+    @Autowired private Environment environment;
 
     public WebClient createWebClient(Vertx vertx, URL url) {
 
-        final int port = url.getPort() != -1 ? url.getPort() : (HTTPS_SCHEME.equals(url.getProtocol()) ? 443 : 80);
+        final int port =
+                url.getPort() != -1
+                        ? url.getPort()
+                        : (HTTPS_SCHEME.equals(url.getProtocol()) ? 443 : 80);
 
-        WebClientOptions options = new WebClientOptions()
-                .setDefaultPort(port)
-                .setDefaultHost(url.getHost())
-                .setKeepAlive(true)
-                .setMaxPoolSize(10)
-                .setTcpKeepAlive(true)
-                .setConnectTimeout(httpClientTimeout)
-                .setSsl(url.getProtocol().equals(HTTPS_SCHEME));
+        WebClientOptions options =
+                new WebClientOptions()
+                        .setDefaultPort(port)
+                        .setDefaultHost(url.getHost())
+                        .setKeepAlive(true)
+                        .setMaxPoolSize(10)
+                        .setTcpKeepAlive(true)
+                        .setConnectTimeout(httpClientTimeout)
+                        .setSsl(url.getProtocol().equals(HTTPS_SCHEME));
 
         return createWebClient(vertx, options);
     }
@@ -153,7 +155,7 @@ public class WebClientBuilder {
             options.setTrustAll(isSSLTrustAllEnabled);
             options.setVerifyHost(isSSLVerifyHostEnabled);
             if (sslTrustStoreType != null) {
-                switch(sslTrustStoreType) {
+                switch (sslTrustStoreType) {
                     case JKS_KEYSTORE_TYPE:
                         setJksTrustOptions(options);
                         break;
@@ -164,11 +166,13 @@ public class WebClientBuilder {
                         setPemTrustOptions(options);
                         break;
                     default:
-                        LOGGER.error("No suitable httpClient SSL TrustStore type found for : " + sslTrustStoreType);
+                        LOGGER.error(
+                                "No suitable httpClient SSL TrustStore type found for : "
+                                        + sslTrustStoreType);
                 }
             }
             if (sslKeyStoreType != null) {
-                switch(sslKeyStoreType) {
+                switch (sslKeyStoreType) {
                     case JKS_KEYSTORE_TYPE:
                         setJksKeyOptions(options);
                         break;
@@ -179,12 +183,13 @@ public class WebClientBuilder {
                         setPemKeyOptions(options);
                         break;
                     default:
-                        LOGGER.error("No suitable httpClient SSL KeyStore type found for : " + sslKeyStoreType);
+                        LOGGER.error(
+                                "No suitable httpClient SSL KeyStore type found for : "
+                                        + sslKeyStoreType);
                 }
             }
         }
     }
-
 
     private void setJksTrustOptions(WebClientOptions options) {
         JksOptions jksOptions = new JksOptions();
@@ -233,27 +238,35 @@ public class WebClientBuilder {
         }
 
         try {
-            final List<String> proxyExcludeHosts = EnvironmentUtils
-                    .getPropertiesStartingWith((ConfigurableEnvironment) environment, "httpClient.proxy.exclude-hosts")
-                    .values()
-                    .stream()
-                    .map(String::valueOf)
-                    .collect(Collectors.toList());
+            final List<String> proxyExcludeHosts =
+                    EnvironmentUtils.getPropertiesStartingWith(
+                                    (ConfigurableEnvironment) environment,
+                                    "httpClient.proxy.exclude-hosts")
+                            .values()
+                            .stream()
+                            .map(String::valueOf)
+                            .collect(Collectors.toList());
 
-            if(url.contains("?")) {
-                // Remove the query part as it could contain invalid characters such as those used in El expression.
+            if (url.contains("?")) {
+                // Remove the query part as it could contain invalid characters such as those used
+                // in El expression.
                 url = url.substring(0, url.indexOf('?'));
             }
 
             URL uri = URI.create(url).toURL();
             String host = uri.getHost();
-            return proxyExcludeHosts.stream().anyMatch(excludedHost -> {
-                if (excludedHost.startsWith("*.")) {
-                    return host.endsWith(WILDCARD_PATTERN.matcher(excludedHost).replaceFirst(""));
-                } else {
-                    return host.equals(excludedHost);
-                }
-            });
+            return proxyExcludeHosts.stream()
+                    .anyMatch(
+                            excludedHost -> {
+                                if (excludedHost.startsWith("*.")) {
+                                    return host.endsWith(
+                                            WILDCARD_PATTERN
+                                                    .matcher(excludedHost)
+                                                    .replaceFirst(""));
+                                } else {
+                                    return host.equals(excludedHost);
+                                }
+                            });
         } catch (Exception ex) {
             LOGGER.error("An error has occurred when calculating proxy excluded hosts", ex);
             return false;

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management.internal.model;
@@ -23,64 +21,40 @@ import io.gravitee.am.model.PasswordSettings;
  */
 public class PasswordSettingsMongo {
 
-    /**
-     * Account settings configuration inherited ?
-     */
+    /** Account settings configuration inherited ? */
     private boolean inherited;
 
-    /**
-     * password min length
-     */
+    /** password min length */
     private Integer minLength;
 
-    /**
-     * password max length
-     */
+    /** password max length */
     private Integer maxLength;
 
-    /**
-     * Must include numbers
-     */
+    /** Must include numbers */
     private Boolean includeNumbers;
 
-    /**
-     * Must include special characters
-     */
+    /** Must include special characters */
     private Boolean includeSpecialCharacters;
 
-    /**
-     * letters in mixed case
-     */
+    /** letters in mixed case */
     private Boolean lettersInMixedCase;
 
-    /**
-     * Max consecutive letters
-     */
+    /** Max consecutive letters */
     private Integer maxConsecutiveLetters;
 
-    /**
-     *  Excludes passwords contained in dictionary
-     */
+    /** Excludes passwords contained in dictionary */
     private Boolean excludePasswordsInDictionary;
 
-    /**
-     * Excludes user profile information from password
-     */
+    /** Excludes user profile information from password */
     private Boolean excludeUserProfileInfoInPassword;
 
-    /**
-     * The Expiration duration (in days) of a password
-     */
+    /** The Expiration duration (in days) of a password */
     private Integer expiryDuration;
 
-    /**
-     * Does the password history is enabled to prevent the usage of old password
-     */
+    /** Does the password history is enabled to prevent the usage of old password */
     private boolean passwordHistoryEnabled;
 
-    /**
-     * How many passwords are preserved into the history
-     */
+    /** How many passwords are preserved into the history */
     private Short oldPasswords;
 
     public boolean isInherited() {
@@ -183,7 +157,8 @@ public class PasswordSettingsMongo {
         PasswordSettings passwordSettings = new PasswordSettings();
         passwordSettings.setInherited(isInherited());
         passwordSettings.setMinLength(getMinLength());
-        passwordSettings.setMaxLength(getMaxLength() == null ? PasswordSettings.PASSWORD_MAX_LENGTH : getMaxLength());
+        passwordSettings.setMaxLength(
+                getMaxLength() == null ? PasswordSettings.PASSWORD_MAX_LENGTH : getMaxLength());
         passwordSettings.setIncludeNumbers(isIncludeNumbers());
         passwordSettings.setIncludeSpecialCharacters(isIncludeSpecialCharacters());
         passwordSettings.setLettersInMixedCase(getLettersInMixedCase());
@@ -209,7 +184,8 @@ public class PasswordSettingsMongo {
         passwordSettings.setLettersInMixedCase(other.getLettersInMixedCase());
         passwordSettings.setMaxConsecutiveLetters(other.getMaxConsecutiveLetters());
         passwordSettings.setExcludePasswordsInDictionary(other.isExcludePasswordsInDictionary());
-        passwordSettings.setExcludeUserProfileInfoInPassword(other.isExcludeUserProfileInfoInPassword());
+        passwordSettings.setExcludeUserProfileInfoInPassword(
+                other.isExcludeUserProfileInfoInPassword());
         passwordSettings.setExpiryDuration(other.getExpiryDuration());
         passwordSettings.setPasswordHistoryEnabled(other.isPasswordHistoryEnabled());
         passwordSettings.setOldPasswords(other.getOldPasswords());

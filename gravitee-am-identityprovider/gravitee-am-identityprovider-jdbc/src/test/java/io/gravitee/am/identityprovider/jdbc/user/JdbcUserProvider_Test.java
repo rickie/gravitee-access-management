@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.identityprovider.jdbc.user;
@@ -20,6 +18,7 @@ import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.identityprovider.api.UserProvider;
 import io.gravitee.am.service.exception.UserNotFoundException;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +31,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 public abstract class JdbcUserProvider_Test {
 
-    @Autowired
-    private UserProvider userProvider;
+    @Autowired private UserProvider userProvider;
 
     @Test
     public void shouldSelectUserByUsername() {
@@ -108,7 +106,7 @@ public abstract class JdbcUserProvider_Test {
         final String username = "userToUpdateNoPwd";
         DefaultUser user = new DefaultUser(username);
         user.setCredentials("password");
-        user.setEmail(username+"@acme.fr");
+        user.setEmail(username + "@acme.fr");
         User createdUser = userProvider.create(user).blockingGet();
 
         DefaultUser updateUser = new DefaultUser(username);
@@ -155,5 +153,4 @@ public abstract class JdbcUserProvider_Test {
         testObserver.assertError(UserNotFoundException.class);
         testObserver.assertNoValues();
     }
-
 }

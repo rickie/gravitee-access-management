@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.vertx.web.handler.impl;
@@ -30,26 +28,27 @@ import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Override default Vert.x CSRFHandler to enhance routing context with CSRF values to fill in the right value for the form fields.
+ * Override default Vert.x CSRFHandler to enhance routing context with CSRF values to fill in the
+ * right value for the form fields.
  *
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class CSRFHandlerImpl implements CSRFHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(io.vertx.ext.web.handler.impl.CSRFHandlerImpl.class);
+    private static final Logger log =
+            LoggerFactory.getLogger(io.vertx.ext.web.handler.impl.CSRFHandlerImpl.class);
 
     private static final Base64.Encoder BASE64 = Base64.getMimeEncoder();
 
@@ -167,12 +166,11 @@ public class CSRFHandlerImpl implements CSRFHandler {
         queryParams.set("error", "session_expired");
         queryParams.set("error_description", "Your session expired, please try again.");
 
-        final String uri = UriBuilderRequest.resolveProxyRequest(httpServerRequest, ctx.request().path(), queryParams, true);
+        final String uri =
+                UriBuilderRequest.resolveProxyRequest(
+                        httpServerRequest, ctx.request().path(), queryParams, true);
 
-        ctx.response()
-                .putHeader(HttpHeaders.LOCATION, uri)
-                .setStatusCode(statusCode)
-                .end();
+        ctx.response().putHeader(HttpHeaders.LOCATION, uri).setStatusCode(statusCode).end();
     }
 
     @Override
@@ -181,7 +179,9 @@ public class CSRFHandlerImpl implements CSRFHandler {
         if (nagHttps) {
             String uri = ctx.request().absoluteURI();
             if (uri != null && !uri.startsWith("https:")) {
-                log.warn("Using session cookies without https could make you susceptible to session hijacking: " + uri);
+                log.warn(
+                        "Using session cookies without https could make you susceptible to session hijacking: "
+                                + uri);
             }
         }
 
@@ -190,7 +190,8 @@ public class CSRFHandlerImpl implements CSRFHandler {
         switch (method.name()) {
             case "GET":
                 final String token = generateToken();
-                // put the token in the context for users who prefer to render the token directly on the HTML
+                // put the token in the context for users who prefer to render the token directly on
+                // the HTML
                 ctx.put(headerName, token);
                 ctx.addCookie(Cookie.cookie(cookieName, token));
                 enhanceContext(ctx);
@@ -202,7 +203,9 @@ public class CSRFHandlerImpl implements CSRFHandler {
             case "PATCH":
                 final String header = ctx.request().getHeader(headerName);
                 final Cookie cookie = ctx.getCookie(cookieName);
-                if (validateToken(header == null ? ctx.request().getFormAttribute(headerName) : header, cookie)) {
+                if (validateToken(
+                        header == null ? ctx.request().getFormAttribute(headerName) : header,
+                        cookie)) {
                     ctx.next();
                 } else {
                     redirect(ctx);
