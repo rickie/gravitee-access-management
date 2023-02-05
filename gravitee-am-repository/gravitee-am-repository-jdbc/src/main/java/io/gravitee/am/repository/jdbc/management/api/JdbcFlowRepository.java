@@ -183,8 +183,8 @@ public class JdbcFlowRepository extends AbstractJdbcRepository
     }
 
     private Mono<Integer> persistChildEntities(Mono<Integer> actionFlow, Flow item) {
-        final List<Step> preStep = item.getPre();
-        final List<Step> postStep = item.getPost();
+        List<Step> preStep = item.getPre();
+        List<Step> postStep = item.getPost();
 
         if (preStep != null && !preStep.isEmpty()) {
             actionFlow = actionFlow.then(persistFlowSteps(item, preStep, JdbcFlow.StepType.pre));

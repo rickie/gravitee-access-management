@@ -74,7 +74,7 @@ public class GoogleReCaptchaV3ProviderTest {
 
     @Test
     public void shouldNoValidate_MissingToken() {
-        final TestObserver<Boolean> testCall =
+        TestObserver<Boolean> testCall =
                 cut.validate(new BotDetectionContext("plugin_id", null, null)).test();
 
         testCall.awaitTerminalEvent();
@@ -93,7 +93,7 @@ public class GoogleReCaptchaV3ProviderTest {
         when(httpResponse.bodyAsJsonObject())
                 .thenReturn(new JsonObject().put("success", true).put("score", 0.5f));
 
-        final TestObserver<Boolean> testCall =
+        TestObserver<Boolean> testCall =
                 cut.validate(new BotDetectionContext("plugin_id", multiMap, null)).test();
 
         testCall.awaitTerminalEvent();
@@ -112,7 +112,7 @@ public class GoogleReCaptchaV3ProviderTest {
         when(httpResponse.bodyAsJsonObject())
                 .thenReturn(new JsonObject().put("success", true).put("score", 0.4f));
 
-        final TestObserver<Boolean> testCall =
+        TestObserver<Boolean> testCall =
                 cut.validate(new BotDetectionContext("plugin_id", multiMap, null)).test();
 
         testCall.awaitTerminalEvent();
@@ -129,7 +129,7 @@ public class GoogleReCaptchaV3ProviderTest {
         when(httpResponse.bodyAsJsonObject())
                 .thenReturn(new JsonObject().put("success", false).put("score", 0.8f));
 
-        final TestObserver<Boolean> testCall =
+        TestObserver<Boolean> testCall =
                 cut.validate(new BotDetectionContext("plugin_id", multiMap, null)).test();
 
         testCall.awaitTerminalEvent();
@@ -144,7 +144,7 @@ public class GoogleReCaptchaV3ProviderTest {
 
         when(httpResponse.statusCode()).thenReturn(HttpStatusCode.BAD_REQUEST_400);
 
-        final TestObserver<Boolean> testCall =
+        TestObserver<Boolean> testCall =
                 cut.validate(new BotDetectionContext("plugin_id", multiMap, null)).test();
 
         testCall.awaitTerminalEvent();

@@ -140,7 +140,7 @@ public class AlertTriggerServiceImpl implements io.gravitee.am.service.AlertTrig
                 referenceId,
                 patchAlertTrigger);
 
-        final AlertTriggerCriteria criteria = new AlertTriggerCriteria();
+        AlertTriggerCriteria criteria = new AlertTriggerCriteria();
         criteria.setType(patchAlertTrigger.getType());
 
         return alertTriggerRepository

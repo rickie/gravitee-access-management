@@ -55,10 +55,10 @@ public class RecoveryCodeFactorProvider implements FactorProvider, RecoveryFacto
 
     @Override
     public Completable verify(FactorContext context) {
-        final String code = context.getData(FactorContext.KEY_CODE, String.class);
-        final EnrolledFactor enrolledFactor =
+        String code = context.getData(FactorContext.KEY_CODE, String.class);
+        EnrolledFactor enrolledFactor =
                 context.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class);
-        final List<String> recoveryCodes =
+        List<String> recoveryCodes =
                 (List<String>) enrolledFactor.getSecurity().getAdditionalData().get(RECOVERY_CODE);
 
         return Completable.create(
@@ -101,9 +101,8 @@ public class RecoveryCodeFactorProvider implements FactorProvider, RecoveryFacto
 
     @Override
     public Single<EnrolledFactorSecurity> generateRecoveryCode(FactorContext context) {
-        final Factor recoveryFactor =
-                context.getData(FactorContext.KEY_RECOVERY_FACTOR, Factor.class);
-        final EnrolledFactor enrolledFactor = new EnrolledFactor();
+        Factor recoveryFactor = context.getData(FactorContext.KEY_RECOVERY_FACTOR, Factor.class);
+        EnrolledFactor enrolledFactor = new EnrolledFactor();
         enrolledFactor.setFactorId(recoveryFactor.getId());
         enrolledFactor.setStatus(FactorStatus.PENDING_ACTIVATION);
         enrolledFactor.setCreatedAt(new Date());
@@ -115,8 +114,8 @@ public class RecoveryCodeFactorProvider implements FactorProvider, RecoveryFacto
     private Single<EnrolledFactorSecurity> addRecoveryCodeFactor(
             FactorContext context, EnrolledFactor enrolledFactor) {
         try {
-            final UserService userService = context.getComponent(UserService.class);
-            final EnrolledFactorSecurity enrolledFactorSecurity = createEnrolledFactorSecurity();
+            UserService userService = context.getComponent(UserService.class);
+            EnrolledFactorSecurity enrolledFactorSecurity = createEnrolledFactorSecurity();
             enrolledFactor.setSecurity(enrolledFactorSecurity);
 
             return userService
@@ -131,14 +130,14 @@ public class RecoveryCodeFactorProvider implements FactorProvider, RecoveryFacto
     }
 
     private EnrolledFactorSecurity createEnrolledFactorSecurity() {
-        final Map<String, Object> recoveryCode = Map.of(RECOVERY_CODE, recoveryCodes());
+        Map<String, Object> recoveryCode = Map.of(RECOVERY_CODE, recoveryCodes());
         return new EnrolledFactorSecurity(
                 RECOVERY_CODE, Integer.toString(configuration.getDigit()), recoveryCode);
     }
 
     private List<String> recoveryCodes() {
-        final int length = configuration.getDigit();
-        final int count = configuration.getCount();
+        int length = configuration.getDigit();
+        int count = configuration.getCount();
         if (length <= 0 || count <= 0) {
             throw new IllegalArgumentException(
                     "Configuration cannot be used for recovery code. Either number of digits or number of recovery code is 0 or negative.");

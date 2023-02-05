@@ -98,7 +98,7 @@ class PasswordHistoryServiceTest {
                 .willReturn(fromIterable(List.of()));
         given(repository.create(any(PasswordHistory.class)))
                 .willReturn(Single.just(new PasswordHistory()));
-        final String encrypted_password = "encrypted password";
+        String encrypted_password = "encrypted password";
         given(passwordEncoder.encode(password)).willReturn(encrypted_password);
 
         var testObserver =

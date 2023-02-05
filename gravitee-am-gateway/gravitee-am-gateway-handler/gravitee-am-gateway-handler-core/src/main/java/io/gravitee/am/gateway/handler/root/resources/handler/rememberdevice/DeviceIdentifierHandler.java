@@ -45,9 +45,9 @@ public class DeviceIdentifierHandler implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final Client client =
+        Client client =
                 ofNullable(routingContext.<Client>get(CLIENT_CONTEXT_KEY)).orElse(new Client());
-        final User user = routingContext.get(USER_CONTEXT_KEY);
+        User user = routingContext.get(USER_CONTEXT_KEY);
         var rememberDeviceSettings = getRememberDeviceSettings(client);
         if (nonNull(user) && rememberDeviceSettings.isActive()) {
             checkIfDeviceExists(routingContext, client, user.getId(), rememberDeviceSettings);

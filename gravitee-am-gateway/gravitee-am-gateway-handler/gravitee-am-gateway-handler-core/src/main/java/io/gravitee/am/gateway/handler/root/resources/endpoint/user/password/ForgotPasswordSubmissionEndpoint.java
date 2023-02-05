@@ -53,14 +53,14 @@ public class ForgotPasswordSubmissionEndpoint extends UserRequestHandler {
 
     @Override
     public void handle(RoutingContext context) {
-        final String email = context.request().getParam(ConstantKeys.EMAIL_PARAM_KEY);
-        final String username = context.request().getParam(ConstantKeys.USERNAME_PARAM_KEY);
-        final Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        String email = context.request().getParam(ConstantKeys.EMAIL_PARAM_KEY);
+        String username = context.request().getParam(ConstantKeys.USERNAME_PARAM_KEY);
+        Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         MultiMap queryParams = RequestUtils.getCleanedQueryParams(context.request());
 
         AccountSettings settings = AccountSettings.getInstance(domain, client);
 
-        final ForgotPasswordParameters parameters =
+        ForgotPasswordParameters parameters =
                 new ForgotPasswordParameters(
                         email,
                         username,

@@ -146,7 +146,7 @@ public class OIDCProvider extends AbstractService<ProtocolProvider> implements P
 
     private void startOpenIDConnectProtocol() {
         // Create the OpenID Connect router
-        final Router oidcRouter = Router.router(vertx);
+        Router oidcRouter = Router.router(vertx);
 
         // OpenID Provider Configuration Information Endpoint
         Handler<RoutingContext> openIDProviderConfigurationEndpoint =
@@ -264,9 +264,9 @@ public class OIDCProvider extends AbstractService<ProtocolProvider> implements P
                 .handler(dynamicClientAccessEndpoint::renewClientSecret);
 
         // client auth handler
-        final String certificateHeader =
+        String certificateHeader =
                 environment.getProperty(ConstantKeys.HTTP_SSL_CERTIFICATE_HEADER);
-        final Handler<RoutingContext> clientAuthHandler =
+        Handler<RoutingContext> clientAuthHandler =
                 ClientAuthHandler.create(
                         clientSyncService,
                         clientAssertionService,

@@ -97,7 +97,7 @@ public class ResolvePropertyCommandHandler implements TriggerProvider.OnCommandR
 
     private Single<Map<String, Object>> resolveDomainProperties(String domainId) {
 
-        final Map<String, Object> properties = new HashMap<>();
+        Map<String, Object> properties = new HashMap<>();
 
         return domainService
                 .findById(domainId)
@@ -115,7 +115,7 @@ public class ResolvePropertyCommandHandler implements TriggerProvider.OnCommandR
 
     private Single<Map<String, Object>> resolveApplicationProperties(String applicationId) {
 
-        final Map<String, Object> properties = new HashMap<>();
+        Map<String, Object> properties = new HashMap<>();
 
         return applicationService
                 .findById(applicationId)

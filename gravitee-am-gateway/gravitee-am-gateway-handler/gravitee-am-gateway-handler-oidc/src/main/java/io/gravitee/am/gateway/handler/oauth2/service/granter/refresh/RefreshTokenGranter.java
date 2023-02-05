@@ -86,7 +86,7 @@ public class RefreshTokenGranter extends AbstractTokenGranter {
                                                     // and if omitted is
                                                     // treated as equal to the scope originally
                                                     // granted by the resource owner.
-                                                    final Set<String> originalScopes =
+                                                    Set<String> originalScopes =
                                                             (refreshToken1.getScope() != null
                                                                     ? new HashSet(
                                                                             Arrays.asList(
@@ -95,7 +95,7 @@ public class RefreshTokenGranter extends AbstractTokenGranter {
                                                                                             .split(
                                                                                                     "\\s+")))
                                                                     : null);
-                                                    final Set<String> requestedScopes =
+                                                    Set<String> requestedScopes =
                                                             tokenRequest1.getScopes();
                                                     if (requestedScopes == null
                                                             || requestedScopes.isEmpty()) {
@@ -124,7 +124,7 @@ public class RefreshTokenGranter extends AbstractTokenGranter {
 
     @Override
     protected Maybe<User> resolveResourceOwner(TokenRequest tokenRequest, Client client) {
-        final String subject = tokenRequest.getSubject();
+        String subject = tokenRequest.getSubject();
 
         if (subject == null) {
             return Maybe.empty();

@@ -90,9 +90,9 @@ public class AuthorizationRequestParseRequestObjectHandler
 
     @Override
     public void handle(RoutingContext context) {
-        final String request = context.request().getParam(Parameters.REQUEST);
-        final String requestUri = context.request().getParam(Parameters.REQUEST_URI);
-        final Client client = context.get(CLIENT_CONTEXT_KEY);
+        String request = context.request().getParam(Parameters.REQUEST);
+        String requestUri = context.request().getParam(Parameters.REQUEST_URI);
+        Client client = context.get(CLIENT_CONTEXT_KEY);
         if (StringUtils.isEmpty(requestUri)) {
             if (client != null && client.isRequireParRequest()) {
                 context.fail(
@@ -245,8 +245,8 @@ public class AuthorizationRequestParseRequestObjectHandler
     private Single<JWT> validateRequestObjectClaims(RoutingContext context, JWT jwt) {
         if (this.domain.usePlainFapiProfile()) {
             try {
-                final boolean fromRequestUri = context.get(REQUEST_OBJECT_FROM_URI);
-                final JWTClaimsSet jwtClaimsSet = jwt.getJWTClaimsSet();
+                boolean fromRequestUri = context.get(REQUEST_OBJECT_FROM_URI);
+                JWTClaimsSet jwtClaimsSet = jwt.getJWTClaimsSet();
 
                 // according to https://openid.net/specs/openid-connect-core-1_0.html#RequestObject
                 // OpenID Connect request parameter values contained in the JWT supersede those
@@ -264,7 +264,7 @@ public class AuthorizationRequestParseRequestObjectHandler
 
                 List<String> redirectUri =
                         context.queryParam(io.gravitee.am.common.oauth2.Parameters.REDIRECT_URI);
-                final String redirectUriClaim =
+                String redirectUriClaim =
                         jwtClaimsSet.getStringClaim(
                                 io.gravitee.am.common.oauth2.Parameters.REDIRECT_URI);
                 if (redirectUriClaim == null
@@ -281,7 +281,7 @@ public class AuthorizationRequestParseRequestObjectHandler
                     throw new InvalidRequestException("Missing or invalid redirect_uri");
                 }
 
-                final Date nbf = jwtClaimsSet.getNotBeforeTime();
+                Date nbf = jwtClaimsSet.getNotBeforeTime();
                 if (nbf == null
                         || (nbf.getTime() + ONE_HOUR_IN_MILLIS)
                                 < jwtClaimsSet.getExpirationTime().getTime()) {
@@ -290,7 +290,7 @@ public class AuthorizationRequestParseRequestObjectHandler
 
                 List<String> state =
                         context.queryParam(io.gravitee.am.common.oauth2.Parameters.STATE);
-                final String stateClaim =
+                String stateClaim =
                         jwtClaimsSet.getStringClaim(io.gravitee.am.common.oauth2.Parameters.STATE);
                 if (state != null
                         && !state.isEmpty()
@@ -299,7 +299,7 @@ public class AuthorizationRequestParseRequestObjectHandler
                             fromRequestUri, "Request object must contains valid state claim");
                 }
 
-                final OpenIDProviderMetadata openIDProviderMetadata =
+                OpenIDProviderMetadata openIDProviderMetadata =
                         context.get(PROVIDER_METADATA_CONTEXT_KEY);
                 if (jwtClaimsSet.getAudience() == null
                         || (openIDProviderMetadata != null
@@ -313,7 +313,7 @@ public class AuthorizationRequestParseRequestObjectHandler
 
                 List<String> scope =
                         context.queryParam(io.gravitee.am.common.oauth2.Parameters.SCOPE);
-                final String scopeClaim = jwtClaimsSet.getStringClaim(Claims.scope);
+                String scopeClaim = jwtClaimsSet.getStringClaim(Claims.scope);
                 if (scope != null
                         && !scope.isEmpty()
                         && (scopeClaim == null || !scopeClaim.equals(scope.get(0)))) {
@@ -374,7 +374,7 @@ public class AuthorizationRequestParseRequestObjectHandler
                         .flatMap(jwt -> validateRequestObjectClaims(context, jwt))
                         .map(
                                 jwt -> {
-                                    final String uriIdentifier =
+                                    String uriIdentifier =
                                             requestUri.substring(
                                                     PushedAuthorizationRequestService.PAR_URN_PREFIX
                                                             .length());

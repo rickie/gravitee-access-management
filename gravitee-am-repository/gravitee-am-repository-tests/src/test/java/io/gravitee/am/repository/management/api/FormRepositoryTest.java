@@ -53,7 +53,7 @@ public class FormRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldNotFindById() {
-        final TestObserver<Form> testObserver = repository.findById("unknownId").test();
+        TestObserver<Form> testObserver = repository.findById("unknownId").test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoValues();
     }
@@ -147,9 +147,9 @@ public class FormRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldFindAllByReference() {
-        final int loop = 10;
+        int loop = 10;
         for (int i = 0; i < loop; i++) {
-            final Form form = buildForm();
+            Form form = buildForm();
             form.setReferenceId(FIXED_REF_ID);
             repository.create(form).blockingGet();
         }
@@ -169,16 +169,16 @@ public class FormRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldFindByClient() {
-        final int loop = 10;
+        int loop = 10;
         for (int i = 0; i < loop; i++) {
-            final Form form = buildForm();
+            Form form = buildForm();
             form.setReferenceId(FIXED_REF_ID);
             form.setClient(FIXED_CLI_ID);
             repository.create(form).blockingGet();
         }
 
         for (int i = 0; i < loop; i++) {
-            final Form form = buildForm();
+            Form form = buildForm();
             form.setReferenceId(FIXED_REF_ID);
             repository.create(form).blockingGet();
         }
@@ -196,14 +196,14 @@ public class FormRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldFindByTemplate() {
-        final int loop = 10;
+        int loop = 10;
         for (int i = 0; i < loop; i++) {
-            final Form form = buildForm();
+            Form form = buildForm();
             form.setReferenceId(FIXED_REF_ID);
             repository.create(form).blockingGet();
         }
 
-        final Form form = buildForm();
+        Form form = buildForm();
         form.setReferenceId(FIXED_REF_ID);
         form.setTemplate("MyTemplateId");
         form.setClient(null);
@@ -220,15 +220,15 @@ public class FormRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldFindByClientAndTemplate() {
-        final int loop = 10;
+        int loop = 10;
         for (int i = 0; i < loop; i++) {
-            final Form form = buildForm();
+            Form form = buildForm();
             form.setReferenceId(FIXED_REF_ID);
             form.setClient(FIXED_CLI_ID);
             repository.create(form).blockingGet();
         }
 
-        final Form form = buildForm();
+        Form form = buildForm();
         form.setReferenceId(FIXED_REF_ID);
         form.setClient(FIXED_CLI_ID);
         form.setTemplate("MyTemplateId");

@@ -65,8 +65,7 @@ public class TagsResource extends AbstractResource {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     public void list(
-            @PathParam("organizationId") String organizationId,
-            @Suspended final AsyncResponse response) {
+            @PathParam("organizationId") String organizationId, @Suspended AsyncResponse response) {
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -95,9 +94,9 @@ public class TagsResource extends AbstractResource {
     })
     public void create(
             @PathParam("organizationId") String organizationId,
-            @ApiParam(name = "tag", required = true) @Valid @NotNull final NewTag newTag,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @ApiParam(name = "tag", required = true) @Valid @NotNull NewTag newTag,
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

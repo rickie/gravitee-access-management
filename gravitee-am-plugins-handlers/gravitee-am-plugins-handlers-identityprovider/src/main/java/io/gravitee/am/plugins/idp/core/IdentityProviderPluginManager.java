@@ -80,7 +80,7 @@ public abstract class IdentityProviderPluginManager
         }
 
         UserProvider provider = createInstance(providerClass);
-        final Import annImport = providerClass.getAnnotation(Import.class);
+        Import annImport = providerClass.getAnnotation(Import.class);
         Set<Class<?>> configurations =
                 (annImport != null)
                         ? new HashSet<>(Arrays.asList(annImport.value()))

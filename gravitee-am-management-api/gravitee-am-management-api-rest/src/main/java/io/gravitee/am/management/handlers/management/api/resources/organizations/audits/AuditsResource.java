@@ -73,7 +73,7 @@ public class AuditsResource extends AbstractResource {
     public void list(
             @PathParam("organizationId") String organizationId,
             @BeanParam AuditParam param,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         AuditReportableCriteria.Builder queryBuilder =
                 new AuditReportableCriteria.Builder()

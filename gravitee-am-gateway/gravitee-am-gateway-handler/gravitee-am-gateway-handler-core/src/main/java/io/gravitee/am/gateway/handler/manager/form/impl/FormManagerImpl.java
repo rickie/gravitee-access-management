@@ -100,7 +100,7 @@ public class FormManagerImpl extends AbstractService
     }
 
     private void updateForm(String formId, FormEvent formEvent) {
-        final String eventType = formEvent.toString().toLowerCase();
+        String eventType = formEvent.toString().toLowerCase();
         logger.info(
                 "Domain {} has received {} form event for {}", domain.getName(), eventType, formId);
         formRepository
@@ -169,7 +169,7 @@ public class FormManagerImpl extends AbstractService
      * @return true if the Form has never been deployed or if the deployed version is not up to date
      */
     private boolean needDeployment(Form form) {
-        final Form deployedForm = this.forms.get(form.getId());
+        Form deployedForm = this.forms.get(form.getId());
         return (deployedForm == null || deployedForm.getUpdatedAt().before(form.getUpdatedAt()));
     }
 }

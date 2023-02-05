@@ -78,11 +78,11 @@ public class Filter {
      *     null} if not applicable.
      */
     public Filter(
-            final Operator operator,
-            final AttributePath filterAttribute,
-            final String filterValue,
-            final boolean quoteFilterValue,
-            final List<Filter> filterComponents) {
+            Operator operator,
+            AttributePath filterAttribute,
+            String filterValue,
+            boolean quoteFilterValue,
+            List<Filter> filterComponents) {
         this.operator = operator;
         this.filterAttribute = filterAttribute;
         this.filterValue = filterValue;

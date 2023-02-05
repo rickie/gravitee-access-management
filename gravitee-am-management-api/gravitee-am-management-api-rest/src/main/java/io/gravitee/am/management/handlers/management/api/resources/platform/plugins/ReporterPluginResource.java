@@ -47,8 +47,7 @@ public class ReporterPluginResource {
     @ApiOperation(
             value = "Get a reporter plugin",
             notes = "There is no particular permission needed. User must be authenticated.")
-    public void get(
-            @PathParam("reporter") String reporterId, @Suspended final AsyncResponse response) {
+    public void get(@PathParam("reporter") String reporterId, @Suspended AsyncResponse response) {
 
         reporterPluginService
                 .findById(reporterId)
@@ -62,7 +61,7 @@ public class ReporterPluginResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get a reporter plugin's schema")
     public void getSchema(
-            @PathParam("reporter") String reporterId, @Suspended final AsyncResponse response) {
+            @PathParam("reporter") String reporterId, @Suspended AsyncResponse response) {
 
         // Check that the identity provider exists
         reporterPluginService
