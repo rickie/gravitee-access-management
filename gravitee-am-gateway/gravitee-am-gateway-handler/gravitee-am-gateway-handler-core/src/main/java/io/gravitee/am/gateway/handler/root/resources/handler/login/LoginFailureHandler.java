@@ -72,8 +72,8 @@ public class LoginFailureHandler implements Handler<RoutingContext> {
 
     private void handleException(
             RoutingContext context, String errorCode, String errorDescription) {
-        final HttpServerRequest req = context.request();
-        final HttpServerResponse resp = context.response();
+        HttpServerRequest req = context.request();
+        HttpServerResponse resp = context.response();
 
         // logout user if exists
         if (context.user() != null) {
@@ -93,7 +93,7 @@ public class LoginFailureHandler implements Handler<RoutingContext> {
         }
 
         // redirect to the login page with error message
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(req);
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(req);
         // add error messages
         queryParams.set(ConstantKeys.ERROR_PARAM_KEY, "login_failed");
         if (errorCode != null) {

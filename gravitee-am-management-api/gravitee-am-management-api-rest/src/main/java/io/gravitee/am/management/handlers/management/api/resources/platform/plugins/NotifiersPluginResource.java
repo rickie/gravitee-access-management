@@ -59,8 +59,7 @@ public class NotifiersPluginResource {
                 responseContainer = "List"),
         @ApiResponse(code = 500, message = "Internal server error")
     })
-    public void list(
-            @QueryParam("expand") List<String> expand, @Suspended final AsyncResponse response) {
+    public void list(@QueryParam("expand") List<String> expand, @Suspended AsyncResponse response) {
 
         notifierPluginService
                 .findAll(expand.toArray(new String[0]))

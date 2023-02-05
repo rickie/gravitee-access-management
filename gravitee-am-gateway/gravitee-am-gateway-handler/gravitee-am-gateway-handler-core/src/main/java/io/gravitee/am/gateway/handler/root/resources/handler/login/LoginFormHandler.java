@@ -77,8 +77,8 @@ public class LoginFormHandler implements Handler<RoutingContext> {
                                 .put(PASSWORD_PARAM_KEY, password)
                                 .put(Parameters.CLIENT_ID, clientId);
 
-                final String ipAddress = RequestUtils.remoteAddress(req);
-                final String userAgent = RequestUtils.userAgent(req);
+                String ipAddress = RequestUtils.remoteAddress(req);
+                String userAgent = RequestUtils.userAgent(req);
 
                 if (canSaveIp(context)) {
                     authInfo.put(Claims.ip_address, ipAddress);
@@ -101,9 +101,9 @@ public class LoginFormHandler implements Handler<RoutingContext> {
                             }
                             // authentication success
                             // set user into the context and continue
-                            final User result = res.result();
+                            User result = res.result();
                             context.getDelegate().setUser(result);
-                            final io.gravitee.am.model.User user = result.getUser();
+                            io.gravitee.am.model.User user = result.getUser();
                             context.put(ConstantKeys.USER_CONTEXT_KEY, user);
 
                             context.next();

@@ -124,7 +124,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldCreateUser_no_user_provider() {
-        final String domainId = "domain";
+        String domainId = "domain";
 
         User newUser = mock(User.class);
         when(newUser.getSource()).thenReturn("unknown-idp");
@@ -152,7 +152,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldCreateUser_invalid_roles() {
-        final String domainId = "domain";
+        String domainId = "domain";
 
         User newUser = mock(User.class);
         when(newUser.getSource()).thenReturn("unknown-idp");
@@ -174,7 +174,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldCreateUser() {
-        final String domainId = "domain";
+        String domainId = "domain";
 
         User newUser = mock(User.class);
         when(newUser.getSource()).thenReturn("unknown-idp");
@@ -389,8 +389,8 @@ public class UserServiceTest {
 
     @Test
     public void shouldPatchUser() throws Exception {
-        final String domainName = "domainName";
-        final String userId = "userId";
+        String domainName = "domainName";
+        String userId = "userId";
 
         ObjectNode userNode = mock(ObjectNode.class);
         when(userNode.get("displayName")).thenReturn(new TextNode("my user"));
@@ -449,8 +449,8 @@ public class UserServiceTest {
 
     @Test
     public void shouldPatchUser_customGraviteeUser() throws Exception {
-        final String domainName = "domainName";
-        final String userId = "userId";
+        String domainName = "domainName";
+        String userId = "userId";
 
         ObjectNode userNode = mock(ObjectNode.class);
         when(userNode.get(Schema.SCHEMA_URI_CUSTOM_USER)).thenReturn(new TextNode("test"));
@@ -519,7 +519,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldDeleteUser() {
-        final String userId = "userId";
+        String userId = "userId";
 
         io.gravitee.am.model.User endUser = mock(io.gravitee.am.model.User.class);
         when(endUser.getId()).thenReturn(userId);
@@ -549,7 +549,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldDeleteUser_noExternalProvider() {
-        final String userId = "userId";
+        String userId = "userId";
 
         io.gravitee.am.model.User endUser = mock(io.gravitee.am.model.User.class);
         when(endUser.getId()).thenReturn(userId);

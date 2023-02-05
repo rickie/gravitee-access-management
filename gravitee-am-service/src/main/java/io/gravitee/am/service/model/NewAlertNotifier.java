@@ -34,7 +34,7 @@ public class NewAlertNotifier {
     @NotNull private String configuration;
 
     public AlertNotifier toAlertNotifier(ReferenceType refType, String refId) {
-        final AlertNotifier alertNotifier = new AlertNotifier();
+        AlertNotifier alertNotifier = new AlertNotifier();
 
         alertNotifier.setType(this.type);
         alertNotifier.setName(this.name);

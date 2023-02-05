@@ -68,8 +68,8 @@ public class ErrorEndpoint implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final HttpServerRequest request = routingContext.request();
-        final String clientId = request.getParam(Parameters.CLIENT_ID);
+        HttpServerRequest request = routingContext.request();
+        String clientId = request.getParam(Parameters.CLIENT_ID);
 
         if (clientId == null) {
             renderErrorPage(routingContext, null);
@@ -97,8 +97,8 @@ public class ErrorEndpoint implements Handler<RoutingContext> {
     }
 
     private void renderErrorPage(RoutingContext routingContext, Client client) {
-        final HttpServerRequest request = routingContext.request();
-        final String error = request.getParam(ERROR_PARAM);
+        HttpServerRequest request = routingContext.request();
+        String error = request.getParam(ERROR_PARAM);
         String errorDescription = request.getParam(ERROR_DESCRIPTION_PARAM);
         if (errorDescription != null) {
             try {
@@ -111,13 +111,13 @@ public class ErrorEndpoint implements Handler<RoutingContext> {
             }
         }
 
-        final Map<String, String> errorParams = new HashMap<>();
+        Map<String, String> errorParams = new HashMap<>();
         errorParams.put(ERROR_PARAM, error);
         errorParams.put(ERROR_DESCRIPTION_PARAM, errorDescription);
 
         Single<Map<String, String>> singlePageRendering = Single.just(errorParams);
 
-        final String jarm = request.getParam(io.gravitee.am.common.oidc.Parameters.RESPONSE);
+        String jarm = request.getParam(io.gravitee.am.common.oidc.Parameters.RESPONSE);
         if (error == null && jarm != null) {
             // extract error details from the JWT provided as response parameter
             singlePageRendering =

@@ -105,14 +105,14 @@ public class MFARecoveryCodeEndpoint extends AbstractEndpoint implements Handler
         }
 
         try {
-            final io.gravitee.am.model.User endUser =
+            io.gravitee.am.model.User endUser =
                     ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
                                     routingContext.user().getDelegate())
                             .getUser();
-            final Optional<EnrolledFactor> recoveryFactor = getRecoveryFactor(endUser);
+            Optional<EnrolledFactor> recoveryFactor = getRecoveryFactor(endUser);
 
             if (recoveryFactor.isPresent()) {
-                final EnrolledFactor factorToUpdate = recoveryFactor.get();
+                EnrolledFactor factorToUpdate = recoveryFactor.get();
                 factorToUpdate.setStatus(FactorStatus.ACTIVATED);
 
                 userService
@@ -141,17 +141,17 @@ public class MFARecoveryCodeEndpoint extends AbstractEndpoint implements Handler
         }
 
         try {
-            final io.gravitee.am.model.User endUser =
+            io.gravitee.am.model.User endUser =
                     ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
                                     routingContext.user().getDelegate())
                             .getUser();
-            final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+            Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
             // recovery code
-            final Optional<EnrolledFactorSecurity> existingEnrolledFactorSecurity =
+            Optional<EnrolledFactorSecurity> existingEnrolledFactorSecurity =
                     getEnrolledRecoveryCodeFactorSecurity(endUser);
             if (existingEnrolledFactorSecurity.isPresent()) {
-                final List<String> recoveryCodes =
+                List<String> recoveryCodes =
                         (List<String>)
                                 existingEnrolledFactorSecurity
                                         .get()
@@ -162,7 +162,7 @@ public class MFARecoveryCodeEndpoint extends AbstractEndpoint implements Handler
                 generateRecoveryCode(endUser, client)
                         .subscribe(
                                 enrolledFactorSecurity -> {
-                                    final List<String> recoveryCodes =
+                                    List<String> recoveryCodes =
                                             (List<String>)
                                                     enrolledFactorSecurity
                                                             .getAdditionalData()
@@ -194,8 +194,8 @@ public class MFARecoveryCodeEndpoint extends AbstractEndpoint implements Handler
     }
 
     private void doRedirect(RoutingContext routingContext) {
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
-        final String returnUrl = getReturnUrl(routingContext, queryParams);
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
+        String returnUrl = getReturnUrl(routingContext, queryParams);
         routingContext
                 .response()
                 .putHeader(io.vertx.core.http.HttpHeaders.LOCATION, returnUrl)
@@ -228,11 +228,11 @@ public class MFARecoveryCodeEndpoint extends AbstractEndpoint implements Handler
 
     private Single<EnrolledFactorSecurity> generateRecoveryCode(
             io.gravitee.am.model.User endUser, Client client) throws TechnicalException {
-        final Factor recoveryFactor = getClientRecoveryFactor(client).get();
-        final FactorProvider recoveryFactorProvider = factorManager.get(recoveryFactor.getId());
-        final Map<String, Object> factorData =
+        Factor recoveryFactor = getClientRecoveryFactor(client).get();
+        FactorProvider recoveryFactorProvider = factorManager.get(recoveryFactor.getId());
+        Map<String, Object> factorData =
                 Map.of(FactorContext.KEY_RECOVERY_FACTOR, recoveryFactor, KEY_USER, endUser);
-        final FactorContext recoveryFactorCtx = new FactorContext(applicationContext, factorData);
+        FactorContext recoveryFactorCtx = new FactorContext(applicationContext, factorData);
 
         return ((RecoveryFactor) recoveryFactorProvider).generateRecoveryCode(recoveryFactorCtx);
     }
@@ -253,10 +253,10 @@ public class MFARecoveryCodeEndpoint extends AbstractEndpoint implements Handler
     private void renderRecoveryCodePage(
             RoutingContext routingContext, Client client, List<String> codes) {
         // add recoveryCodeList to the context for thymeleaf
-        final String recoveryCodes = "recoveryCodes";
+        String recoveryCodes = "recoveryCodes";
         routingContext.put(recoveryCodes, codes);
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
-        final String recoveryCodeUrl =
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
+        String recoveryCodeUrl =
                 UriBuilderRequest.resolveProxyRequest(
                         routingContext.request(),
                         routingContext.get(CONTEXT_PATH) + "/mfa/recovery_code",

@@ -52,7 +52,7 @@ public class Http401UnauthorizedEntryPoint implements AuthenticationEntryPoint {
             throws IOException {
         logger.debug("Pre-authenticated entry point called. Rejecting access");
 
-        final ErrorEntity error = new ErrorEntity();
+        ErrorEntity error = new ErrorEntity();
 
         error.setHttpCode(SC_UNAUTHORIZED);
         error.setMessage(e.getMessage());

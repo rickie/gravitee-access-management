@@ -104,7 +104,7 @@ public class ThemeRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testFindByReference_NotFound() throws TechnicalException {
-        final TestObserver<Theme> testObserver =
+        TestObserver<Theme> testObserver =
                 themeRepository.findByReference(ReferenceType.APPLICATION, "unknown").test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoValues();

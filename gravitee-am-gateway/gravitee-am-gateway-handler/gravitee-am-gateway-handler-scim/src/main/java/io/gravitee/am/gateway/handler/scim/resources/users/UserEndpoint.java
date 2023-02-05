@@ -52,7 +52,7 @@ public class UserEndpoint extends AbstractUserEndpoint {
     }
 
     public void get(RoutingContext context) {
-        final String userId = context.request().getParam("id");
+        String userId = context.request().getParam("id");
         userService
                 .get(userId, location(context.request()))
                 .subscribe(
@@ -103,18 +103,18 @@ public class UserEndpoint extends AbstractUserEndpoint {
      */
     public void update(RoutingContext context) {
         try {
-            final String body = context.getBodyAsString();
+            String body = context.getBodyAsString();
             if (body == null) {
                 context.fail(new InvalidSyntaxException("Unable to parse body message"));
                 return;
             }
-            final Map<String, Object> payload = Json.decodeValue(body, Map.class);
-            final List<String> schemas =
+            Map<String, Object> payload = Json.decodeValue(body, Map.class);
+            List<String> schemas =
                     (List<String>)
                             Optional.ofNullable(payload.get("schemas"))
                                     .orElse(Collections.emptyList());
-            final User user = evaluateUser(schemas, body);
-            final String userId = context.request().getParam("id");
+            User user = evaluateUser(schemas, body);
+            String userId = context.request().getParam("id");
 
             // username is required
             if (user.getUserName() == null || user.getUserName().isEmpty()) {
@@ -132,10 +132,10 @@ public class UserEndpoint extends AbstractUserEndpoint {
             }
 
             // handle identity provider source
-            final String source = userSource(context);
+            String source = userSource(context);
 
-            final JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
-            final String baseUrl = location(context.request());
+            JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
+            String baseUrl = location(context.request());
             userService
                     .get(accessToken.getSub(), baseUrl)
                     .map(scimUser -> new DefaultUser(UserMapper.convert(scimUser)))
@@ -200,8 +200,8 @@ public class UserEndpoint extends AbstractUserEndpoint {
                 context.fail(new InvalidSyntaxException("Unable to parse body message"));
                 return;
             }
-            final PatchOp patchOp = Json.decodeValue(context.getBodyAsString(), PatchOp.class);
-            final String userId = context.request().getParam("id");
+            PatchOp patchOp = Json.decodeValue(context.getBodyAsString(), PatchOp.class);
+            String userId = context.request().getParam("id");
 
             // schemas field is REQUIRED and MUST contain valid values and MUST not contain
             // duplicate values
@@ -219,10 +219,10 @@ public class UserEndpoint extends AbstractUserEndpoint {
             }
 
             // handle identity provider source
-            final String source = userSource(context);
+            String source = userSource(context);
 
-            final JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
-            final String baseUrl = location(context.request());
+            JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
+            String baseUrl = location(context.request());
             userService
                     .get(accessToken.getSub(), baseUrl)
                     .map(scimUser -> new DefaultUser(UserMapper.convert(scimUser)))
@@ -273,10 +273,10 @@ public class UserEndpoint extends AbstractUserEndpoint {
      * <p>See <a href="https://tools.ietf.org/html/rfc7644#section-3.6>3.6. Deleting Resources</a>
      */
     public void delete(RoutingContext context) {
-        final String userId = context.request().getParam("id");
-        final JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
+        String userId = context.request().getParam("id");
+        JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
 
-        final String baseUrl = location(context.request());
+        String baseUrl = location(context.request());
         userService
                 .get(accessToken.getSub(), baseUrl)
                 .map(scimUser -> new DefaultUser(UserMapper.convert(scimUser)))

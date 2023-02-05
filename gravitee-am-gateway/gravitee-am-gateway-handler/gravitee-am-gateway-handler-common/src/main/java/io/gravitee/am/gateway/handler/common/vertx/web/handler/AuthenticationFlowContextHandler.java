@@ -51,8 +51,8 @@ public class AuthenticationFlowContextHandler implements Handler<RoutingContext>
     public void handle(RoutingContext context) {
         CookieSession session = (CookieSession) context.session().getDelegate();
         if (session != null && !session.isDestroyed()) {
-            final String transactionId = session.get(ConstantKeys.TRANSACTION_ID_KEY);
-            final int version =
+            String transactionId = session.get(ConstantKeys.TRANSACTION_ID_KEY);
+            int version =
                     ofNullable((Number) session.get(AUTH_FLOW_CONTEXT_VERSION_KEY))
                             .map(Number::intValue)
                             .orElse(1);

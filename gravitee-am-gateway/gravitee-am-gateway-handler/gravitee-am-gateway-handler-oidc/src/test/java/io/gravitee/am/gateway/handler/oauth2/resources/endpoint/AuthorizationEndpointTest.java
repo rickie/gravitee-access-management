@@ -158,7 +158,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_noUser_noRedirectUri() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
@@ -183,7 +183,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_noUser_withRedirectUri() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
@@ -206,7 +206,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldInvokeAuthorizationEndpoint_emptyScope() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
@@ -258,7 +258,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_invalidScope() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -295,7 +295,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_emptyRedirectUri() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -325,7 +325,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_emptyRedirectUri_clientHasSeveralRedirectUris()
             throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -355,7 +355,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_mismatchRedirectUri() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -388,7 +388,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_mismatchRedirectUri_strictMatching()
             throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -424,7 +424,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
     public void shouldInvokeAuthorizationEndpoint_noStrictMatching() throws Exception {
         io.gravitee.am.model.User user = new io.gravitee.am.model.User();
 
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -473,7 +473,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_duplicateParameters() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -499,7 +499,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
     public void shouldInvokeAuthorizationEndpoint_responseTypeCode() throws Exception {
         io.gravitee.am.model.User user = new io.gravitee.am.model.User();
 
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
@@ -543,7 +543,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldInvokeAuthorizationEndpoint_noClientResponseType() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setResponseTypes(null);
@@ -591,7 +591,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldInvokeAuthorizationEndpoint_missingClientResponseType() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setResponseTypes(Arrays.asList(io.gravitee.am.common.oidc.ResponseType.ID_TOKEN));
@@ -639,7 +639,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldInvokeAuthorizationEndpoint_responseTypeToken() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
@@ -689,7 +689,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_noUser_prompt_none() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
@@ -722,7 +722,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_user_max_age() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -764,7 +764,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_user_max_age_prompt_none() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -809,7 +809,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldInvokeAuthorizationEndpoint_max_age() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
@@ -858,7 +858,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
     public void
             shouldNotInvokeAuthorizationEndpoint_noUser_code_challenge_method_without_code_challenge()
                     throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
@@ -892,7 +892,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_noUser_invalid_code_challenge_method()
             throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
@@ -926,7 +926,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_noUser_invalid_code_challenge()
             throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
@@ -960,7 +960,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_noUser_code_challenge_valid_plain()
             throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
@@ -1005,7 +1005,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_noUser_code_challenge_valid_s256()
             throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
@@ -1053,7 +1053,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_prompt_login() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -1088,7 +1088,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldInvokeAuthorizationEndpoint_prompt_login_consent_step() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -1136,7 +1136,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldInvokeAuthorizationEndpoint_prompt_login_mfa_step() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -1184,7 +1184,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldInvokeAuthorizationEndpoint_prompt_login_social_auth_step() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -1252,7 +1252,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_implicitFlow_nonceMissing() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -1277,7 +1277,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_hybridFlow_nonceMissing() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -1365,7 +1365,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
     private void shouldInvokeAuthorizationEndpoint_hybridFlow(
             String responseType, String expectedCallback, Token accessToken, String idToken)
             throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -1424,7 +1424,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
     private void shouldInvokeAuthorizationEndpoint_implicitFlow(
             String responseType, String expectedCallback, Token accessToken, String idToken)
             throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -1482,7 +1482,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
     public void shouldInvokeAuthorizationEndpoint_responseModeQueryJWT() throws Exception {
         io.gravitee.am.model.User user = new io.gravitee.am.model.User();
 
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
@@ -1535,7 +1535,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
     public void shouldInvokeAuthorizationEndpoint_responseModeFragmentJWT() throws Exception {
         io.gravitee.am.model.User user = new io.gravitee.am.model.User();
 
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
@@ -1586,7 +1586,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_mismatchRedirectUri_responseModeQueryJWT()
             throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings("read")));
@@ -1628,7 +1628,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_forcePKCE_noCodeChallenge() throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));
@@ -1666,7 +1666,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
     @Test
     public void shouldNotInvokeAuthorizationEndpoint_invalidFormatRequest_withRedirectUri()
             throws Exception {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("client-id");
         client.setClientId("client-id");
         client.setRedirectUris(Collections.singletonList("http://localhost:9999/callback"));

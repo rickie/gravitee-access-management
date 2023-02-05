@@ -83,9 +83,8 @@ public class RiskAssessmentHandler implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final Optional<Client> client =
-                ofNullable(routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY));
-        final Optional<io.gravitee.am.model.User> user =
+        Optional<Client> client = ofNullable(routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY));
+        Optional<io.gravitee.am.model.User> user =
                 ofNullable(routingContext.user())
                         .map(u -> (User) u.getDelegate())
                         .map(User::getUser);
@@ -108,7 +107,7 @@ public class RiskAssessmentHandler implements Handler<RoutingContext> {
                         new AssessmentMessage()
                                 .setSettings(riskAssessment)
                                 .setData(new AssessmentData()));
-        final String deviceId = context.session().get(DEVICE_ID);
+        String deviceId = context.session().get(DEVICE_ID);
         assessmentMessage
                 .flatMap(buildDeviceMessage(client, user.getId(), deviceId))
                 .flatMap(buildIpReputationMessage(context.request()))
