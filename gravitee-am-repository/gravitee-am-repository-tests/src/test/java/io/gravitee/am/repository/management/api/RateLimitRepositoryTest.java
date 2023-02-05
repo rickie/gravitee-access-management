@@ -173,7 +173,7 @@ public class RateLimitRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldDeleteByUser() {
-        final String userId = "123-xyz";
+        String userId = "123-xyz";
         RateLimit rateLimit1 = createRateLimit();
         rateLimit1.setUserId(userId);
         RateLimit createdRateLimit1 = repository.create(rateLimit1).blockingGet();
@@ -211,7 +211,7 @@ public class RateLimitRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldDeleteByDomain() {
-        final String domainId = "123-xyz";
+        String domainId = "123-xyz";
         RateLimit rateLimit1 = createRateLimit();
         rateLimit1.setReferenceId(domainId);
         RateLimit createdRateLimit1 = repository.create(rateLimit1).blockingGet();
@@ -257,14 +257,14 @@ public class RateLimitRepositoryTest extends AbstractManagementTest {
     }
 
     private RateLimit createRateLimit() {
-        final RateLimit rateLimit = new RateLimit();
-        final String random = UUID.randomUUID().toString();
+        RateLimit rateLimit = new RateLimit();
+        String random = UUID.randomUUID().toString();
         rateLimit.setClient("client-id" + random);
         rateLimit.setUserId("user-id" + random);
         rateLimit.setFactorId("factor-id" + random);
         rateLimit.setTokenLeft(10);
         rateLimit.setAllowRequest(true);
-        final Date date = new Date();
+        Date date = new Date();
         rateLimit.setCreatedAt(date);
         rateLimit.setUpdatedAt(date);
         rateLimit.setReferenceId("domain-id" + random);

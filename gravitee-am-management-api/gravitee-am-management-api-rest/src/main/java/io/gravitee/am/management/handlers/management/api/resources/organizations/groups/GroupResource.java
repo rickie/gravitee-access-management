@@ -68,7 +68,7 @@ public class GroupResource extends AbstractResource {
     public void get(
             @PathParam("organizationId") String organizationId,
             @PathParam("group") String group,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -95,8 +95,8 @@ public class GroupResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("group") String group,
             @ApiParam(name = "group", required = true) @Valid @NotNull UpdateGroup updateGroup,
-            @Suspended final AsyncResponse response) {
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -126,8 +126,8 @@ public class GroupResource extends AbstractResource {
     public void delete(
             @PathParam("organizationId") String organizationId,
             @PathParam("group") String group,
-            @Suspended final AsyncResponse response) {
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

@@ -86,10 +86,8 @@ public class SocialAuthenticationFilter extends AbstractAuthenticationProcessing
             throws AuthenticationException {
         // get oauth2 provider
         String providerId = request.getParameter(PROVIDER_PARAMETER);
-        final IdentityProvider identityProvider =
-                identityProviderManager.getIdentityProvider(providerId);
-        final AuthenticationProvider authenticationProvider =
-                identityProviderManager.get(providerId);
+        IdentityProvider identityProvider = identityProviderManager.getIdentityProvider(providerId);
+        AuthenticationProvider authenticationProvider = identityProviderManager.get(providerId);
 
         if (authenticationProvider == null
                 || identityProvider == null

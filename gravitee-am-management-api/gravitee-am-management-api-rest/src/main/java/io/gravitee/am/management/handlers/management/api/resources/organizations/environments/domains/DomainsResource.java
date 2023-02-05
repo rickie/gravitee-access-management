@@ -81,7 +81,7 @@ public class DomainsResource extends AbstractDomainResource {
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue(MAX_DOMAINS_SIZE_PER_PAGE_STRING) int size,
             @QueryParam("q") String query,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         User authenticatedUser = getAuthenticatedUser();
         checkAnyPermission(organizationId, environmentId, Permission.DOMAIN, Acl.LIST)
@@ -145,9 +145,9 @@ public class DomainsResource extends AbstractDomainResource {
     public void create(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
-            @ApiParam(name = "domain", required = true) @Valid @NotNull final NewDomain newDomain,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @ApiParam(name = "domain", required = true) @Valid @NotNull NewDomain newDomain,
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(organizationId, environmentId, Permission.DOMAIN, Acl.CREATE)
                 .andThen(
@@ -200,8 +200,8 @@ public class DomainsResource extends AbstractDomainResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("hrid") String hrid,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         domainService
                 .findByHrid(environmentId, hrid)

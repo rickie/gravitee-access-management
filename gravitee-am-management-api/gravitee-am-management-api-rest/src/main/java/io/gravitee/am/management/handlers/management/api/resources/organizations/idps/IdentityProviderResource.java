@@ -61,7 +61,7 @@ public class IdentityProviderResource extends AbstractResource {
     public void get(
             @PathParam("organizationId") String organizationId,
             @PathParam("identity") String identityProvider,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -93,8 +93,8 @@ public class IdentityProviderResource extends AbstractResource {
             @PathParam("identity") String identity,
             @ApiParam(name = "identity", required = true) @Valid @NotNull
                     UpdateIdentityProvider updateIdentityProvider,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -125,8 +125,8 @@ public class IdentityProviderResource extends AbstractResource {
     public void delete(
             @PathParam("organizationId") String organizationId,
             @PathParam("identity") String identity,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

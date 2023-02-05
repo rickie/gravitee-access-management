@@ -81,7 +81,7 @@ public abstract class AbstractSocialAuthenticationProvider<
 
     @Override
     public Maybe<Request> signOutUrl(Authentication authentication) {
-        final String endpoint = getConfiguration().getLogoutUri();
+        String endpoint = getConfiguration().getLogoutUri();
         if (Objects.nonNull(endpoint)) {
             Request request = new Request();
             request.setMethod(HttpMethod.GET);

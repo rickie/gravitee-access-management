@@ -92,8 +92,8 @@ public class InstallationServiceImpl implements InstallationService {
 
     private Single<Installation> createInternal() {
 
-        final Date now = Date.from(Instant.now());
-        final Installation installation = new Installation();
+        Date now = Date.from(Instant.now());
+        Installation installation = new Installation();
         installation.setId(RandomString.generate());
         installation.setCreatedAt(now);
         installation.setUpdatedAt(now);
@@ -104,7 +104,7 @@ public class InstallationServiceImpl implements InstallationService {
 
     private Single<Installation> updateInternal(Installation toUpdate) {
 
-        final Date now = Date.from(Instant.now());
+        Date now = Date.from(Instant.now());
         toUpdate.setUpdatedAt(now);
 
         return installationRepository.update(toUpdate);

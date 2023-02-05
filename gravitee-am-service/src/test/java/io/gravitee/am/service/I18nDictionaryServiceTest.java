@@ -105,8 +105,8 @@ public class I18nDictionaryServiceTest {
         updateDict.setName(expectedName);
         String expectedLocale = "pl";
         updateDict.setLocale(expectedLocale);
-        final String translation = "Username";
-        final String key = "login.username";
+        String translation = "Username";
+        String key = "login.username";
         updateDict.setEntries(Map.of(key, translation));
         var dictionary = new I18nDictionary();
 
@@ -134,8 +134,8 @@ public class I18nDictionaryServiceTest {
 
     @Test
     public void shouldUpdateDictionaryEntries() {
-        final String translation = "Username";
-        final String key = "login.username";
+        String translation = "Username";
+        String key = "login.username";
         var entries = Map.of(key, translation);
         var dictionary = new I18nDictionary();
 

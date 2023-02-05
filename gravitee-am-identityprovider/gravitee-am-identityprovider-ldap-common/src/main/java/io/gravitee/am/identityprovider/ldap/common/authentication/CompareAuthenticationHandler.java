@@ -37,7 +37,7 @@ public class CompareAuthenticationHandler extends PooledCompareAuthenticationHan
 
     public CompareAuthenticationHandler() {}
 
-    public CompareAuthenticationHandler(final PooledConnectionFactory cf) {
+    public CompareAuthenticationHandler(PooledConnectionFactory cf) {
         super(cf);
     }
 
@@ -54,8 +54,8 @@ public class CompareAuthenticationHandler extends PooledCompareAuthenticationHan
 
     @Override
     protected AuthenticationHandlerResponse authenticateInternal(
-            final Connection c, final AuthenticationCriteria criteria) throws LdapException {
-        final byte[] hash = passwordEncoder.digestCredential(criteria.getCredential());
+            Connection c, AuthenticationCriteria criteria) throws LdapException {
+        byte[] hash = passwordEncoder.digestCredential(criteria.getCredential());
         String encodedHash = binaryToTextEncoder.encode(hash);
         String encodedHashValue =
                 configuration.isHashEncodedByThirdParty()
@@ -63,13 +63,12 @@ public class CompareAuthenticationHandler extends PooledCompareAuthenticationHan
                         : String.format(
                                 "{%s}%s", passwordEncoder.getPasswordSchemeLabel(), encodedHash);
 
-        final LdapAttribute la =
-                new LdapAttribute(getPasswordAttribute(), encodedHashValue.getBytes());
-        final CompareOperation compare = new CompareOperation(c);
-        final CompareRequest request = new CompareRequest(criteria.getDn(), la);
+        LdapAttribute la = new LdapAttribute(getPasswordAttribute(), encodedHashValue.getBytes());
+        CompareOperation compare = new CompareOperation(c);
+        CompareRequest request = new CompareRequest(criteria.getDn(), la);
         request.setControls(processRequestControls(criteria));
 
-        final Response<Boolean> compareResponse = compare.execute(request);
+        Response<Boolean> compareResponse = compare.execute(request);
         return new AuthenticationHandlerResponse(
                 compareResponse.getResult(),
                 compareResponse.getResultCode(),

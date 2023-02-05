@@ -65,7 +65,7 @@ public abstract class ManagementAuditBuilder<T> extends AuditBuilder<T> {
     }
 
     private String getDisplayName(User user) {
-        final String displayName =
+        String displayName =
                 // display name
                 user.getAdditionalInformation() != null
                                 && user.getAdditionalInformation().containsKey(StandardClaims.NAME)

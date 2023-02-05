@@ -128,7 +128,7 @@ public class LoginController {
                                 (SocialAuthenticationProvider)
                                         identityProviderManager.get(identityId);
                         if (socialAuthenticationProvider != null) {
-                            final Maybe<Optional<Request>> maybe =
+                            Maybe<Optional<Request>> maybe =
                                     socialAuthenticationProvider
                                             .asyncSignInUrl(
                                                     buildRedirectUri(request, identityId),

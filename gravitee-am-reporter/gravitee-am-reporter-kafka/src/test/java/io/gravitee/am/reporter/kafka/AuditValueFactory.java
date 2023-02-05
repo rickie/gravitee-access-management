@@ -54,7 +54,7 @@ public class AuditValueFactory {
         return audit;
     }
 
-    public static final AuditEntity createAuditEntity(final String prefix) {
+    public static final AuditEntity createAuditEntity(String prefix) {
         AuditEntity actor = new AuditEntity();
         actor.setId(prefix + " id");
         actor.setType(prefix + " type");

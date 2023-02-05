@@ -792,7 +792,7 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository
     }
 
     private Mono<Integer> persistChildEntities(Mono<Integer> actionFlow, User item) {
-        final List<Address> addresses = item.getAddresses();
+        List<Address> addresses = item.getAddresses();
         if (addresses != null && !addresses.isEmpty()) {
             actionFlow =
                     actionFlow.then(
@@ -880,7 +880,7 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository
                         item.getDynamicRoles(),
                         "organization_dynamic_user_roles");
 
-        final List<String> entitlements = item.getEntitlements();
+        List<String> entitlements = item.getEntitlements();
         if (entitlements != null && !entitlements.isEmpty()) {
             actionFlow =
                     actionFlow.then(

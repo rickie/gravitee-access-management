@@ -42,7 +42,7 @@ public class SecurityDomainManagerTest {
 
     @Test
     public void shouldNotDeploy_domainIsDisabled() {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setEnabled(false);
 
@@ -53,7 +53,7 @@ public class SecurityDomainManagerTest {
 
     @Test
     public void shouldDeploy_domainIsEnabled() {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setEnabled(true);
 
@@ -64,7 +64,7 @@ public class SecurityDomainManagerTest {
 
     @Test
     public void shouldNotUpdate_domainIsDisabled_noCurrentDomain() {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setEnabled(false);
 
@@ -75,12 +75,12 @@ public class SecurityDomainManagerTest {
 
     @Test
     public void shouldNotUpdate_domainIsDisabled_existingDomain() {
-        final Domain existingDomain = new Domain();
+        Domain existingDomain = new Domain();
         existingDomain.setId("domain-1");
         existingDomain.setEnabled(true);
         securityDomainManager.deploy(existingDomain);
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setEnabled(false);
         securityDomainManager.update(domain);
@@ -91,7 +91,7 @@ public class SecurityDomainManagerTest {
 
     @Test
     public void shouldUpdate_domainIsEnabled() {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setEnabled(true);
         securityDomainManager.update(domain);
@@ -102,7 +102,7 @@ public class SecurityDomainManagerTest {
 
     @Test
     public void shouldNotUndeployed_domainNotExist() {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setEnabled(true);
         securityDomainManager.undeploy(domain.getId());
@@ -112,7 +112,7 @@ public class SecurityDomainManagerTest {
 
     @Test
     public void shouldUndeployed() {
-        final Domain existingDomain = new Domain();
+        Domain existingDomain = new Domain();
         existingDomain.setId("domain-1");
         existingDomain.setEnabled(true);
         securityDomainManager.deploy(existingDomain);

@@ -45,8 +45,8 @@ public class DeviceIdentifiersResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetdeviceIdentifiers() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         var mockDeviceIdentifier = new DeviceIdentifier();
@@ -57,7 +57,7 @@ public class DeviceIdentifiersResourceTest extends JerseySpringTest {
         mockDeviceIdentifier.setReferenceType(ReferenceType.DOMAIN);
         mockDeviceIdentifier.setReferenceId(domainId);
 
-        final DeviceIdentifier mockdeviceIdentifier2 = new DeviceIdentifier();
+        DeviceIdentifier mockdeviceIdentifier2 = new DeviceIdentifier();
         mockdeviceIdentifier2.setId("deviceIdentifier-2-id");
         mockdeviceIdentifier2.setName("deviceIdentifier-2-name");
         mockdeviceIdentifier2.setType("Some other version");
@@ -70,30 +70,30 @@ public class DeviceIdentifiersResourceTest extends JerseySpringTest {
                 .when(deviceIdentifierService)
                 .findByDomain(domainId);
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("device-identifiers").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final List<DeviceIdentifier> responseEntity = readEntity(response, List.class);
+        List<DeviceIdentifier> responseEntity = readEntity(response, List.class);
         assertTrue(responseEntity.size() == 2);
     }
 
     @Test
     public void shouldGetdeviceIdentifiers_technicalManagementException() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
         doReturn(Flowable.error(new TechnicalManagementException("error occurs")))
                 .when(deviceIdentifierService)
                 .findByDomain(domainId);
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("device-identifiers").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
 
     @Test
     public void shouldCreate() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         var newDeviceIdentifier = new NewDeviceIdentifier();
@@ -110,7 +110,7 @@ public class DeviceIdentifiersResourceTest extends JerseySpringTest {
                 .when(deviceIdentifierService)
                 .create(eq(domainId), any(), any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("device-identifiers")

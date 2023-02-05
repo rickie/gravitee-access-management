@@ -57,11 +57,11 @@ public abstract class MessageDigestPasswordEncoder implements PasswordEncoder {
                                         : Hex.encodeHexString(bytes))
                                 + SUFFIX;
             }
-            final String saltedPassword = rawPassword + salt;
-            final byte[] digest =
+            String saltedPassword = rawPassword + salt;
+            byte[] digest =
                     MessageDigest.getInstance(algorithm)
                             .digest(saltedPassword.getBytes(StandardCharsets.UTF_8));
-            final String rawPasswordEncoded =
+            String rawPasswordEncoded =
                     salt
                             + (encodeSaltAsBase64
                                     ? b64enc.encodeToString(digest)
@@ -94,12 +94,12 @@ public abstract class MessageDigestPasswordEncoder implements PasswordEncoder {
         // s = salt == null ? "" : "{" + salt + "}"
         // s + digest(password + s)
         try {
-            final String salt = extractSalt(encodedPassword);
-            final String saltedPassword = rawPassword + salt;
-            final byte[] digest =
+            String salt = extractSalt(encodedPassword);
+            String saltedPassword = rawPassword + salt;
+            byte[] digest =
                     MessageDigest.getInstance(algorithm)
                             .digest(saltedPassword.getBytes(StandardCharsets.UTF_8));
-            final String rawPasswordEncoded =
+            String rawPasswordEncoded =
                     salt
                             + (encodeSaltAsBase64
                                     ? b64enc.encodeToString(digest)

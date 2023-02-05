@@ -72,16 +72,16 @@ public class AuthorizationRequestEndUserConsentHandler implements Handler<Routin
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final Session session = routingContext.session();
-        final Client client = routingContext.get(CLIENT_CONTEXT_KEY);
-        final io.gravitee.am.model.User user =
+        Session session = routingContext.session();
+        Client client = routingContext.get(CLIENT_CONTEXT_KEY);
+        io.gravitee.am.model.User user =
                 routingContext.user() != null
                         ? ((User) routingContext.user().getDelegate()).getUser()
                         : null;
-        final AuthorizationRequest authorizationRequest =
+        AuthorizationRequest authorizationRequest =
                 routingContext.get(AUTHORIZATION_REQUEST_CONTEXT_KEY);
-        final Set<String> requestedConsent = authorizationRequest.getScopes();
-        final String prompt = getOAuthParameter(routingContext, Parameters.PROMPT);
+        Set<String> requestedConsent = authorizationRequest.getScopes();
+        String prompt = getOAuthParameter(routingContext, Parameters.PROMPT);
         // no consent to check, continue
         if (requestedConsent == null || requestedConsent.isEmpty()) {
             routingContext.next();
@@ -175,7 +175,7 @@ public class AuthorizationRequestEndUserConsentHandler implements Handler<Routin
         String consentPageURL = context.get(CONTEXT_PATH) + CONSENT_PAGE_PATH;
 
         try {
-            final MultiMap queryParams = RequestUtils.getCleanedQueryParams(request);
+            MultiMap queryParams = RequestUtils.getCleanedQueryParams(request);
             String proxiedRedirectURI =
                     UriBuilderRequest.resolveProxyRequest(
                             request, consentPageURL, queryParams, true);

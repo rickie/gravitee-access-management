@@ -49,8 +49,7 @@ public class GeoIpHandler implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final Optional<Client> client =
-                ofNullable(routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY));
+        Optional<Client> client = ofNullable(routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY));
         var adaptiveRule =
                 client.map(Client::getMfaSettings)
                         .map(MFASettings::getAdaptiveAuthenticationRule)
@@ -74,7 +73,7 @@ public class GeoIpHandler implements Handler<RoutingContext> {
                 ip,
                 message -> {
                     if (message.succeeded()) {
-                        final JsonObject body = message.result().body();
+                        JsonObject body = message.result().body();
                         routingContext.data().put(GEOIP_KEY, body.getMap());
                     }
                     routingContext.next();

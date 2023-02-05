@@ -80,18 +80,17 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
     public Maybe<User> loadUserByUsername(Authentication authentication) {
         try {
             // prepare request
-            final HttpResourceConfiguration resourceConfiguration =
+            HttpResourceConfiguration resourceConfiguration =
                     configuration.getAuthenticationResource();
-            final HttpMethod authenticationHttpMethod =
+            HttpMethod authenticationHttpMethod =
                     HttpMethod.valueOf(resourceConfiguration.getHttpMethod().toString());
-            final List<HttpHeader> authenticationHttpHeaders =
-                    resourceConfiguration.getHttpHeaders();
-            final String authenticationBody = resourceConfiguration.getHttpBody();
+            List<HttpHeader> authenticationHttpHeaders = resourceConfiguration.getHttpHeaders();
+            String authenticationBody = resourceConfiguration.getHttpBody();
 
-            final Object principal = authentication.getPrincipal();
-            final String encodedCredentials =
+            Object principal = authentication.getPrincipal();
+            String encodedCredentials =
                     passwordEncoder.encode((String) authentication.getCredentials());
-            final Object credentials =
+            Object credentials =
                     SanitizeUtils.sanitize(
                             encodedCredentials, authenticationBody, authenticationHttpHeaders);
 
@@ -101,9 +100,9 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
             templateEngine.getTemplateContext().setVariable(CREDENTIALS_CONTEXT_KEY, credentials);
 
             // process request
-            final String authenticationURI =
+            String authenticationURI =
                     templateEngine.getValue(resourceConfiguration.getBaseURL(), String.class);
-            final Single<HttpResponse<Buffer>> requestHandler =
+            Single<HttpResponse<Buffer>> requestHandler =
                     processRequest(
                             templateEngine,
                             authenticationURI,
@@ -115,7 +114,7 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
                     .toMaybe()
                     .map(
                             httpResponse -> {
-                                final List<HttpResponseErrorCondition> errorConditions =
+                                List<HttpResponseErrorCondition> errorConditions =
                                         resourceConfiguration.getHttpResponseErrorConditions();
                                 Map<String, Object> userAttributes =
                                         processResponse(
@@ -157,7 +156,7 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
 
     private Maybe<User> loadByUsername0(AuthenticationContext authenticationContext, User user) {
         // prepare request
-        final HttpAuthResourcePathsConfiguration authResourceConfiguration =
+        HttpAuthResourcePathsConfiguration authResourceConfiguration =
                 configuration.getAuthenticationResource().getPaths();
         if (authResourceConfiguration == null) {
             return Maybe.empty();
@@ -166,7 +165,7 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
             return Maybe.empty();
         }
 
-        final HttpResourceConfiguration readResourceConfiguration =
+        HttpResourceConfiguration readResourceConfiguration =
                 authResourceConfiguration.getLoadPreAuthUserResource();
 
         if (readResourceConfiguration.getBaseURL() == null) {
@@ -185,12 +184,12 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
             templateEngine.getTemplateContext().setVariable(USER_CONTEXT_KEY, user);
 
             // prepare request
-            final String readUserURI = readResourceConfiguration.getBaseURL();
-            final HttpMethod readUserHttpMethod =
+            String readUserURI = readResourceConfiguration.getBaseURL();
+            HttpMethod readUserHttpMethod =
                     HttpMethod.valueOf(readResourceConfiguration.getHttpMethod().toString());
-            final List<HttpHeader> readUserHttpHeaders = readResourceConfiguration.getHttpHeaders();
-            final String readUserBody = readResourceConfiguration.getHttpBody();
-            final Single<HttpResponse<Buffer>> requestHandler =
+            List<HttpHeader> readUserHttpHeaders = readResourceConfiguration.getHttpHeaders();
+            String readUserBody = readResourceConfiguration.getHttpBody();
+            Single<HttpResponse<Buffer>> requestHandler =
                     processRequest(
                             templateEngine,
                             readUserURI,
@@ -202,7 +201,7 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
                     .toMaybe()
                     .map(
                             httpResponse -> {
-                                final List<HttpResponseErrorCondition> errorConditions =
+                                List<HttpResponseErrorCondition> errorConditions =
                                         readResourceConfiguration.getHttpResponseErrorConditions();
                                 Map<String, Object> userAttributes =
                                         processResponse(
@@ -243,8 +242,8 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
             List<HttpHeader> httpHeaders,
             String httpBody) {
         // prepare request
-        final String evaluatedHttpURI = templateEngine.getValue(httpURI, String.class);
-        final HttpRequest<Buffer> httpRequest = client.requestAbs(httpMethod, evaluatedHttpURI);
+        String evaluatedHttpURI = templateEngine.getValue(httpURI, String.class);
+        HttpRequest<Buffer> httpRequest = client.requestAbs(httpMethod, evaluatedHttpURI);
 
         // set headers
         if (httpHeaders != null) {

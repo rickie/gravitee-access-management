@@ -47,7 +47,7 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
     }
 
     public void get(RoutingContext context) {
-        final String groupId = context.request().getParam("id");
+        String groupId = context.request().getParam("id");
         groupService
                 .get(groupId, location(context.request()))
                 .subscribe(
@@ -102,8 +102,8 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
                 context.fail(new InvalidSyntaxException("Unable to parse body message"));
                 return;
             }
-            final Group group = Json.decodeValue(context.getBodyAsString(), Group.class);
-            final String groupId = context.request().getParam("id");
+            Group group = Json.decodeValue(context.getBodyAsString(), Group.class);
+            String groupId = context.request().getParam("id");
 
             // displayName is required
             if (group.getDisplayName() == null || group.getDisplayName().isEmpty()) {
@@ -120,8 +120,8 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
                 return;
             }
 
-            final JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
-            final String baseUrl = location(context.request());
+            JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
+            String baseUrl = location(context.request());
             userService
                     .get(accessToken.getSub(), baseUrl)
                     .map(scimUser -> new DefaultUser(UserMapper.convert(scimUser)))
@@ -181,8 +181,8 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
                 context.fail(new InvalidSyntaxException("Unable to parse body message"));
                 return;
             }
-            final PatchOp patchOp = Json.decodeValue(context.getBodyAsString(), PatchOp.class);
-            final String groupId = context.request().getParam("id");
+            PatchOp patchOp = Json.decodeValue(context.getBodyAsString(), PatchOp.class);
+            String groupId = context.request().getParam("id");
 
             // schemas field is REQUIRED and MUST contain valid values and MUST not contain
             // duplicate values
@@ -199,8 +199,8 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
                 return;
             }
 
-            final JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
-            final String baseUrl = location(context.request());
+            JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
+            String baseUrl = location(context.request());
             userService
                     .get(accessToken.getSub(), baseUrl)
                     .map(scimUser -> new DefaultUser(UserMapper.convert(scimUser)))
@@ -246,9 +246,9 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
      * <p>See <a href="https://tools.ietf.org/html/rfc7644#section-3.6>3.6. Deleting Resources</a>
      */
     public void delete(RoutingContext context) {
-        final String groupId = context.request().getParam("id");
-        final JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
-        final String baseUrl = location(context.request());
+        String groupId = context.request().getParam("id");
+        JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
+        String baseUrl = location(context.request());
         userService
                 .get(accessToken.getSub(), baseUrl)
                 .map(scimUser -> new DefaultUser(UserMapper.convert(scimUser)))

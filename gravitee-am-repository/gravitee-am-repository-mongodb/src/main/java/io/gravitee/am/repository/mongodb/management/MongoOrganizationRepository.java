@@ -62,7 +62,7 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
 
     @Override
     public Single<Organization> create(Organization item) {
-        final OrganizationMongo organization = convert(item);
+        OrganizationMongo organization = convert(item);
         organization.setId(item.getId() == null ? RandomString.generate() : item.getId());
 
         return Single.fromPublisher(collection.insertOne(organization))

@@ -153,7 +153,7 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
                                                             authenticationContext =
                                                                     new SimpleAuthenticationContext(
                                                                             request);
-                                                    final Authentication authentication =
+                                                    Authentication authentication =
                                                             new EndUserAuthentication(
                                                                     user,
                                                                     null,
@@ -326,7 +326,7 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
             boolean afterAuthentication) {
         LOGGER.debug("Updating user: username[{}]", principal.getUsername());
 
-        final boolean updateDisplayName = hasGeneratedDisplayName(existingUser);
+        boolean updateDisplayName = hasGeneratedDisplayName(existingUser);
         if (!isNullOrEmpty(principal.getEmail())) {
             existingUser.setEmail(principal.getEmail());
         }
@@ -390,7 +390,7 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
     private Single<User> create(
             io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
         LOGGER.debug("Creating a new user: username[%s]", principal.getUsername());
-        final User newUser = new User();
+        User newUser = new User();
         // set external id
         newUser.setExternalId(principal.getId());
         newUser.setUsername(principal.getUsername());

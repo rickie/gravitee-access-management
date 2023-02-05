@@ -95,20 +95,20 @@ public class AlertTriggerManagerTest {
     @Test
     public void doOnConnect() throws Exception {
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID);
         domain.setName(DOMAIN_NAME);
 
-        final AlertTrigger alertTrigger = new AlertTrigger();
+        AlertTrigger alertTrigger = new AlertTrigger();
         alertTrigger.setEnabled(true);
         alertTrigger.setType(AlertTriggerType.TOO_MANY_LOGIN_FAILURES);
         alertTrigger.setAlertNotifiers(Collections.singletonList(ALERT_NOTIFIER_ID));
 
-        final AlertNotifierCriteria alertNotifierCriteria = new AlertNotifierCriteria();
+        AlertNotifierCriteria alertNotifierCriteria = new AlertNotifierCriteria();
         alertNotifierCriteria.setIds(Collections.singletonList(ALERT_NOTIFIER_ID));
         alertNotifierCriteria.setEnabled(true);
 
-        final AlertNotifier alertNotifier = new AlertNotifier();
+        AlertNotifier alertNotifier = new AlertNotifier();
         alertNotifier.setId(ALERT_NOTIFIER_ID);
 
         when(domainService.findAllByCriteria(new DomainCriteria()))
@@ -128,25 +128,24 @@ public class AlertTriggerManagerTest {
 
     @Test
     public void onDomainEvent() {
-        final DomainEvent domainEvent = DomainEvent.actionOf(Action.CREATE);
-        final Payload payload =
-                new Payload(DOMAIN_ID, ReferenceType.DOMAIN, DOMAIN_ID, Action.CREATE);
-        final SimpleEvent<DomainEvent, Payload> event = new SimpleEvent<>(domainEvent, payload);
+        DomainEvent domainEvent = DomainEvent.actionOf(Action.CREATE);
+        Payload payload = new Payload(DOMAIN_ID, ReferenceType.DOMAIN, DOMAIN_ID, Action.CREATE);
+        SimpleEvent<DomainEvent, Payload> event = new SimpleEvent<>(domainEvent, payload);
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID);
         domain.setName(DOMAIN_NAME);
 
-        final AlertTrigger alertTrigger = new AlertTrigger();
+        AlertTrigger alertTrigger = new AlertTrigger();
         alertTrigger.setEnabled(true);
         alertTrigger.setType(AlertTriggerType.TOO_MANY_LOGIN_FAILURES);
         alertTrigger.setAlertNotifiers(Collections.singletonList(ALERT_NOTIFIER_ID));
 
-        final AlertNotifierCriteria alertNotifierCriteria = new AlertNotifierCriteria();
+        AlertNotifierCriteria alertNotifierCriteria = new AlertNotifierCriteria();
         alertNotifierCriteria.setIds(Collections.singletonList(ALERT_NOTIFIER_ID));
         alertNotifierCriteria.setEnabled(true);
 
-        final AlertNotifier alertNotifier = new AlertNotifier();
+        AlertNotifier alertNotifier = new AlertNotifier();
         alertNotifier.setId(ALERT_NOTIFIER_ID);
 
         when(domainService.findById(domain.getId())).thenReturn(Maybe.just(domain));
@@ -165,26 +164,26 @@ public class AlertTriggerManagerTest {
 
     @Test
     public void onAlertTriggerEvent() {
-        final AlertTriggerEvent alertTriggerEvent = AlertTriggerEvent.actionOf(Action.CREATE);
-        final Payload payload =
+        AlertTriggerEvent alertTriggerEvent = AlertTriggerEvent.actionOf(Action.CREATE);
+        Payload payload =
                 new Payload(ALERT_TRIGGER_ID, ReferenceType.DOMAIN, DOMAIN_ID, Action.CREATE);
-        final SimpleEvent<AlertTriggerEvent, Payload> event =
+        SimpleEvent<AlertTriggerEvent, Payload> event =
                 new SimpleEvent<>(alertTriggerEvent, payload);
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID);
         domain.setName(DOMAIN_NAME);
 
-        final AlertTrigger alertTrigger = new AlertTrigger();
+        AlertTrigger alertTrigger = new AlertTrigger();
         alertTrigger.setEnabled(true);
         alertTrigger.setType(AlertTriggerType.TOO_MANY_LOGIN_FAILURES);
         alertTrigger.setAlertNotifiers(Collections.singletonList(ALERT_NOTIFIER_ID));
 
-        final AlertNotifierCriteria alertNotifierCriteria = new AlertNotifierCriteria();
+        AlertNotifierCriteria alertNotifierCriteria = new AlertNotifierCriteria();
         alertNotifierCriteria.setIds(Collections.singletonList(ALERT_NOTIFIER_ID));
         alertNotifierCriteria.setEnabled(true);
 
-        final AlertNotifier alertNotifier = new AlertNotifier();
+        AlertNotifier alertNotifier = new AlertNotifier();
         alertNotifier.setId(ALERT_NOTIFIER_ID);
 
         when(domainService.findById(domain.getId())).thenReturn(Maybe.just(domain));
@@ -202,32 +201,32 @@ public class AlertTriggerManagerTest {
 
     @Test
     public void onAlertNotifierEvent() {
-        final AlertNotifierEvent alertNotifierEvent = AlertNotifierEvent.actionOf(Action.CREATE);
-        final Payload payload =
+        AlertNotifierEvent alertNotifierEvent = AlertNotifierEvent.actionOf(Action.CREATE);
+        Payload payload =
                 new Payload(ALERT_NOTIFIER_ID, ReferenceType.DOMAIN, DOMAIN_ID, Action.CREATE);
-        final SimpleEvent<AlertNotifierEvent, Payload> event =
+        SimpleEvent<AlertNotifierEvent, Payload> event =
                 new SimpleEvent<>(alertNotifierEvent, payload);
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID);
         domain.setName(DOMAIN_NAME);
         domain.setAlertEnabled(true);
         domain.setEnabled(true);
 
-        final AlertTriggerCriteria alertTriggerCriteria = new AlertTriggerCriteria();
+        AlertTriggerCriteria alertTriggerCriteria = new AlertTriggerCriteria();
         alertTriggerCriteria.setEnabled(true);
         alertTriggerCriteria.setAlertNotifierIds(Collections.singletonList(ALERT_NOTIFIER_ID));
 
-        final AlertTrigger alertTrigger = new AlertTrigger();
+        AlertTrigger alertTrigger = new AlertTrigger();
         alertTrigger.setEnabled(true);
         alertTrigger.setType(AlertTriggerType.TOO_MANY_LOGIN_FAILURES);
         alertTrigger.setAlertNotifiers(Collections.singletonList(ALERT_NOTIFIER_ID));
 
-        final AlertNotifierCriteria alertNotifierCriteria = new AlertNotifierCriteria();
+        AlertNotifierCriteria alertNotifierCriteria = new AlertNotifierCriteria();
         alertNotifierCriteria.setIds(Collections.singletonList(ALERT_NOTIFIER_ID));
         alertNotifierCriteria.setEnabled(true);
 
-        final AlertNotifier alertNotifier = new AlertNotifier();
+        AlertNotifier alertNotifier = new AlertNotifier();
         alertNotifier.setId(ALERT_NOTIFIER_ID);
 
         when(domainService.findById(domain.getId())).thenReturn(Maybe.just(domain));
@@ -246,13 +245,13 @@ public class AlertTriggerManagerTest {
 
     @Test
     public void onAlertNotifierEventWithDomainDisabled() {
-        final AlertNotifierEvent alertNotifierEvent = AlertNotifierEvent.actionOf(Action.CREATE);
-        final Payload payload =
+        AlertNotifierEvent alertNotifierEvent = AlertNotifierEvent.actionOf(Action.CREATE);
+        Payload payload =
                 new Payload(ALERT_NOTIFIER_ID, ReferenceType.DOMAIN, DOMAIN_ID, Action.CREATE);
-        final SimpleEvent<AlertNotifierEvent, Payload> event =
+        SimpleEvent<AlertNotifierEvent, Payload> event =
                 new SimpleEvent<>(alertNotifierEvent, payload);
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID);
         domain.setName(DOMAIN_NAME);
         domain.setAlertEnabled(true);
@@ -267,13 +266,13 @@ public class AlertTriggerManagerTest {
 
     @Test
     public void onAlertNotifierEventWithDomainAlertDisabled() {
-        final AlertNotifierEvent alertNotifierEvent = AlertNotifierEvent.actionOf(Action.CREATE);
-        final Payload payload =
+        AlertNotifierEvent alertNotifierEvent = AlertNotifierEvent.actionOf(Action.CREATE);
+        Payload payload =
                 new Payload(ALERT_NOTIFIER_ID, ReferenceType.DOMAIN, DOMAIN_ID, Action.CREATE);
-        final SimpleEvent<AlertNotifierEvent, Payload> event =
+        SimpleEvent<AlertNotifierEvent, Payload> event =
                 new SimpleEvent<>(alertNotifierEvent, payload);
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId(DOMAIN_ID);
         domain.setName(DOMAIN_NAME);
         domain.setAlertEnabled(false);

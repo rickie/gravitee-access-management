@@ -364,10 +364,9 @@ public class ReporterServiceImpl implements ReporterService {
 
         if (REPORTER_AM_FILE.equalsIgnoreCase(reporter.getType())) {
             // for FileReporter we have to check if the filename isn't used by another reporter
-            final JsonObject configuration =
-                    (JsonObject) Json.decodeValue(reporter.getConfiguration());
-            final String reporterId = reporter.getId();
-            final String reportFilename = configuration.getString(REPORTER_CONFIG_FILENAME);
+            JsonObject configuration = (JsonObject) Json.decodeValue(reporter.getConfiguration());
+            String reporterId = reporter.getId();
+            String reportFilename = configuration.getString(REPORTER_CONFIG_FILENAME);
             if (Strings.isNullOrEmpty(reportFilename)
                     || !filenamePattern.matcher(reportFilename).matches()) {
                 return Single.error(new ReporterConfigurationException("Filename is invalid"));
@@ -440,8 +439,8 @@ public class ReporterServiceImpl implements ReporterService {
                 mongoPort = environment.getProperty("management.mongodb.port", "27017");
             }
 
-            final String username = environment.getProperty("management.mongodb.username");
-            final String password = environment.getProperty("management.mongodb.password");
+            String username = environment.getProperty("management.mongodb.username");
+            String password = environment.getProperty("management.mongodb.password");
             String mongoDBName = getMongoDatabaseName(environment);
 
             String defaultMongoUri = "mongodb://";
