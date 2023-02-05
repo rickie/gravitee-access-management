@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
@@ -22,6 +20,7 @@ import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.management.api.search.AlertNotifierCriteria;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,17 +35,18 @@ public class AlertNotifierRepositoryTest extends AbstractManagementTest {
 
     private static final String DOMAIN_ID = "alertNotifier#1";
 
-    @Autowired
-    private AlertNotifierRepository alertNotifierRepository;
+    @Autowired private AlertNotifierRepository alertNotifierRepository;
 
     @Test
     public void testFindById() {
         // create idp
         AlertNotifier alertNotifier = buildAlertNotifier();
-        AlertNotifier alertNotifierCreated = alertNotifierRepository.create(alertNotifier).blockingGet();
+        AlertNotifier alertNotifierCreated =
+                alertNotifierRepository.create(alertNotifier).blockingGet();
 
         // fetch idp
-        TestObserver<AlertNotifier> testObserver = alertNotifierRepository.findById(alertNotifierCreated.getId()).test();
+        TestObserver<AlertNotifier> testObserver =
+                alertNotifierRepository.findById(alertNotifierCreated.getId()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -62,7 +62,8 @@ public class AlertNotifierRepositoryTest extends AbstractManagementTest {
     @Test
     public void testCreate() {
         AlertNotifier alertNotifier = buildAlertNotifier();
-        TestObserver<AlertNotifier> testObserver = alertNotifierRepository.create(alertNotifier).test();
+        TestObserver<AlertNotifier> testObserver =
+                alertNotifierRepository.create(alertNotifier).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -74,30 +75,36 @@ public class AlertNotifierRepositoryTest extends AbstractManagementTest {
     public void testUpdate() {
         // create idp
         AlertNotifier alertNotifier = buildAlertNotifier();
-        AlertNotifier alertNotifierCreated = alertNotifierRepository.create(alertNotifier).blockingGet();
+        AlertNotifier alertNotifierCreated =
+                alertNotifierRepository.create(alertNotifier).blockingGet();
 
         // update idp
         AlertNotifier updatedAlertNotifier = buildAlertNotifier();
         updatedAlertNotifier.setId(alertNotifierCreated.getId());
         updatedAlertNotifier.setEnabled(false);
 
-        TestObserver<AlertNotifier> testObserver = alertNotifierRepository.update(updatedAlertNotifier).test();
+        TestObserver<AlertNotifier> testObserver =
+                alertNotifierRepository.update(updatedAlertNotifier).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        testObserver.assertValue(updated -> updated.getId().equals(updatedAlertNotifier.getId())
-                && !updated.isEnabled());
+        testObserver.assertValue(
+                updated ->
+                        updated.getId().equals(updatedAlertNotifier.getId())
+                                && !updated.isEnabled());
     }
 
     @Test
     public void testDelete() {
         // create idp
         AlertNotifier alertNotifier = buildAlertNotifier();
-        AlertNotifier alertNotifierCreated = alertNotifierRepository.create(alertNotifier).blockingGet();
+        AlertNotifier alertNotifierCreated =
+                alertNotifierRepository.create(alertNotifier).blockingGet();
 
         // delete idp
-        TestObserver<Void> testObserver1 = alertNotifierRepository.delete(alertNotifierCreated.getId()).test();
+        TestObserver<Void> testObserver1 =
+                alertNotifierRepository.delete(alertNotifierCreated.getId()).test();
         testObserver1.awaitTerminalEvent();
 
         // fetch idp
@@ -107,11 +114,15 @@ public class AlertNotifierRepositoryTest extends AbstractManagementTest {
     @Test
     public void findByCriteria() {
         AlertNotifier alertNotifierToCreate = buildAlertNotifier();
-        AlertNotifier alertNotifierCreated = alertNotifierRepository.create(alertNotifierToCreate).blockingGet();
+        AlertNotifier alertNotifierCreated =
+                alertNotifierRepository.create(alertNotifierToCreate).blockingGet();
 
         AlertNotifierCriteria criteria = new AlertNotifierCriteria();
         criteria.setEnabled(false);
-        TestSubscriber<AlertNotifier> testObserver1 = alertNotifierRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria).test();
+        TestSubscriber<AlertNotifier> testObserver1 =
+                alertNotifierRepository
+                        .findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)
+                        .test();
 
         testObserver1.awaitTerminalEvent();
         testObserver1.assertComplete();
@@ -119,17 +130,23 @@ public class AlertNotifierRepositoryTest extends AbstractManagementTest {
         testObserver1.assertNoValues();
 
         alertNotifierCreated.setEnabled(false);
-        final AlertNotifier alertNotifierUpdated = alertNotifierRepository.update(alertNotifierCreated).blockingGet();
-        testObserver1 = alertNotifierRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria).test();
+        final AlertNotifier alertNotifierUpdated =
+                alertNotifierRepository.update(alertNotifierCreated).blockingGet();
+        testObserver1 =
+                alertNotifierRepository
+                        .findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)
+                        .test();
         testObserver1.awaitTerminalEvent();
         testObserver1.assertComplete();
         testObserver1.assertNoErrors();
-        testObserver1.assertValue(alertNotifier -> alertNotifier.getId().equals(alertNotifierUpdated.getId()));
+        testObserver1.assertValue(
+                alertNotifier -> alertNotifier.getId().equals(alertNotifierUpdated.getId()));
     }
 
     @Test
     public void findAll() {
-        TestSubscriber<AlertNotifier> testObserver1 = alertNotifierRepository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).test();
+        TestSubscriber<AlertNotifier> testObserver1 =
+                alertNotifierRepository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).test();
 
         testObserver1.awaitTerminalEvent();
         testObserver1.assertComplete();
@@ -138,19 +155,22 @@ public class AlertNotifierRepositoryTest extends AbstractManagementTest {
         AlertNotifier alertNotifierToCreate1 = buildAlertNotifier();
         AlertNotifier alertNotifierToCreate2 = buildAlertNotifier();
         alertNotifierToCreate2.setReferenceId("domain#2");
-        AlertNotifier alertNotifierCreated1 = alertNotifierRepository.create(alertNotifierToCreate1).blockingGet();
+        AlertNotifier alertNotifierCreated1 =
+                alertNotifierRepository.create(alertNotifierToCreate1).blockingGet();
         alertNotifierRepository.create(alertNotifierToCreate2).blockingGet();
 
         testObserver1 = alertNotifierRepository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).test();
 
         testObserver1.awaitTerminalEvent();
         testObserver1.assertComplete();
-        testObserver1.assertValue(alertNotifier -> alertNotifier.getId().equals(alertNotifierCreated1.getId()));
+        testObserver1.assertValue(
+                alertNotifier -> alertNotifier.getId().equals(alertNotifierCreated1.getId()));
     }
 
     @Test
     public void findByCriteriaWithEmptyNotifierIdList() {
-        TestSubscriber<AlertNotifier> testObserver1 = alertNotifierRepository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).test();
+        TestSubscriber<AlertNotifier> testObserver1 =
+                alertNotifierRepository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).test();
 
         testObserver1.awaitTerminalEvent();
         testObserver1.assertComplete();
@@ -159,16 +179,21 @@ public class AlertNotifierRepositoryTest extends AbstractManagementTest {
         AlertNotifier alertNotifierToCreate1 = buildAlertNotifier();
         AlertNotifier alertNotifierToCreate2 = buildAlertNotifier();
         alertNotifierToCreate2.setReferenceId("domain#2");
-        AlertNotifier alertNotifierCreated1 = alertNotifierRepository.create(alertNotifierToCreate1).blockingGet();
+        AlertNotifier alertNotifierCreated1 =
+                alertNotifierRepository.create(alertNotifierToCreate1).blockingGet();
         alertNotifierRepository.create(alertNotifierToCreate2).blockingGet();
 
         final AlertNotifierCriteria criteria = new AlertNotifierCriteria();
         criteria.setIds(Collections.emptyList());
-        testObserver1 = alertNotifierRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria).test();
+        testObserver1 =
+                alertNotifierRepository
+                        .findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)
+                        .test();
 
         testObserver1.awaitTerminalEvent();
         testObserver1.assertComplete();
-        testObserver1.assertValue(alertNotifier -> alertNotifier.getId().equals(alertNotifierCreated1.getId()));
+        testObserver1.assertValue(
+                alertNotifier -> alertNotifier.getId().equals(alertNotifierCreated1.getId()));
     }
 
     private AlertNotifier buildAlertNotifier() {

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.model;
@@ -24,7 +22,6 @@ import java.util.stream.Collectors;
  * @author GraviteeSource Team
  */
 public enum Template {
-
     LOGIN("login", "/login"),
     REGISTRATION("registration", "/register"),
     REGISTRATION_CONFIRMATION("registration_confirmation", "/confirmRegistration"),
@@ -42,7 +39,7 @@ public enum Template {
     IDENTIFIER_FIRST_LOGIN("identifier_first_login", "/login/identifier"),
     ERROR("error", "/error"),
     CERTIFICATE_EXPIRATION("certificate_expiration", null),
-    VERIFY_ATTEMPT("verify_attempt",null);
+    VERIFY_ATTEMPT("verify_attempt", null);
 
     private final String template;
     private final String redirectUri;
@@ -64,9 +61,10 @@ public enum Template {
         if (toParse == null || toParse.trim().isEmpty()) {
             throw new IllegalArgumentException("template must not be null");
         }
-        List<Template> matchingTemplate = Arrays.stream(Template.values())
-                .filter(template -> template.template().equals(toParse))
-                .collect(Collectors.toList());
+        List<Template> matchingTemplate =
+                Arrays.stream(Template.values())
+                        .filter(template -> template.template().equals(toParse))
+                        .collect(Collectors.toList());
 
         if (matchingTemplate.size() == 1) {
             return matchingTemplate.get(0);

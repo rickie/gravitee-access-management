@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.model.safe;
@@ -18,9 +16,9 @@ package io.gravitee.am.model.safe;
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.common.oidc.idtoken.Claims;
 import io.gravitee.am.common.utils.ConstantKeys;
+import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.Role;
 import io.gravitee.am.model.User;
-import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.scim.Address;
 import io.gravitee.am.model.scim.Attribute;
 
@@ -54,14 +52,13 @@ public class UserProperties {
     private List<String> entitlements;
     private List<Address> addresses;
 
-    public UserProperties() {
-    }
+    public UserProperties() {}
 
     public UserProperties(User user) {
         this.id = user.getId();
         this.externalId = user.getExternalId();
 
-        if(user.getReferenceType() == ReferenceType.DOMAIN) {
+        if (user.getReferenceType() == ReferenceType.DOMAIN) {
             this.domain = user.getReferenceId();
         }
 
@@ -74,11 +71,14 @@ public class UserProperties {
         this.groups = user.getGroups();
         // set roles
         if (user.getRolesPermissions() != null) {
-            roles = user.getRolesPermissions().stream().map(Role::getName).collect(Collectors.toSet());
+            roles =
+                    user.getRolesPermissions().stream()
+                            .map(Role::getName)
+                            .collect(Collectors.toSet());
         }
         // set claims
-        var userAdditionalInformation = Optional.ofNullable(user.getAdditionalInformation())
-                .orElse(new HashMap<>());
+        var userAdditionalInformation =
+                Optional.ofNullable(user.getAdditionalInformation()).orElse(new HashMap<>());
         claims = new HashMap<>(userAdditionalInformation);
         if (user.getLoggedAt() != null) {
             claims.put(Claims.auth_time, user.getLoggedAt().getTime() / 1000);
@@ -87,7 +87,9 @@ public class UserProperties {
         claims.remove(ConstantKeys.OIDC_PROVIDER_ID_TOKEN_KEY);
         claims.remove(ConstantKeys.OIDC_PROVIDER_ID_ACCESS_TOKEN_KEY);
 
-        this.additionalInformation = claims; // use same ref as claims for additionalInfo to avoid regression on templates that used the User object before
+        this.additionalInformation =
+                claims; // use same ref as claims for additionalInfo to avoid regression on
+        // templates that used the User object before
         this.source = user.getSource();
         this.preferredLanguage = evaluatePreferredLanguage(user);
         this.emails = evaluateAttributes(user.getEmails());
@@ -261,7 +263,8 @@ public class UserProperties {
     private String evaluatePreferredLanguage(User user) {
         if (user.getPreferredLanguage() == null) {
             // fall back to OIDC standard claims
-            if (user.getAdditionalInformation() != null && user.getAdditionalInformation().get(StandardClaims.LOCALE) != null) {
+            if (user.getAdditionalInformation() != null
+                    && user.getAdditionalInformation().get(StandardClaims.LOCALE) != null) {
                 return (String) user.getAdditionalInformation().get(StandardClaims.LOCALE);
             }
         }
@@ -273,13 +276,13 @@ public class UserProperties {
             return null;
         }
         // Nimbus internal JSON writer do not handle null values
-        return attributes
-                .stream()
-                .map(attribute -> {
-                    attribute.setPrimary(Boolean.TRUE.equals(attribute.isPrimary()));
-                    return attribute;
-                }).collect(Collectors.toList());
-
+        return attributes.stream()
+                .map(
+                        attribute -> {
+                            attribute.setPrimary(Boolean.TRUE.equals(attribute.isPrimary()));
+                            return attribute;
+                        })
+                .collect(Collectors.toList());
     }
 
     private List<Address> evaluateAddresses(List<Address> addresses) {
@@ -287,11 +290,12 @@ public class UserProperties {
             return null;
         }
         // Nimbus internal JSON writer do not handle null values
-        return addresses
-                .stream()
-                .map(address -> {
-                    address.setPrimary(Boolean.TRUE.equals(address.isPrimary()));
-                    return address;
-                }).collect(Collectors.toList());
+        return addresses.stream()
+                .map(
+                        address -> {
+                            address.setPrimary(Boolean.TRUE.equals(address.isPrimary()));
+                            return address;
+                        })
+                .collect(Collectors.toList());
     }
 }

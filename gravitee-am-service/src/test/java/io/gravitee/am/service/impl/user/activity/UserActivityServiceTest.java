@@ -1,20 +1,21 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.gravitee.am.service.impl.user.activity;
+
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doReturn;
 
 import io.gravitee.am.model.UserActivity;
 import io.gravitee.am.model.UserActivity.Type;
@@ -28,15 +29,13 @@ import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
-import java.time.temporal.ChronoUnit;
-import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doReturn;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 /**
  * @author Rémi SULTAN (remi.sultan at graviteesource.com)
@@ -49,20 +48,20 @@ public class UserActivityServiceTest {
 
     @Before
     public void before() {
-        var configuration = new UserActivityConfiguration(true,
-                Algorithm.NONE,
-                null, 3600,
-                ChronoUnit.SECONDS,
-                0.07,
-                0.07);
+        var configuration =
+                new UserActivityConfiguration(
+                        true, Algorithm.NONE, null, 3600, ChronoUnit.SECONDS, 0.07, 0.07);
         userActivityRepository = Mockito.mock(UserActivityRepository.class);
         userActivityService = new UserActivityServiceImpl(configuration, userActivityRepository);
     }
 
     @Test
     public void must_log_error_and_do_nothing_if_failing() {
-        doReturn(Single.error(new IllegalArgumentException("An Error"))).when(userActivityRepository).create(any());
-        final TestObserver<Void> testObserver = userActivityService.save("domain", "user-id", Type.LOGIN, Map.of()).test();
+        doReturn(Single.error(new IllegalArgumentException("An Error")))
+                .when(userActivityRepository)
+                .create(any());
+        final TestObserver<Void> testObserver =
+                userActivityService.save("domain", "user-id", Type.LOGIN, Map.of()).test();
 
         testObserver.assertError(IllegalArgumentException.class);
     }
@@ -85,7 +84,8 @@ public class UserActivityServiceTest {
     @Test
     public void must_log_info_and_do_nothing_if_success() {
         doReturn(Single.just(new UserActivity())).when(userActivityRepository).create(any());
-        final TestObserver<Void> testObserver = userActivityService.save("domain", "user-id", Type.LOGIN, Map.of()).test();
+        final TestObserver<Void> testObserver =
+                userActivityService.save("domain", "user-id", Type.LOGIN, Map.of()).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
@@ -104,8 +104,11 @@ public class UserActivityServiceTest {
 
     @Test
     public void must_delete_by_domain_and_key() {
-        doReturn(Completable.complete()).when(userActivityRepository).deleteByDomainAndKey(anyString(), anyString());
-        final TestObserver<Void> testObserver = userActivityService.deleteByDomainAndUser("domain", "user-id").test();
+        doReturn(Completable.complete())
+                .when(userActivityRepository)
+                .deleteByDomainAndKey(anyString(), anyString());
+        final TestObserver<Void> testObserver =
+                userActivityService.deleteByDomainAndUser("domain", "user-id").test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
@@ -114,8 +117,12 @@ public class UserActivityServiceTest {
 
     @Test
     public void must_throw_error_when_delete_by_domain_and_key() {
-        doReturn(Completable.error(new IllegalArgumentException("An Error"))).when(userActivityRepository).deleteByDomainAndKey(anyString(), anyString());;
-        final TestObserver<Void> testObserver = userActivityService.deleteByDomainAndUser("domain", "user-id").test();
+        doReturn(Completable.error(new IllegalArgumentException("An Error")))
+                .when(userActivityRepository)
+                .deleteByDomainAndKey(anyString(), anyString());
+        ;
+        final TestObserver<Void> testObserver =
+                userActivityService.deleteByDomainAndUser("domain", "user-id").test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertError(IllegalArgumentException.class);
@@ -123,7 +130,9 @@ public class UserActivityServiceTest {
 
     @Test
     public void must_throw_error_when_delete_by_domain() {
-        doReturn(Completable.error(new IllegalArgumentException("An Error"))).when(userActivityRepository).deleteByDomain(anyString());
+        doReturn(Completable.error(new IllegalArgumentException("An Error")))
+                .when(userActivityRepository)
+                .deleteByDomain(anyString());
         final TestObserver<Void> testObserver = userActivityService.deleteByDomain("domain").test();
 
         testObserver.awaitTerminalEvent();
@@ -133,14 +142,16 @@ public class UserActivityServiceTest {
     @Test
     public void must_find_by_domain_user_type_and_limit() {
         doReturn(Flowable.just(new UserActivity(), new UserActivity(), new UserActivity()))
-                .when(userActivityRepository).findByDomainAndTypeAndKeyAndLimit(anyString(), any(), anyString(), anyInt());
+                .when(userActivityRepository)
+                .findByDomainAndTypeAndKeyAndLimit(anyString(), any(), anyString(), anyInt());
         final TestSubscriber<UserActivity> testObserver =
-                userActivityService.findByDomainAndTypeAndUserAndLimit("domain", Type.LOGIN, "user-id", 3).test();
+                userActivityService
+                        .findByDomainAndTypeAndUserAndLimit("domain", Type.LOGIN, "user-id", 3)
+                        .test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValueCount(3);
     }
-
 }

@@ -1,30 +1,29 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.common.dialect;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import io.gravitee.am.repository.management.api.search.FilterCriteria;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.data.r2dbc.dialect.R2dbcDialect;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -41,13 +40,17 @@ public class DatabaseDialectHelperTest {
         criteria.setFilterName("emails.value");
         criteria.setFilterValue("test@acme.fr");
         criteria.setOperator("eq");
-        final String BASE_CLAUSE = " FROM users WHERE reference_id = :refId AND reference_type = :refType AND ";
-        ScimUserSearch search = helper.prepareScimSearchUserQuery(new StringBuilder(BASE_CLAUSE),
-                criteria, 0, 10);
+        final String BASE_CLAUSE =
+                " FROM users WHERE reference_id = :refId AND reference_type = :refType AND ";
+        ScimUserSearch search =
+                helper.prepareScimSearchUserQuery(new StringBuilder(BASE_CLAUSE), criteria, 0, 10);
 
-        assertTrue("Query contains email clause", search.getSelectQuery().startsWith("SELECT * " + BASE_CLAUSE + "email = :email"));
+        assertTrue(
+                "Query contains email clause",
+                search.getSelectQuery().startsWith("SELECT * " + BASE_CLAUSE + "email = :email"));
         assertEquals("binding size should be 1", 1, search.getBinding().size());
-        assertEquals("binding should contains email", "test@acme.fr", search.getBinding().get("email"));
+        assertEquals(
+                "binding should contains email", "test@acme.fr", search.getBinding().get("email"));
     }
 
     @Test
@@ -59,11 +62,15 @@ public class DatabaseDialectHelperTest {
         criteria.setFilterName("emails.value");
         criteria.setFilterValue("test@acme.fr");
         criteria.setOperator("pr");
-        final String BASE_CLAUSE = " FROM users WHERE reference_id = :refId AND reference_type = :refType AND ";
-        ScimUserSearch search = helper.prepareScimSearchUserQuery(new StringBuilder(BASE_CLAUSE),
-                criteria, 0, 10);
+        final String BASE_CLAUSE =
+                " FROM users WHERE reference_id = :refId AND reference_type = :refType AND ";
+        ScimUserSearch search =
+                helper.prepareScimSearchUserQuery(new StringBuilder(BASE_CLAUSE), criteria, 0, 10);
 
-        assertTrue("query contains email NOT NULL", search.getSelectQuery().startsWith("SELECT * " + BASE_CLAUSE + "email IS NOT NULL "));
+        assertTrue(
+                "query contains email NOT NULL",
+                search.getSelectQuery()
+                        .startsWith("SELECT * " + BASE_CLAUSE + "email IS NOT NULL "));
         assertTrue("binding size should be empty", search.getBinding().isEmpty());
     }
 
@@ -86,13 +93,24 @@ public class DatabaseDialectHelperTest {
         or.setOperator("or");
         or.setFilterComponents(Arrays.asList(emailEq, createdAfter));
 
-        final String BASE_CLAUSE = " FROM users WHERE reference_id = :refId AND reference_type = :refType AND ";
-        ScimUserSearch search = helper.prepareScimSearchUserQuery(new StringBuilder(BASE_CLAUSE), or, 0, 10);
+        final String BASE_CLAUSE =
+                " FROM users WHERE reference_id = :refId AND reference_type = :refType AND ";
+        ScimUserSearch search =
+                helper.prepareScimSearchUserQuery(new StringBuilder(BASE_CLAUSE), or, 0, 10);
 
-        assertTrue("Select clause contains OR operator", search.getSelectQuery().startsWith("SELECT * " + BASE_CLAUSE + "( email = :email OR created_at > :created_at )"));
+        assertTrue(
+                "Select clause contains OR operator",
+                search.getSelectQuery()
+                        .startsWith(
+                                "SELECT * "
+                                        + BASE_CLAUSE
+                                        + "( email = :email OR created_at > :created_at )"));
         assertEquals("binding size should be 2", 2, search.getBinding().size());
-        assertEquals("binding should contains email", "test@acme.fr", search.getBinding().get("email"));
-        assertTrue("binding should contains date", search.getBinding().get("created_at") instanceof LocalDateTime);
+        assertEquals(
+                "binding should contains email", "test@acme.fr", search.getBinding().get("email"));
+        assertTrue(
+                "binding should contains date",
+                search.getBinding().get("created_at") instanceof LocalDateTime);
     }
 
     @Test
@@ -114,12 +132,24 @@ public class DatabaseDialectHelperTest {
         or.setOperator("or");
         or.setFilterComponents(Arrays.asList(emailEq, emailEq2));
 
-        final String BASE_CLAUSE = " FROM users WHERE reference_id = :refId AND reference_type = :refType AND ";
-        ScimUserSearch search = helper.prepareScimSearchUserQuery(new StringBuilder(BASE_CLAUSE), or, 0, 10);
+        final String BASE_CLAUSE =
+                " FROM users WHERE reference_id = :refId AND reference_type = :refType AND ";
+        ScimUserSearch search =
+                helper.prepareScimSearchUserQuery(new StringBuilder(BASE_CLAUSE), or, 0, 10);
 
-        assertTrue("Select clause contains OR operator", search.getSelectQuery().startsWith("SELECT * " + BASE_CLAUSE + "( email = :email OR email = :email_c0 )"));
+        assertTrue(
+                "Select clause contains OR operator",
+                search.getSelectQuery()
+                        .startsWith(
+                                "SELECT * "
+                                        + BASE_CLAUSE
+                                        + "( email = :email OR email = :email_c0 )"));
         assertEquals("binding size should be 2", 2, search.getBinding().size());
-        assertEquals("binding should contains email", "test@acme.fr", search.getBinding().get("email"));
-        assertEquals("binding should contains email2", "test2@acme.fr", search.getBinding().get("email_c0"));
+        assertEquals(
+                "binding should contains email", "test@acme.fr", search.getBinding().get("email"));
+        assertEquals(
+                "binding should contains email2",
+                "test2@acme.fr",
+                search.getBinding().get("email_c0"));
     }
 }

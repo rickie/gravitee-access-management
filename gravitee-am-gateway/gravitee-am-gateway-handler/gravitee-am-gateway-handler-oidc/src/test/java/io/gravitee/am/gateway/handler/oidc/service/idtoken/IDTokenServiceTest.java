@@ -1,21 +1,23 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oidc.service.idtoken;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.gravitee.am.certificate.api.CertificateProvider;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.oauth2.TokenTypeHint;
@@ -38,6 +40,7 @@ import io.gravitee.gateway.api.ExecutionContext;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -48,9 +51,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -58,29 +58,21 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class IDTokenServiceTest {
 
-    @InjectMocks
-    private IDTokenService idTokenService = new IDTokenServiceImpl();
+    @InjectMocks private IDTokenService idTokenService = new IDTokenServiceImpl();
 
-    @Mock
-    private CertificateManager certificateManager;
+    @Mock private CertificateManager certificateManager;
 
-    @Mock
-    private CertificateProvider certificateProvider;
+    @Mock private CertificateProvider certificateProvider;
 
-    @Mock
-    private CertificateProvider defaultCertificateProvider;
+    @Mock private CertificateProvider defaultCertificateProvider;
 
-    @Mock
-    private OpenIDDiscoveryService openIDDiscoveryService;
+    @Mock private OpenIDDiscoveryService openIDDiscoveryService;
 
-    @Mock
-    private JWTService jwtService;
+    @Mock private JWTService jwtService;
 
-    @Mock
-    private JWEService jweService;
+    @Mock private JWEService jweService;
 
-    @Mock
-    private ExecutionContextFactory executionContextFactory;
+    @Mock private ExecutionContextFactory executionContextFactory;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -95,19 +87,26 @@ public class IDTokenServiceTest {
 
         String idTokenPayload = "payload";
 
-        io.gravitee.am.gateway.certificate.CertificateProvider idTokenCert = new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider);
-        io.gravitee.am.gateway.certificate.CertificateProvider clientCert = new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider);
-        io.gravitee.am.gateway.certificate.CertificateProvider defaultCert = new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider);
+        io.gravitee.am.gateway.certificate.CertificateProvider idTokenCert =
+                new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider);
+        io.gravitee.am.gateway.certificate.CertificateProvider clientCert =
+                new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider);
+        io.gravitee.am.gateway.certificate.CertificateProvider defaultCert =
+                new io.gravitee.am.gateway.certificate.CertificateProvider(
+                        defaultCertificateProvider);
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
 
         when(certificateManager.findByAlgorithm(any())).thenReturn(Maybe.just(idTokenCert));
         when(certificateManager.get(anyString())).thenReturn(Maybe.just(clientCert));
         when(certificateManager.defaultCertificateProvider()).thenReturn(defaultCert);
-        when(jwtService.encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Single.just(idTokenPayload));
+        when(jwtService.encode(
+                        any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class)))
+                .thenReturn(Single.just(idTokenPayload));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
 
-        TestObserver<String> testObserver = idTokenService.create(oAuth2Request, client, null).test();
+        TestObserver<String> testObserver =
+                idTokenService.create(oAuth2Request, client, null).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -129,18 +128,24 @@ public class IDTokenServiceTest {
 
         String idTokenPayload = "payload";
 
-        io.gravitee.am.gateway.certificate.CertificateProvider clientCert = new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider);
-        io.gravitee.am.gateway.certificate.CertificateProvider defaultCert = new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider);
+        io.gravitee.am.gateway.certificate.CertificateProvider clientCert =
+                new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider);
+        io.gravitee.am.gateway.certificate.CertificateProvider defaultCert =
+                new io.gravitee.am.gateway.certificate.CertificateProvider(
+                        defaultCertificateProvider);
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
 
         when(certificateManager.findByAlgorithm(any())).thenReturn(Maybe.empty());
         when(certificateManager.get(anyString())).thenReturn(Maybe.just(clientCert));
         when(certificateManager.defaultCertificateProvider()).thenReturn(defaultCert);
-        when(jwtService.encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Single.just(idTokenPayload));
+        when(jwtService.encode(
+                        any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class)))
+                .thenReturn(Single.just(idTokenPayload));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
 
-        TestObserver<String> testObserver = idTokenService.create(oAuth2Request, client, null).test();
+        TestObserver<String> testObserver =
+                idTokenService.create(oAuth2Request, client, null).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -162,17 +167,22 @@ public class IDTokenServiceTest {
 
         String idTokenPayload = "payload";
 
-        io.gravitee.am.gateway.certificate.CertificateProvider defaultCert = new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider);
+        io.gravitee.am.gateway.certificate.CertificateProvider defaultCert =
+                new io.gravitee.am.gateway.certificate.CertificateProvider(
+                        defaultCertificateProvider);
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
 
         when(certificateManager.findByAlgorithm(any())).thenReturn(Maybe.empty());
         when(certificateManager.get(any())).thenReturn(Maybe.empty());
         when(certificateManager.defaultCertificateProvider()).thenReturn(defaultCert);
-        when(jwtService.encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Single.just(idTokenPayload));
+        when(jwtService.encode(
+                        any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class)))
+                .thenReturn(Single.just(idTokenPayload));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
 
-        TestObserver<String> testObserver = idTokenService.create(oAuth2Request, client, null).test();
+        TestObserver<String> testObserver =
+                idTokenService.create(oAuth2Request, client, null).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -201,19 +211,26 @@ public class IDTokenServiceTest {
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
         TemplateEngine templateEngine = mock(TemplateEngine.class);
-        when(templateEngine.getValue("https://custom-iss", Object.class)).thenReturn("https://custom-iss");
+        when(templateEngine.getValue("https://custom-iss", Object.class))
+                .thenReturn("https://custom-iss");
         when(executionContext.getTemplateEngine()).thenReturn(templateEngine);
 
         String idTokenPayload = "payload";
-        io.gravitee.am.gateway.certificate.CertificateProvider defaultCert = new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider);
+        io.gravitee.am.gateway.certificate.CertificateProvider defaultCert =
+                new io.gravitee.am.gateway.certificate.CertificateProvider(
+                        defaultCertificateProvider);
 
         ArgumentCaptor<JWT> jwtCaptor = ArgumentCaptor.forClass(JWT.class);
-        when(jwtService.encode(jwtCaptor.capture(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Single.just(idTokenPayload));
+        when(jwtService.encode(
+                        jwtCaptor.capture(),
+                        any(io.gravitee.am.gateway.certificate.CertificateProvider.class)))
+                .thenReturn(Single.just(idTokenPayload));
         when(certificateManager.findByAlgorithm(any())).thenReturn(Maybe.empty());
         when(certificateManager.get(any())).thenReturn(Maybe.empty());
         when(certificateManager.defaultCertificateProvider()).thenReturn(defaultCert);
 
-        TestObserver<String> testObserver = idTokenService.create(oAuth2Request, client, null, executionContext).test();
+        TestObserver<String> testObserver =
+                idTokenService.create(oAuth2Request, client, null, executionContext).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
@@ -238,18 +255,24 @@ public class IDTokenServiceTest {
 
         String idTokenPayload = "payload";
 
-        io.gravitee.am.gateway.certificate.CertificateProvider defaultCert = new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider);
+        io.gravitee.am.gateway.certificate.CertificateProvider defaultCert =
+                new io.gravitee.am.gateway.certificate.CertificateProvider(
+                        defaultCertificateProvider);
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
 
         when(certificateManager.findByAlgorithm(any())).thenReturn(Maybe.empty());
         when(certificateManager.get(any())).thenReturn(Maybe.empty());
         when(certificateManager.defaultCertificateProvider()).thenReturn(defaultCert);
-        when(jwtService.encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Single.just(idTokenPayload));
-        when(jweService.encryptIdToken(anyString(),any())).thenReturn(Single.just("encryptedToken"));
+        when(jwtService.encode(
+                        any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class)))
+                .thenReturn(Single.just(idTokenPayload));
+        when(jweService.encryptIdToken(anyString(), any()))
+                .thenReturn(Single.just("encryptedToken"));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
 
-        TestObserver<String> testObserver = idTokenService.create(oAuth2Request, client, null).test();
+        TestObserver<String> testObserver =
+                idTokenService.create(oAuth2Request, client, null).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -258,7 +281,7 @@ public class IDTokenServiceTest {
         verify(certificateManager, times(1)).get(anyString());
         verify(certificateManager, times(1)).defaultCertificateProvider();
         verify(jwtService, times(1)).encode(any(), eq(defaultCert));
-        verify(jweService, times(1)).encryptIdToken(anyString(),any());
+        verify(jweService, times(1)).encryptIdToken(anyString(), any());
     }
 
     @Test
@@ -268,7 +291,9 @@ public class IDTokenServiceTest {
         oAuth2Request.setScopes(Collections.singleton("openid"));
         oAuth2Request.setSubject("subject");
         MultiValueMap<String, String> requestParameters = new LinkedMultiValueMap<>();
-        requestParameters.put("claims", Collections.singletonList("{\"id_token\":{\"name\":{\"essential\":true}}}"));
+        requestParameters.put(
+                "claims",
+                Collections.singletonList("{\"id_token\":{\"name\":{\"essential\":true}}}"));
         oAuth2Request.setParameters(requestParameters);
 
         Client client = new Client();
@@ -280,25 +305,39 @@ public class IDTokenServiceTest {
         expectedJwt.setSub(user.getId());
         expectedJwt.setAud("client-id");
         expectedJwt.setIss(null);
-        expectedJwt.put(StandardClaims.NAME, user.getAdditionalInformation().get(StandardClaims.NAME));
+        expectedJwt.put(
+                StandardClaims.NAME, user.getAdditionalInformation().get(StandardClaims.NAME));
         expectedJwt.setIat(System.currentTimeMillis() / 1000l);
         expectedJwt.setExp(expectedJwt.getIat() + 14400);
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
         when(certificateManager.findByAlgorithm(any())).thenReturn(Maybe.empty());
-        when(certificateManager.defaultCertificateProvider()).thenReturn(new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider));
-        when(certificateManager.get(anyString())).thenReturn(Maybe.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
-        when(jwtService.encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Single.just("test"));
+        when(certificateManager.defaultCertificateProvider())
+                .thenReturn(
+                        new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                defaultCertificateProvider));
+        when(certificateManager.get(anyString()))
+                .thenReturn(
+                        Maybe.just(
+                                new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                        certificateProvider)));
+        when(jwtService.encode(
+                        any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class)))
+                .thenReturn(Single.just("test"));
         ((IDTokenServiceImpl) idTokenService).setObjectMapper(objectMapper);
         when(executionContextFactory.create(any())).thenReturn(executionContext);
 
-        TestObserver<String> testObserver = idTokenService.create(oAuth2Request, client, user).test();
+        TestObserver<String> testObserver =
+                idTokenService.create(oAuth2Request, client, user).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
         verify(certificateManager, times(1)).get(anyString());
-        verify(jwtService, times(1)).encode(eq(expectedJwt), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
+        verify(jwtService, times(1))
+                .encode(
+                        eq(expectedJwt),
+                        any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
     }
 
     @Test
@@ -311,28 +350,41 @@ public class IDTokenServiceTest {
         oAuth2Request.setScopes(Collections.singleton("openid"));
         oAuth2Request.setSubject("subject");
         MultiValueMap<String, String> requestParameters = new LinkedMultiValueMap<>();
-        requestParameters.put("claims", Collections.singletonList("{\"id_token\":{\"acr\":{\"value\":\"urn:mace:incommon:iap:silver\",\"essential\":true}}}"));
+        requestParameters.put(
+                "claims",
+                Collections.singletonList(
+                        "{\"id_token\":{\"acr\":{\"value\":\"urn:mace:incommon:iap:silver\",\"essential\":true}}}"));
         oAuth2Request.setParameters(requestParameters);
 
-        io.gravitee.am.gateway.certificate.CertificateProvider defaultCert = new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider);
+        io.gravitee.am.gateway.certificate.CertificateProvider defaultCert =
+                new io.gravitee.am.gateway.certificate.CertificateProvider(
+                        defaultCertificateProvider);
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
 
         when(certificateManager.findByAlgorithm(any())).thenReturn(Maybe.empty());
         when(certificateManager.get(any())).thenReturn(Maybe.empty());
         when(certificateManager.defaultCertificateProvider()).thenReturn(defaultCert);
-        when(jwtService.encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Single.just("test"));
+        when(jwtService.encode(
+                        any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class)))
+                .thenReturn(Single.just("test"));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
         ((IDTokenServiceImpl) idTokenService).setObjectMapper(objectMapper);
 
-        TestObserver<String> testObserver = idTokenService.create(oAuth2Request, client, user).test();
+        TestObserver<String> testObserver =
+                idTokenService.create(oAuth2Request, client, user).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
         ArgumentCaptor<JWT> tokenArgumentCaptor = ArgumentCaptor.forClass(JWT.class);
-        verify(jwtService).encode(tokenArgumentCaptor.capture(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
+        verify(jwtService)
+                .encode(
+                        tokenArgumentCaptor.capture(),
+                        any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
         JWT idToken = tokenArgumentCaptor.getValue();
-        assertTrue(idToken.containsKey(Claims.acr) && idToken.get(Claims.acr).equals("urn:mace:incommon:iap:silver"));
+        assertTrue(
+                idToken.containsKey(Claims.acr)
+                        && idToken.get(Claims.acr).equals("urn:mace:incommon:iap:silver"));
     }
 
     @Test
@@ -348,40 +400,78 @@ public class IDTokenServiceTest {
 
         JWT expectedJwt = new JWT();
         expectedJwt.setSub(user.getId());
-        expectedJwt.put(StandardClaims.WEBSITE, user.getAdditionalInformation().get(StandardClaims.WEBSITE));
-        expectedJwt.put(StandardClaims.ZONEINFO, user.getAdditionalInformation().get(StandardClaims.ZONEINFO));
-        expectedJwt.put(StandardClaims.BIRTHDATE, user.getAdditionalInformation().get(StandardClaims.BIRTHDATE));
-        expectedJwt.put(StandardClaims.GENDER, user.getAdditionalInformation().get(StandardClaims.GENDER));
-        expectedJwt.put(StandardClaims.PROFILE, user.getAdditionalInformation().get(StandardClaims.PROFILE));
+        expectedJwt.put(
+                StandardClaims.WEBSITE,
+                user.getAdditionalInformation().get(StandardClaims.WEBSITE));
+        expectedJwt.put(
+                StandardClaims.ZONEINFO,
+                user.getAdditionalInformation().get(StandardClaims.ZONEINFO));
+        expectedJwt.put(
+                StandardClaims.BIRTHDATE,
+                user.getAdditionalInformation().get(StandardClaims.BIRTHDATE));
+        expectedJwt.put(
+                StandardClaims.GENDER, user.getAdditionalInformation().get(StandardClaims.GENDER));
+        expectedJwt.put(
+                StandardClaims.PROFILE,
+                user.getAdditionalInformation().get(StandardClaims.PROFILE));
         expectedJwt.setIss(null);
-        expectedJwt.put(StandardClaims.PREFERRED_USERNAME, user.getAdditionalInformation().get(StandardClaims.PREFERRED_USERNAME));
-        expectedJwt.put(StandardClaims.GIVEN_NAME, user.getAdditionalInformation().get(StandardClaims.GIVEN_NAME));
-        expectedJwt.put(StandardClaims.MIDDLE_NAME, user.getAdditionalInformation().get(StandardClaims.MIDDLE_NAME));
-        expectedJwt.put(StandardClaims.LOCALE, user.getAdditionalInformation().get(StandardClaims.LOCALE));
-        expectedJwt.put(StandardClaims.PICTURE, user.getAdditionalInformation().get(StandardClaims.PICTURE));
+        expectedJwt.put(
+                StandardClaims.PREFERRED_USERNAME,
+                user.getAdditionalInformation().get(StandardClaims.PREFERRED_USERNAME));
+        expectedJwt.put(
+                StandardClaims.GIVEN_NAME,
+                user.getAdditionalInformation().get(StandardClaims.GIVEN_NAME));
+        expectedJwt.put(
+                StandardClaims.MIDDLE_NAME,
+                user.getAdditionalInformation().get(StandardClaims.MIDDLE_NAME));
+        expectedJwt.put(
+                StandardClaims.LOCALE, user.getAdditionalInformation().get(StandardClaims.LOCALE));
+        expectedJwt.put(
+                StandardClaims.PICTURE,
+                user.getAdditionalInformation().get(StandardClaims.PICTURE));
         expectedJwt.setAud("client-id");
-        expectedJwt.put(StandardClaims.UPDATED_AT, user.getAdditionalInformation().get(StandardClaims.UPDATED_AT));
-        expectedJwt.put(StandardClaims.NAME, user.getAdditionalInformation().get(StandardClaims.NAME));
-        expectedJwt.put(StandardClaims.NICKNAME, user.getAdditionalInformation().get(StandardClaims.NICKNAME));
+        expectedJwt.put(
+                StandardClaims.UPDATED_AT,
+                user.getAdditionalInformation().get(StandardClaims.UPDATED_AT));
+        expectedJwt.put(
+                StandardClaims.NAME, user.getAdditionalInformation().get(StandardClaims.NAME));
+        expectedJwt.put(
+                StandardClaims.NICKNAME,
+                user.getAdditionalInformation().get(StandardClaims.NICKNAME));
         expectedJwt.setExp((System.currentTimeMillis() / 1000l) + 14400);
         expectedJwt.setIat(System.currentTimeMillis() / 1000l);
-        expectedJwt.put(StandardClaims.FAMILY_NAME, user.getAdditionalInformation().get(StandardClaims.FAMILY_NAME));
+        expectedJwt.put(
+                StandardClaims.FAMILY_NAME,
+                user.getAdditionalInformation().get(StandardClaims.FAMILY_NAME));
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
         when(executionContextFactory.create(any())).thenReturn(executionContext);
 
         when(certificateManager.findByAlgorithm(any())).thenReturn(Maybe.empty());
-        when(certificateManager.defaultCertificateProvider()).thenReturn(new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider));
-        when(certificateManager.get(any())).thenReturn(Maybe.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
-        when(jwtService.encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Single.just("test"));
+        when(certificateManager.defaultCertificateProvider())
+                .thenReturn(
+                        new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                defaultCertificateProvider));
+        when(certificateManager.get(any()))
+                .thenReturn(
+                        Maybe.just(
+                                new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                        certificateProvider)));
+        when(jwtService.encode(
+                        any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class)))
+                .thenReturn(Single.just("test"));
 
-        TestObserver<String> testObserver = idTokenService.create(oAuth2Request, client, user).test();
+        TestObserver<String> testObserver =
+                idTokenService.create(oAuth2Request, client, user).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
         verify(certificateManager, times(1)).get(any());
-        verify(jwtService, times(1)).encode(eq(expectedJwt), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
+        verify(jwtService, times(1))
+                .encode(
+                        eq(expectedJwt),
+                        any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
     }
 
     @Test
@@ -399,52 +489,100 @@ public class IDTokenServiceTest {
 
         JWT expectedJwt = new JWT();
         expectedJwt.setSub(user.getId());
-        expectedJwt.put(StandardClaims.WEBSITE, user.getAdditionalInformation().get(StandardClaims.WEBSITE));
-        expectedJwt.put(StandardClaims.ZONEINFO, user.getAdditionalInformation().get(StandardClaims.ZONEINFO));
-        expectedJwt.put(StandardClaims.BIRTHDATE, user.getAdditionalInformation().get(StandardClaims.BIRTHDATE));
-        expectedJwt.put(StandardClaims.GENDER, user.getAdditionalInformation().get(StandardClaims.GENDER));
-        expectedJwt.put(StandardClaims.PROFILE, user.getAdditionalInformation().get(StandardClaims.PROFILE));
-        expectedJwt.put(StandardClaims.EMAIL_VERIFIED, user.getAdditionalInformation().get(StandardClaims.EMAIL_VERIFIED));
-        expectedJwt.put(StandardClaims.EMAIL, user.getAdditionalInformation().get(StandardClaims.EMAIL));
+        expectedJwt.put(
+                StandardClaims.WEBSITE,
+                user.getAdditionalInformation().get(StandardClaims.WEBSITE));
+        expectedJwt.put(
+                StandardClaims.ZONEINFO,
+                user.getAdditionalInformation().get(StandardClaims.ZONEINFO));
+        expectedJwt.put(
+                StandardClaims.BIRTHDATE,
+                user.getAdditionalInformation().get(StandardClaims.BIRTHDATE));
+        expectedJwt.put(
+                StandardClaims.GENDER, user.getAdditionalInformation().get(StandardClaims.GENDER));
+        expectedJwt.put(
+                StandardClaims.PROFILE,
+                user.getAdditionalInformation().get(StandardClaims.PROFILE));
+        expectedJwt.put(
+                StandardClaims.EMAIL_VERIFIED,
+                user.getAdditionalInformation().get(StandardClaims.EMAIL_VERIFIED));
+        expectedJwt.put(
+                StandardClaims.EMAIL, user.getAdditionalInformation().get(StandardClaims.EMAIL));
         expectedJwt.setIss(null);
-        expectedJwt.put(StandardClaims.PREFERRED_USERNAME, user.getAdditionalInformation().get(StandardClaims.PREFERRED_USERNAME));
-        expectedJwt.put(StandardClaims.GIVEN_NAME, user.getAdditionalInformation().get(StandardClaims.GIVEN_NAME));
-        expectedJwt.put(StandardClaims.MIDDLE_NAME, user.getAdditionalInformation().get(StandardClaims.MIDDLE_NAME));
-        expectedJwt.put(StandardClaims.LOCALE, user.getAdditionalInformation().get(StandardClaims.LOCALE));
-        expectedJwt.put(StandardClaims.PICTURE, user.getAdditionalInformation().get(StandardClaims.PICTURE));
+        expectedJwt.put(
+                StandardClaims.PREFERRED_USERNAME,
+                user.getAdditionalInformation().get(StandardClaims.PREFERRED_USERNAME));
+        expectedJwt.put(
+                StandardClaims.GIVEN_NAME,
+                user.getAdditionalInformation().get(StandardClaims.GIVEN_NAME));
+        expectedJwt.put(
+                StandardClaims.MIDDLE_NAME,
+                user.getAdditionalInformation().get(StandardClaims.MIDDLE_NAME));
+        expectedJwt.put(
+                StandardClaims.LOCALE, user.getAdditionalInformation().get(StandardClaims.LOCALE));
+        expectedJwt.put(
+                StandardClaims.PICTURE,
+                user.getAdditionalInformation().get(StandardClaims.PICTURE));
         expectedJwt.setAud("client-id");
-        expectedJwt.put(StandardClaims.UPDATED_AT, user.getAdditionalInformation().get(StandardClaims.UPDATED_AT));
-        expectedJwt.put(StandardClaims.NAME, user.getAdditionalInformation().get(StandardClaims.NAME));
-        expectedJwt.put(StandardClaims.NICKNAME, user.getAdditionalInformation().get(StandardClaims.NICKNAME));
+        expectedJwt.put(
+                StandardClaims.UPDATED_AT,
+                user.getAdditionalInformation().get(StandardClaims.UPDATED_AT));
+        expectedJwt.put(
+                StandardClaims.NAME, user.getAdditionalInformation().get(StandardClaims.NAME));
+        expectedJwt.put(
+                StandardClaims.NICKNAME,
+                user.getAdditionalInformation().get(StandardClaims.NICKNAME));
         expectedJwt.setExp((System.currentTimeMillis() / 1000l) + 14400);
         expectedJwt.setIat(System.currentTimeMillis() / 1000l);
-        expectedJwt.put(StandardClaims.FAMILY_NAME, user.getAdditionalInformation().get(StandardClaims.FAMILY_NAME));
-        expectedJwt.put(StandardClaims.ADDRESS, user.getAdditionalInformation().get(StandardClaims.ADDRESS));
-        expectedJwt.put(StandardClaims.PHONE_NUMBER, user.getAdditionalInformation().get(StandardClaims.PHONE_NUMBER));
-        expectedJwt.put(StandardClaims.PHONE_NUMBER_VERIFIED, user.getAdditionalInformation().get(StandardClaims.PHONE_NUMBER_VERIFIED));
+        expectedJwt.put(
+                StandardClaims.FAMILY_NAME,
+                user.getAdditionalInformation().get(StandardClaims.FAMILY_NAME));
+        expectedJwt.put(
+                StandardClaims.ADDRESS,
+                user.getAdditionalInformation().get(StandardClaims.ADDRESS));
+        expectedJwt.put(
+                StandardClaims.PHONE_NUMBER,
+                user.getAdditionalInformation().get(StandardClaims.PHONE_NUMBER));
+        expectedJwt.put(
+                StandardClaims.PHONE_NUMBER_VERIFIED,
+                user.getAdditionalInformation().get(StandardClaims.PHONE_NUMBER_VERIFIED));
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
         when(executionContextFactory.create(any())).thenReturn(executionContext);
 
         ArgumentCaptor<JWT> jwtCaptor = ArgumentCaptor.forClass(JWT.class);
         when(certificateManager.findByAlgorithm(any())).thenReturn(Maybe.empty());
-        when(certificateManager.defaultCertificateProvider()).thenReturn(new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider));
-        when(certificateManager.get(any())).thenReturn(Maybe.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
-        when(jwtService.encode(jwtCaptor.capture(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Single.just("test"));
+        when(certificateManager.defaultCertificateProvider())
+                .thenReturn(
+                        new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                defaultCertificateProvider));
+        when(certificateManager.get(any()))
+                .thenReturn(
+                        Maybe.just(
+                                new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                        certificateProvider)));
+        when(jwtService.encode(
+                        jwtCaptor.capture(),
+                        any(io.gravitee.am.gateway.certificate.CertificateProvider.class)))
+                .thenReturn(Single.just("test"));
 
-        TestObserver<String> testObserver = idTokenService.create(oAuth2Request, client, user).test();
+        TestObserver<String> testObserver =
+                idTokenService.create(oAuth2Request, client, user).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
         verify(certificateManager, times(1)).get(any());
-        verify(jwtService, times(1)).encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
+        verify(jwtService, times(1))
+                .encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
 
         final JWT capturedValue = jwtCaptor.getValue();
         assertEquals(capturedValue.getSub(), expectedJwt.getSub());
         assertEquals(capturedValue.getAud(), expectedJwt.getAud());
-        assertEquals(capturedValue.get(StandardClaims.ADDRESS), expectedJwt.get(StandardClaims.ADDRESS));
-        assertEquals(capturedValue.get(StandardClaims.EMAIL), expectedJwt.get(StandardClaims.EMAIL));
+        assertEquals(
+                capturedValue.get(StandardClaims.ADDRESS), expectedJwt.get(StandardClaims.ADDRESS));
+        assertEquals(
+                capturedValue.get(StandardClaims.EMAIL), expectedJwt.get(StandardClaims.EMAIL));
     }
 
     @Test
@@ -472,17 +610,29 @@ public class IDTokenServiceTest {
 
         ArgumentCaptor<JWT> jwtCaptor = ArgumentCaptor.forClass(JWT.class);
         when(certificateManager.findByAlgorithm(any())).thenReturn(Maybe.empty());
-        when(certificateManager.defaultCertificateProvider()).thenReturn(new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider));
-        when(certificateManager.get(any())).thenReturn(Maybe.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
-        when(jwtService.encode(jwtCaptor.capture(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Single.just("test"));
+        when(certificateManager.defaultCertificateProvider())
+                .thenReturn(
+                        new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                defaultCertificateProvider));
+        when(certificateManager.get(any()))
+                .thenReturn(
+                        Maybe.just(
+                                new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                        certificateProvider)));
+        when(jwtService.encode(
+                        jwtCaptor.capture(),
+                        any(io.gravitee.am.gateway.certificate.CertificateProvider.class)))
+                .thenReturn(Single.just("test"));
 
-        TestObserver<String> testObserver = idTokenService.create(oAuth2Request, client, user).test();
+        TestObserver<String> testObserver =
+                idTokenService.create(oAuth2Request, client, user).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
         verify(certificateManager, times(1)).get(any());
-        verify(jwtService, times(1)).encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
+        verify(jwtService, times(1))
+                .encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
 
         final JWT capturedValue = jwtCaptor.getValue();
         assertEquals(capturedValue.getSub(), expectedJwt.getSub());
@@ -504,52 +654,100 @@ public class IDTokenServiceTest {
 
         JWT expectedJwt = new JWT();
         expectedJwt.setSub(user.getId());
-        expectedJwt.put(StandardClaims.WEBSITE, user.getAdditionalInformation().get(StandardClaims.WEBSITE));
-        expectedJwt.put(StandardClaims.ZONEINFO, user.getAdditionalInformation().get(StandardClaims.ZONEINFO));
-        expectedJwt.put(StandardClaims.BIRTHDATE, user.getAdditionalInformation().get(StandardClaims.BIRTHDATE));
-        expectedJwt.put(StandardClaims.GENDER, user.getAdditionalInformation().get(StandardClaims.GENDER));
-        expectedJwt.put(StandardClaims.PROFILE, user.getAdditionalInformation().get(StandardClaims.PROFILE));
-        expectedJwt.put(StandardClaims.EMAIL_VERIFIED, user.getAdditionalInformation().get(StandardClaims.EMAIL_VERIFIED));
-        expectedJwt.put(StandardClaims.EMAIL, user.getAdditionalInformation().get(StandardClaims.EMAIL));
+        expectedJwt.put(
+                StandardClaims.WEBSITE,
+                user.getAdditionalInformation().get(StandardClaims.WEBSITE));
+        expectedJwt.put(
+                StandardClaims.ZONEINFO,
+                user.getAdditionalInformation().get(StandardClaims.ZONEINFO));
+        expectedJwt.put(
+                StandardClaims.BIRTHDATE,
+                user.getAdditionalInformation().get(StandardClaims.BIRTHDATE));
+        expectedJwt.put(
+                StandardClaims.GENDER, user.getAdditionalInformation().get(StandardClaims.GENDER));
+        expectedJwt.put(
+                StandardClaims.PROFILE,
+                user.getAdditionalInformation().get(StandardClaims.PROFILE));
+        expectedJwt.put(
+                StandardClaims.EMAIL_VERIFIED,
+                user.getAdditionalInformation().get(StandardClaims.EMAIL_VERIFIED));
+        expectedJwt.put(
+                StandardClaims.EMAIL, user.getAdditionalInformation().get(StandardClaims.EMAIL));
         expectedJwt.setIss(null);
-        expectedJwt.put(StandardClaims.PREFERRED_USERNAME, user.getAdditionalInformation().get(StandardClaims.PREFERRED_USERNAME));
-        expectedJwt.put(StandardClaims.GIVEN_NAME, user.getAdditionalInformation().get(StandardClaims.GIVEN_NAME));
-        expectedJwt.put(StandardClaims.MIDDLE_NAME, user.getAdditionalInformation().get(StandardClaims.MIDDLE_NAME));
-        expectedJwt.put(StandardClaims.LOCALE, user.getAdditionalInformation().get(StandardClaims.LOCALE));
-        expectedJwt.put(StandardClaims.PICTURE, user.getAdditionalInformation().get(StandardClaims.PICTURE));
+        expectedJwt.put(
+                StandardClaims.PREFERRED_USERNAME,
+                user.getAdditionalInformation().get(StandardClaims.PREFERRED_USERNAME));
+        expectedJwt.put(
+                StandardClaims.GIVEN_NAME,
+                user.getAdditionalInformation().get(StandardClaims.GIVEN_NAME));
+        expectedJwt.put(
+                StandardClaims.MIDDLE_NAME,
+                user.getAdditionalInformation().get(StandardClaims.MIDDLE_NAME));
+        expectedJwt.put(
+                StandardClaims.LOCALE, user.getAdditionalInformation().get(StandardClaims.LOCALE));
+        expectedJwt.put(
+                StandardClaims.PICTURE,
+                user.getAdditionalInformation().get(StandardClaims.PICTURE));
         expectedJwt.setAud("client-id");
-        expectedJwt.put(StandardClaims.UPDATED_AT, user.getAdditionalInformation().get(StandardClaims.UPDATED_AT));
-        expectedJwt.put(StandardClaims.NAME, user.getAdditionalInformation().get(StandardClaims.NAME));
-        expectedJwt.put(StandardClaims.NICKNAME, user.getAdditionalInformation().get(StandardClaims.NICKNAME));
+        expectedJwt.put(
+                StandardClaims.UPDATED_AT,
+                user.getAdditionalInformation().get(StandardClaims.UPDATED_AT));
+        expectedJwt.put(
+                StandardClaims.NAME, user.getAdditionalInformation().get(StandardClaims.NAME));
+        expectedJwt.put(
+                StandardClaims.NICKNAME,
+                user.getAdditionalInformation().get(StandardClaims.NICKNAME));
         expectedJwt.setExp((System.currentTimeMillis() / 1000l) + 14400);
         expectedJwt.setIat(System.currentTimeMillis() / 1000l);
-        expectedJwt.put(StandardClaims.FAMILY_NAME, user.getAdditionalInformation().get(StandardClaims.FAMILY_NAME));
-        expectedJwt.put(StandardClaims.ADDRESS, user.getAdditionalInformation().get(StandardClaims.ADDRESS));
-        expectedJwt.put(StandardClaims.PHONE_NUMBER, user.getAdditionalInformation().get(StandardClaims.PHONE_NUMBER));
-        expectedJwt.put(StandardClaims.PHONE_NUMBER_VERIFIED, user.getAdditionalInformation().get(StandardClaims.PHONE_NUMBER_VERIFIED));
+        expectedJwt.put(
+                StandardClaims.FAMILY_NAME,
+                user.getAdditionalInformation().get(StandardClaims.FAMILY_NAME));
+        expectedJwt.put(
+                StandardClaims.ADDRESS,
+                user.getAdditionalInformation().get(StandardClaims.ADDRESS));
+        expectedJwt.put(
+                StandardClaims.PHONE_NUMBER,
+                user.getAdditionalInformation().get(StandardClaims.PHONE_NUMBER));
+        expectedJwt.put(
+                StandardClaims.PHONE_NUMBER_VERIFIED,
+                user.getAdditionalInformation().get(StandardClaims.PHONE_NUMBER_VERIFIED));
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
         when(executionContextFactory.create(any())).thenReturn(executionContext);
 
         ArgumentCaptor<JWT> jwtCaptor = ArgumentCaptor.forClass(JWT.class);
         when(certificateManager.findByAlgorithm(any())).thenReturn(Maybe.empty());
-        when(certificateManager.defaultCertificateProvider()).thenReturn(new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider));
-        when(certificateManager.get(any())).thenReturn(Maybe.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
-        when(jwtService.encode(jwtCaptor.capture(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Single.just("test"));
+        when(certificateManager.defaultCertificateProvider())
+                .thenReturn(
+                        new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                defaultCertificateProvider));
+        when(certificateManager.get(any()))
+                .thenReturn(
+                        Maybe.just(
+                                new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                        certificateProvider)));
+        when(jwtService.encode(
+                        jwtCaptor.capture(),
+                        any(io.gravitee.am.gateway.certificate.CertificateProvider.class)))
+                .thenReturn(Single.just("test"));
 
-        TestObserver<String> testObserver = idTokenService.create(oAuth2Request, client, user).test();
+        TestObserver<String> testObserver =
+                idTokenService.create(oAuth2Request, client, user).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
         verify(certificateManager, times(1)).get(any());
-        verify(jwtService, times(1)).encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
+        verify(jwtService, times(1))
+                .encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
 
         final JWT capturedValue = jwtCaptor.getValue();
         assertEquals(capturedValue.getSub(), expectedJwt.getSub());
         assertEquals(capturedValue.getAud(), expectedJwt.getAud());
-        assertEquals(capturedValue.get(StandardClaims.ADDRESS), expectedJwt.get(StandardClaims.ADDRESS));
-        assertEquals(capturedValue.get(StandardClaims.EMAIL), expectedJwt.get(StandardClaims.EMAIL));
+        assertEquals(
+                capturedValue.get(StandardClaims.ADDRESS), expectedJwt.get(StandardClaims.ADDRESS));
+        assertEquals(
+                capturedValue.get(StandardClaims.EMAIL), expectedJwt.get(StandardClaims.EMAIL));
     }
 
     @Test
@@ -566,34 +764,50 @@ public class IDTokenServiceTest {
         JWT expectedJwt = new JWT();
         expectedJwt.setSub(user.getId());
         expectedJwt.setAud("client-id");
-        expectedJwt.put(StandardClaims.EMAIL_VERIFIED, user.getAdditionalInformation().get(StandardClaims.EMAIL_VERIFIED));
+        expectedJwt.put(
+                StandardClaims.EMAIL_VERIFIED,
+                user.getAdditionalInformation().get(StandardClaims.EMAIL_VERIFIED));
         expectedJwt.setIss(null);
         expectedJwt.setExp((System.currentTimeMillis() / 1000l) + 14400);
         expectedJwt.setIat(System.currentTimeMillis() / 1000l);
-        expectedJwt.put(StandardClaims.EMAIL, user.getAdditionalInformation().get(StandardClaims.EMAIL));
+        expectedJwt.put(
+                StandardClaims.EMAIL, user.getAdditionalInformation().get(StandardClaims.EMAIL));
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
         when(executionContextFactory.create(any())).thenReturn(executionContext);
 
         ArgumentCaptor<JWT> jwtCaptor = ArgumentCaptor.forClass(JWT.class);
         when(certificateManager.findByAlgorithm(any())).thenReturn(Maybe.empty());
-        when(certificateManager.defaultCertificateProvider()).thenReturn(new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider));
-        when(certificateManager.get(any())).thenReturn(Maybe.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
-        when(jwtService.encode(jwtCaptor.capture(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Single.just("test"));
+        when(certificateManager.defaultCertificateProvider())
+                .thenReturn(
+                        new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                defaultCertificateProvider));
+        when(certificateManager.get(any()))
+                .thenReturn(
+                        Maybe.just(
+                                new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                        certificateProvider)));
+        when(jwtService.encode(
+                        jwtCaptor.capture(),
+                        any(io.gravitee.am.gateway.certificate.CertificateProvider.class)))
+                .thenReturn(Single.just("test"));
 
-        TestObserver<String> testObserver = idTokenService.create(oAuth2Request, client, user).test();
+        TestObserver<String> testObserver =
+                idTokenService.create(oAuth2Request, client, user).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-
         verify(certificateManager, times(1)).get(any());
-        verify(jwtService, times(1)).encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
+        verify(jwtService, times(1))
+                .encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
         JWT jwt = jwtCaptor.getValue();
         assertNotNull(jwt);
         assertTrue(jwt.get("sub") != null && expectedJwt.getSub().equals(jwt.get("sub")));
         assertTrue(jwt.get("aud") != null && expectedJwt.getAud().equals(jwt.get("aud")));
-        assertTrue(jwt.get("email") != null && expectedJwt.get(StandardClaims.EMAIL).equals(jwt.get("email")));
+        assertTrue(
+                jwt.get("email") != null
+                        && expectedJwt.get(StandardClaims.EMAIL).equals(jwt.get("email")));
         assertTrue(jwt.get("address") == null);
     }
 
@@ -611,35 +825,60 @@ public class IDTokenServiceTest {
         JWT expectedJwt = new JWT();
         expectedJwt.setSub(user.getId());
         expectedJwt.setAud("client-id");
-        expectedJwt.put(StandardClaims.ADDRESS, user.getAdditionalInformation().get(StandardClaims.ADDRESS));
-        expectedJwt.put(StandardClaims.EMAIL_VERIFIED, user.getAdditionalInformation().get(StandardClaims.EMAIL_VERIFIED));
+        expectedJwt.put(
+                StandardClaims.ADDRESS,
+                user.getAdditionalInformation().get(StandardClaims.ADDRESS));
+        expectedJwt.put(
+                StandardClaims.EMAIL_VERIFIED,
+                user.getAdditionalInformation().get(StandardClaims.EMAIL_VERIFIED));
         expectedJwt.setIss(null);
         expectedJwt.setExp((System.currentTimeMillis() / 1000l) + 14400);
         expectedJwt.setIat(System.currentTimeMillis() / 1000l);
-        expectedJwt.put(StandardClaims.EMAIL, user.getAdditionalInformation().get(StandardClaims.EMAIL));
+        expectedJwt.put(
+                StandardClaims.EMAIL, user.getAdditionalInformation().get(StandardClaims.EMAIL));
         ExecutionContext executionContext = mock(ExecutionContext.class);
         when(executionContextFactory.create(any())).thenReturn(executionContext);
 
         ArgumentCaptor<JWT> jwtCaptor = ArgumentCaptor.forClass(JWT.class);
-        when(certificateManager.findByAlgorithm(any())).thenReturn(Maybe.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
-        when(certificateManager.defaultCertificateProvider()).thenReturn(new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider));
-        when(certificateManager.get(any())).thenReturn(Maybe.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
-        when(jwtService.encode(jwtCaptor.capture(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Single.just("test"));
+        when(certificateManager.findByAlgorithm(any()))
+                .thenReturn(
+                        Maybe.just(
+                                new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                        certificateProvider)));
+        when(certificateManager.defaultCertificateProvider())
+                .thenReturn(
+                        new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                defaultCertificateProvider));
+        when(certificateManager.get(any()))
+                .thenReturn(
+                        Maybe.just(
+                                new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                        certificateProvider)));
+        when(jwtService.encode(
+                        jwtCaptor.capture(),
+                        any(io.gravitee.am.gateway.certificate.CertificateProvider.class)))
+                .thenReturn(Single.just("test"));
 
-        TestObserver<String> testObserver = idTokenService.create(oAuth2Request, client, user).test();
+        TestObserver<String> testObserver =
+                idTokenService.create(oAuth2Request, client, user).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
         verify(certificateManager).findByAlgorithm(any());
         verify(certificateManager).get(any());
-        verify(jwtService, times(1)).encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
+        verify(jwtService, times(1))
+                .encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
         JWT jwt = jwtCaptor.getValue();
         assertNotNull(jwt);
         assertTrue(jwt.get("sub") != null && expectedJwt.getSub().equals(jwt.get("sub")));
         assertTrue(jwt.get("aud") != null && expectedJwt.getAud().equals(jwt.get("aud")));
-        assertTrue(jwt.get("email") != null && expectedJwt.get(StandardClaims.EMAIL).equals(jwt.get("email")));
-        assertTrue(jwt.get("address") != null && expectedJwt.get(StandardClaims.ADDRESS).equals(jwt.get("address")));
+        assertTrue(
+                jwt.get("email") != null
+                        && expectedJwt.get(StandardClaims.EMAIL).equals(jwt.get("email")));
+        assertTrue(
+                jwt.get("address") != null
+                        && expectedJwt.get(StandardClaims.ADDRESS).equals(jwt.get("address")));
     }
 
     @Test
@@ -649,7 +888,9 @@ public class IDTokenServiceTest {
         oAuth2Request.setScopes(new HashSet<>(Arrays.asList("openid", "email", "address")));
         oAuth2Request.setSubject("subject");
         MultiValueMap<String, String> requestParameters = new LinkedMultiValueMap<>();
-        requestParameters.put("claims", Collections.singletonList("{\"id_token\":{\"name\":{\"essential\":true}}}"));
+        requestParameters.put(
+                "claims",
+                Collections.singletonList("{\"id_token\":{\"name\":{\"essential\":true}}}"));
         oAuth2Request.setParameters(requestParameters);
 
         Client client = new Client();
@@ -659,36 +900,55 @@ public class IDTokenServiceTest {
         JWT expectedJwt = new JWT();
         expectedJwt.setSub(user.getId());
         expectedJwt.setAud("client-id");
-        expectedJwt.put(StandardClaims.ADDRESS, user.getAdditionalInformation().get(StandardClaims.ADDRESS));
-        expectedJwt.put(StandardClaims.EMAIL_VERIFIED, user.getAdditionalInformation().get(StandardClaims.EMAIL_VERIFIED));
+        expectedJwt.put(
+                StandardClaims.ADDRESS,
+                user.getAdditionalInformation().get(StandardClaims.ADDRESS));
+        expectedJwt.put(
+                StandardClaims.EMAIL_VERIFIED,
+                user.getAdditionalInformation().get(StandardClaims.EMAIL_VERIFIED));
         expectedJwt.setIss(null);
-        expectedJwt.put(StandardClaims.NAME, user.getAdditionalInformation().get(StandardClaims.NAME));
+        expectedJwt.put(
+                StandardClaims.NAME, user.getAdditionalInformation().get(StandardClaims.NAME));
         expectedJwt.setExp((System.currentTimeMillis() / 1000l) + 14400);
         expectedJwt.setIat(System.currentTimeMillis() / 1000l);
-        expectedJwt.put(StandardClaims.EMAIL, user.getAdditionalInformation().get(StandardClaims.EMAIL));
+        expectedJwt.put(
+                StandardClaims.EMAIL, user.getAdditionalInformation().get(StandardClaims.EMAIL));
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
         when(executionContextFactory.create(any())).thenReturn(executionContext);
 
         when(certificateManager.findByAlgorithm(any())).thenReturn(Maybe.empty());
-        when(certificateManager.defaultCertificateProvider()).thenReturn(new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider));
-        when(certificateManager.get(any())).thenReturn(Maybe.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
-        when(jwtService.encode(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Single.just("test"));
+        when(certificateManager.defaultCertificateProvider())
+                .thenReturn(
+                        new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                defaultCertificateProvider));
+        when(certificateManager.get(any()))
+                .thenReturn(
+                        Maybe.just(
+                                new io.gravitee.am.gateway.certificate.CertificateProvider(
+                                        certificateProvider)));
+        when(jwtService.encode(
+                        any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class)))
+                .thenReturn(Single.just("test"));
         ((IDTokenServiceImpl) idTokenService).setObjectMapper(objectMapper);
 
-        TestObserver<String> testObserver = idTokenService.create(oAuth2Request, client, user).test();
+        TestObserver<String> testObserver =
+                idTokenService.create(oAuth2Request, client, user).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
         verify(certificateManager, times(1)).get(any());
-        verify(jwtService, times(1)).encode(eq(expectedJwt), any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
+        verify(jwtService, times(1))
+                .encode(
+                        eq(expectedJwt),
+                        any(io.gravitee.am.gateway.certificate.CertificateProvider.class));
     }
 
     private User createUser() {
         User user = new User();
         user.setId("technical-id");
-        Map<String, Object> additionalInformation  = new HashMap<>();
+        Map<String, Object> additionalInformation = new HashMap<>();
         additionalInformation.put(StandardClaims.SUB, "user");
         additionalInformation.put(StandardClaims.NAME, "gravitee user");
         additionalInformation.put(StandardClaims.FAMILY_NAME, "gravitee");

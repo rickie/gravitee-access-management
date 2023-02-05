@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
@@ -20,6 +18,7 @@ import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,8 +31,7 @@ import java.util.UUID;
  * @author GraviteeSource Team
  */
 public class SystemTaskRepositoryTest extends AbstractManagementTest {
-    @Autowired
-    private SystemTaskRepository taskRepository;
+    @Autowired private SystemTaskRepository taskRepository;
 
     @Test
     public void testFindById() {
@@ -42,7 +40,8 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
         SystemTask systemTaskCreated = taskRepository.create(task).blockingGet();
 
         // fetch task
-        TestObserver<SystemTask> testObserver = taskRepository.findById(systemTaskCreated.getId()).test();
+        TestObserver<SystemTask> testObserver =
+                taskRepository.findById(systemTaskCreated.getId()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -58,17 +57,18 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
         SystemTask systemTaskCreated = taskRepository.create(task).blockingGet();
 
         // fetch task
-        TestObserver<SystemTask> testObserver = taskRepository.findById(systemTaskCreated.getId()).test();
+        TestObserver<SystemTask> testObserver =
+                taskRepository.findById(systemTaskCreated.getId()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         assertEqualsTo(task, task.getOperationId(), testObserver);
         testObserver.assertValue(s -> s.getConfiguration().equals(task.getConfiguration()));
-
     }
 
-    private void assertEqualsTo(SystemTask task, String expectedOpId, TestObserver<SystemTask> testObserver) {
+    private void assertEqualsTo(
+            SystemTask task, String expectedOpId, TestObserver<SystemTask> testObserver) {
         testObserver.assertValue(s -> s.getId().equals(task.getId()));
         testObserver.assertValue(s -> s.getStatus().equals(task.getStatus()));
         testObserver.assertValue(s -> s.getType().equals(task.getType()));
@@ -112,7 +112,10 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
         SystemTask updatedSystemTask = buildSystemTask();
         updatedSystemTask.setId(systemTaskCreated.getId());
 
-        TestObserver<SystemTask> testObserver = taskRepository.updateIf(updatedSystemTask, systemTaskCreated.getOperationId()).test();
+        TestObserver<SystemTask> testObserver =
+                taskRepository
+                        .updateIf(updatedSystemTask, systemTaskCreated.getOperationId())
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -128,7 +131,8 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
         SystemTask updatedSystemTask = buildSystemTask();
         updatedSystemTask.setId(systemTaskCreated.getId());
 
-        TestObserver<SystemTask> testObserver = taskRepository.updateIf(updatedSystemTask, "unknownId").test();
+        TestObserver<SystemTask> testObserver =
+                taskRepository.updateIf(updatedSystemTask, "unknownId").test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -143,12 +147,12 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
         final int nbOfType1 = random.nextInt(10) + 1;
         final int nbOfType2 = random.nextInt(10) + 1;
 
-        for (int i =0; i < nbOfType1; ++i) {
+        for (int i = 0; i < nbOfType1; ++i) {
             SystemTask task = buildSystemTask("type1");
             taskRepository.create(task).blockingGet();
         }
 
-        for (int i =0; i < nbOfType2; ++i) {
+        for (int i = 0; i < nbOfType2; ++i) {
             SystemTask task2 = buildSystemTask("type2");
             taskRepository.create(task2).blockingGet();
         }
@@ -174,7 +178,8 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
         SystemTask systemTaskCreated = taskRepository.create(task).blockingGet();
 
         // fetch SystemTask
-        TestObserver<SystemTask> testObserver = taskRepository.findById(systemTaskCreated.getId()).test();
+        TestObserver<SystemTask> testObserver =
+                taskRepository.findById(systemTaskCreated.getId()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -187,5 +192,4 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
         // fetch SystemTask
         taskRepository.findById(systemTaskCreated.getId()).test().assertEmpty();
     }
-
 }

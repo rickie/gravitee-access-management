@@ -1,19 +1,27 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.service;
+
+import static io.gravitee.am.management.service.permissions.Permissions.*;
+import static io.gravitee.am.management.service.permissions.Permissions.of;
+import static io.gravitee.am.model.Acl.CREATE;
+import static io.gravitee.am.model.Acl.READ;
+import static io.gravitee.am.model.permissions.Permission.*;
+
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.identityprovider.api.DefaultUser;
 import io.gravitee.am.model.*;
@@ -26,6 +34,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,15 +42,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.*;
-
-import static io.gravitee.am.management.service.permissions.Permissions.of;
-import static io.gravitee.am.management.service.permissions.Permissions.*;
-import static io.gravitee.am.model.Acl.CREATE;
-import static io.gravitee.am.model.Acl.READ;
-import static io.gravitee.am.model.permissions.Permission.*;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -60,29 +60,30 @@ public class PermissionServiceTest {
     private static final String ROLE_ID3 = "role#3";
     public static final String APPLICATION_ID = "application#1";
 
-    @Mock
-    private MembershipService membershipService;
+    @Mock private MembershipService membershipService;
 
-    @Mock
-    private GroupService groupService;
+    @Mock private GroupService groupService;
 
-    @Mock
-    private RoleService roleService;
+    @Mock private RoleService roleService;
 
-    @Mock
-    private EnvironmentService environmentService;
+    @Mock private EnvironmentService environmentService;
 
-    @Mock
-    private DomainService domainService;
+    @Mock private DomainService domainService;
 
-    @Mock
-    private ApplicationService applicationService;
+    @Mock private ApplicationService applicationService;
 
     private PermissionService cut;
 
     @Before
     public void before() {
-        cut = new PermissionService(membershipService, groupService, roleService, environmentService, domainService, applicationService);
+        cut =
+                new PermissionService(
+                        membershipService,
+                        groupService,
+                        roleService,
+                        environmentService,
+                        domainService,
+                        applicationService);
     }
 
     @Test
@@ -104,13 +105,27 @@ public class PermissionServiceTest {
         role.setPermissionAcls(Permission.of(ORGANIZATION, READ));
 
         when(groupService.findByMember(user.getId())).thenReturn(Flowable.empty());
-        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), argThat(criteria -> criteria.getUserId().get().equals(user.getId())
-                && !criteria.getGroupIds().isPresent()
-                && criteria.isLogicalOR()))).thenReturn(Flowable.just(membership));
-        when(roleService.findByIdIn(Arrays.asList(membership.getRoleId()))).thenReturn(Single.just(Collections.singleton(role)));
+        when(membershipService.findByCriteria(
+                        eq(ReferenceType.ORGANIZATION),
+                        eq(ORGANIZATION_ID),
+                        argThat(
+                                criteria ->
+                                        criteria.getUserId().get().equals(user.getId())
+                                                && !criteria.getGroupIds().isPresent()
+                                                && criteria.isLogicalOR())))
+                .thenReturn(Flowable.just(membership));
+        when(roleService.findByIdIn(Arrays.asList(membership.getRoleId())))
+                .thenReturn(Single.just(Collections.singleton(role)));
 
-        TestObserver<Boolean> obs = cut.hasPermission(user, of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, Permission.ORGANIZATION, READ))
-                .test();
+        TestObserver<Boolean> obs =
+                cut.hasPermission(
+                                user,
+                                of(
+                                        ReferenceType.ORGANIZATION,
+                                        ORGANIZATION_ID,
+                                        Permission.ORGANIZATION,
+                                        READ))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -142,13 +157,29 @@ public class PermissionServiceTest {
         group.setMembers(Arrays.asList(user.getId()));
 
         when(groupService.findByMember(user.getId())).thenReturn(Flowable.just(group));
-        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), argThat(criteria -> criteria.getUserId().get().equals(user.getId())
-                && criteria.getGroupIds().get().equals(Arrays.asList(group.getId()))
-                && criteria.isLogicalOR()))).thenReturn(Flowable.just(membership));
-        when(roleService.findByIdIn(Arrays.asList(membership.getRoleId()))).thenReturn(Single.just(Collections.singleton(role)));
+        when(membershipService.findByCriteria(
+                        eq(ReferenceType.ORGANIZATION),
+                        eq(ORGANIZATION_ID),
+                        argThat(
+                                criteria ->
+                                        criteria.getUserId().get().equals(user.getId())
+                                                && criteria.getGroupIds()
+                                                        .get()
+                                                        .equals(Arrays.asList(group.getId()))
+                                                && criteria.isLogicalOR())))
+                .thenReturn(Flowable.just(membership));
+        when(roleService.findByIdIn(Arrays.asList(membership.getRoleId())))
+                .thenReturn(Single.just(Collections.singleton(role)));
 
-        TestObserver<Boolean> obs = cut.hasPermission(user, of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, Permission.ORGANIZATION, READ))
-                .test();
+        TestObserver<Boolean> obs =
+                cut.hasPermission(
+                                user,
+                                of(
+                                        ReferenceType.ORGANIZATION,
+                                        ORGANIZATION_ID,
+                                        Permission.ORGANIZATION,
+                                        READ))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -162,10 +193,21 @@ public class PermissionServiceTest {
         user.setId(USER_ID);
 
         when(groupService.findByMember(user.getId())).thenReturn(Flowable.empty());
-        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(Flowable.empty());
+        when(membershipService.findByCriteria(
+                        eq(ReferenceType.ORGANIZATION),
+                        eq(ORGANIZATION_ID),
+                        any(MembershipCriteria.class)))
+                .thenReturn(Flowable.empty());
 
-        TestObserver<Boolean> obs = cut.hasPermission(user, of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, Permission.ORGANIZATION, READ))
-                .test();
+        TestObserver<Boolean> obs =
+                cut.hasPermission(
+                                user,
+                                of(
+                                        ReferenceType.ORGANIZATION,
+                                        ORGANIZATION_ID,
+                                        Permission.ORGANIZATION,
+                                        READ))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -222,17 +264,49 @@ public class PermissionServiceTest {
         environment.setOrganizationId(ORGANIZATION_ID);
 
         when(domainService.findById(eq(DOMAIN_ID))).thenReturn(Maybe.just(domain));
-        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Single.just(environment));
+        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID)))
+                .thenReturn(Single.just(environment));
         when(groupService.findByMember(user.getId())).thenReturn(Flowable.empty());
-        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(Flowable.just(organizationMembership));
-        when(membershipService.findByCriteria(eq(ReferenceType.ENVIRONMENT), eq(ENVIRONMENT_ID), any(MembershipCriteria.class))).thenReturn(Flowable.just(environmentMembership));
-        when(membershipService.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any(MembershipCriteria.class))).thenReturn(Flowable.just(domainMembership));
-        when(roleService.findByIdIn(Arrays.asList(organizationMembership.getRoleId(), environmentMembership.getRoleId(), domainMembership.getRoleId()))).thenReturn(Single.just(new HashSet<>(Arrays.asList(organizationRole, environmentRole, domainRole))));
+        when(membershipService.findByCriteria(
+                        eq(ReferenceType.ORGANIZATION),
+                        eq(ORGANIZATION_ID),
+                        any(MembershipCriteria.class)))
+                .thenReturn(Flowable.just(organizationMembership));
+        when(membershipService.findByCriteria(
+                        eq(ReferenceType.ENVIRONMENT),
+                        eq(ENVIRONMENT_ID),
+                        any(MembershipCriteria.class)))
+                .thenReturn(Flowable.just(environmentMembership));
+        when(membershipService.findByCriteria(
+                        eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any(MembershipCriteria.class)))
+                .thenReturn(Flowable.just(domainMembership));
+        when(roleService.findByIdIn(
+                        Arrays.asList(
+                                organizationMembership.getRoleId(),
+                                environmentMembership.getRoleId(),
+                                domainMembership.getRoleId())))
+                .thenReturn(
+                        Single.just(
+                                new HashSet<>(
+                                        Arrays.asList(
+                                                organizationRole, environmentRole, domainRole))));
 
-        TestObserver<Boolean> obs = cut.hasPermission(user,
-                and(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, DOMAIN, READ),
-                        of(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, DOMAIN, READ),
-                        of(ReferenceType.DOMAIN, DOMAIN_ID, Permission.DOMAIN, READ))).test();
+        TestObserver<Boolean> obs =
+                cut.hasPermission(
+                                user,
+                                and(
+                                        of(
+                                                ReferenceType.ORGANIZATION,
+                                                ORGANIZATION_ID,
+                                                DOMAIN,
+                                                READ),
+                                        of(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, DOMAIN, READ),
+                                        of(
+                                                ReferenceType.DOMAIN,
+                                                DOMAIN_ID,
+                                                Permission.DOMAIN,
+                                                READ)))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -277,15 +351,38 @@ public class PermissionServiceTest {
         environment.setOrganizationId(ORGANIZATION_ID);
 
         when(domainService.findById(eq(DOMAIN_ID))).thenReturn(Maybe.just(domain));
-        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Single.just(environment));
+        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID)))
+                .thenReturn(Single.just(environment));
         when(groupService.findByMember(user.getId())).thenReturn(Flowable.empty());
-        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(Flowable.just(organizationMembership));
-        when(membershipService.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any(MembershipCriteria.class))).thenReturn(Flowable.just(domainMembership));
-        when(roleService.findByIdIn(Arrays.asList(organizationMembership.getRoleId(), domainMembership.getRoleId()))).thenReturn(Single.just(new HashSet<>(Arrays.asList(organizationRole, domainRole))));
+        when(membershipService.findByCriteria(
+                        eq(ReferenceType.ORGANIZATION),
+                        eq(ORGANIZATION_ID),
+                        any(MembershipCriteria.class)))
+                .thenReturn(Flowable.just(organizationMembership));
+        when(membershipService.findByCriteria(
+                        eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any(MembershipCriteria.class)))
+                .thenReturn(Flowable.just(domainMembership));
+        when(roleService.findByIdIn(
+                        Arrays.asList(
+                                organizationMembership.getRoleId(), domainMembership.getRoleId())))
+                .thenReturn(
+                        Single.just(new HashSet<>(Arrays.asList(organizationRole, domainRole))));
 
-        TestObserver<Boolean> obs = cut.hasPermission(user,
-                and(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, Permission.ORGANIZATION, READ),
-                        of(ReferenceType.DOMAIN, DOMAIN_ID, Permission.DOMAIN, READ))).test();
+        TestObserver<Boolean> obs =
+                cut.hasPermission(
+                                user,
+                                and(
+                                        of(
+                                                ReferenceType.ORGANIZATION,
+                                                ORGANIZATION_ID,
+                                                Permission.ORGANIZATION,
+                                                READ),
+                                        of(
+                                                ReferenceType.DOMAIN,
+                                                DOMAIN_ID,
+                                                Permission.DOMAIN,
+                                                READ)))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -330,15 +427,38 @@ public class PermissionServiceTest {
         environment.setOrganizationId(ORGANIZATION_ID);
 
         when(domainService.findById(eq(DOMAIN_ID))).thenReturn(Maybe.just(domain));
-        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Single.just(environment));
+        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID)))
+                .thenReturn(Single.just(environment));
         when(groupService.findByMember(user.getId())).thenReturn(Flowable.empty());
-        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(Flowable.just(organizationMembership));
-        when(membershipService.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any(MembershipCriteria.class))).thenReturn(Flowable.just(domainMembership));
-        when(roleService.findByIdIn(Arrays.asList(organizationMembership.getRoleId(), domainMembership.getRoleId()))).thenReturn(Single.just(new HashSet<>(Arrays.asList(organizationRole, domainRole))));
+        when(membershipService.findByCriteria(
+                        eq(ReferenceType.ORGANIZATION),
+                        eq(ORGANIZATION_ID),
+                        any(MembershipCriteria.class)))
+                .thenReturn(Flowable.just(organizationMembership));
+        when(membershipService.findByCriteria(
+                        eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any(MembershipCriteria.class)))
+                .thenReturn(Flowable.just(domainMembership));
+        when(roleService.findByIdIn(
+                        Arrays.asList(
+                                organizationMembership.getRoleId(), domainMembership.getRoleId())))
+                .thenReturn(
+                        Single.just(new HashSet<>(Arrays.asList(organizationRole, domainRole))));
 
-        TestObserver<Boolean> obs = cut.hasPermission(user,
-                or(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, Permission.ORGANIZATION, READ),
-                        of(ReferenceType.DOMAIN, DOMAIN_ID, Permission.DOMAIN, READ))).test(); // OR instead of AND
+        TestObserver<Boolean> obs =
+                cut.hasPermission(
+                                user,
+                                or(
+                                        of(
+                                                ReferenceType.ORGANIZATION,
+                                                ORGANIZATION_ID,
+                                                Permission.ORGANIZATION,
+                                                READ),
+                                        of(
+                                                ReferenceType.DOMAIN,
+                                                DOMAIN_ID,
+                                                Permission.DOMAIN,
+                                                READ)))
+                        .test(); // OR instead of AND
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -361,7 +481,11 @@ public class PermissionServiceTest {
         Role role = new Role();
         role.setId(ROLE_ID);
         role.setAssignableType(ReferenceType.ORGANIZATION);
-        role.setPermissionAcls(Permission.of(DOMAIN, READ, CREATE)); // The permission create is set on organization but expected on a domain.
+        role.setPermissionAcls(
+                Permission.of(
+                        DOMAIN, READ,
+                        CREATE)); // The permission create is set on organization but expected on a
+                                  // domain.
 
         Domain domain = new Domain();
         domain.setReferenceType(ReferenceType.ENVIRONMENT);
@@ -371,15 +495,35 @@ public class PermissionServiceTest {
         environment.setOrganizationId(ORGANIZATION_ID);
 
         when(domainService.findById(eq(DOMAIN_ID))).thenReturn(Maybe.just(domain));
-        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Single.just(environment));
+        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID)))
+                .thenReturn(Single.just(environment));
         when(groupService.findByMember(user.getId())).thenReturn(Flowable.empty());
-        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(Flowable.just(membership));
-        when(membershipService.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any(MembershipCriteria.class))).thenReturn(Flowable.empty());
-        when(roleService.findByIdIn(Arrays.asList(membership.getRoleId()))).thenReturn(Single.just(new HashSet<>(Arrays.asList(role))));
+        when(membershipService.findByCriteria(
+                        eq(ReferenceType.ORGANIZATION),
+                        eq(ORGANIZATION_ID),
+                        any(MembershipCriteria.class)))
+                .thenReturn(Flowable.just(membership));
+        when(membershipService.findByCriteria(
+                        eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any(MembershipCriteria.class)))
+                .thenReturn(Flowable.empty());
+        when(roleService.findByIdIn(Arrays.asList(membership.getRoleId())))
+                .thenReturn(Single.just(new HashSet<>(Arrays.asList(role))));
 
-        TestObserver<Boolean> obs = cut.hasPermission(user,
-                and(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, DOMAIN, READ),
-                        of(ReferenceType.DOMAIN, DOMAIN_ID, Permission.DOMAIN, CREATE))).test();
+        TestObserver<Boolean> obs =
+                cut.hasPermission(
+                                user,
+                                and(
+                                        of(
+                                                ReferenceType.ORGANIZATION,
+                                                ORGANIZATION_ID,
+                                                DOMAIN,
+                                                READ),
+                                        of(
+                                                ReferenceType.DOMAIN,
+                                                DOMAIN_ID,
+                                                Permission.DOMAIN,
+                                                CREATE)))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -401,15 +545,26 @@ public class PermissionServiceTest {
 
         Role role = new Role();
         role.setId(ROLE_ID);
-        role.setAssignableType(ReferenceType.ORGANIZATION);// The role is assignable to organization only by affected to an application.
+        role.setAssignableType(
+                ReferenceType
+                        .ORGANIZATION); // The role is assignable to organization only by affected
+                                        // to an application.
         role.setPermissionAcls(Permission.of(APPLICATION, READ));
 
         when(groupService.findByMember(user.getId())).thenReturn(Flowable.empty());
-        when(membershipService.findByCriteria(eq(ReferenceType.APPLICATION), eq(APPLICATION_ID), any(MembershipCriteria.class))).thenReturn(Flowable.just(membership));
-        when(roleService.findByIdIn(Arrays.asList(membership.getRoleId()))).thenReturn(Single.just(new HashSet<>(Arrays.asList(role))));
+        when(membershipService.findByCriteria(
+                        eq(ReferenceType.APPLICATION),
+                        eq(APPLICATION_ID),
+                        any(MembershipCriteria.class)))
+                .thenReturn(Flowable.just(membership));
+        when(roleService.findByIdIn(Arrays.asList(membership.getRoleId())))
+                .thenReturn(Single.just(new HashSet<>(Arrays.asList(role))));
 
-        TestObserver<Boolean> obs = cut.hasPermission(user, of(ReferenceType.APPLICATION, APPLICATION_ID, APPLICATION, READ))
-                .test();
+        TestObserver<Boolean> obs =
+                cut.hasPermission(
+                                user,
+                                of(ReferenceType.APPLICATION, APPLICATION_ID, APPLICATION, READ))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -420,7 +575,8 @@ public class PermissionServiceTest {
     public void hasPermission_checkNotRelevant() {
 
         try {
-            cut.hasPermission(null, of(ReferenceType.APPLICATION, APPLICATION_ID, ORGANIZATION, READ));
+            cut.hasPermission(
+                    null, of(ReferenceType.APPLICATION, APPLICATION_ID, ORGANIZATION, READ));
         } catch (IllegalArgumentException iae) {
             assertTrue(iae.getMessage().contains("not relevant"));
         }
@@ -449,12 +605,18 @@ public class PermissionServiceTest {
         Role organizationRole = new Role();
         organizationRole.setId(ROLE_ID);
         organizationRole.setAssignableType(ReferenceType.ORGANIZATION);
-        organizationRole.setPermissionAcls(Permission.of(ORGANIZATION, READ)); // READ permission come from role associated to user.
+        organizationRole.setPermissionAcls(
+                Permission.of(
+                        ORGANIZATION, READ)); // READ permission come from role associated to user.
 
         Role groupRole = new Role();
         groupRole.setId(ROLE_ID2);
         groupRole.setAssignableType(ReferenceType.ORGANIZATION);
-        groupRole.setPermissionAcls(Permission.of(ORGANIZATION, CREATE)); // CREATE permission come from role associated to group of the user.
+        groupRole.setPermissionAcls(
+                Permission.of(
+                        ORGANIZATION,
+                        CREATE)); // CREATE permission come from role associated to group of the
+                                  // user.
 
         Group group = new Group();
         group.setId(GROUP_ID);
@@ -463,10 +625,26 @@ public class PermissionServiceTest {
         group.setMembers(Arrays.asList(user.getId()));
 
         when(groupService.findByMember(user.getId())).thenReturn(Flowable.just(group));
-        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(Flowable.just(organizationMembership, groupMembership));
-        when(roleService.findByIdIn(Arrays.asList(organizationMembership.getRoleId(), groupMembership.getRoleId()))).thenReturn(Single.just(new HashSet<>(Arrays.asList(organizationRole, groupRole))));
+        when(membershipService.findByCriteria(
+                        eq(ReferenceType.ORGANIZATION),
+                        eq(ORGANIZATION_ID),
+                        any(MembershipCriteria.class)))
+                .thenReturn(Flowable.just(organizationMembership, groupMembership));
+        when(roleService.findByIdIn(
+                        Arrays.asList(
+                                organizationMembership.getRoleId(), groupMembership.getRoleId())))
+                .thenReturn(Single.just(new HashSet<>(Arrays.asList(organizationRole, groupRole))));
 
-        TestObserver<Boolean> obs = cut.hasPermission(user, of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, Permission.ORGANIZATION, READ, CREATE)).test();
+        TestObserver<Boolean> obs =
+                cut.hasPermission(
+                                user,
+                                of(
+                                        ReferenceType.ORGANIZATION,
+                                        ORGANIZATION_ID,
+                                        Permission.ORGANIZATION,
+                                        READ,
+                                        CREATE))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -497,12 +675,18 @@ public class PermissionServiceTest {
         Role organizationRole = new Role();
         organizationRole.setId(ROLE_ID);
         organizationRole.setAssignableType(ReferenceType.ORGANIZATION);
-        organizationRole.setPermissionAcls(Permission.of(ORGANIZATION, READ)); // READ permission come from role associated to user.
+        organizationRole.setPermissionAcls(
+                Permission.of(
+                        ORGANIZATION, READ)); // READ permission come from role associated to user.
 
         Role groupRole = new Role();
         groupRole.setId(ROLE_ID2);
         groupRole.setAssignableType(ReferenceType.ORGANIZATION);
-        groupRole.setPermissionAcls(Permission.of(ORGANIZATION, CREATE)); // CREATE permission come from role associated to group of the user.
+        groupRole.setPermissionAcls(
+                Permission.of(
+                        ORGANIZATION,
+                        CREATE)); // CREATE permission come from role associated to group of the
+                                  // user.
 
         Group group = new Group();
         group.setId(GROUP_ID);
@@ -511,16 +695,27 @@ public class PermissionServiceTest {
         group.setMembers(Arrays.asList(user.getId()));
 
         when(groupService.findByMember(user.getId())).thenReturn(Flowable.just(group));
-        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(Flowable.just(organizationMembership, groupMembership));
-        when(roleService.findByIdIn(Arrays.asList(organizationMembership.getRoleId(), groupMembership.getRoleId()))).thenReturn(Single.just(new HashSet<>(Arrays.asList(organizationRole, groupRole))));
+        when(membershipService.findByCriteria(
+                        eq(ReferenceType.ORGANIZATION),
+                        eq(ORGANIZATION_ID),
+                        any(MembershipCriteria.class)))
+                .thenReturn(Flowable.just(organizationMembership, groupMembership));
+        when(roleService.findByIdIn(
+                        Arrays.asList(
+                                organizationMembership.getRoleId(), groupMembership.getRoleId())))
+                .thenReturn(Single.just(new HashSet<>(Arrays.asList(organizationRole, groupRole))));
 
-        TestObserver<Map<Permission, Set<Acl>>> obs = cut.findAllPermissions(user, ReferenceType.ORGANIZATION, ORGANIZATION_ID).test();
+        TestObserver<Map<Permission, Set<Acl>>> obs =
+                cut.findAllPermissions(user, ReferenceType.ORGANIZATION, ORGANIZATION_ID).test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
-        obs.assertValue(permissions -> permissions.get(ORGANIZATION).containsAll(new HashSet<>(Arrays.asList(READ, CREATE))));
+        obs.assertValue(
+                permissions ->
+                        permissions
+                                .get(ORGANIZATION)
+                                .containsAll(new HashSet<>(Arrays.asList(READ, CREATE))));
     }
-
 
     @Test
     public void haveConsistentIds() {
@@ -537,12 +732,29 @@ public class PermissionServiceTest {
 
         when(applicationService.findById(eq(APPLICATION_ID))).thenReturn(Maybe.just(application));
         when(domainService.findById(eq(DOMAIN_ID))).thenReturn(Maybe.just(domain));
-        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Single.just(environment));
+        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID)))
+                .thenReturn(Single.just(environment));
 
-        TestObserver<Boolean> obs = cut.haveConsistentReferenceIds(or(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, APPLICATION, READ),
-                of(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, APPLICATION, READ),
-                of(ReferenceType.DOMAIN, DOMAIN_ID, APPLICATION, READ),
-                of(ReferenceType.APPLICATION, APPLICATION_ID, APPLICATION, READ))).test();
+        TestObserver<Boolean> obs =
+                cut.haveConsistentReferenceIds(
+                                or(
+                                        of(
+                                                ReferenceType.ORGANIZATION,
+                                                ORGANIZATION_ID,
+                                                APPLICATION,
+                                                READ),
+                                        of(
+                                                ReferenceType.ENVIRONMENT,
+                                                ENVIRONMENT_ID,
+                                                APPLICATION,
+                                                READ),
+                                        of(ReferenceType.DOMAIN, DOMAIN_ID, APPLICATION, READ),
+                                        of(
+                                                ReferenceType.APPLICATION,
+                                                APPLICATION_ID,
+                                                APPLICATION,
+                                                READ)))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -564,18 +776,34 @@ public class PermissionServiceTest {
 
         when(applicationService.findById(eq(APPLICATION_ID))).thenReturn(Maybe.just(application));
         when(domainService.findById(eq(DOMAIN_ID))).thenReturn(Maybe.just(domain));
-        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Single.just(environment));
+        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID)))
+                .thenReturn(Single.just(environment));
 
-        TestObserver<Boolean> obs = cut.haveConsistentReferenceIds(or(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, APPLICATION, READ),
-                of(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, APPLICATION, READ),
-                of(ReferenceType.DOMAIN, DOMAIN_ID, APPLICATION, READ),
-                of(ReferenceType.APPLICATION, APPLICATION_ID, APPLICATION, READ))).test();
+        TestObserver<Boolean> obs =
+                cut.haveConsistentReferenceIds(
+                                or(
+                                        of(
+                                                ReferenceType.ORGANIZATION,
+                                                ORGANIZATION_ID,
+                                                APPLICATION,
+                                                READ),
+                                        of(
+                                                ReferenceType.ENVIRONMENT,
+                                                ENVIRONMENT_ID,
+                                                APPLICATION,
+                                                READ),
+                                        of(ReferenceType.DOMAIN, DOMAIN_ID, APPLICATION, READ),
+                                        of(
+                                                ReferenceType.APPLICATION,
+                                                APPLICATION_ID,
+                                                APPLICATION,
+                                                READ)))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
         obs.assertValue(false);
     }
-
 
     @Test
     public void haveConsistentIds_domainIdNotConsistent() {
@@ -592,12 +820,29 @@ public class PermissionServiceTest {
 
         when(applicationService.findById(eq(APPLICATION_ID))).thenReturn(Maybe.just(application));
         when(domainService.findById(eq(DOMAIN_ID))).thenReturn(Maybe.just(domain));
-        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Single.just(environment));
+        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID)))
+                .thenReturn(Single.just(environment));
 
-        TestObserver<Boolean> obs = cut.haveConsistentReferenceIds(or(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, APPLICATION, READ),
-                of(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, APPLICATION, READ),
-                of(ReferenceType.DOMAIN, DOMAIN_ID, APPLICATION, READ),
-                of(ReferenceType.APPLICATION, APPLICATION_ID, APPLICATION, READ))).test();
+        TestObserver<Boolean> obs =
+                cut.haveConsistentReferenceIds(
+                                or(
+                                        of(
+                                                ReferenceType.ORGANIZATION,
+                                                ORGANIZATION_ID,
+                                                APPLICATION,
+                                                READ),
+                                        of(
+                                                ReferenceType.ENVIRONMENT,
+                                                ENVIRONMENT_ID,
+                                                APPLICATION,
+                                                READ),
+                                        of(ReferenceType.DOMAIN, DOMAIN_ID, APPLICATION, READ),
+                                        of(
+                                                ReferenceType.APPLICATION,
+                                                APPLICATION_ID,
+                                                APPLICATION,
+                                                READ)))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -616,12 +861,29 @@ public class PermissionServiceTest {
 
         when(applicationService.findById(eq(APPLICATION_ID))).thenReturn(Maybe.just(application));
         when(domainService.findById(eq(DOMAIN_ID))).thenReturn(Maybe.just(domain));
-        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Single.error(new EnvironmentNotFoundException(ENVIRONMENT_ID)));
+        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID)))
+                .thenReturn(Single.error(new EnvironmentNotFoundException(ENVIRONMENT_ID)));
 
-        TestObserver<Boolean> obs = cut.haveConsistentReferenceIds(or(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, APPLICATION, READ),
-                of(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, APPLICATION, READ),
-                of(ReferenceType.DOMAIN, DOMAIN_ID, APPLICATION, READ),
-                of(ReferenceType.APPLICATION, APPLICATION_ID, APPLICATION, READ))).test();
+        TestObserver<Boolean> obs =
+                cut.haveConsistentReferenceIds(
+                                or(
+                                        of(
+                                                ReferenceType.ORGANIZATION,
+                                                ORGANIZATION_ID,
+                                                APPLICATION,
+                                                READ),
+                                        of(
+                                                ReferenceType.ENVIRONMENT,
+                                                ENVIRONMENT_ID,
+                                                APPLICATION,
+                                                READ),
+                                        of(ReferenceType.DOMAIN, DOMAIN_ID, APPLICATION, READ),
+                                        of(
+                                                ReferenceType.APPLICATION,
+                                                APPLICATION_ID,
+                                                APPLICATION,
+                                                READ)))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -631,7 +893,10 @@ public class PermissionServiceTest {
     @Test
     public void haveConsistentIds_onlyOneReferenceType() {
 
-        TestObserver<Boolean> obs = cut.haveConsistentReferenceIds(of(ReferenceType.APPLICATION, APPLICATION_ID, APPLICATION, READ)).test();
+        TestObserver<Boolean> obs =
+                cut.haveConsistentReferenceIds(
+                                of(ReferenceType.APPLICATION, APPLICATION_ID, APPLICATION, READ))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -657,12 +922,29 @@ public class PermissionServiceTest {
 
         when(applicationService.findById(eq(APPLICATION_ID))).thenReturn(Maybe.just(application));
         when(domainService.findById(eq(DOMAIN_ID))).thenReturn(Maybe.just(domain));
-        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Single.just(environment));
+        when(environmentService.findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID)))
+                .thenReturn(Single.just(environment));
 
-        TestObserver<Boolean> obs = cut.haveConsistentReferenceIds(or(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, APPLICATION, READ),
-                of(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, APPLICATION, READ),
-                of(ReferenceType.DOMAIN, DOMAIN_ID, APPLICATION, READ),
-                of(ReferenceType.APPLICATION, APPLICATION_ID, APPLICATION, READ))).test();
+        TestObserver<Boolean> obs =
+                cut.haveConsistentReferenceIds(
+                                or(
+                                        of(
+                                                ReferenceType.ORGANIZATION,
+                                                ORGANIZATION_ID,
+                                                APPLICATION,
+                                                READ),
+                                        of(
+                                                ReferenceType.ENVIRONMENT,
+                                                ENVIRONMENT_ID,
+                                                APPLICATION,
+                                                READ),
+                                        of(ReferenceType.DOMAIN, DOMAIN_ID, APPLICATION, READ),
+                                        of(
+                                                ReferenceType.APPLICATION,
+                                                APPLICATION_ID,
+                                                APPLICATION,
+                                                READ)))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -673,10 +955,26 @@ public class PermissionServiceTest {
         verify(environmentService, times(1)).findById(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID));
 
         // Second call should hit the cache.
-        obs = cut.haveConsistentReferenceIds(or(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, APPLICATION, READ),
-                of(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, APPLICATION, READ),
-                of(ReferenceType.DOMAIN, DOMAIN_ID, APPLICATION, READ),
-                of(ReferenceType.APPLICATION, APPLICATION_ID, APPLICATION, READ))).test();
+        obs =
+                cut.haveConsistentReferenceIds(
+                                or(
+                                        of(
+                                                ReferenceType.ORGANIZATION,
+                                                ORGANIZATION_ID,
+                                                APPLICATION,
+                                                READ),
+                                        of(
+                                                ReferenceType.ENVIRONMENT,
+                                                ENVIRONMENT_ID,
+                                                APPLICATION,
+                                                READ),
+                                        of(ReferenceType.DOMAIN, DOMAIN_ID, APPLICATION, READ),
+                                        of(
+                                                ReferenceType.APPLICATION,
+                                                APPLICATION_ID,
+                                                APPLICATION,
+                                                READ)))
+                        .test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -684,5 +982,4 @@ public class PermissionServiceTest {
 
         verifyNoMoreInteractions(applicationService, domainService, environmentService);
     }
-
 }

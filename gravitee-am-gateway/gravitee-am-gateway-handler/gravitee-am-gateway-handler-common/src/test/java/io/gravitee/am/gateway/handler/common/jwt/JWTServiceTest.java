@@ -1,36 +1,35 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.jwt;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.jwt.JWT;
-import io.gravitee.am.jwt.JWTBuilder;
 import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
 import io.gravitee.am.gateway.handler.common.jwt.impl.JWTServiceImpl;
+import io.gravitee.am.jwt.JWTBuilder;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Maybe;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -39,11 +38,9 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class JWTServiceTest {
 
-    @InjectMocks
-    private JWTService jwtService = new JWTServiceImpl();
+    @InjectMocks private JWTService jwtService = new JWTServiceImpl();
 
-    @Mock
-    private CertificateManager certificateManager;
+    @Mock private CertificateManager certificateManager;
 
     @Before
     public void setUp() {
@@ -80,17 +77,17 @@ public class JWTServiceTest {
 
     @Test
     public void encode_noClientCertificate() {
-        this.testEncode(null,"token_default");
+        this.testEncode(null, "token_default");
     }
 
     @Test
     public void encode_noClientCertificateFound() {
-        this.testEncode("notExistingId","token_default");
+        this.testEncode("notExistingId", "token_default");
     }
 
     @Test
     public void encode_clientCertificateFound() {
-        this.testEncode("existingId","token_rs_256");
+        this.testEncode("existingId", "token_rs_256");
     }
 
     private void testEncode(String clientCertificate, String expectedResult) {
@@ -104,30 +101,31 @@ public class JWTServiceTest {
 
     @Test
     public void encodeUserinfo_withoutSignature() {
-        this.testEncodeUserinfo(null, null,"not_signed_jwt");
+        this.testEncodeUserinfo(null, null, "not_signed_jwt");
     }
 
     @Test
     public void encodeUserinfo_noMatchingAlgorithm_noClientCertificate() {
-        this.testEncodeUserinfo("unknown", null,"token_default");
+        this.testEncodeUserinfo("unknown", null, "token_default");
     }
 
     @Test
     public void encodeUserinfo_noMatchingAlgorithm_noClientCertificateFound() {
-        this.testEncodeUserinfo("unknown", "notExistingId","token_default");
+        this.testEncodeUserinfo("unknown", "notExistingId", "token_default");
     }
 
     @Test
     public void encodeUserinfo_noMatchingAlgorithm_clientCertificateFound() {
-        this.testEncodeUserinfo("unknown", "existingId","token_rs_256");
+        this.testEncodeUserinfo("unknown", "existingId", "token_rs_256");
     }
 
     @Test
     public void encodeUserinfo_matchingAlgorithm() {
-        this.testEncodeUserinfo("RS512", null,"token_rs_512");
+        this.testEncodeUserinfo("RS512", null, "token_rs_512");
     }
 
-    private void testEncodeUserinfo(String algorithm, String clientCertificate, String expectedResult) {
+    private void testEncodeUserinfo(
+            String algorithm, String clientCertificate, String expectedResult) {
         Client client = new Client();
         client.setUserinfoSignedResponseAlg(algorithm);
         client.setCertificate(clientCertificate);

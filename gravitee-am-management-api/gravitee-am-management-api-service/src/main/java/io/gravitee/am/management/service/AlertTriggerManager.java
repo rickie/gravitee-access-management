@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.service;
@@ -26,7 +24,6 @@ import io.gravitee.am.management.service.alerts.handlers.ResolvePropertyCommandH
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.alert.AlertTrigger;
 import io.gravitee.am.model.common.event.Payload;
-import io.gravitee.am.model.flow.Flow;
 import io.gravitee.am.repository.management.api.search.AlertNotifierCriteria;
 import io.gravitee.am.repository.management.api.search.AlertTriggerCriteria;
 import io.gravitee.am.repository.management.api.search.DomainCriteria;
@@ -38,9 +35,7 @@ import io.gravitee.common.event.EventManager;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import io.reactivex.SingleSource;
-import io.reactivex.functions.Function;
-import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -66,7 +61,15 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
     private final ResolvePropertyCommandHandler resolvePropertyCommandHandler;
     private final AlertNotificationCommandHandler alertNotificationCommandHandler;
 
-    public AlertTriggerManager(TriggerProvider triggerProvider, AlertTriggerService alertTriggerService, AlertNotifierService alertNotifierService, DomainService domainService, EventManager eventManager, Environment environment, ResolvePropertyCommandHandler resolvePropertyCommandHandler, AlertNotificationCommandHandler alertNotificationCommandHandler) {
+    public AlertTriggerManager(
+            TriggerProvider triggerProvider,
+            AlertTriggerService alertTriggerService,
+            AlertNotifierService alertNotifierService,
+            DomainService domainService,
+            EventManager eventManager,
+            Environment environment,
+            ResolvePropertyCommandHandler resolvePropertyCommandHandler,
+            AlertNotificationCommandHandler alertNotificationCommandHandler) {
         this.triggerProvider = triggerProvider;
         this.alertTriggerService = alertTriggerService;
         this.alertNotifierService = alertNotifierService;
@@ -86,7 +89,8 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
         triggerProvider.addListener(alertNotificationCommandHandler);
         triggerProvider.addListener(resolvePropertyCommandHandler);
 
-        // Subscribe to some internal events in order to propagate changes on triggers to the alert system.
+        // Subscribe to some internal events in order to propagate changes on triggers to the alert
+        // system.
         eventManager.subscribeForEvents(this::onDomainEvent, DomainEvent.class);
         eventManager.subscribeForEvents(this::onAlertTriggerEvent, AlertTriggerEvent.class);
         eventManager.subscribeForEvents(this::onAlertNotifierEvent, AlertNotifierEvent.class);
@@ -94,13 +98,24 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
 
     void doOnConnect() {
         LOGGER.info("Connected to alerting system. Sync alert triggers...");
-        domainService.findAllByCriteria(new DomainCriteria())
-                .doOnNext(domain -> LOGGER.info("Sending alert triggers for domain {}", domain.getName()))
+        domainService
+                .findAllByCriteria(new DomainCriteria())
+                .doOnNext(
+                        domain ->
+                                LOGGER.info(
+                                        "Sending alert triggers for domain {}", domain.getName()))
                 .flatMap(this::prepareAETriggers)
                 .flatMapSingle(this::registerAETrigger)
                 .count()
-                .subscribe(count -> LOGGER.info("{} alert triggers synchronized with the alerting system.", count),
-                        throwable -> LOGGER.error("An error occurred when trying to synchronize alert triggers with alerting system", throwable));
+                .subscribe(
+                        count ->
+                                LOGGER.info(
+                                        "{} alert triggers synchronized with the alerting system.",
+                                        count),
+                        throwable ->
+                                LOGGER.error(
+                                        "An error occurred when trying to synchronize alert triggers with alerting system",
+                                        throwable));
     }
 
     void doOnDisconnect() {
@@ -110,25 +125,47 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
     void onDomainEvent(Event<DomainEvent, ?> event) {
 
         final Payload payload = (Payload) event.content();
-        domainService.findById(payload.getReferenceId())
+        domainService
+                .findById(payload.getReferenceId())
                 .flatMapPublisher(this::prepareAETriggers)
                 .flatMapSingle(this::registerAETrigger)
                 .count()
-                .subscribe(count -> LOGGER.info("{} alert triggers synchronized with the alerting system for domain [{}].", count, payload.getReferenceId()),
-                        throwable -> LOGGER.error("An error occurred when trying to synchronize alert triggers with alerting system for domain [{}]", payload.getReferenceId(), throwable));
+                .subscribe(
+                        count ->
+                                LOGGER.info(
+                                        "{} alert triggers synchronized with the alerting system for domain [{}].",
+                                        count,
+                                        payload.getReferenceId()),
+                        throwable ->
+                                LOGGER.error(
+                                        "An error occurred when trying to synchronize alert triggers with alerting system for domain [{}]",
+                                        payload.getReferenceId(),
+                                        throwable));
     }
 
     void onAlertTriggerEvent(Event<AlertTriggerEvent, ?> event) {
         LOGGER.debug("Received alert trigger event {}", event);
         final Payload payload = (Payload) event.content();
-        domainService.findById(payload.getReferenceId())
-                .flatMapPublisher(domain -> alertTriggerService.getById(payload.getId())
-                        .flatMapPublisher(alertTrigger -> this.prepareAETrigger(domain, alertTrigger))
-                        .flatMapSingle(this::registerAETrigger))
+        domainService
+                .findById(payload.getReferenceId())
+                .flatMapPublisher(
+                        domain ->
+                                alertTriggerService
+                                        .getById(payload.getId())
+                                        .flatMapPublisher(
+                                                alertTrigger ->
+                                                        this.prepareAETrigger(domain, alertTrigger))
+                                        .flatMapSingle(this::registerAETrigger))
                 .subscribe(
-                        aeTrigger -> LOGGER.info("Alert trigger [{}] synchronized with the alerting system.", aeTrigger.getId()),
-                        throwable -> LOGGER.error("An error occurred when trying to synchronize alert trigger [{}] with alerting system", payload.getId(), throwable)
-                );
+                        aeTrigger ->
+                                LOGGER.info(
+                                        "Alert trigger [{}] synchronized with the alerting system.",
+                                        aeTrigger.getId()),
+                        throwable ->
+                                LOGGER.error(
+                                        "An error occurred when trying to synchronize alert trigger [{}] with alerting system",
+                                        payload.getId(),
+                                        throwable));
     }
 
     void onAlertNotifierEvent(Event<AlertNotifierEvent, ?> event) {
@@ -139,26 +176,48 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
         alertTriggerCriteria.setEnabled(true);
         alertTriggerCriteria.setAlertNotifierIds(Collections.singletonList(payload.getId()));
 
-        domainService.findById(payload.getReferenceId())
+        domainService
+                .findById(payload.getReferenceId())
                 .filter(domain -> domain.isEnabled() && domain.isAlertEnabled())
-                .flatMapPublisher(domain -> this.alertTriggerService.findByDomainAndCriteria(domain.getId(), alertTriggerCriteria)
-                        .flatMap(alertTrigger -> prepareAETrigger(domain, alertTrigger))
-                        .flatMapSingle(this::registerAETrigger))
+                .flatMapPublisher(
+                        domain ->
+                                this.alertTriggerService
+                                        .findByDomainAndCriteria(
+                                                domain.getId(), alertTriggerCriteria)
+                                        .flatMap(
+                                                alertTrigger ->
+                                                        prepareAETrigger(domain, alertTrigger))
+                                        .flatMapSingle(this::registerAETrigger))
                 .count()
-                .subscribe(count -> LOGGER.info("{} alert triggers synchronized with the alerting system for domain [{}] after the update of alert notifier [{}].", count, payload.getReferenceId(), payload.getId()),
-                        throwable -> LOGGER.error("An error occurred when trying to synchronize alert triggers with alerting system for domain [{}] after the alert notifier {} event [{}].", payload.getReferenceId(), event.type().name().toLowerCase(), payload.getId(), throwable));
+                .subscribe(
+                        count ->
+                                LOGGER.info(
+                                        "{} alert triggers synchronized with the alerting system for domain [{}] after the update of alert notifier [{}].",
+                                        count,
+                                        payload.getReferenceId(),
+                                        payload.getId()),
+                        throwable ->
+                                LOGGER.error(
+                                        "An error occurred when trying to synchronize alert triggers with alerting system for domain [{}] after the alert notifier {} event [{}].",
+                                        payload.getReferenceId(),
+                                        event.type().name().toLowerCase(),
+                                        payload.getId(),
+                                        throwable));
     }
 
     private Single<Trigger> registerAETrigger(Trigger trigger) {
-        return Single.defer(() -> {
-            triggerProvider.register(trigger);
-            LOGGER.debug("Alert trigger [{}] has been pushed to alert system.", trigger.getId());
-            return Single.just(trigger);
-        });
+        return Single.defer(
+                () -> {
+                    triggerProvider.register(trigger);
+                    LOGGER.debug(
+                            "Alert trigger [{}] has been pushed to alert system.", trigger.getId());
+                    return Single.just(trigger);
+                });
     }
 
     private Flowable<Trigger> prepareAETriggers(Domain domain) {
-        return alertTriggerService.findByDomainAndCriteria(domain.getId(), new AlertTriggerCriteria())
+        return alertTriggerService
+                .findByDomainAndCriteria(domain.getId(), new AlertTriggerCriteria())
                 .flatMap(alertTrigger -> this.prepareAETrigger(domain, alertTrigger));
     }
 
@@ -167,12 +226,23 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
         alertNotifierCriteria.setEnabled(true);
         alertNotifierCriteria.setIds(alertTrigger.getAlertNotifiers());
 
-        return alertNotifierService.findByReferenceAndCriteria(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria)
+        return alertNotifierService
+                .findByReferenceAndCriteria(
+                        alertTrigger.getReferenceType(),
+                        alertTrigger.getReferenceId(),
+                        alertNotifierCriteria)
                 .toList()
-                .flattenAsFlowable(alertNotifiers -> AlertTriggerFactory.create(alertTrigger, alertNotifiers, environment))
-                .map(trigger -> {
-                    trigger.setEnabled(domain.isEnabled() && domain.isAlertEnabled() && trigger.isEnabled());
-                    return trigger;
-                });
+                .flattenAsFlowable(
+                        alertNotifiers ->
+                                AlertTriggerFactory.create(
+                                        alertTrigger, alertNotifiers, environment))
+                .map(
+                        trigger -> {
+                            trigger.setEnabled(
+                                    domain.isEnabled()
+                                            && domain.isAlertEnabled()
+                                            && trigger.isEnabled());
+                            return trigger;
+                        });
     }
 }

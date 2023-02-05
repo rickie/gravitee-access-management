@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.ciba.service.request;
+
+import static io.gravitee.am.gateway.handler.root.resources.endpoint.ParamUtils.*;
 
 import io.gravitee.am.common.ciba.Parameters;
 import io.gravitee.am.common.utils.ConstantKeys;
@@ -29,8 +29,6 @@ import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
 
 import java.util.List;
-
-import static io.gravitee.am.gateway.handler.root.resources.endpoint.ParamUtils.*;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -124,22 +122,34 @@ public class CibaAuthenticationRequest extends OAuth2Request {
         cibaRequest.setHeaders(new VertxHttpHeaders(request.getDelegate().headers()));
         cibaRequest.setParameters(extractRequestParameters(request));
         cibaRequest.setSslSession(request.sslSession());
-        cibaRequest.setMethod(request.method() != null ? HttpMethod.valueOf(request.method().name()) : null);
+        cibaRequest.setMethod(
+                request.method() != null ? HttpMethod.valueOf(request.method().name()) : null);
         cibaRequest.setScheme(request.scheme());
-        cibaRequest.setVersion(request.version() != null ? HttpVersion.valueOf(request.version().name()) : null);
-        cibaRequest.setRemoteAddress(request.remoteAddress() != null ? request.remoteAddress().host() : null);
-        cibaRequest.setLocalAddress(request.localAddress() != null ? request.localAddress().host() : null);
+        cibaRequest.setVersion(
+                request.version() != null ? HttpVersion.valueOf(request.version().name()) : null);
+        cibaRequest.setRemoteAddress(
+                request.remoteAddress() != null ? request.remoteAddress().host() : null);
+        cibaRequest.setLocalAddress(
+                request.localAddress() != null ? request.localAddress().host() : null);
         cibaRequest.setHost(request.host());
 
         final Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         cibaRequest.setClientId(client.getClientId());
 
-        cibaRequest.setScopes(splitScopes(getOAuthParameter(context, io.gravitee.am.common.oauth2.Parameters.SCOPE)));
-        cibaRequest.setClientNotificationToken(getOAuthParameter(context, Parameters.CLIENT_NOTIFICATION_TOKEN));
+        cibaRequest.setScopes(
+                splitScopes(
+                        getOAuthParameter(context, io.gravitee.am.common.oauth2.Parameters.SCOPE)));
+        cibaRequest.setClientNotificationToken(
+                getOAuthParameter(context, Parameters.CLIENT_NOTIFICATION_TOKEN));
         cibaRequest.setLoginHintToken(getOAuthParameter(context, Parameters.LOGIN_HINT_TOKEN));
-        cibaRequest.setIdTokenHint(getOAuthParameter(context, io.gravitee.am.common.oidc.Parameters.ID_TOKEN_HINT));
-        cibaRequest.setLoginHint(getOAuthParameter(context, io.gravitee.am.common.oidc.Parameters.LOGIN_HINT));
-        cibaRequest.setAcrValues(splitAcrValues(getOAuthParameter(context, io.gravitee.am.common.oidc.Parameters.ACR_VALUES)));
+        cibaRequest.setIdTokenHint(
+                getOAuthParameter(context, io.gravitee.am.common.oidc.Parameters.ID_TOKEN_HINT));
+        cibaRequest.setLoginHint(
+                getOAuthParameter(context, io.gravitee.am.common.oidc.Parameters.LOGIN_HINT));
+        cibaRequest.setAcrValues(
+                splitAcrValues(
+                        getOAuthParameter(
+                                context, io.gravitee.am.common.oidc.Parameters.ACR_VALUES)));
         cibaRequest.setBindingMessage(getOAuthParameter(context, Parameters.BINDING_MESSAGE));
         cibaRequest.setUserCode(getOAuthParameter(context, Parameters.USER_CODE));
         final String reqExpiry = getOAuthParameter(context, Parameters.REQUESTED_EXPIRY);
@@ -150,9 +160,13 @@ public class CibaAuthenticationRequest extends OAuth2Request {
         return cibaRequest;
     }
 
-    private static MultiValueMap<String, String> extractRequestParameters(HttpServerRequest request) {
-        MultiValueMap<String, String> requestParameters = new LinkedMultiValueMap<>(request.params().size());
-        request.params().entries().forEach(entry -> requestParameters.add(entry.getKey(), entry.getValue()));
+    private static MultiValueMap<String, String> extractRequestParameters(
+            HttpServerRequest request) {
+        MultiValueMap<String, String> requestParameters =
+                new LinkedMultiValueMap<>(request.params().size());
+        request.params()
+                .entries()
+                .forEach(entry -> requestParameters.add(entry.getKey(), entry.getValue()));
         return requestParameters;
     }
 }

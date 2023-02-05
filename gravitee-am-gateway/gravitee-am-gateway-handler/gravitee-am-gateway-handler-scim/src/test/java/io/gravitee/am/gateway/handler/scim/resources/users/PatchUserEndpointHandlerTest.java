@@ -1,23 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.scim.resources.users;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.scim.Schema;
 import io.gravitee.am.common.utils.ConstantKeys;
@@ -31,7 +32,7 @@ import io.reactivex.Single;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.handler.BodyHandler;
-import org.junit.Assert;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -40,11 +41,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
-import java.util.Map;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -53,14 +49,11 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class PatchUserEndpointHandlerTest extends RxWebTestBase {
 
-    @Mock
-    private UserService userService;
+    @Mock private UserService userService;
 
-    @Mock
-    private ObjectMapper objectMapper;
+    @Mock private ObjectMapper objectMapper;
 
-    @Mock
-    private Domain domain;
+    @Mock private Domain domain;
 
     @InjectMocks
     private UserEndpoint userEndpoint = new UserEndpoint(domain, userService, objectMapper);
@@ -75,12 +68,13 @@ public class PatchUserEndpointHandlerTest extends RxWebTestBase {
 
         router.route()
                 .handler(BodyHandler.create())
-                .handler(rc -> {
-                    JWT token = new JWT();
-                    token.put("sub", "user-id");
-                    rc.put(ConstantKeys.TOKEN_CONTEXT_KEY, token);
-                    rc.next();
-                })
+                .handler(
+                        rc -> {
+                            JWT token = new JWT();
+                            token.put("sub", "user-id");
+                            rc.put(ConstantKeys.TOKEN_CONTEXT_KEY, token);
+                            rc.next();
+                        })
                 .failureHandler(new ErrorHandler());
     }
 
@@ -97,12 +91,12 @@ public class PatchUserEndpointHandlerTest extends RxWebTestBase {
                 },
                 400,
                 "Bad Request",
-                "{\n" +
-                        "  \"status\" : \"400\",\n" +
-                        "  \"scimType\" : \"invalidValue\",\n" +
-                        "  \"detail\" : \"Field [Operations] is required\",\n" +
-                        "  \"schemas\" : [ \"urn:ietf:params:scim:api:messages:2.0:Error\" ]\n" +
-                        "}");
+                "{\n"
+                        + "  \"status\" : \"400\",\n"
+                        + "  \"scimType\" : \"invalidValue\",\n"
+                        + "  \"detail\" : \"Field [Operations] is required\",\n"
+                        + "  \"schemas\" : [ \"urn:ietf:params:scim:api:messages:2.0:Error\" ]\n"
+                        + "}");
     }
 
     @Test
@@ -111,32 +105,38 @@ public class PatchUserEndpointHandlerTest extends RxWebTestBase {
         User scimUser = mock(User.class);
         when(scimUser.getMeta()).thenReturn(new Meta());
         when(userService.get(any(), any())).thenReturn(Maybe.just(new User()));
-        when(userService.patch(any(), any(), any(), any(), any(), any())).thenReturn(Single.just(scimUser));
+        when(userService.patch(any(), any(), any(), any(), any(), any()))
+                .thenReturn(Single.just(scimUser));
 
         testRequest(
                 HttpMethod.PATCH,
                 "/Users",
                 req -> {
                     req.setChunked(true);
-                    req.write("{\n" +
-                            "     \"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],\n" +
-                            "     \"Operations\": [{\n" +
-                            "        \"op\":\"Add\",\n" +
-                            "        \"path\":\"urn:ietf:params:scim:schemas:extension:custom:2.0:User\",\n" +
-                            "        \"value\": {\n" +
-                            "            \"customClaim\": \"customValue\"\n" +
-                            "        }\n" +
-                            "     }]\n" +
-                            "\n" +
-                            "}");
+                    req.write(
+                            "{\n"
+                                    + "     \"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],\n"
+                                    + "     \"Operations\": [{\n"
+                                    + "        \"op\":\"Add\",\n"
+                                    + "        \"path\":\"urn:ietf:params:scim:schemas:extension:custom:2.0:User\",\n"
+                                    + "        \"value\": {\n"
+                                    + "            \"customClaim\": \"customValue\"\n"
+                                    + "        }\n"
+                                    + "     }]\n"
+                                    + "\n"
+                                    + "}");
                 },
                 200,
-                "OK", null);
+                "OK",
+                null);
 
         ArgumentCaptor<PatchOp> patchOpArgumentCaptor = ArgumentCaptor.forClass(PatchOp.class);
-        verify(userService).patch(any(), patchOpArgumentCaptor.capture(),  any(), any(), any(), any());
+        verify(userService)
+                .patch(any(), patchOpArgumentCaptor.capture(), any(), any(), any(), any());
         PatchOp patchOp = patchOpArgumentCaptor.getValue();
-        assertEquals(Schema.SCHEMA_URI_CUSTOM_USER, patchOp.getOperations().get(0).getPath().getAttributePath());
+        assertEquals(
+                Schema.SCHEMA_URI_CUSTOM_USER,
+                patchOp.getOperations().get(0).getPath().getAttributePath());
     }
 
     private PatchOp emptyPatchOp() {

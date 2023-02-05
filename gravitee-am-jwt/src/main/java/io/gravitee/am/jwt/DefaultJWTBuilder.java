@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.jwt;
@@ -28,20 +26,24 @@ import com.nimbusds.jose.crypto.bc.BouncyCastleProviderSingleton;
 import com.nimbusds.jose.jca.JCASupport;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+
 import io.gravitee.am.common.exception.jwt.MalformedJWTException;
 import io.gravitee.am.common.exception.jwt.SignatureException;
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.common.jwt.JWT;
+
 import net.minidev.json.JSONObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.crypto.SecretKey;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.PrivateKey;
 import java.security.interfaces.ECPrivateKey;
 import java.text.ParseException;
+
+import javax.crypto.SecretKey;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -54,11 +56,10 @@ public class DefaultJWTBuilder implements JWTBuilder {
     private final JWSHeader header;
     private String issuer;
 
-    public DefaultJWTBuilder(final Key key,
-                             final String signatureAlgorithm,
-                             final String keyId) throws InvalidKeyException {
+    public DefaultJWTBuilder(final Key key, final String signatureAlgorithm, final String keyId)
+            throws InvalidKeyException {
         if (key instanceof PrivateKey) {
-            if ( key.getAlgorithm().equals("RSA")){
+            if (key.getAlgorithm().equals("RSA")) {
                 signer = new RSASSASigner((PrivateKey) key, true);
             } else {
                 try {
@@ -81,17 +82,19 @@ public class DefaultJWTBuilder implements JWTBuilder {
         } else {
             throw new InvalidKeyException("No matching JWT signer for key : " + key);
         }
-        header = new JWSHeader.Builder(new JWSAlgorithm(signatureAlgorithm)).keyID(keyId).type(JOSEObjectType.JWT).build();
+        header =
+                new JWSHeader.Builder(new JWSAlgorithm(signatureAlgorithm))
+                        .keyID(keyId)
+                        .type(JOSEObjectType.JWT)
+                        .build();
     }
 
-    public DefaultJWTBuilder(final Key key,
-                             final String signatureAlgorithm,
-                             final String keyId,
-                             final String issuer) throws InvalidKeyException {
+    public DefaultJWTBuilder(
+            final Key key, final String signatureAlgorithm, final String keyId, final String issuer)
+            throws InvalidKeyException {
         this(key, signatureAlgorithm, keyId);
         this.issuer = issuer;
     }
-
 
     @Override
     public String sign(JWT payload) {

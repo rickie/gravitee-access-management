@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.root.resources.handler.client;
+
+import static io.gravitee.am.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
 
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.exception.oauth2.ServerErrorException;
@@ -24,8 +24,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.ext.web.RoutingContext;
-
-import static io.gravitee.am.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -46,28 +44,31 @@ public class ClientRequestParseHandler implements Handler<RoutingContext> {
         final String clientId = context.request().getParam(Parameters.CLIENT_ID);
         if (clientId == null || clientId.isEmpty()) {
             if (required) {
-                context.fail(new InvalidRequestException("Missing parameter: client_id is required"));
+                context.fail(
+                        new InvalidRequestException("Missing parameter: client_id is required"));
             } else {
                 context.next();
             }
             return;
         }
 
-        authenticate(clientId, authHandler -> {
-            if (authHandler.failed()) {
-                if (continueOnError) {
-                    context.next();
-                } else {
-                    context.fail(authHandler.cause());
-                }
-                return;
-            }
+        authenticate(
+                clientId,
+                authHandler -> {
+                    if (authHandler.failed()) {
+                        if (continueOnError) {
+                            context.next();
+                        } else {
+                            context.fail(authHandler.cause());
+                        }
+                        return;
+                    }
 
-            Client safeClient = new Client(authHandler.result());
-            safeClient.setClientSecret(null);
-            context.put(CLIENT_CONTEXT_KEY, safeClient);
-            context.next();
-        });
+                    Client safeClient = new Client(authHandler.result());
+                    safeClient.setClientSecret(null);
+                    context.put(CLIENT_CONTEXT_KEY, safeClient);
+                    context.next();
+                });
     }
 
     public ClientRequestParseHandler setRequired(boolean required) {
@@ -85,8 +86,17 @@ public class ClientRequestParseHandler implements Handler<RoutingContext> {
                 .findByClientId(clientId)
                 .subscribe(
                         client -> authHandler.handle(Future.succeededFuture(client)),
-                        error -> authHandler.handle(Future.failedFuture(new ServerErrorException("Server error: unable to find client with client_id " + clientId))),
-                        () -> authHandler.handle(Future.failedFuture(new InvalidRequestException("No client found for client_id " + clientId)))
-                );
+                        error ->
+                                authHandler.handle(
+                                        Future.failedFuture(
+                                                new ServerErrorException(
+                                                        "Server error: unable to find client with client_id "
+                                                                + clientId))),
+                        () ->
+                                authHandler.handle(
+                                        Future.failedFuture(
+                                                new InvalidRequestException(
+                                                        "No client found for client_id "
+                                                                + clientId))));
     }
 }

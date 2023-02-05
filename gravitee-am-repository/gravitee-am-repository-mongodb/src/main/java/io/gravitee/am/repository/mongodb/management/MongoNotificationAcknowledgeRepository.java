@@ -1,21 +1,23 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.repository.mongodb.management.internal.model.NotificationAcknowledgeMongo;
 import io.gravitee.node.api.notifier.NotificationAcknowledge;
@@ -24,20 +26,19 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+
 import org.bson.Document;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class MongoNotificationAcknowledgeRepository extends AbstractManagementMongoRepository implements NotificationAcknowledgeRepository {
+public class MongoNotificationAcknowledgeRepository extends AbstractManagementMongoRepository
+        implements NotificationAcknowledgeRepository {
 
     private static final String FIELD_RESOURCE_ID = "resourceId";
     private static final String FIELD_RESOURCE_TYPE = "resourceType";
@@ -48,45 +49,57 @@ public class MongoNotificationAcknowledgeRepository extends AbstractManagementMo
 
     @PostConstruct
     public void init() {
-        collection = mongoOperations.getCollection("notification_acknowledgements", NotificationAcknowledgeMongo.class);
-        super.createIndex(collection, new Document(FIELD_RESOURCE_ID, 1).append(FIELD_TYPE, 1).append(FIELD_AUDIENCE_ID, 1));
+        collection =
+                mongoOperations.getCollection(
+                        "notification_acknowledgements", NotificationAcknowledgeMongo.class);
+        super.createIndex(
+                collection,
+                new Document(FIELD_RESOURCE_ID, 1)
+                        .append(FIELD_TYPE, 1)
+                        .append(FIELD_AUDIENCE_ID, 1));
         super.init(collection);
     }
 
     @Override
     public Maybe<NotificationAcknowledge> findById(String id) {
-        return Observable.fromPublisher(collection.find(eq(FIELD_ID, id))
-                        .first())
+        return Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first())
                 .firstElement()
                 .map(this::convert);
-
     }
 
     @Override
-    public Maybe<NotificationAcknowledge> findByResourceIdAndTypeAndAudienceId(String resourceId, String resourceType, String type, String audience) {
-        return Observable.fromPublisher(collection.find(and(
-                    eq(FIELD_RESOURCE_ID, resourceId),
-                    eq(FIELD_RESOURCE_TYPE, resourceType),
-                    eq(FIELD_TYPE, type),
-                    eq(FIELD_AUDIENCE_ID, audience)))
-                .first())
+    public Maybe<NotificationAcknowledge> findByResourceIdAndTypeAndAudienceId(
+            String resourceId, String resourceType, String type, String audience) {
+        return Observable.fromPublisher(
+                        collection
+                                .find(
+                                        and(
+                                                eq(FIELD_RESOURCE_ID, resourceId),
+                                                eq(FIELD_RESOURCE_TYPE, resourceType),
+                                                eq(FIELD_TYPE, type),
+                                                eq(FIELD_AUDIENCE_ID, audience)))
+                                .first())
                 .firstElement()
                 .map(this::convert);
     }
 
     @Override
     public Completable deleteByResourceId(String id, String resourceType) {
-        return Completable.fromPublisher(collection.deleteOne(and(eq(FIELD_RESOURCE_ID, id), eq(FIELD_RESOURCE_TYPE, resourceType))));
+        return Completable.fromPublisher(
+                collection.deleteOne(
+                        and(eq(FIELD_RESOURCE_ID, id), eq(FIELD_RESOURCE_TYPE, resourceType))));
     }
 
     @Override
     public Single<NotificationAcknowledge> create(NotificationAcknowledge notificationAcknowledge) {
         NotificationAcknowledgeMongo entity = convert(notificationAcknowledge);
         entity.setId(entity.getId() == null ? RandomString.generate() : entity.getId());
-        return Single.fromPublisher(collection.insertOne(entity)).map(success -> {
-            notificationAcknowledge.setId(entity.getId());
-            return notificationAcknowledge;
-        });
+        return Single.fromPublisher(collection.insertOne(entity))
+                .map(
+                        success -> {
+                            notificationAcknowledge.setId(entity.getId());
+                            return notificationAcknowledge;
+                        });
     }
 
     @Override

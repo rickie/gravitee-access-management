@@ -1,22 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.scim.resources.groups;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
@@ -31,16 +34,12 @@ import io.reactivex.Single;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.handler.BodyHandler;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -49,20 +48,17 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class UpdateGroupEndpointHandlerTest extends RxWebTestBase {
 
-    @Mock
-    private GroupService groupService;
+    @Mock private GroupService groupService;
 
-    @Mock
-    private ObjectMapper objectMapper;
+    @Mock private ObjectMapper objectMapper;
 
-    @Mock
-    private ObjectWriter objectWriter;
+    @Mock private ObjectWriter objectWriter;
 
-    @Mock
-    private UserService userService;
+    @Mock private UserService userService;
 
     @InjectMocks
-    private GroupEndpoint groupEndpoint = new GroupEndpoint(groupService, objectMapper, userService);
+    private GroupEndpoint groupEndpoint =
+            new GroupEndpoint(groupService, objectMapper, userService);
 
     @Override
     public void setUp() throws Exception {
@@ -75,11 +71,12 @@ public class UpdateGroupEndpointHandlerTest extends RxWebTestBase {
 
         router.route()
                 .handler(BodyHandler.create())
-                .handler(rc -> {
-                    JWT token = new JWT();
-                    rc.put(ConstantKeys.TOKEN_CONTEXT_KEY, token);
-                    rc.next();
-                })
+                .handler(
+                        rc -> {
+                            JWT token = new JWT();
+                            rc.put(ConstantKeys.TOKEN_CONTEXT_KEY, token);
+                            rc.next();
+                        })
                 .failureHandler(new ErrorHandler());
     }
 
@@ -96,13 +93,15 @@ public class UpdateGroupEndpointHandlerTest extends RxWebTestBase {
                     req.write(Json.encode(getGroup()));
                 },
                 200,
-                "OK", null);
+                "OK",
+                null);
     }
 
     @Test
     public void shouldReturn400WhenInvalidGroupException() throws Exception {
         router.route("/Groups").handler(groupEndpoint::update);
-        when(groupService.update(any(), any(), anyString(), any())).thenReturn(Single.error(new InvalidGroupException("Invalid group infos")));
+        when(groupService.update(any(), any(), anyString(), any()))
+                .thenReturn(Single.error(new InvalidGroupException("Invalid group infos")));
 
         testRequest(
                 HttpMethod.PUT,
@@ -113,12 +112,12 @@ public class UpdateGroupEndpointHandlerTest extends RxWebTestBase {
                 },
                 400,
                 "Bad Request",
-                "{\n" +
-                        "  \"status\" : \"400\",\n" +
-                        "  \"scimType\" : \"invalidValue\",\n" +
-                        "  \"detail\" : \"Invalid group infos\",\n" +
-                        "  \"schemas\" : [ \"urn:ietf:params:scim:api:messages:2.0:Error\" ]\n" +
-                        "}");
+                "{\n"
+                        + "  \"status\" : \"400\",\n"
+                        + "  \"scimType\" : \"invalidValue\",\n"
+                        + "  \"detail\" : \"Invalid group infos\",\n"
+                        + "  \"schemas\" : [ \"urn:ietf:params:scim:api:messages:2.0:Error\" ]\n"
+                        + "}");
     }
 
     private Group getGroup() {

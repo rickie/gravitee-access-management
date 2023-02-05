@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.oauth2;
@@ -23,6 +21,7 @@ import io.gravitee.am.repository.jdbc.provider.R2DBCConnectionConfiguration;
 import io.gravitee.am.repository.jdbc.provider.impl.R2DBCPoolWrapper;
 import io.gravitee.am.repository.provider.ConnectionProvider;
 import io.r2dbc.spi.ConnectionFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -39,24 +38,26 @@ import java.util.Optional;
  */
 @Configuration
 @ComponentScan({
-        "io.gravitee.am.repository.jdbc.oauth2",
-        "io.gravitee.am.repository.jdbc.oauth2.oidc"
+    "io.gravitee.am.repository.jdbc.oauth2",
+    "io.gravitee.am.repository.jdbc.oauth2.oidc"
 })
 @EnableR2dbcRepositories
 public class OAuth2RepositoryConfiguration extends AbstractRepositoryConfiguration {
 
     @Autowired
-    public ConnectionProvider<ConnectionFactory, R2DBCConnectionConfiguration> connectionFactoryProvider;
+    public ConnectionProvider<ConnectionFactory, R2DBCConnectionConfiguration>
+            connectionFactoryProvider;
 
     @Override
     @Bean
     public ConnectionFactory connectionFactory() {
-        //return new DelegatedConnectionFactory(getOauth2Pool());
+        // return new DelegatedConnectionFactory(getOauth2Pool());
         return getOauth2Pool().getClient();
     }
 
     private R2DBCPoolWrapper getOauth2Pool() {
-        return (R2DBCPoolWrapper) connectionFactoryProvider.getClientWrapper(Scope.OAUTH2.getName());
+        return (R2DBCPoolWrapper)
+                connectionFactoryProvider.getClientWrapper(Scope.OAUTH2.getName());
     }
 
     protected String getDriver() {
@@ -92,7 +93,6 @@ public class OAuth2RepositoryConfiguration extends AbstractRepositoryConfigurati
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        initializeDatabaseSchema(getOauth2Pool(), environment, Scope.OAUTH2.getName()+ ".jdbc.");
+        initializeDatabaseSchema(getOauth2Pool(), environment, Scope.OAUTH2.getName() + ".jdbc.");
     }
-
 }

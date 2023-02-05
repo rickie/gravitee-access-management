@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.identityprovider.ldap.common.pool;
@@ -29,8 +27,7 @@ public class CustomBlockingConnectionPool extends BlockingConnectionPool {
     private static final int DEFAULT_MAX_RETRIES = 3;
     private int maxRetries = DEFAULT_MAX_RETRIES;
 
-    public CustomBlockingConnectionPool() {
-    }
+    public CustomBlockingConnectionPool() {}
 
     public CustomBlockingConnectionPool(DefaultConnectionFactory cf) {
         super(cf);
@@ -45,23 +42,22 @@ public class CustomBlockingConnectionPool extends BlockingConnectionPool {
         super(pc, cf);
     }
 
-    public CustomBlockingConnectionPool(PoolConfig pc, DefaultConnectionFactory cf, int maxRetries) {
+    public CustomBlockingConnectionPool(
+            PoolConfig pc, DefaultConnectionFactory cf, int maxRetries) {
         this(pc, cf);
         this.maxRetries = maxRetries;
     }
 
     /**
-     * Attempts to grow the pool to the supplied size. If the pool size is greater than or equal to the supplied size,
-     * this method is a no-op.
+     * Attempts to grow the pool to the supplied size. If the pool size is greater than or equal to
+     * the supplied size, this method is a no-op.
      *
-     * @param  size  to grow the pool to
-     * @param  throwOnFailure  whether to throw illegal state exception
-     *
-     * @throws  IllegalStateException  if the pool cannot grow to the supplied size and {@link
-     *                                 #createAvailableConnection(boolean)} throws
+     * @param size to grow the pool to
+     * @param throwOnFailure whether to throw illegal state exception
+     * @throws IllegalStateException if the pool cannot grow to the supplied size and {@link
+     *     #createAvailableConnection(boolean)} throws
      */
-    protected void grow(final int size, final boolean throwOnFailure)
-    {
+    protected void grow(final int size, final boolean throwOnFailure) {
         logger.trace("waiting for pool lock to initialize pool {}", poolLock.getQueueLength());
 
         int count = 0;

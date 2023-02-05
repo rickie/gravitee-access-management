@@ -1,77 +1,98 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ExtensionGrant;
 import io.gravitee.am.repository.management.api.ExtensionGrantRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.ExtensionGrantMongo;
 import io.reactivex.*;
+
 import org.bson.Document;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class MongoExtensionGrantRepository extends AbstractManagementMongoRepository implements ExtensionGrantRepository {
+public class MongoExtensionGrantRepository extends AbstractManagementMongoRepository
+        implements ExtensionGrantRepository {
 
     private MongoCollection<ExtensionGrantMongo> extensionGrantsCollection;
 
     @PostConstruct
     public void init() {
-        extensionGrantsCollection = mongoOperations.getCollection("extension_grants", ExtensionGrantMongo.class);
+        extensionGrantsCollection =
+                mongoOperations.getCollection("extension_grants", ExtensionGrantMongo.class);
         super.init(extensionGrantsCollection);
         super.createIndex(extensionGrantsCollection, new Document(FIELD_DOMAIN, 1));
-        super.createIndex(extensionGrantsCollection,new Document(FIELD_DOMAIN, 1).append(FIELD_NAME, 1));
+        super.createIndex(
+                extensionGrantsCollection, new Document(FIELD_DOMAIN, 1).append(FIELD_NAME, 1));
     }
 
     @Override
     public Flowable<ExtensionGrant> findByDomain(String domain) {
-        return Flowable.fromPublisher(extensionGrantsCollection.find(eq(FIELD_DOMAIN, domain))).map(this::convert);
+        return Flowable.fromPublisher(extensionGrantsCollection.find(eq(FIELD_DOMAIN, domain)))
+                .map(this::convert);
     }
 
     @Override
     public Maybe<ExtensionGrant> findByDomainAndName(String domain, String name) {
-        return Observable.fromPublisher(extensionGrantsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_NAME, name))).first()).firstElement().map(this::convert);
+        return Observable.fromPublisher(
+                        extensionGrantsCollection
+                                .find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_NAME, name)))
+                                .first())
+                .firstElement()
+                .map(this::convert);
     }
 
     @Override
     public Maybe<ExtensionGrant> findById(String tokenGranterId) {
-        return Observable.fromPublisher(extensionGrantsCollection.find(eq(FIELD_ID, tokenGranterId)).first()).firstElement().map(this::convert);
+        return Observable.fromPublisher(
+                        extensionGrantsCollection.find(eq(FIELD_ID, tokenGranterId)).first())
+                .firstElement()
+                .map(this::convert);
     }
 
     @Override
     public Single<ExtensionGrant> create(ExtensionGrant item) {
         ExtensionGrantMongo extensionGrant = convert(item);
-        extensionGrant.setId(extensionGrant.getId() == null ? RandomString.generate() : extensionGrant.getId());
-        return Single.fromPublisher(extensionGrantsCollection.insertOne(extensionGrant)).flatMap(success -> { item.setId(extensionGrant.getId()); return Single.just(item); });
+        extensionGrant.setId(
+                extensionGrant.getId() == null ? RandomString.generate() : extensionGrant.getId());
+        return Single.fromPublisher(extensionGrantsCollection.insertOne(extensionGrant))
+                .flatMap(
+                        success -> {
+                            item.setId(extensionGrant.getId());
+                            return Single.just(item);
+                        });
     }
 
     @Override
     public Single<ExtensionGrant> update(ExtensionGrant item) {
         ExtensionGrantMongo extensionGrant = convert(item);
-        return Single.fromPublisher(extensionGrantsCollection.replaceOne(eq(FIELD_ID, extensionGrant.getId()), extensionGrant)).flatMap(updateResult -> Single.just(item));
+        return Single.fromPublisher(
+                        extensionGrantsCollection.replaceOne(
+                                eq(FIELD_ID, extensionGrant.getId()), extensionGrant))
+                .flatMap(updateResult -> Single.just(item));
     }
 
     @Override

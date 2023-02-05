@@ -1,22 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.account.resources;
 
-import io.gravitee.am.gateway.handler.account.services.AccountService;
 import io.gravitee.am.common.utils.ConstantKeys;
+import io.gravitee.am.gateway.handler.account.services.AccountService;
 import io.gravitee.am.identityprovider.api.DefaultUser;
 import io.gravitee.am.model.User;
 import io.vertx.reactivex.ext.web.RoutingContext;
@@ -40,11 +38,13 @@ public class AccountWebAuthnCredentialsEndpointHandler {
      */
     public void listEnrolledWebAuthnCredentials(RoutingContext routingContext) {
         final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        accountService.getWebAuthnCredentials(user)
-                        .subscribe(
-                                enrolledCredentials -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledCredentials),
-                                error -> routingContext.fail(error)
-                        );
+        accountService
+                .getWebAuthnCredentials(user)
+                .subscribe(
+                        enrolledCredentials ->
+                                AccountResponseHandler.handleDefaultResponse(
+                                        routingContext, enrolledCredentials),
+                        error -> routingContext.fail(error));
     }
 
     /**
@@ -55,11 +55,13 @@ public class AccountWebAuthnCredentialsEndpointHandler {
     public void getEnrolledWebAuthnCredential(RoutingContext routingContext) {
         final String credentialId = routingContext.request().getParam("credentialId");
 
-        accountService.getWebAuthnCredential(credentialId)
+        accountService
+                .getWebAuthnCredential(credentialId)
                 .subscribe(
-                        credential -> AccountResponseHandler.handleDefaultResponse(routingContext, credential),
-                        error -> routingContext.fail(error)
-                );
+                        credential ->
+                                AccountResponseHandler.handleDefaultResponse(
+                                        routingContext, credential),
+                        error -> routingContext.fail(error));
     }
 
     /**
@@ -71,10 +73,10 @@ public class AccountWebAuthnCredentialsEndpointHandler {
         final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
         final String credentialId = routingContext.request().getParam("credentialId");
 
-        accountService.removeWebAuthnCredential(user.getId(), credentialId, new DefaultUser(user))
+        accountService
+                .removeWebAuthnCredential(user.getId(), credentialId, new DefaultUser(user))
                 .subscribe(
                         () -> AccountResponseHandler.handleNoBodyResponse(routingContext),
-                        error -> routingContext.fail(error)
-                );
+                        error -> routingContext.fail(error));
     }
 }

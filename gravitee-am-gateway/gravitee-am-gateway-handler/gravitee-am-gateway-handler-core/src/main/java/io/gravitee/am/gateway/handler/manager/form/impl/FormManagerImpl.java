@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.manager.form.impl;
@@ -27,6 +25,7 @@ import io.gravitee.am.repository.management.api.FormRepository;
 import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -40,30 +39,32 @@ import java.util.concurrent.ConcurrentMap;
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class FormManagerImpl extends AbstractService implements FormManager, InitializingBean, EventListener<FormEvent, Payload> {
+public class FormManagerImpl extends AbstractService
+        implements FormManager, InitializingBean, EventListener<FormEvent, Payload> {
 
     private static final Logger logger = LoggerFactory.getLogger(FormManagerImpl.class);
     private ConcurrentMap<String, Form> forms = new ConcurrentHashMap<>();
 
-    @Autowired
-    private ITemplateResolver templateResolver;
+    @Autowired private ITemplateResolver templateResolver;
 
-    @Autowired
-    private FormRepository formRepository;
+    @Autowired private FormRepository formRepository;
 
-    @Autowired
-    private Domain domain;
+    @Autowired private Domain domain;
 
-    @Autowired
-    private EventManager eventManager;
+    @Autowired private EventManager eventManager;
 
     @Override
     public void afterPropertiesSet() {
         logger.info("Initializing forms for domain {}", domain.getName());
-        formRepository.findAll(ReferenceType.DOMAIN, domain.getId())
+        formRepository
+                .findAll(ReferenceType.DOMAIN, domain.getId())
                 .subscribe(
                         form -> updateForm(form),
-                        error -> logger.error("Unable to initialize forms for domain {}", domain.getName(), error));
+                        error ->
+                                logger.error(
+                                        "Unable to initialize forms for domain {}",
+                                        domain.getName(),
+                                        error));
     }
 
     @Override
@@ -84,7 +85,8 @@ public class FormManagerImpl extends AbstractService implements FormManager, Ini
 
     @Override
     public void onEvent(Event<FormEvent, Payload> event) {
-        if (event.content().getReferenceType() == ReferenceType.DOMAIN && domain.getId().equals(event.content().getReferenceId())) {
+        if (event.content().getReferenceType() == ReferenceType.DOMAIN
+                && domain.getId().equals(event.content().getReferenceId())) {
             switch (event.type()) {
                 case DEPLOY:
                 case UPDATE:
@@ -99,8 +101,10 @@ public class FormManagerImpl extends AbstractService implements FormManager, Ini
 
     private void updateForm(String formId, FormEvent formEvent) {
         final String eventType = formEvent.toString().toLowerCase();
-        logger.info("Domain {} has received {} form event for {}", domain.getName(), eventType, formId);
-        formRepository.findById(formId)
+        logger.info(
+                "Domain {} has received {} form event for {}", domain.getName(), eventType, formId);
+        formRepository
+                .findById(formId)
                 .subscribe(
                         form -> {
                             if (needDeployment(form)) {
@@ -110,12 +114,25 @@ public class FormManagerImpl extends AbstractService implements FormManager, Ini
                                 } else {
                                     updateForm(form);
                                 }
-                                logger.info("Form {} {}d for domain {}", formId, eventType, domain.getName());
+                                logger.info(
+                                        "Form {} {}d for domain {}",
+                                        formId,
+                                        eventType,
+                                        domain.getName());
                             } else {
-                                logger.info("Form {} already {}d for domain {}", formId, eventType, domain.getName());
+                                logger.info(
+                                        "Form {} already {}d for domain {}",
+                                        formId,
+                                        eventType,
+                                        domain.getName());
                             }
                         },
-                        error -> logger.error("Unable to {} form for domain {}", eventType, domain.getName(), error),
+                        error ->
+                                logger.error(
+                                        "Unable to {} form for domain {}",
+                                        eventType,
+                                        domain.getName(),
+                                        error),
                         () -> logger.error("No form found with id {}", formId));
     }
 
@@ -123,15 +140,22 @@ public class FormManagerImpl extends AbstractService implements FormManager, Ini
         logger.info("Domain {} has received form event, delete form {}", domain.getName(), formId);
         Form deletedForm = forms.remove(formId);
         if (deletedForm != null) {
-            ((DomainBasedTemplateResolver) templateResolver).removeForm(getTemplateName(deletedForm));
+            ((DomainBasedTemplateResolver) templateResolver)
+                    .removeForm(getTemplateName(deletedForm));
         }
     }
 
     private void updateForm(Form form) {
-        if (form.isEnabled()){
+        if (form.isEnabled()) {
             this.forms.put(form.getId(), form);
-            ((DomainBasedTemplateResolver) templateResolver).addForm(getTemplateName(form), form.getContent());
-            logger.info("Form {} loaded for domain {} " + (form.getClient() != null ? "and client {}" : ""), form.getTemplate(), domain.getName(), form.getClient());
+            ((DomainBasedTemplateResolver) templateResolver)
+                    .addForm(getTemplateName(form), form.getContent());
+            logger.info(
+                    "Form {} loaded for domain {} "
+                            + (form.getClient() != null ? "and client {}" : ""),
+                    form.getTemplate(),
+                    domain.getName(),
+                    form.getClient());
         }
     }
 

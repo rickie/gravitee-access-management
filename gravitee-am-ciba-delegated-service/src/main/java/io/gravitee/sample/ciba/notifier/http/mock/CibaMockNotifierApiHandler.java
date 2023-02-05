@@ -1,23 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.sample.ciba.notifier.http.mock;
 
+import static io.gravitee.sample.ciba.notifier.http.Constants.*;
+
 import com.nimbusds.jose.JOSEObject;
-import io.gravitee.sample.ciba.notifier.http.domain.CibaDomainManager;
+
 import io.gravitee.sample.ciba.notifier.CibaHttpNotifier;
+import io.gravitee.sample.ciba.notifier.http.domain.CibaDomainManager;
 import io.gravitee.sample.ciba.notifier.http.model.DomainReference;
 import io.gravitee.sample.ciba.notifier.http.model.NotifierResponse;
 import io.netty.util.internal.StringUtil;
@@ -30,14 +31,13 @@ import io.vertx.ext.auth.authentication.UsernamePasswordCredentials;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
+
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.concurrent.Executors;
-
-import static io.gravitee.sample.ciba.notifier.http.Constants.*;
 
 public class CibaMockNotifierApiHandler implements Handler<RoutingContext> {
     private static Logger LOGGER = LoggerFactory.getLogger(CibaMockNotifierApiHandler.class);
@@ -47,12 +47,14 @@ public class CibaMockNotifierApiHandler implements Handler<RoutingContext> {
     private CibaDomainManager domainManager;
     private WebClient webClient;
 
-    public CibaMockNotifierApiHandler(boolean accept, CommandLine parameters, CibaDomainManager domainManager, Vertx vertx) {
+    public CibaMockNotifierApiHandler(
+            boolean accept, CommandLine parameters, CibaDomainManager domainManager, Vertx vertx) {
         this.accept = accept;
         this.domainManager = domainManager;
         this.authBearer = parameters.getOptionValue(CibaHttpNotifier.CONF_BEARER);
 
-        WebClientOptions options = new WebClientOptions().setUserAgent("AM CIBA Delegate HTTP Service");
+        WebClientOptions options =
+                new WebClientOptions().setUserAgent("AM CIBA Delegate HTTP Service");
         options.setKeepAlive(false);
 
         this.webClient = WebClient.create(vertx, options);
@@ -66,10 +68,12 @@ public class CibaMockNotifierApiHandler implements Handler<RoutingContext> {
             if (auth != null && auth.startsWith(BEARER) && !StringUtil.isNullOrEmpty(authBearer)) {
                 // control the token
                 if (!authBearer.equals(auth.substring(BEARER.length()))) {
-                    routingContext.response()
+                    routingContext
+                            .response()
                             .putHeader("content-type", "application/json")
-                            .setStatusCode(401).end();
-                    return ;
+                            .setStatusCode(401)
+                            .end();
+                    return;
                 }
             }
 
@@ -86,7 +90,8 @@ public class CibaMockNotifierApiHandler implements Handler<RoutingContext> {
                 formData.set(STATE, state);
                 formData.set(CALLBACK_VALIDATE, Boolean.toString(accept));
 
-                routingContext.response()
+                routingContext
+                        .response()
                         .putHeader("content-type", "application/json")
                         .setStatusCode(200)
                         .end(Json.encode(new NotifierResponse(transactionId, state)));
@@ -94,7 +99,8 @@ public class CibaMockNotifierApiHandler implements Handler<RoutingContext> {
                 sendResponse(transactionId, optCallback.get(), formData, true);
 
             } else {
-                routingContext.response()
+                routingContext
+                        .response()
                         .putHeader("content-type", "application/json")
                         .setStatusCode(404)
                         .end("missing domain reference");
@@ -105,35 +111,60 @@ public class CibaMockNotifierApiHandler implements Handler<RoutingContext> {
         }
     }
 
-    private void sendResponse(String transactionId, DomainReference optCallback, MultiMap formData, boolean retry) {
-        Executors.defaultThreadFactory().newThread(() -> {
-            try {
-                // give to the AM GW enough time to update the Request external ID
-                waitBeforeNotification();
-                webClient
-                        .postAbs(optCallback.getDomainCallback())
-                        .authentication(new UsernamePasswordCredentials(
-                                optCallback.getClientId(),
-                                optCallback.getClientSecret()))
-                        .sendForm(formData)
-                        .onSuccess(res -> LOGGER.info("Callback succeeded for tid {}", transactionId))
-                        .onFailure(err -> {
-                            if (retry) {
-                                LOGGER.info("Retry the callback for tid {} (err: {})", transactionId, err);
-                                sendResponse(transactionId, optCallback, formData, false);
-                            } else {
-                                LOGGER.warn("Callback failed for tid {} : {}", transactionId, err);
+    private void sendResponse(
+            String transactionId, DomainReference optCallback, MultiMap formData, boolean retry) {
+        Executors.defaultThreadFactory()
+                .newThread(
+                        () -> {
+                            try {
+                                // give to the AM GW enough time to update the Request external ID
+                                waitBeforeNotification();
+                                webClient
+                                        .postAbs(optCallback.getDomainCallback())
+                                        .authentication(
+                                                new UsernamePasswordCredentials(
+                                                        optCallback.getClientId(),
+                                                        optCallback.getClientSecret()))
+                                        .sendForm(formData)
+                                        .onSuccess(
+                                                res ->
+                                                        LOGGER.info(
+                                                                "Callback succeeded for tid {}",
+                                                                transactionId))
+                                        .onFailure(
+                                                err -> {
+                                                    if (retry) {
+                                                        LOGGER.info(
+                                                                "Retry the callback for tid {} (err: {})",
+                                                                transactionId,
+                                                                err);
+                                                        sendResponse(
+                                                                transactionId,
+                                                                optCallback,
+                                                                formData,
+                                                                false);
+                                                    } else {
+                                                        LOGGER.warn(
+                                                                "Callback failed for tid {} : {}",
+                                                                transactionId,
+                                                                err);
+                                                    }
+                                                });
+                            } catch (Exception e) {
+                                LOGGER.warn(
+                                        "Callback request failed for tid {} : {}",
+                                        transactionId,
+                                        e);
                             }
-                        });
-            } catch (Exception e) {
-                LOGGER.warn("Callback request failed for tid {} : {}", transactionId, e);
-            }
-        }).start();
+                        })
+                .start();
     }
 
     private void waitBeforeNotification() {
         try {
             Thread.sleep(2000);
-        } catch (InterruptedException e) { /*Silent catch*/ }
+        } catch (InterruptedException e) {
+            /*Silent catch*/
+        }
     }
 }

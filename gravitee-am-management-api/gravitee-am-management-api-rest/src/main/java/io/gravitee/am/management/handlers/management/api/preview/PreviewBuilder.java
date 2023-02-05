@@ -1,19 +1,28 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.preview;
+
+import static io.gravitee.am.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.DOMAIN_CONTEXT_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.ERROR_DESCRIPTION_PARAM_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.ERROR_PARAM_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.PARAM_CONTEXT_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.TEMPLATE_KEY_RECOVERY_CODES_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.TEMPLATE_KEY_RECOVERY_CODES_URL_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.TOKEN_CONTEXT_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.USERNAME_PARAM_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.USER_CONTEXT_KEY;
 
 import io.gravitee.am.common.factor.FactorType;
 import io.gravitee.am.common.oauth2.Parameters;
@@ -34,6 +43,7 @@ import io.gravitee.am.model.safe.ClientProperties;
 import io.gravitee.am.model.safe.DomainProperties;
 import io.gravitee.am.model.safe.UserProperties;
 import io.gravitee.am.service.theme.ThemeResolution;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
@@ -50,18 +60,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static io.gravitee.am.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.DOMAIN_CONTEXT_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.ERROR_DESCRIPTION_PARAM_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.ERROR_PARAM_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.PARAM_CONTEXT_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.REQUEST_CONTEXT_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.TEMPLATE_KEY_RECOVERY_CODES_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.TEMPLATE_KEY_RECOVERY_CODES_URL_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.TOKEN_CONTEXT_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.USERNAME_PARAM_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.USER_CONTEXT_KEY;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -146,15 +144,27 @@ public class PreviewBuilder {
 
         this.templateResolver.addForm(previewForm);
         try {
-            final String processedTemplate = templateEngine.process(this.templateResolver.getTemplateKey(previewForm), context);
+            final String processedTemplate =
+                    templateEngine.process(
+                            this.templateResolver.getTemplateKey(previewForm), context);
             previewForm.setContent(processedTemplate);
         } catch (TemplateInputException e) {
             logger.debug("Preview error on domain {}", this.domain.getId(), e);
-            throw new PreviewException("Preview error, document structure maybe invalid." +
-                    " (error at line: " + e.getLine() + ", col: " + e.getCol() + " )");
+            throw new PreviewException(
+                    "Preview error, document structure maybe invalid."
+                            + " (error at line: "
+                            + e.getLine()
+                            + ", col: "
+                            + e.getCol()
+                            + " )");
         } catch (TemplateProcessingException e) {
             logger.debug("Preview error on domain {}", this.domain.getId(), e);
-            throw new PreviewException("Preview error, expression or variable maybe invalid (error at line: " + e.getLine() + ", col: " + e.getCol() + ")");
+            throw new PreviewException(
+                    "Preview error, expression or variable maybe invalid (error at line: "
+                            + e.getLine()
+                            + ", col: "
+                            + e.getCol()
+                            + ")");
         } catch (TemplateEngineException e) {
             logger.info("Unexpected preview error on domain {}", this.domain.getId(), e);
             throw new PreviewException("Unexpected preview error");
@@ -162,14 +172,19 @@ public class PreviewBuilder {
             this.templateResolver.removeForm(previewForm);
         }
 
-        return new PreviewResponse(previewForm.getContent(), this.request.getType(), this.request.getTemplate());
+        return new PreviewResponse(
+                previewForm.getContent(), this.request.getType(), this.request.getTemplate());
     }
 
     private Map<String, Object> generateTemplateVariables(String template) {
         final Map<String, Object> variables = new HashMap<>();
 
-        variables.put(ConstantKeys._CSRF, Map.of(PARAMETER_NAME, EMPTY_STRING, TOKEN_CONTEXT_KEY, EMPTY_STRING));
-        variables.put(ConstantKeys.PARAM_CONTEXT_KEY, Map.of(USERNAME_PARAM_KEY, EMPTY_STRING, Parameters.CLIENT_ID, EMPTY_STRING));
+        variables.put(
+                ConstantKeys._CSRF,
+                Map.of(PARAMETER_NAME, EMPTY_STRING, TOKEN_CONTEXT_KEY, EMPTY_STRING));
+        variables.put(
+                ConstantKeys.PARAM_CONTEXT_KEY,
+                Map.of(USERNAME_PARAM_KEY, EMPTY_STRING, Parameters.CLIENT_ID, EMPTY_STRING));
         variables.put(ConstantKeys.ACTION_KEY, EMPTY_STRING);
 
         switch (Template.parse(template)) {
@@ -178,22 +193,36 @@ public class PreviewBuilder {
                 variables.put(ConstantKeys.TEMPLATE_KEY_FORGOT_ACTION_KEY, EMPTY_STRING);
                 variables.put(ConstantKeys.TEMPLATE_KEY_WEBAUTHN_ACTION_KEY, EMPTY_STRING);
                 variables.put(ConstantKeys.TEMPLATE_KEY_REGISTER_ACTION_KEY, EMPTY_STRING);
-                variables.put(ConstantKeys.TEMPLATE_KEY_BACK_LOGIN_IDENTIFIER_ACTION_KEY, EMPTY_STRING);
+                variables.put(
+                        ConstantKeys.TEMPLATE_KEY_BACK_LOGIN_IDENTIFIER_ACTION_KEY, EMPTY_STRING);
                 variables.put(ConstantKeys.TEMPLATE_KEY_BOT_DETECTION_PLUGIN, EMPTY_STRING);
                 variables.put(ConstantKeys.DEVICE_IDENTIFIER_PROVIDER_KEY, EMPTY_STRING);
                 variables.put(ConstantKeys.REMEMBER_DEVICE_IS_ACTIVE, Boolean.FALSE.toString());
-                variables.put(ConstantKeys.TEMPLATE_KEY_HIDE_FORM_CONTEXT_KEY, Boolean.FALSE.toString());
-                variables.put(ConstantKeys.TEMPLATE_KEY_ALLOW_REGISTER_CONTEXT_KEY, Boolean.TRUE.toString());
-                variables.put(ConstantKeys.TEMPLATE_KEY_ALLOW_PASSWORDLESS_CONTEXT_KEY, Boolean.TRUE.toString());
-                variables.put(ConstantKeys.TEMPLATE_KEY_ALLOW_FORGOT_PASSWORD_CONTEXT_KEY, Boolean.TRUE.toString());
-                variables.put(ConstantKeys.TEMPLATE_KEY_IDENTIFIER_FIRST_LOGIN_CONTEXT_KEY, Boolean.FALSE.toString());
-                variables.put(ConstantKeys.TEMPLATE_KEY_BOT_DETECTION_CONFIGURATION, Map.of(SITE_KEY, EMPTY_STRING));
+                variables.put(
+                        ConstantKeys.TEMPLATE_KEY_HIDE_FORM_CONTEXT_KEY, Boolean.FALSE.toString());
+                variables.put(
+                        ConstantKeys.TEMPLATE_KEY_ALLOW_REGISTER_CONTEXT_KEY,
+                        Boolean.TRUE.toString());
+                variables.put(
+                        ConstantKeys.TEMPLATE_KEY_ALLOW_PASSWORDLESS_CONTEXT_KEY,
+                        Boolean.TRUE.toString());
+                variables.put(
+                        ConstantKeys.TEMPLATE_KEY_ALLOW_FORGOT_PASSWORD_CONTEXT_KEY,
+                        Boolean.TRUE.toString());
+                variables.put(
+                        ConstantKeys.TEMPLATE_KEY_IDENTIFIER_FIRST_LOGIN_CONTEXT_KEY,
+                        Boolean.FALSE.toString());
+                variables.put(
+                        ConstantKeys.TEMPLATE_KEY_BOT_DETECTION_CONFIGURATION,
+                        Map.of(SITE_KEY, EMPTY_STRING));
                 break;
 
             case REGISTRATION:
                 variables.put(ConstantKeys.TEMPLATE_KEY_BOT_DETECTION_PLUGIN, EMPTY_STRING);
                 variables.put(ConstantKeys.LOGIN_ACTION_KEY, EMPTY_STRING);
-                variables.put(ConstantKeys.TEMPLATE_KEY_BOT_DETECTION_CONFIGURATION, Map.of(SITE_KEY, EMPTY_STRING));
+                variables.put(
+                        ConstantKeys.TEMPLATE_KEY_BOT_DETECTION_CONFIGURATION,
+                        Map.of(SITE_KEY, EMPTY_STRING));
                 break;
 
             case REGISTRATION_CONFIRMATION:
@@ -202,36 +231,55 @@ public class PreviewBuilder {
 
             case FORGOT_PASSWORD:
                 variables.put(ConstantKeys.TEMPLATE_KEY_BOT_DETECTION_PLUGIN, EMPTY_STRING);
-                variables.put(ConstantKeys.FORGOT_PASSWORD_FIELDS_KEY, Arrays.asList(FormField.getEmailField()));
+                variables.put(
+                        ConstantKeys.FORGOT_PASSWORD_FIELDS_KEY,
+                        Arrays.asList(FormField.getEmailField()));
                 variables.put(ConstantKeys.LOGIN_ACTION_KEY, EMPTY_STRING);
-                variables.put(ConstantKeys.TEMPLATE_KEY_BOT_DETECTION_CONFIGURATION, Map.of(SITE_KEY, EMPTY_STRING));
+                variables.put(
+                        ConstantKeys.TEMPLATE_KEY_BOT_DETECTION_CONFIGURATION,
+                        Map.of(SITE_KEY, EMPTY_STRING));
                 break;
 
             case MFA_ENROLL:
             case MFA_CHALLENGE_ALTERNATIVES:
                 final Enrollment otpEnrollment = new Enrollment();
-                otpEnrollment.setBarCode("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQAAAACFI5MzAAABuElEQVR4Xu2WWWoEMQwFDb6WwVc36FqGTpXCLAzJn5X8tGiGtmtA27Pc7frN2ufG025yE+0vyWqtr75GXzP2mC5LSPCsvtme1+65rCGrR6y528A17zxlZI1htpNMS8l17abvaxcSntgN749y1hAlES/70M45opEgAkGKoXftPFkzK3nFtpSI/hXbWdJtGwk2TtXgZ8wSEh7f5vkFjGxgCUHtnt6lRnCfMikh6d2WpeSbBa4gTgl6Rr7T0rouISxpGnvB4HPQPit6lviG4q0s7sU1xFKaXeSfmOmEUkIQIJ1ja3SS5vUZwVGCWwafVxOnC8W3WUSmOSJ6JyBlHYnOE66+ruCppH9x3NaQHgoju+eYWK8IjpLIGLYtW770SztPnOK2zVpmE58RHCare6xUh8G8TaSzhEKSLRE0QnBkvGnnJGGbSjqV8rJ1p4gs76O58iC7fijxLKGgXOYL5+EXkaGUEI1LI2cFT1a4giw/sUI9ZjBegyUkrKmKN4TUyqwhWVL2bVzk/V5GLpsH8ihT2zqS5yny20v/JYQnch7x6UVpvyVynqgQ9Q70gLF+ZHqW/Gw3uYn2/+QLiTKJ//OwuCgAAAAASUVORK5CYII=");
-                final Map<String, Object> factorOTP = Map.of(ID, "idotp" ,
-                        FACTOR_TYPE, FactorType.OTP.getType(),
-                        FACTOR_NAME, "OTP Factor name",
-                        ENROLLMENT, otpEnrollment);
+                otpEnrollment.setBarCode(
+                        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQAAAACFI5MzAAABuElEQVR4Xu2WWWoEMQwFDb6WwVc36FqGTpXCLAzJn5X8tGiGtmtA27Pc7frN2ufG025yE+0vyWqtr75GXzP2mC5LSPCsvtme1+65rCGrR6y528A17zxlZI1htpNMS8l17abvaxcSntgN749y1hAlES/70M45opEgAkGKoXftPFkzK3nFtpSI/hXbWdJtGwk2TtXgZ8wSEh7f5vkFjGxgCUHtnt6lRnCfMikh6d2WpeSbBa4gTgl6Rr7T0rouISxpGnvB4HPQPit6lviG4q0s7sU1xFKaXeSfmOmEUkIQIJ1ja3SS5vUZwVGCWwafVxOnC8W3WUSmOSJ6JyBlHYnOE66+ruCppH9x3NaQHgoju+eYWK8IjpLIGLYtW770SztPnOK2zVpmE58RHCare6xUh8G8TaSzhEKSLRE0QnBkvGnnJGGbSjqV8rJ1p4gs76O58iC7fijxLKGgXOYL5+EXkaGUEI1LI2cFT1a4giw/sUI9ZjBegyUkrKmKN4TUyqwhWVL2bVzk/V5GLpsH8ihT2zqS5yny20v/JYQnch7x6UVpvyVynqgQ9Q70gLF+ZHqW/Gw3uYn2/+QLiTKJ//OwuCgAAAAASUVORK5CYII=");
+                final Map<String, Object> factorOTP =
+                        Map.of(
+                                ID,
+                                "idotp",
+                                FACTOR_TYPE,
+                                FactorType.OTP.getType(),
+                                FACTOR_NAME,
+                                "OTP Factor name",
+                                ENROLLMENT,
+                                otpEnrollment);
 
                 final Enrollment smsEnrollment = new Enrollment();
                 smsEnrollment.setCountries(List.of("us", "en", "fr"));
-                final Map<String, Object> factorSms = Map.of(
-                        ID, "idsms" ,
-                        FACTOR_TYPE, FactorType.SMS.getType(),
-                        FACTOR_TARGET, "123456",
-                        FACTOR_NAME, "SMS Factor name",
-                        ENROLLMENT, smsEnrollment);
+                final Map<String, Object> factorSms =
+                        Map.of(
+                                ID, "idsms",
+                                FACTOR_TYPE, FactorType.SMS.getType(),
+                                FACTOR_TARGET, "123456",
+                                FACTOR_NAME, "SMS Factor name",
+                                ENROLLMENT, smsEnrollment);
 
                 final Enrollment emailEnrollment = new Enrollment();
                 emailEnrollment.setKey(EMPTY_STRING);
-                final Map<String, Object> factorEmail = Map.of(ID, "idemail",
-                        FACTOR_TYPE, FactorType.EMAIL.getType(),
-                        FACTOR_TARGET, "john@doe.com",
-                        FACTOR_NAME, "EMAIL Factor name",
-                        ENROLLMENT, emailEnrollment);
+                final Map<String, Object> factorEmail =
+                        Map.of(
+                                ID,
+                                "idemail",
+                                FACTOR_TYPE,
+                                FactorType.EMAIL.getType(),
+                                FACTOR_TARGET,
+                                "john@doe.com",
+                                FACTOR_NAME,
+                                "EMAIL Factor name",
+                                ENROLLMENT,
+                                emailEnrollment);
 
                 variables.put(ConstantKeys.FACTORS_KEY, List.of(factorOTP, factorSms, factorEmail));
                 break;
@@ -255,11 +303,15 @@ public class PreviewBuilder {
                 break;
 
             case MFA_RECOVERY_CODE:
-                variables.put(TEMPLATE_KEY_RECOVERY_CODES_KEY, IntStream.range(0, 6).mapToObj(i -> UUID.randomUUID().toString()).collect(Collectors.toList()));
+                variables.put(
+                        TEMPLATE_KEY_RECOVERY_CODES_KEY,
+                        IntStream.range(0, 6)
+                                .mapToObj(i -> UUID.randomUUID().toString())
+                                .collect(Collectors.toList()));
                 variables.put(TEMPLATE_KEY_RECOVERY_CODES_URL_KEY, EMPTY_STRING);
                 break;
 
-            // template without specific variables
+                // template without specific variables
             case RESET_PASSWORD:
             case OAUTH2_USER_CONSENT:
             case BLOCKED_ACCOUNT:

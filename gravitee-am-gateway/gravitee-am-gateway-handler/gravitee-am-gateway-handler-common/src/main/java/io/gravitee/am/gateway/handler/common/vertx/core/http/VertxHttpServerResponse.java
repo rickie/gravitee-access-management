@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.vertx.core.http;
@@ -43,7 +41,8 @@ public class VertxHttpServerResponse implements Response {
 
     private HttpHeaders trailers;
 
-    public VertxHttpServerResponse(final HttpServerRequest httpServerRequest, final Metrics metrics) {
+    public VertxHttpServerResponse(
+            final HttpServerRequest httpServerRequest, final Metrics metrics) {
         this.httpServerResponse = httpServerRequest.response();
         this.version = httpServerRequest.version();
         this.headers = new VertxHttpHeaders(this.httpServerResponse.headers());
@@ -96,13 +95,18 @@ public class VertxHttpServerResponse implements Response {
             if (!httpServerResponse.headWritten()) {
                 writeHeaders();
 
-                // Vertx requires to set the chunked flag if transfer_encoding header as the "chunked" value
-                String transferEncodingHeader = headers().getFirst(io.vertx.core.http.HttpHeaders.TRANSFER_ENCODING);
-                if (HttpHeadersValues.TRANSFER_ENCODING_CHUNKED.equalsIgnoreCase(transferEncodingHeader)) {
+                // Vertx requires to set the chunked flag if transfer_encoding header as the
+                // "chunked" value
+                String transferEncodingHeader =
+                        headers().getFirst(io.vertx.core.http.HttpHeaders.TRANSFER_ENCODING);
+                if (HttpHeadersValues.TRANSFER_ENCODING_CHUNKED.equalsIgnoreCase(
+                        transferEncodingHeader)) {
                     httpServerResponse.setChunked(true);
                 } else if (transferEncodingHeader == null) {
-                    String connectionHeader = headers().getFirst(io.vertx.core.http.HttpHeaders.CONNECTION);
-                    String contentLengthHeader = headers().getFirst(io.vertx.core.http.HttpHeaders.CONTENT_LENGTH);
+                    String connectionHeader =
+                            headers().getFirst(io.vertx.core.http.HttpHeaders.CONNECTION);
+                    String contentLengthHeader =
+                            headers().getFirst(io.vertx.core.http.HttpHeaders.CONTENT_LENGTH);
                     if (HttpHeadersValues.CONNECTION_CLOSE.equalsIgnoreCase(connectionHeader)
                             && contentLengthHeader == null) {
                         httpServerResponse.setChunked(true);
@@ -111,7 +115,8 @@ public class VertxHttpServerResponse implements Response {
             }
 
             metrics.setResponseContentLength(metrics.getResponseContentLength() + chunk.length());
-            httpServerResponse.write(io.vertx.core.buffer.Buffer.buffer((ByteBuf) chunk.getNativeBuffer()));
+            httpServerResponse.write(
+                    io.vertx.core.buffer.Buffer.buffer((ByteBuf) chunk.getNativeBuffer()));
         }
         return this;
     }
@@ -145,13 +150,24 @@ public class VertxHttpServerResponse implements Response {
     private void writeHeaders() {
         // As per https://tools.ietf.org/html/rfc7540#section-8.1.2.2
         // connection-specific header fields must be remove from response headers
-        headers.forEach(header -> {
-            if (version == HttpVersion.HTTP_1_0 || version == HttpVersion.HTTP_1_1
-                    || (!header.getKey().equalsIgnoreCase(io.vertx.core.http.HttpHeaders.CONNECTION.toString())
-                    && !header.getKey().equalsIgnoreCase(io.vertx.core.http.HttpHeaders.KEEP_ALIVE.toString())
-                    && !header.getKey().equalsIgnoreCase(io.vertx.core.http.HttpHeaders.TRANSFER_ENCODING.toString()))) {
-                httpServerResponse.putHeader(header.getKey(), header.getValue());
-            }
-        });
+        headers.forEach(
+                header -> {
+                    if (version == HttpVersion.HTTP_1_0
+                            || version == HttpVersion.HTTP_1_1
+                            || (!header.getKey()
+                                            .equalsIgnoreCase(
+                                                    io.vertx.core.http.HttpHeaders.CONNECTION
+                                                            .toString())
+                                    && !header.getKey()
+                                            .equalsIgnoreCase(
+                                                    io.vertx.core.http.HttpHeaders.KEEP_ALIVE
+                                                            .toString())
+                                    && !header.getKey()
+                                            .equalsIgnoreCase(
+                                                    io.vertx.core.http.HttpHeaders.TRANSFER_ENCODING
+                                                            .toString()))) {
+                        httpServerResponse.putHeader(header.getKey(), header.getValue());
+                    }
+                });
     }
 }

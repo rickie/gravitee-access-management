@@ -1,20 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.gravitee.am.plugins.handlers.api.core;
+
+import static java.util.Objects.nonNull;
 
 import io.gravitee.am.plugins.handlers.api.provider.ProviderConfiguration;
 import io.gravitee.common.service.AbstractService;
@@ -23,12 +22,7 @@ import io.gravitee.plugin.core.api.Plugin;
 import io.gravitee.plugin.core.api.PluginContextFactory;
 import io.gravitee.plugin.core.internal.AnnotationBasedPluginContextConfigurer;
 import io.gravitee.plugin.core.internal.PluginManifestProperties;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -38,17 +32,23 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Import;
 
-import static java.util.Objects.nonNull;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 /**
  * @author Rémi SULTAN (remi.sultan at graviteesource.com)
  * @author GraviteeSource Team
  */
-public abstract class ProviderPluginManager<INSTANCE, PROVIDER, CONFIG extends ProviderConfiguration> {
+public abstract class ProviderPluginManager<
+        INSTANCE, PROVIDER, CONFIG extends ProviderConfiguration> {
 
-    private final static Logger logger = LoggerFactory.getLogger(ProviderPluginManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProviderPluginManager.class);
 
-    private final static String SCHEMAS_DIRECTORY = "schemas";
+    private static final String SCHEMAS_DIRECTORY = "schemas";
 
     protected final Map<String, INSTANCE> instances = new HashMap<>();
     protected final Map<INSTANCE, Plugin> plugins = new HashMap<>();
@@ -87,22 +87,29 @@ public abstract class ProviderPluginManager<INSTANCE, PROVIDER, CONFIG extends P
         try {
             T provider = createInstance(providerClass);
             final Import annImport = providerClass.getAnnotation(Import.class);
-            Set<Class<?>> configurations = (annImport != null) ?
-                    new HashSet<>(Arrays.asList(annImport.value())) : Collections.emptySet();
+            Set<Class<?>> configurations =
+                    (annImport != null)
+                            ? new HashSet<>(Arrays.asList(annImport.value()))
+                            : Collections.emptySet();
 
-            ApplicationContext pluginApplicationContext = pluginContextFactory.create(new AnnotationBasedPluginContextConfigurer(plugin) {
-                @Override
-                public Set<Class<?>> configurations() {
-                    return configurations;
-                }
+            ApplicationContext pluginApplicationContext =
+                    pluginContextFactory.create(
+                            new AnnotationBasedPluginContextConfigurer(plugin) {
+                                @Override
+                                public Set<Class<?>> configurations() {
+                                    return configurations;
+                                }
 
-                @Override
-                public ConfigurableApplicationContext applicationContext() {
-                    ConfigurableApplicationContext configurableApplicationContext = super.applicationContext();
-                    beanFactoryPostProcessors.forEach(configurableApplicationContext::addBeanFactoryPostProcessor);
-                    return configurableApplicationContext;
-                }
-            });
+                                @Override
+                                public ConfigurableApplicationContext applicationContext() {
+                                    ConfigurableApplicationContext configurableApplicationContext =
+                                            super.applicationContext();
+                                    beanFactoryPostProcessors.forEach(
+                                            configurableApplicationContext
+                                                    ::addBeanFactoryPostProcessor);
+                                    return configurableApplicationContext;
+                                }
+                            });
 
             pluginApplicationContext.getAutowireCapableBeanFactory().autowireBean(provider);
 
@@ -130,8 +137,14 @@ public abstract class ProviderPluginManager<INSTANCE, PROVIDER, CONFIG extends P
         if (plugins.containsKey(instance)) {
             Path policyWorkspace = plugins.get(instance).path();
 
-            File[] schemas = policyWorkspace.toFile().listFiles(
-                    pathname -> pathname.isDirectory() && pathname.getName().equals(SCHEMAS_DIRECTORY));
+            File[] schemas =
+                    policyWorkspace
+                            .toFile()
+                            .listFiles(
+                                    pathname ->
+                                            pathname.isDirectory()
+                                                    && pathname.getName()
+                                                            .equals(SCHEMAS_DIRECTORY));
 
             if (nonNull(schemas) && schemas.length == 1) {
                 File schemaDir = schemas[0];
@@ -163,7 +176,10 @@ public abstract class ProviderPluginManager<INSTANCE, PROVIDER, CONFIG extends P
             String icon = properties.get(PluginManifestProperties.MANIFEST_ICON_PROPERTY);
             if (icon != null) {
                 Path iconFile = Paths.get(plugin.path().toString(), icon);
-                return "data:" + getMimeType(iconFile) + ";base64," + Base64.getEncoder().encodeToString(Files.readAllBytes(iconFile));
+                return "data:"
+                        + getMimeType(iconFile)
+                        + ";base64,"
+                        + Base64.getEncoder().encodeToString(Files.readAllBytes(iconFile));
             }
         }
 

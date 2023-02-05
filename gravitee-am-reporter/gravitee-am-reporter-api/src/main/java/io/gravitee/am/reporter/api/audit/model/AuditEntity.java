@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.reporter.api.audit.model;
@@ -20,47 +18,35 @@ import io.gravitee.am.model.ReferenceType;
 import java.util.Map;
 
 /**
- * See <a href="https://tools.ietf.org/html/rfc3881#section-5.2">5.2. Active Participant Identification</a>
+ * See <a href="https://tools.ietf.org/html/rfc3881#section-5.2">5.2. Active Participant
+ * Identification</a>
  *
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class AuditEntity {
 
-    /**
-     * Unique identifier for the entity actively participating in the event
-     */
+    /** Unique identifier for the entity actively participating in the event */
     private String id;
 
-    /**
-     * Alternative unique identifier for the entity
-     */
+    /** Alternative unique identifier for the entity */
     private String alternativeId;
 
-    /**
-     * Entity type (User, Client, Domain, etc ...)
-     */
+    /** Entity type (User, Client, Domain, etc ...) */
     private String type;
 
-    /**
-     * The human-meaningful name for the entity
-     */
+    /** The human-meaningful name for the entity */
     private String displayName;
 
-    /**
-     * The reference type of the entity (ex : DOMAIN, ORGANIZATION).
-     */
+    /** The reference type of the entity (ex : DOMAIN, ORGANIZATION). */
     private ReferenceType referenceType;
 
-    /**
-     * The reference id of the entity (ex : domain identifier, organization identifier).
-     */
+    /** The reference id of the entity (ex : domain identifier, organization identifier). */
     private String referenceId;
 
     private Map<String, Object> attributes;
 
-    public AuditEntity() {
-    }
+    public AuditEntity() {}
 
     public AuditEntity(AuditEntity other) {
         this.id = other.id;

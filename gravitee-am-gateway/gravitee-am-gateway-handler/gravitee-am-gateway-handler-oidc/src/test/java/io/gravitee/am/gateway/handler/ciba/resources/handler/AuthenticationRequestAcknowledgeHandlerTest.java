@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.ciba.resources.handler;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.authdevice.notifier.api.AuthenticationDeviceNotifierProvider;
 import io.gravitee.am.authdevice.notifier.api.model.ADNotificationResponse;
@@ -35,6 +36,7 @@ import io.gravitee.am.repository.oidc.model.CibaAuthRequest;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Single;
 import io.vertx.core.http.HttpMethod;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -44,26 +46,19 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AuthenticationRequestAcknowledgeHandlerTest extends RxWebTestBase {
-    @Mock
-    private Domain domain;
+    @Mock private Domain domain;
 
-    @Mock
-    private JWTService jwtService;
+    @Mock private JWTService jwtService;
 
-    @Mock
-    private AuthenticationDeviceNotifierProvider notifier;
+    @Mock private AuthenticationDeviceNotifierProvider notifier;
 
-    @Mock
-    private AuthenticationRequestService authReqService;
+    @Mock private AuthenticationRequestService authReqService;
 
     private Client client;
 
@@ -79,17 +74,24 @@ public class AuthenticationRequestAcknowledgeHandlerTest extends RxWebTestBase {
         oidcSettings.getCibaSettings().setDeviceNotifiers(List.of(notifierSetting));
         when(domain.getOidc()).thenReturn(oidcSettings);
 
-        handlerUnderTest = new AuthenticationRequestAcknowledgeHandler(authReqService, domain, jwtService);
+        handlerUnderTest =
+                new AuthenticationRequestAcknowledgeHandler(authReqService, domain, jwtService);
         router.route(HttpMethod.POST, "/oidc/ciba/authenticate")
                 .handler(handlerUnderTest)
-                .failureHandler(rc -> {
-                    final Throwable failure = rc.failure();
-                    if (failure instanceof OAuth2Exception) {
-                        rc.response().setStatusCode(((OAuth2Exception) failure).getHttpStatusCode()).end();
-                    } else {
-                        rc.response().setStatusCode(HttpStatusCode.INTERNAL_SERVER_ERROR_500).end();
-                    }
-                });
+                .failureHandler(
+                        rc -> {
+                            final Throwable failure = rc.failure();
+                            if (failure instanceof OAuth2Exception) {
+                                rc.response()
+                                        .setStatusCode(
+                                                ((OAuth2Exception) failure).getHttpStatusCode())
+                                        .end();
+                            } else {
+                                rc.response()
+                                        .setStatusCode(HttpStatusCode.INTERNAL_SERVER_ERROR_500)
+                                        .end();
+                            }
+                        });
         ;
 
         this.client = new Client();
@@ -104,25 +106,32 @@ public class AuthenticationRequestAcknowledgeHandlerTest extends RxWebTestBase {
         cibaRequest.setLoginHint("username");
         cibaRequest.setSubject("usernameuuid");
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.put(ConstantKeys.CIBA_AUTH_REQUEST_KEY, cibaRequest);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.put(ConstantKeys.CIBA_AUTH_REQUEST_KEY, cibaRequest);
+                            routingContext.next();
+                        });
 
-        when(jwtService.encode(any(JWT.class), any(Client.class))).thenReturn(Single.just("signed_jwt"));
+        when(jwtService.encode(any(JWT.class), any(Client.class)))
+                .thenReturn(Single.just("signed_jwt"));
         final CibaAuthRequest req = new CibaAuthRequest();
         req.setCreatedAt(new Date());
         req.setExpireAt(new Date());
         when(authReqService.register(any(), any())).thenReturn(Single.just(req));
         when(authReqService.updateAuthDeviceInformation(any())).thenReturn(Single.just(req));
-        when(authReqService.notify(any())).thenReturn(Single.just(new ADNotificationResponse("jit")));
+        when(authReqService.notify(any()))
+                .thenReturn(Single.just(new ADNotificationResponse("jit")));
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.OK_200, "OK", null);
+                HttpStatusCode.OK_200,
+                "OK",
+                null);
 
         verify(authReqService).register(any(), any());
         verify(authReqService).updateAuthDeviceInformation(any());
@@ -135,20 +144,27 @@ public class AuthenticationRequestAcknowledgeHandlerTest extends RxWebTestBase {
         cibaRequest.setLoginHint("username");
         cibaRequest.setSubject("usernameuuid");
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.put(ConstantKeys.CIBA_AUTH_REQUEST_KEY, cibaRequest);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.put(ConstantKeys.CIBA_AUTH_REQUEST_KEY, cibaRequest);
+                            routingContext.next();
+                        });
 
-        when(jwtService.encode(any(JWT.class), any(Client.class))).thenReturn(Single.just("signed_jwt"));
-        when(authReqService.register(any(), any())).thenReturn(Single.error(new TechnicalException()));
+        when(jwtService.encode(any(JWT.class), any(Client.class)))
+                .thenReturn(Single.just("signed_jwt"));
+        when(authReqService.register(any(), any()))
+                .thenReturn(Single.error(new TechnicalException()));
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.INTERNAL_SERVER_ERROR_500, "Internal Server Error", null);
+                HttpStatusCode.INTERNAL_SERVER_ERROR_500,
+                "Internal Server Error",
+                null);
 
         verify(authReqService).register(any(), any());
         verify(authReqService, never()).updateAuthDeviceInformation(any());
@@ -161,22 +177,28 @@ public class AuthenticationRequestAcknowledgeHandlerTest extends RxWebTestBase {
         cibaRequest.setLoginHint("username");
         cibaRequest.setSubject("usernameuuid");
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.put(ConstantKeys.CIBA_AUTH_REQUEST_KEY, cibaRequest);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.put(ConstantKeys.CIBA_AUTH_REQUEST_KEY, cibaRequest);
+                            routingContext.next();
+                        });
 
         when(authReqService.notify(any())).thenReturn(Single.error(new TechnicalException()));
 
-        when(jwtService.encode(any(JWT.class), any(Client.class))).thenReturn(Single.just("signed_jwt"));
+        when(jwtService.encode(any(JWT.class), any(Client.class)))
+                .thenReturn(Single.just("signed_jwt"));
         when(authReqService.register(any(), any())).thenReturn(Single.just(new CibaAuthRequest()));
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.INTERNAL_SERVER_ERROR_500, "Internal Server Error", null);
+                HttpStatusCode.INTERNAL_SERVER_ERROR_500,
+                "Internal Server Error",
+                null);
 
         verify(authReqService).register(any(), any());
         verify(authReqService).notify(any());
@@ -189,19 +211,23 @@ public class AuthenticationRequestAcknowledgeHandlerTest extends RxWebTestBase {
         cibaRequest.setLoginHint("username");
         cibaRequest.setSubject("usernameuuid");
 
-        router.route().order(-1).handler(routingContext -> {
-            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
-            routingContext.next();
-        });
+        router.route()
+                .order(-1)
+                .handler(
+                        routingContext -> {
+                            routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
+                            routingContext.next();
+                        });
 
         testRequest(
                 HttpMethod.POST,
-                CIBAProvider.CIBA_PATH+CIBAProvider.AUTHENTICATION_ENDPOINT+"?request=fakejwt",
+                CIBAProvider.CIBA_PATH + CIBAProvider.AUTHENTICATION_ENDPOINT + "?request=fakejwt",
                 null,
-                HttpStatusCode.BAD_REQUEST_400, "Bad Request", null);
+                HttpStatusCode.BAD_REQUEST_400,
+                "Bad Request",
+                null);
 
         verify(authReqService, never()).register(any(), any());
         verify(notifier, never()).notify(any());
     }
-
 }

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.impl;
@@ -32,6 +30,7 @@ import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.VerifyAttemptAuditBuilder;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,42 +48,48 @@ import java.util.Optional;
 public class VerifyAttemptServiceImpl implements VerifyAttemptService {
     private static final Logger LOGGER = LoggerFactory.getLogger(VerifyAttemptServiceImpl.class);
 
-    @Autowired
-    AuditService auditService;
+    @Autowired AuditService auditService;
 
-    @Autowired
-    EmailService emailService;
+    @Autowired EmailService emailService;
 
-    @Lazy
-    @Autowired
-    VerifyAttemptRepository verifyAttemptRepository;
+    @Lazy @Autowired VerifyAttemptRepository verifyAttemptRepository;
 
     @Override
-    public Maybe<VerifyAttempt> checkVerifyAttempt(User user, String factorId, Client client, Domain domain) {
+    public Maybe<VerifyAttempt> checkVerifyAttempt(
+            User user, String factorId, Client client, Domain domain) {
         final AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
         if (accountSettings == null || !accountSettings.isMfaChallengeAttemptsDetectionEnabled()) {
             LOGGER.debug("MFA brute force detection is disabled, won't check verify attempt.");
             return Maybe.empty();
         }
 
-        final VerifyAttemptCriteria criteria = buildCriteria(user.getId(), factorId, client.getId());
+        final VerifyAttemptCriteria criteria =
+                buildCriteria(user.getId(), factorId, client.getId());
 
         return getVerifyAttemptIfExists(criteria, accountSettings)
-                .doOnSuccess(verifyAttempt -> {
-                    LOGGER.debug("VerifyAttempt value: [{}]", verifyAttempt);
-                    if (!verifyAttempt.isAllowRequest()) {
-                        auditService.report(AuditBuilder.builder(VerifyAttemptAuditBuilder.class)
-                                .type(EventType.MFA_VERIFICATION_LIMIT_EXCEED)
-                                .verifyAttempt(verifyAttempt)
-                                .user(user));
+                .doOnSuccess(
+                        verifyAttempt -> {
+                            LOGGER.debug("VerifyAttempt value: [{}]", verifyAttempt);
+                            if (!verifyAttempt.isAllowRequest()) {
+                                auditService.report(
+                                        AuditBuilder.builder(VerifyAttemptAuditBuilder.class)
+                                                .type(EventType.MFA_VERIFICATION_LIMIT_EXCEED)
+                                                .verifyAttempt(verifyAttempt)
+                                                .user(user));
 
-                        throw new MFAValidationAttemptException("Maximum verification limit exceed");
-                    }
-                });
+                                throw new MFAValidationAttemptException(
+                                        "Maximum verification limit exceed");
+                            }
+                        });
     }
 
     @Override
-    public Completable incrementAttempt(String userId, String factorId, Client client, Domain domain, Optional<VerifyAttempt> optionalVerifyAttempt) {
+    public Completable incrementAttempt(
+            String userId,
+            String factorId,
+            Client client,
+            Domain domain,
+            Optional<VerifyAttempt> optionalVerifyAttempt) {
         final AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
 
         if (accountSettings == null || !accountSettings.isMfaChallengeAttemptsDetectionEnabled()) {
@@ -145,20 +150,30 @@ public class VerifyAttemptServiceImpl implements VerifyAttemptService {
         return accountSettings.isMfaChallengeSendVerifyAlertEmail();
     }
 
-    private Maybe<VerifyAttempt> getVerifyAttemptIfExists(VerifyAttemptCriteria criteria, AccountSettings accountSettings) {
-        return verifyAttemptRepository.findByCriteria(criteria)
-                .flatMap(verifyAttempt -> {
-                        final Date resetTime = new Date(verifyAttempt.getUpdatedAt().getTime() + (accountSettings.getMfaChallengeAttemptsResetTime() * 1000));
-                        final Date currentDate = new Date();
+    private Maybe<VerifyAttempt> getVerifyAttemptIfExists(
+            VerifyAttemptCriteria criteria, AccountSettings accountSettings) {
+        return verifyAttemptRepository
+                .findByCriteria(criteria)
+                .flatMap(
+                        verifyAttempt -> {
+                            final Date resetTime =
+                                    new Date(
+                                            verifyAttempt.getUpdatedAt().getTime()
+                                                    + (accountSettings
+                                                                    .getMfaChallengeAttemptsResetTime()
+                                                            * 1000));
+                            final Date currentDate = new Date();
 
-                        if (currentDate.getTime() > resetTime.getTime()) {
-                            verifyAttempt.setAttempts(0);
-                            verifyAttempt.setAllowRequest(true);
-                        } else {
-                            verifyAttempt.setAllowRequest(verifyAttempt.getAttempts() < accountSettings.getMfaChallengeMaxAttempts());
-                        }
-                        return Maybe.just(verifyAttempt);
-                });
+                            if (currentDate.getTime() > resetTime.getTime()) {
+                                verifyAttempt.setAttempts(0);
+                                verifyAttempt.setAllowRequest(true);
+                            } else {
+                                verifyAttempt.setAllowRequest(
+                                        verifyAttempt.getAttempts()
+                                                < accountSettings.getMfaChallengeMaxAttempts());
+                            }
+                            return Maybe.just(verifyAttempt);
+                        });
     }
 
     private VerifyAttemptCriteria buildCriteria(String userId, String factorId, String client) {

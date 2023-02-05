@@ -1,19 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import io.gravitee.am.model.RateLimit;
 import io.gravitee.am.repository.management.api.RateLimitRepository;
@@ -22,6 +28,7 @@ import io.gravitee.am.service.impl.RateLimiterServiceImpl;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -33,14 +40,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Ashraful Hasan (ashraful.hasan at graviteesource.com)
  * @author GraviteeSource Team
@@ -48,16 +47,14 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class RateLimiterServiceImplTest {
 
-    @InjectMocks
-    private RateLimiterService rateLimiterService = new RateLimiterServiceImpl();
+    @InjectMocks private RateLimiterService rateLimiterService = new RateLimiterServiceImpl();
 
-    @Mock
-    RateLimitRepository repository;
+    @Mock RateLimitRepository repository;
 
-    private static final String USER_ID ="user-id";
-    private static final String FACTOR_ID ="factor-d";
-    private static final String CLIENT ="client-id";
-    private static final String DOMAIN ="domain-id";
+    private static final String USER_ID = "user-id";
+    private static final String FACTOR_ID = "factor-d";
+    private static final String CLIENT = "client-id";
+    private static final String DOMAIN = "domain-id";
 
     private Calendar calendar;
 
@@ -69,7 +66,8 @@ public class RateLimiterServiceImplTest {
         ReflectionTestUtils.setField(rateLimiterService, "limit", 2);
         ReflectionTestUtils.setField(rateLimiterService, "timePeriod", 2);
 
-        TestObserver<Boolean> observer = rateLimiterService.tryConsume(USER_ID, FACTOR_ID, CLIENT,DOMAIN).test();
+        TestObserver<Boolean> observer =
+                rateLimiterService.tryConsume(USER_ID, FACTOR_ID, CLIENT, DOMAIN).test();
 
         observer.assertComplete();
         observer.assertNoErrors();
@@ -87,7 +85,8 @@ public class RateLimiterServiceImplTest {
         when(repository.findByCriteria(any())).thenReturn(Maybe.just(rateLimit));
         when(repository.update(any())).thenReturn(Single.just(rateLimit));
 
-        TestObserver<Boolean> observer = rateLimiterService.tryConsume(USER_ID, FACTOR_ID, CLIENT,DOMAIN).test();
+        TestObserver<Boolean> observer =
+                rateLimiterService.tryConsume(USER_ID, FACTOR_ID, CLIENT, DOMAIN).test();
 
         observer.assertComplete();
         observer.assertNoErrors();
@@ -97,7 +96,7 @@ public class RateLimiterServiceImplTest {
     }
 
     @Test
-    public void should_not_exceed_limit(){
+    public void should_not_exceed_limit() {
         RateLimit rateLimit = createRateLimit();
         rateLimit.setTokenLeft(0);
         calendar = Calendar.getInstance();
@@ -105,7 +104,7 @@ public class RateLimiterServiceImplTest {
         calendar.add(Calendar.HOUR, -3);
         rateLimit.setUpdatedAt(calendar.getTime());
 
-        rateLimiterService.calculateAndSetTokenLeft(rateLimit, "Minutes", 1,12);
+        rateLimiterService.calculateAndSetTokenLeft(rateLimit, "Minutes", 1, 12);
         assertThat("Number of tokens should be 11", rateLimit.getTokenLeft(), is(11L));
         assertThat("Should not allow request", rateLimit.isAllowRequest(), is(true));
     }
@@ -119,7 +118,8 @@ public class RateLimiterServiceImplTest {
         RateLimit rateLimit = createRateLimit();
         when(repository.findByCriteria(any())).thenReturn(Maybe.just(rateLimit));
 
-        TestObserver<Boolean> observer = rateLimiterService.tryConsume(USER_ID, FACTOR_ID, CLIENT, DOMAIN).test();
+        TestObserver<Boolean> observer =
+                rateLimiterService.tryConsume(USER_ID, FACTOR_ID, CLIENT, DOMAIN).test();
         observer.assertNotComplete();
         observer.assertError(TechnicalManagementException.class);
         observer.assertErrorMessage("An error occurs while trying to add/update rate limit.");
@@ -129,7 +129,7 @@ public class RateLimiterServiceImplTest {
     public void case1_0_token_same_time_period() {
         RateLimit rateLimit = createRateLimit();
         rateLimit.setTokenLeft(0);
-        rateLimiterService.calculateAndSetTokenLeft(rateLimit, "Minutes", 1,1);
+        rateLimiterService.calculateAndSetTokenLeft(rateLimit, "Minutes", 1, 1);
         assertThat("Number of tokens should be 0", rateLimit.getTokenLeft(), is(0L));
         assertThat("Should not allow request", rateLimit.isAllowRequest(), is(false));
     }
@@ -182,7 +182,6 @@ public class RateLimiterServiceImplTest {
         calendar.add(Calendar.SECOND, -12);
         rateLimit.setUpdatedAt(calendar.getTime());
 
-
         rateLimiterService.calculateAndSetTokenLeft(rateLimit, "Minutes", 10, 13);
         assertThat("Number of tokens should be 3", rateLimit.getTokenLeft(), is(2L));
         assertThat("Should allow request", rateLimit.isAllowRequest(), is(true));
@@ -191,7 +190,6 @@ public class RateLimiterServiceImplTest {
         calendar.setTime(new Date());
         calendar.add(Calendar.SECOND, -10);
         rateLimit.setUpdatedAt(calendar.getTime());
-
 
         rateLimiterService.calculateAndSetTokenLeft(rateLimit, "Minutes", 10, 13);
         assertThat("Number of tokens should be 0", rateLimit.getTokenLeft(), is(1L));
@@ -202,7 +200,6 @@ public class RateLimiterServiceImplTest {
         calendar.add(Calendar.SECOND, -10);
         rateLimit.setUpdatedAt(calendar.getTime());
 
-
         rateLimiterService.calculateAndSetTokenLeft(rateLimit, "Minutes", 10, 13);
         assertThat("Number of tokens should be 0", rateLimit.getTokenLeft(), is(0L));
         assertThat("Should allow request", rateLimit.isAllowRequest(), is(true));
@@ -211,7 +208,6 @@ public class RateLimiterServiceImplTest {
         calendar.setTime(new Date());
         calendar.add(Calendar.SECOND, -10);
         rateLimit.setUpdatedAt(calendar.getTime());
-
 
         rateLimiterService.calculateAndSetTokenLeft(rateLimit, "Minutes", 10, 13);
         assertThat("Number of tokens should be 0", rateLimit.getTokenLeft(), is(0L));
@@ -265,7 +261,10 @@ public class RateLimiterServiceImplTest {
         ReflectionTestUtils.setField(rateLimiterService, "timePeriod", 1);
         ReflectionTestUtils.setField(rateLimiterService, "limit", 0);
 
-        TestObserver<Boolean> observer = rateLimiterService.tryConsume("any-id", "any-factor-id", "any-application-id", "any").test();
+        TestObserver<Boolean> observer =
+                rateLimiterService
+                        .tryConsume("any-id", "any-factor-id", "any-application-id", "any")
+                        .test();
 
         observer.assertComplete();
         observer.assertNoErrors();
@@ -273,7 +272,8 @@ public class RateLimiterServiceImplTest {
 
         ReflectionTestUtils.setField(rateLimiterService, "limit", -1);
 
-        TestObserver<Boolean> observer2 = rateLimiterService.tryConsume(USER_ID, FACTOR_ID, CLIENT,DOMAIN).test();
+        TestObserver<Boolean> observer2 =
+                rateLimiterService.tryConsume(USER_ID, FACTOR_ID, CLIENT, DOMAIN).test();
 
         observer2.assertComplete();
         observer2.assertNoErrors();
@@ -285,7 +285,8 @@ public class RateLimiterServiceImplTest {
         ReflectionTestUtils.setField(rateLimiterService, "limit", 1);
         ReflectionTestUtils.setField(rateLimiterService, "timePeriod", 0);
 
-        TestObserver<Boolean> observer = rateLimiterService.tryConsume(USER_ID, FACTOR_ID, CLIENT,DOMAIN).test();
+        TestObserver<Boolean> observer =
+                rateLimiterService.tryConsume(USER_ID, FACTOR_ID, CLIENT, DOMAIN).test();
 
         observer.assertComplete();
         observer.assertNoErrors();
@@ -293,7 +294,8 @@ public class RateLimiterServiceImplTest {
 
         ReflectionTestUtils.setField(rateLimiterService, "timePeriod", -1);
 
-        TestObserver<Boolean> observer2 = rateLimiterService.tryConsume(USER_ID, FACTOR_ID, CLIENT,DOMAIN).test();
+        TestObserver<Boolean> observer2 =
+                rateLimiterService.tryConsume(USER_ID, FACTOR_ID, CLIENT, DOMAIN).test();
 
         observer2.assertComplete();
         observer2.assertNoErrors();
@@ -313,5 +315,4 @@ public class RateLimiterServiceImplTest {
 
         return rateLimit;
     }
-
 }

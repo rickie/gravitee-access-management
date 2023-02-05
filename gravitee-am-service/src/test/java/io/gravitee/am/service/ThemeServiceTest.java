@@ -1,19 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import io.gravitee.am.identityprovider.api.DefaultUser;
 import io.gravitee.am.model.Domain;
@@ -31,6 +36,7 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -38,13 +44,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Date;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -55,30 +54,28 @@ public class ThemeServiceTest {
 
     public static final String DOMAIN_ID_1 = "DomainID1";
     public static final String THEME_ID = "themeid";
-    @InjectMocks
-    private ThemeServiceImpl cut;
+    @InjectMocks private ThemeServiceImpl cut;
 
-    @Mock
-    private ThemeRepository repository;
-    @Mock
-    private EventService eventService;
-    @Mock
-    private AuditService auditService;
-    @Mock
-    private ThemeValidator themeValidator;
+    @Mock private ThemeRepository repository;
+    @Mock private EventService eventService;
+    @Mock private AuditService auditService;
+    @Mock private ThemeValidator themeValidator;
 
     @Test
     public void testFindByReference() {
         when(repository.findByReference(any(), any())).thenReturn(Maybe.just(new Theme()));
-        final TestObserver<Theme> test = cut.findByReference(ReferenceType.DOMAIN, DOMAIN_ID_1).test();
+        final TestObserver<Theme> test =
+                cut.findByReference(ReferenceType.DOMAIN, DOMAIN_ID_1).test();
         test.awaitTerminalEvent();
         test.assertValueCount(1);
     }
 
     @Test
     public void testFindByReference_Error() {
-        when(repository.findByReference(any(), any())).thenReturn(Maybe.error(new RuntimeException()));
-        final TestObserver<Theme> test = cut.findByReference(ReferenceType.DOMAIN, DOMAIN_ID_1).test();
+        when(repository.findByReference(any(), any()))
+                .thenReturn(Maybe.error(new RuntimeException()));
+        final TestObserver<Theme> test =
+                cut.findByReference(ReferenceType.DOMAIN, DOMAIN_ID_1).test();
         test.awaitTerminalEvent();
         test.assertError(TechnicalManagementException.class);
     }
@@ -102,7 +99,12 @@ public class ThemeServiceTest {
         test.awaitTerminalEvent();
         test.assertValueCount(1);
 
-        verify(repository).create(argThat(input -> ReferenceType.DOMAIN.equals(input.getReferenceType()) && DOMAIN_ID_1.equals(input.getReferenceId())));
+        verify(repository)
+                .create(
+                        argThat(
+                                input ->
+                                        ReferenceType.DOMAIN.equals(input.getReferenceType())
+                                                && DOMAIN_ID_1.equals(input.getReferenceId())));
         verify(auditService).report(any());
         verify(eventService).create(any());
     }
@@ -116,12 +118,18 @@ public class ThemeServiceTest {
         final Domain domain = new Domain();
         domain.setId(DOMAIN_ID_1);
 
-        final TestObserver<Theme> test = cut.create(domain, new NewTheme(), new DefaultUser()).test();
+        final TestObserver<Theme> test =
+                cut.create(domain, new NewTheme(), new DefaultUser()).test();
 
         test.awaitTerminalEvent();
         test.assertError(TechnicalManagementException.class);
 
-        verify(repository).create(argThat(input -> ReferenceType.DOMAIN.equals(input.getReferenceType()) && DOMAIN_ID_1.equals(input.getReferenceId())));
+        verify(repository)
+                .create(
+                        argThat(
+                                input ->
+                                        ReferenceType.DOMAIN.equals(input.getReferenceType())
+                                                && DOMAIN_ID_1.equals(input.getReferenceId())));
         verify(auditService).report(any());
         verify(eventService, never()).create(any());
     }

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.root.resources.endpoint.logout;
@@ -18,10 +16,10 @@ package io.gravitee.am.gateway.handler.root.resources.endpoint.logout;
 import io.gravitee.am.common.exception.oauth2.BadClientCredentialsException;
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.oauth2.Parameters;
+import io.gravitee.am.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
-import io.gravitee.am.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.vertx.utils.RequestUtils;
 import io.gravitee.am.gateway.handler.root.service.user.UserService;
 import io.gravitee.am.gateway.handler.root.service.user.model.UserToken;
@@ -36,6 +34,7 @@ import io.vertx.core.Handler;
 import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -50,12 +49,13 @@ public class LogoutCallbackEndpoint extends AbstractLogoutEndpoint {
     private ClientSyncService clientSyncService;
     private JWTService jwtService;
 
-    public LogoutCallbackEndpoint(Domain domain,
-                                  ClientSyncService clientSyncService,
-                                  JWTService jwtService,
-                                  UserService userService,
-                                  AuthenticationFlowContextService authenticationFlowContextService,
-                                  CertificateManager certificateManager) {
+    public LogoutCallbackEndpoint(
+            Domain domain,
+            ClientSyncService clientSyncService,
+            JWTService jwtService,
+            UserService userService,
+            AuthenticationFlowContextService authenticationFlowContextService,
+            CertificateManager certificateManager) {
         super(domain, userService, authenticationFlowContextService);
         this.jwtService = jwtService;
         this.clientSyncService = clientSyncService;
@@ -76,36 +76,44 @@ public class LogoutCallbackEndpoint extends AbstractLogoutEndpoint {
     }
 
     private void logout(RoutingContext routingContext) {
-        // First, restore the initial query parameters (those provided when accessing /oauth/authorize on AM side).
-        restoreState(routingContext, next -> {
-            if (next.failed()) {
-                routingContext.fail(next.cause());
-                return;
-            }
-            // restore the session (required for the next steps)
-            restoreCurrentSession(routingContext, sessionHandler -> {
-                if (sessionHandler.failed()) {
-                    routingContext.fail(sessionHandler.cause());
-                    return;
-                }
-                final UserToken currentSession = sessionHandler.result();
-                // current session shouldn't be null in this logoutCallbackEndpoint
-                // but for safety we test it.
-                if (currentSession != null) {
-                    // put current session in context for later use
-                    if (currentSession.getClient() != null) {
-                        Client safeClient = new Client(currentSession.getClient());
-                        safeClient.setClientSecret(null);
-                        routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, safeClient);
+        // First, restore the initial query parameters (those provided when accessing
+        // /oauth/authorize on AM side).
+        restoreState(
+                routingContext,
+                next -> {
+                    if (next.failed()) {
+                        routingContext.fail(next.cause());
+                        return;
                     }
-                    if (currentSession.getUser() != null) {
-                        routingContext.put(ConstantKeys.USER_CONTEXT_KEY, currentSession.getUser());
-                    }
-                }
-                // invalidate session
-                invalidateSession(routingContext);
-            });
-        });
+                    // restore the session (required for the next steps)
+                    restoreCurrentSession(
+                            routingContext,
+                            sessionHandler -> {
+                                if (sessionHandler.failed()) {
+                                    routingContext.fail(sessionHandler.cause());
+                                    return;
+                                }
+                                final UserToken currentSession = sessionHandler.result();
+                                // current session shouldn't be null in this logoutCallbackEndpoint
+                                // but for safety we test it.
+                                if (currentSession != null) {
+                                    // put current session in context for later use
+                                    if (currentSession.getClient() != null) {
+                                        Client safeClient = new Client(currentSession.getClient());
+                                        safeClient.setClientSecret(null);
+                                        routingContext.put(
+                                                ConstantKeys.CLIENT_CONTEXT_KEY, safeClient);
+                                    }
+                                    if (currentSession.getUser() != null) {
+                                        routingContext.put(
+                                                ConstantKeys.USER_CONTEXT_KEY,
+                                                currentSession.getUser());
+                                    }
+                                }
+                                // invalidate session
+                                invalidateSession(routingContext);
+                            });
+                });
     }
 
     private void restoreState(RoutingContext context, Handler<AsyncResult<Boolean>> handler) {
@@ -113,22 +121,28 @@ public class LogoutCallbackEndpoint extends AbstractLogoutEndpoint {
 
         if (StringUtils.isEmpty(state)) {
             logger.error("No state on login callback");
-            handler.handle(Future.failedFuture(new InvalidRequestException("Missing state query param")));
+            handler.handle(
+                    Future.failedFuture(new InvalidRequestException("Missing state query param")));
             return;
         }
 
-        jwtService.decodeAndVerify(state, certificateManager.defaultCertificateProvider())
-                .doOnSuccess(stateJwt -> {
-                    final MultiMap initialQueryParams = RequestUtils.getQueryParams((String) stateJwt.getOrDefault("q", ""), false);
-                    context.put(ConstantKeys.PARAM_CONTEXT_KEY, initialQueryParams);
-                    context.put(ConstantKeys.PROVIDER_ID_PARAM_KEY, stateJwt.get("p"));
-                    context.put(Parameters.CLIENT_ID, stateJwt.get("c"));
-                })
+        jwtService
+                .decodeAndVerify(state, certificateManager.defaultCertificateProvider())
+                .doOnSuccess(
+                        stateJwt -> {
+                            final MultiMap initialQueryParams =
+                                    RequestUtils.getQueryParams(
+                                            (String) stateJwt.getOrDefault("q", ""), false);
+                            context.put(ConstantKeys.PARAM_CONTEXT_KEY, initialQueryParams);
+                            context.put(ConstantKeys.PROVIDER_ID_PARAM_KEY, stateJwt.get("p"));
+                            context.put(Parameters.CLIENT_ID, stateJwt.get("c"));
+                        })
                 .subscribe(
                         stateJwt -> handler.handle(Future.succeededFuture(true)),
                         ex -> {
                             logger.error("An error occurs verifying state on login callback", ex);
-                            handler.handle(Future.failedFuture(new BadClientCredentialsException()));
+                            handler.handle(
+                                    Future.failedFuture(new BadClientCredentialsException()));
                         });
     }
 
@@ -138,26 +152,37 @@ public class LogoutCallbackEndpoint extends AbstractLogoutEndpoint {
      * @param routingContext the routing context
      * @param handler handler holding the potential current session
      */
-    private void restoreCurrentSession(RoutingContext routingContext, Handler<AsyncResult<UserToken>> handler) {
-        // The OP SHOULD accept ID Tokens when the RP identified by the ID Token's aud claim and/or sid claim has a current session
+    private void restoreCurrentSession(
+            RoutingContext routingContext, Handler<AsyncResult<UserToken>> handler) {
+        // The OP SHOULD accept ID Tokens when the RP identified by the ID Token's aud claim and/or
+        // sid claim has a current session
         // or had a recent session at the OP, even when the exp time has passed.
-        final MultiMap originalLogoutQueryParams = routingContext.get(ConstantKeys.PARAM_CONTEXT_KEY);
-        if (originalLogoutQueryParams != null &&
-                originalLogoutQueryParams.contains(ConstantKeys.ID_TOKEN_HINT_KEY)) {
+        final MultiMap originalLogoutQueryParams =
+                routingContext.get(ConstantKeys.PARAM_CONTEXT_KEY);
+        if (originalLogoutQueryParams != null
+                && originalLogoutQueryParams.contains(ConstantKeys.ID_TOKEN_HINT_KEY)) {
             final String idToken = originalLogoutQueryParams.get(ConstantKeys.ID_TOKEN_HINT_KEY);
-            userService.extractSessionFromIdToken(idToken)
-                    .map(userToken -> {
-                        // check if the user ids match
-                        if (userToken.getUser() != null && routingContext.user() != null) {
-                            User endUser = ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User) routingContext.user().getDelegate()).getUser();
-                            if (!userToken.getUser().getId().equals(endUser.getId())) {
-                                throw new UserNotFoundException(userToken.getUser().getId());
-                            }
-                        }
-                        return userToken;
-                    })
+            userService
+                    .extractSessionFromIdToken(idToken)
+                    .map(
+                            userToken -> {
+                                // check if the user ids match
+                                if (userToken.getUser() != null && routingContext.user() != null) {
+                                    User endUser =
+                                            ((io.gravitee.am.gateway.handler.common.vertx.web.auth
+                                                                    .user.User)
+                                                            routingContext.user().getDelegate())
+                                                    .getUser();
+                                    if (!userToken.getUser().getId().equals(endUser.getId())) {
+                                        throw new UserNotFoundException(
+                                                userToken.getUser().getId());
+                                    }
+                                }
+                                return userToken;
+                            })
                     .subscribe(
-                            currentSession -> handler.handle(Future.succeededFuture(currentSession)),
+                            currentSession ->
+                                    handler.handle(Future.succeededFuture(currentSession)),
                             error -> handler.handle(Future.succeededFuture(new UserToken())));
             return;
         }
@@ -168,19 +193,29 @@ public class LogoutCallbackEndpoint extends AbstractLogoutEndpoint {
             return;
         }
 
-        final User endUser = routingContext.user() != null ? ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User) routingContext.user().getDelegate()).getUser() : null;
+        final User endUser =
+                routingContext.user() != null
+                        ? ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
+                                        routingContext.user().getDelegate())
+                                .getUser()
+                        : null;
         final String clientId = routingContext.get(Parameters.CLIENT_ID);
-        clientSyncService.findByClientId(clientId)
+        clientSyncService
+                .findByClientId(clientId)
                 .subscribe(
-                        client -> handler.handle(Future.succeededFuture(new UserToken(endUser, client))),
+                        client ->
+                                handler.handle(
+                                        Future.succeededFuture(new UserToken(endUser, client))),
                         ex -> {
-                            logger.error("An error has occurred when getting client {}", clientId, ex);
-                            handler.handle(Future.failedFuture(new BadClientCredentialsException()));
+                            logger.error(
+                                    "An error has occurred when getting client {}", clientId, ex);
+                            handler.handle(
+                                    Future.failedFuture(new BadClientCredentialsException()));
                         },
                         () -> {
                             logger.error("Unknown client {}", clientId);
-                            handler.handle(Future.failedFuture(new BadClientCredentialsException()));
-                        }
-                );
+                            handler.handle(
+                                    Future.failedFuture(new BadClientCredentialsException()));
+                        });
     }
 }

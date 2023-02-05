@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.reporter.file.vertx;
@@ -23,6 +21,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.OpenOptions;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +43,8 @@ public class VertxFileWriter<T extends ReportEntry> {
     /**
      * {@code \u000a} linefeed LF ('\n').
      *
-     * @see <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-3.html#jls-3.10.6">JLF: Escape Sequences
-     *      for Character and String Literals</a>
+     * @see <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-3.html#jls-3.10.6">JLF:
+     *     Escape Sequences for Character and String Literals</a>
      * @since 2.2
      */
     private static final char LF = '\n';
@@ -53,13 +52,13 @@ public class VertxFileWriter<T extends ReportEntry> {
     /**
      * {@code \u000d} carriage return CR ('\r').
      *
-     * @see <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-3.html#jls-3.10.6">JLF: Escape Sequences
-     *      for Character and String Literals</a>
+     * @see <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-3.html#jls-3.10.6">JLF:
+     *     Escape Sequences for Character and String Literals</a>
      * @since 2.2
      */
     private static final char CR = '\r';
 
-    private final static byte[] END_OF_LINE = new byte[]{CR, LF};
+    private static final byte[] END_OF_LINE = new byte[] {CR, LF};
 
     private final Vertx vertx;
 
@@ -78,14 +77,14 @@ public class VertxFileWriter<T extends ReportEntry> {
 
     private final SimpleDateFormat fileDateFormat = new SimpleDateFormat(ROLLOVER_FILE_DATE_FORMAT);
 
-    public VertxFileWriter(Vertx vertx, Formatter<T> formatter, String filename) throws IOException {
+    public VertxFileWriter(Vertx vertx, Formatter<T> formatter, String filename)
+            throws IOException {
         this.vertx = vertx;
         this.formatter = formatter;
 
         if (filename != null) {
             filename = filename.trim();
-            if (filename.length() == 0)
-                filename = null;
+            if (filename.length() == 0) filename = null;
         }
 
         if (filename == null) {
@@ -98,7 +97,8 @@ public class VertxFileWriter<T extends ReportEntry> {
     }
 
     public Future<Void> initialize() {
-        // Calculate Today's Midnight, based on Configured TimeZone (will be in past, even if by a few milliseconds)
+        // Calculate Today's Midnight, based on Configured TimeZone (will be in past, even if by a
+        // few milliseconds)
         ZonedDateTime now = ZonedDateTime.now(TimeZone.getDefault().toZoneId());
 
         // This will schedule the rollover event to the next midnight
@@ -127,9 +127,13 @@ public class VertxFileWriter<T extends ReportEntry> {
                 String simpleFilename = file.getName();
                 int datePattern = simpleFilename.toLowerCase(Locale.ENGLISH).indexOf(YYYY_MM_DD);
                 if (datePattern >= 0) {
-                    filename = dir.getAbsolutePath() + File.separatorChar + simpleFilename.substring(0, datePattern) +
-                            fileDateFormat.format(new Date(now.toInstant().toEpochMilli())) +
-                            simpleFilename.substring(datePattern + YYYY_MM_DD.length());
+                    filename =
+                            dir.getAbsolutePath()
+                                    + File.separatorChar
+                                    + simpleFilename.substring(0, datePattern)
+                                    + fileDateFormat.format(
+                                            new Date(now.toInstant().toEpochMilli()))
+                                    + simpleFilename.substring(datePattern + YYYY_MM_DD.length());
                 } else {
                     filename = dir.getAbsolutePath() + File.separatorChar + simpleFilename;
                 }
@@ -138,27 +142,35 @@ public class VertxFileWriter<T extends ReportEntry> {
 
                 AsyncFile oldAsyncFile = asyncFile;
 
-                vertx.fileSystem().open(filename, new OpenOptions()
-                                .setAppend(true)
-                                .setCreate(true)
-                                .setDsync(true), event -> {
-                            if (event.succeeded()) {
-                                asyncFile = event.result();
+                vertx.fileSystem()
+                        .open(
+                                filename,
+                                new OpenOptions().setAppend(true).setCreate(true).setDsync(true),
+                                event -> {
+                                    if (event.succeeded()) {
+                                        asyncFile = event.result();
 
-                                if (oldAsyncFile != null) {
-                                    // Now we can close previous file safely
-                                    close(oldAsyncFile).onFailure(throwable -> {
-                                        LOGGER.error("An error occurs while closing file writer [{}]", this.filename, throwable);
-                                    });
-                                }
+                                        if (oldAsyncFile != null) {
+                                            // Now we can close previous file safely
+                                            close(oldAsyncFile)
+                                                    .onFailure(
+                                                            throwable -> {
+                                                                LOGGER.error(
+                                                                        "An error occurs while closing file writer [{}]",
+                                                                        this.filename,
+                                                                        throwable);
+                                                            });
+                                        }
 
-                                promise.complete();
-                            } else {
-                                LOGGER.error("An error occurs while starting file writer [{}]", this.filename, event.cause());
-                                promise.fail(event.cause());
-                            }
-                        }
-                );
+                                        promise.complete();
+                                    } else {
+                                        LOGGER.error(
+                                                "An error occurs while starting file writer [{}]",
+                                                this.filename,
+                                                event.cause());
+                                        promise.fail(event.cause());
+                                    }
+                                });
             } catch (IOException ioe) {
                 promise.fail(ioe);
             }
@@ -180,15 +192,19 @@ public class VertxFileWriter<T extends ReportEntry> {
         Promise<Void> promise = Promise.promise();
 
         if (asyncFile != null) {
-            asyncFile.close(event -> {
-                if (event.succeeded()) {
-                    LOGGER.info("File writer is now closed [{}]", this.filename);
-                    promise.complete();
-                } else {
-                    LOGGER.error("An error occurs while closing file writer [{}]", this.filename, event.cause());
-                    promise.fail(event.cause());
-                }
-            });
+            asyncFile.close(
+                    event -> {
+                        if (event.succeeded()) {
+                            LOGGER.info("File writer is now closed [{}]", this.filename);
+                            promise.complete();
+                        } else {
+                            LOGGER.error(
+                                    "An error occurs while closing file writer [{}]",
+                                    this.filename,
+                                    event.cause());
+                            promise.fail(event.cause());
+                        }
+                    });
         } else {
             promise.complete();
         }

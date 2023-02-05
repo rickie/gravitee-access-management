@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.identityprovider.github.authentication;
@@ -31,6 +29,7 @@ import io.gravitee.common.http.MediaType;
 import io.reactivex.Maybe;
 import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.ext.web.client.WebClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +46,11 @@ import java.util.Map;
  * @author GraviteeSource Team
  */
 @Import(GithubAuthenticationProviderConfiguration.class)
-public class GithubAuthenticationProvider extends AbstractSocialAuthenticationProvider<GithubIdentityProviderConfiguration> {
+public class GithubAuthenticationProvider
+        extends AbstractSocialAuthenticationProvider<GithubIdentityProviderConfiguration> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GithubAuthenticationProvider.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(GithubAuthenticationProvider.class);
     private static final String CLIENT_ID = "client_id";
     private static final String CLIENT_SECRET = "client_secret";
     private static final String REDIRECT_URI = "redirect_uri";
@@ -59,14 +60,11 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
     @Qualifier("gitHubWebClient")
     private WebClient client;
 
-    @Autowired
-    private GithubIdentityProviderConfiguration configuration;
+    @Autowired private GithubIdentityProviderConfiguration configuration;
 
-    @Autowired
-    private DefaultIdentityProviderMapper mapper;
+    @Autowired private DefaultIdentityProviderMapper mapper;
 
-    @Autowired
-    private DefaultIdentityProviderRoleMapper roleMapper;
+    @Autowired private DefaultIdentityProviderRoleMapper roleMapper;
 
     @Override
     protected GithubIdentityProviderConfiguration getConfiguration() {
@@ -91,7 +89,12 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
     @Override
     protected Maybe<Token> authenticate(Authentication authentication) {
         // prepare body request parameters
-        final String authorizationCode = authentication.getContext().request().parameters().getFirst(configuration.getCodeParameter());
+        final String authorizationCode =
+                authentication
+                        .getContext()
+                        .request()
+                        .parameters()
+                        .getFirst(configuration.getCodeParameter());
         if (authorizationCode == null || authorizationCode.isEmpty()) {
             LOGGER.debug("Authorization code is missing, skip authentication");
             return Maybe.error(new BadCredentialsException("Missing authorization code"));
@@ -99,7 +102,9 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
         List<NameValuePair> urlParameters = new ArrayList<>();
         urlParameters.add(new BasicNameValuePair(CLIENT_ID, configuration.getClientId()));
         urlParameters.add(new BasicNameValuePair(CLIENT_SECRET, configuration.getClientSecret()));
-        urlParameters.add(new BasicNameValuePair(REDIRECT_URI, (String) authentication.getContext().get(REDIRECT_URI)));
+        urlParameters.add(
+                new BasicNameValuePair(
+                        REDIRECT_URI, (String) authentication.getContext().get(REDIRECT_URI)));
         urlParameters.add(new BasicNameValuePair(CODE, authorizationCode));
         String bodyRequest = URLEncodedUtils.format(urlParameters);
 
@@ -108,14 +113,17 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED)
                 .rxSendBuffer(Buffer.buffer(bodyRequest))
                 .toMaybe()
-                .map(httpResponse -> {
-                    if (httpResponse.statusCode() != 200) {
-                        throw new BadCredentialsException(httpResponse.statusMessage());
-                    }
+                .map(
+                        httpResponse -> {
+                            if (httpResponse.statusCode() != 200) {
+                                throw new BadCredentialsException(httpResponse.statusMessage());
+                            }
 
-                    Map<String, String> bodyResponse = URLEncodedUtils.format(httpResponse.bodyAsString());
-                    return new Token(bodyResponse.get("access_token"), TokenTypeHint.ACCESS_TOKEN);
-                });
+                            Map<String, String> bodyResponse =
+                                    URLEncodedUtils.format(httpResponse.bodyAsString());
+                            return new Token(
+                                    bodyResponse.get("access_token"), TokenTypeHint.ACCESS_TOKEN);
+                        });
     }
 
     @Override
@@ -124,13 +132,17 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
                 .putHeader(HttpHeaders.AUTHORIZATION, "token " + accessToken.getValue())
                 .rxSend()
                 .toMaybe()
-                .map(httpClientResponse -> {
-                    if (httpClientResponse.statusCode() != 200) {
-                        throw new BadCredentialsException(httpClientResponse.statusMessage());
-                    }
+                .map(
+                        httpClientResponse -> {
+                            if (httpClientResponse.statusCode() != 200) {
+                                throw new BadCredentialsException(
+                                        httpClientResponse.statusMessage());
+                            }
 
-                    return createUser(authentication.getContext(), httpClientResponse.bodyAsJsonObject().getMap());
-                });
+                            return createUser(
+                                    authentication.getContext(),
+                                    httpClientResponse.bodyAsJsonObject().getMap());
+                        });
     }
 
     private User createUser(AuthenticationContext authContext, Map<String, Object> attributes) {
@@ -141,12 +153,15 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
         // Standard claims
         additionalInformation.put(StandardClaims.SUB, attributes.get(GithubUser.ID));
         additionalInformation.put(StandardClaims.NAME, attributes.get(GithubUser.NAME));
-        additionalInformation.put(StandardClaims.PREFERRED_USERNAME, attributes.get(GithubUser.LOGIN));
+        additionalInformation.put(
+                StandardClaims.PREFERRED_USERNAME, attributes.get(GithubUser.LOGIN));
         // apply user mapping
         additionalInformation.putAll(applyUserMapping(authContext, attributes));
         // update username if user mapping has been changed
         if (additionalInformation.containsKey(StandardClaims.PREFERRED_USERNAME)) {
-            ((DefaultUser) user).setUsername((String) additionalInformation.get(StandardClaims.PREFERRED_USERNAME));
+            ((DefaultUser) user)
+                    .setUsername(
+                            (String) additionalInformation.get(StandardClaims.PREFERRED_USERNAME));
         }
         ((DefaultUser) user).setAdditionalInformation(additionalInformation);
         // set user roles
@@ -165,7 +180,10 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
                 claims.put(StandardClaims.FAMILY_NAME, fullName[1]);
             }
         } catch (Exception e) {
-            LOGGER.debug("Unable to resolve Github user full name : {}", attributes.get(GithubUser.NAME), e);
+            LOGGER.debug(
+                    "Unable to resolve Github user full name : {}",
+                    attributes.get(GithubUser.NAME),
+                    e);
         }
 
         claims.put(StandardClaims.PROFILE, attributes.get(GithubUser.HTML_URL));

@@ -1,19 +1,22 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oidc.service.utils;
+
+import static com.nimbusds.jose.JWEAlgorithm.*;
+import static com.nimbusds.jose.JWSAlgorithm.*;
+
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 import com.nimbusds.jose.EncryptionMethod;
 
@@ -23,60 +26,78 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.nimbusds.jose.JWEAlgorithm.*;
-import static com.nimbusds.jose.JWSAlgorithm.*;
-import static java.util.stream.Collectors.toUnmodifiableList;
-
-
 /**
  * Related to JWA RFC - https://tools.ietf.org/html/rfc7518
+ *
  * @author Alexandre FARIA (contact at alexandrefaria.net)
  * @author GraviteeSource Team
  */
 public class JWAlgorithmUtils {
 
     /**
-     * Unless we want specific values for id_token, userinfo, authorization and so on, we will share same settings.
+     * Unless we want specific values for id_token, userinfo, authorization and so on, we will share
+     * same settings.
      */
-    private static final Set<String> SUPPORTED_SIGNING_ALG = Set.of(
-            ES256.getName(), ES384.getName(), ES512.getName(),
-            PS256.getName(), PS384.getName(), PS512.getName(),
-            RS256.getName(), RS384.getName(), RS512.getName(),
-            HS256.getName(), HS384.getName(), HS512.getName());
+    private static final Set<String> SUPPORTED_SIGNING_ALG =
+            Set.of(
+                    ES256.getName(),
+                    ES384.getName(),
+                    ES512.getName(),
+                    PS256.getName(),
+                    PS384.getName(),
+                    PS512.getName(),
+                    RS256.getName(),
+                    RS384.getName(),
+                    RS512.getName(),
+                    HS256.getName(),
+                    HS384.getName(),
+                    HS512.getName());
 
     public static boolean isSignAlgCompliantWithFapi(String alg) {
         return PS256.getName().equals(alg) || ES256.getName().equals(alg);
     }
 
-
-    /**
-     * https://tools.ietf.org/html/rfc7518#section-4.1
-     */
-    private static final Set<String> SUPPORTED_KEY_ENCRYPTION_ALG = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
-            //Elliptic/Edward Curve algorithm
-            ECDH_ES.getName(), ECDH_ES_A128KW.getName(), ECDH_ES_A192KW.getName(), ECDH_ES_A256KW.getName(),
-            //RSA algorithm
-            RSA_OAEP_256.getName(),
-            //Direct
-            DIR.getName(),
-            //AES Key wrap
-            A128KW.getName(), A192KW.getName(), A256KW.getName(),
-            //AES GCM
-            A128GCMKW.getName(), A192GCMKW.getName(), A256GCMKW.getName(),
-            //Password Base Encryption
-            PBES2_HS256_A128KW.getName(), PBES2_HS384_A192KW.getName(), PBES2_HS512_A256KW.getName()
-
-    )));
+    /** https://tools.ietf.org/html/rfc7518#section-4.1 */
+    private static final Set<String> SUPPORTED_KEY_ENCRYPTION_ALG =
+            Collections.unmodifiableSet(
+                    new HashSet<>(
+                            Arrays.asList(
+                                    // Elliptic/Edward Curve algorithm
+                                    ECDH_ES.getName(),
+                                    ECDH_ES_A128KW.getName(),
+                                    ECDH_ES_A192KW.getName(),
+                                    ECDH_ES_A256KW.getName(),
+                                    // RSA algorithm
+                                    RSA_OAEP_256.getName(),
+                                    // Direct
+                                    DIR.getName(),
+                                    // AES Key wrap
+                                    A128KW.getName(),
+                                    A192KW.getName(),
+                                    A256KW.getName(),
+                                    // AES GCM
+                                    A128GCMKW.getName(),
+                                    A192GCMKW.getName(),
+                                    A256GCMKW.getName(),
+                                    // Password Base Encryption
+                                    PBES2_HS256_A128KW.getName(),
+                                    PBES2_HS384_A192KW.getName(),
+                                    PBES2_HS512_A256KW.getName())));
 
     public static boolean isKeyEncCompliantWithFapiBrazil(String enc) {
         // RSA_OAP_256 should be used but FAPI Brazil specify RSA_OAEP
         return RSA_OAEP.getName().equals(enc) || RSA_OAEP_256.getName().equals(enc);
     }
 
-    /**
-     * See https://tools.ietf.org/html/rfc7518#section-5.1
-     */
-    private static final Set<String> SUPPORTED_CONTENT_ENCRYPTION_ALG = Set.of(EncryptionMethod.A128CBC_HS256.getName(), EncryptionMethod.A192CBC_HS384.getName(), EncryptionMethod.A256CBC_HS512.getName(), EncryptionMethod.A128GCM.getName(), EncryptionMethod.A192GCM.getName(), EncryptionMethod.A256GCM.getName());
+    /** See https://tools.ietf.org/html/rfc7518#section-5.1 */
+    private static final Set<String> SUPPORTED_CONTENT_ENCRYPTION_ALG =
+            Set.of(
+                    EncryptionMethod.A128CBC_HS256.getName(),
+                    EncryptionMethod.A192CBC_HS384.getName(),
+                    EncryptionMethod.A256CBC_HS512.getName(),
+                    EncryptionMethod.A128GCM.getName(),
+                    EncryptionMethod.A192GCM.getName(),
+                    EncryptionMethod.A256GCM.getName());
 
     public static boolean isContentEncCompliantWithFapiBrazil(String enc) {
         return EncryptionMethod.A256GCM.getName().equals(enc);
@@ -90,7 +111,9 @@ public class JWAlgorithmUtils {
     }
 
     /**
-     * Throw InvalidClientMetadataException if null or contains unsupported userinfo signing algorithm.
+     * Throw InvalidClientMetadataException if null or contains unsupported userinfo signing
+     * algorithm.
+     *
      * @param signingAlg String userinfo signing algorithm to validate.
      * @return True if signingAlg is supported, false otherwise.
      */
@@ -121,7 +144,8 @@ public class JWAlgorithmUtils {
     }
 
     /**
-     * @return the default userinfo content encryption algorithm when userinfo_encrypted_response_alg is informed
+     * @return the default userinfo content encryption algorithm when
+     *     userinfo_encrypted_response_alg is informed
      */
     public static String getDefaultUserinfoResponseEnc() {
         return EncryptionMethod.A128CBC_HS256.getName();
@@ -173,7 +197,8 @@ public class JWAlgorithmUtils {
     }
 
     /**
-     * @return the default id_token content encryption algorithm when id_token_encrypted_response_alg is informed
+     * @return the default id_token content encryption algorithm when
+     *     id_token_encrypted_response_alg is informed
      */
     public static String getDefaultIdTokenResponseEnc() {
         return EncryptionMethod.A128CBC_HS256.getName();
@@ -195,7 +220,9 @@ public class JWAlgorithmUtils {
     }
 
     /**
-     * Throw InvalidClientMetadataException if null or contains unsupported authorization response signing algorithm.
+     * Throw InvalidClientMetadataException if null or contains unsupported authorization response
+     * signing algorithm.
+     *
      * @param signingAlg String authorization response signing algorithm to validate.
      * @return True if signingAlg is supported, false otherwise.
      */
@@ -226,7 +253,8 @@ public class JWAlgorithmUtils {
     }
 
     /**
-     * @return the default authorization response content encryption algorithm when authorization_encrypted_response_alg is informed
+     * @return the default authorization response content encryption algorithm when
+     *     authorization_encrypted_response_alg is informed
      */
     public static String getDefaultAuthorizationResponseEnc() {
         return EncryptionMethod.A128CBC_HS256.getName();
@@ -282,7 +310,8 @@ public class JWAlgorithmUtils {
     }
 
     /**
-     * @return the default userinfo content encryption algorithm when userinfo_encrypted_response_alg is informed
+     * @return the default userinfo content encryption algorithm when
+     *     userinfo_encrypted_response_alg is informed
      */
     public static String getDefaultRequestObjectEnc() {
         return EncryptionMethod.A128CBC_HS256.getName();

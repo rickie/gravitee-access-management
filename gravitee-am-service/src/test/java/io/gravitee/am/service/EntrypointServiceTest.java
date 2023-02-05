@@ -1,21 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.identityprovider.api.DefaultUser;
 import io.gravitee.am.model.Entrypoint;
@@ -35,6 +38,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,10 +48,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -60,31 +60,33 @@ public class EntrypointServiceTest {
     public static final String ORGANIZATION_ID = "orga#1";
     public static final String USER_ID = "user#1";
 
-    @Mock
-    private EntrypointRepository entrypointRepository;
+    @Mock private EntrypointRepository entrypointRepository;
 
-    @Mock
-    private OrganizationService organizationService;
+    @Mock private OrganizationService organizationService;
 
-    @Mock
-    private AuditService auditService;
+    @Mock private AuditService auditService;
 
-    @Mock
-    private VirtualHostValidator virtualHostValidator;
+    @Mock private VirtualHostValidator virtualHostValidator;
 
     private EntrypointService cut;
 
     @Before
     public void before() {
 
-        cut = new EntrypointServiceImpl(entrypointRepository, organizationService, auditService, virtualHostValidator);
+        cut =
+                new EntrypointServiceImpl(
+                        entrypointRepository,
+                        organizationService,
+                        auditService,
+                        virtualHostValidator);
     }
 
     @Test
     public void shouldFindById() {
 
         Entrypoint entrypoint = new Entrypoint();
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.just(entrypoint));
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID))
+                .thenReturn(Maybe.just(entrypoint));
 
         TestObserver<Entrypoint> obs = cut.findById(ENTRYPOINT_ID, ORGANIZATION_ID).test();
 
@@ -96,7 +98,8 @@ public class EntrypointServiceTest {
     @Test
     public void shouldFindById_notExistingEntrypoint() {
 
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.empty());
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID))
+                .thenReturn(Maybe.empty());
 
         TestObserver<Entrypoint> obs = cut.findById(ENTRYPOINT_ID, ORGANIZATION_ID).test();
 
@@ -107,7 +110,8 @@ public class EntrypointServiceTest {
     @Test
     public void shouldFindById_technicalException() {
 
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.error(TechnicalException::new));
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID))
+                .thenReturn(Maybe.error(TechnicalException::new));
 
         TestObserver<Entrypoint> obs = cut.findById(ENTRYPOINT_ID, ORGANIZATION_ID).test();
 
@@ -122,24 +126,34 @@ public class EntrypointServiceTest {
         organization.setId(ORGANIZATION_ID);
 
         when(organizationService.findById(ORGANIZATION_ID)).thenReturn(Single.just(organization));
-        when(entrypointRepository.create(any(Entrypoint.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
-        doReturn(true).when(virtualHostValidator).isValidDomainOrSubDomain("auth.company.com", null);
+        when(entrypointRepository.create(any(Entrypoint.class)))
+                .thenAnswer(i -> Single.just(i.getArgument(0)));
+        doReturn(true)
+                .when(virtualHostValidator)
+                .isValidDomainOrSubDomain("auth.company.com", null);
 
         TestSubscriber<Entrypoint> obs = cut.createDefaults(organization).test();
 
         obs.awaitTerminalEvent();
-        obs.assertValue(entrypoint -> entrypoint.getId() != null
-                && entrypoint.isDefaultEntrypoint() && entrypoint.getOrganizationId().equals(ORGANIZATION_ID));
+        obs.assertValue(
+                entrypoint ->
+                        entrypoint.getId() != null
+                                && entrypoint.isDefaultEntrypoint()
+                                && entrypoint.getOrganizationId().equals(ORGANIZATION_ID));
 
-        verify(auditService, times(1)).report(argThat(builder -> {
-            Audit audit = builder.build(new ObjectMapper());
-            assertEquals(EventType.ENTRYPOINT_CREATED, audit.getType());
-            assertEquals(ReferenceType.ORGANIZATION, audit.getReferenceType());
-            assertEquals(ORGANIZATION_ID, audit.getReferenceId());
-            assertEquals("system", audit.getActor().getId());
+        verify(auditService, times(1))
+                .report(
+                        argThat(
+                                builder -> {
+                                    Audit audit = builder.build(new ObjectMapper());
+                                    assertEquals(EventType.ENTRYPOINT_CREATED, audit.getType());
+                                    assertEquals(
+                                            ReferenceType.ORGANIZATION, audit.getReferenceType());
+                                    assertEquals(ORGANIZATION_ID, audit.getReferenceId());
+                                    assertEquals("system", audit.getActor().getId());
 
-            return true;
-        }));
+                                    return true;
+                                }));
     }
 
     @Test
@@ -147,31 +161,64 @@ public class EntrypointServiceTest {
 
         Organization organization = new Organization();
         organization.setId(ORGANIZATION_ID);
-        organization.setDomainRestrictions(Arrays.asList("domain1.gravitee.io", "domain2.gravitee.io"));
+        organization.setDomainRestrictions(
+                Arrays.asList("domain1.gravitee.io", "domain2.gravitee.io"));
 
         when(organizationService.findById(ORGANIZATION_ID)).thenReturn(Single.just(organization));
-        when(entrypointRepository.create(argThat(e -> e != null && e.getUrl().equals("https://domain1.gravitee.io") && e.isDefaultEntrypoint()))).thenAnswer(i -> Single.just(i.getArgument(0)));
-        when(entrypointRepository.create(argThat(e -> e != null && e.getUrl().equals("https://domain2.gravitee.io") && !e.isDefaultEntrypoint()))).thenAnswer(i -> Single.just(i.getArgument(0)));
-        doReturn(true).when(virtualHostValidator).isValidDomainOrSubDomain("domain1.gravitee.io", List.of("domain1.gravitee.io", "domain2.gravitee.io"));
-        doReturn(true).when(virtualHostValidator).isValidDomainOrSubDomain("domain2.gravitee.io", List.of("domain1.gravitee.io", "domain2.gravitee.io"));
+        when(entrypointRepository.create(
+                        argThat(
+                                e ->
+                                        e != null
+                                                && e.getUrl().equals("https://domain1.gravitee.io")
+                                                && e.isDefaultEntrypoint())))
+                .thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(entrypointRepository.create(
+                        argThat(
+                                e ->
+                                        e != null
+                                                && e.getUrl().equals("https://domain2.gravitee.io")
+                                                && !e.isDefaultEntrypoint())))
+                .thenAnswer(i -> Single.just(i.getArgument(0)));
+        doReturn(true)
+                .when(virtualHostValidator)
+                .isValidDomainOrSubDomain(
+                        "domain1.gravitee.io",
+                        List.of("domain1.gravitee.io", "domain2.gravitee.io"));
+        doReturn(true)
+                .when(virtualHostValidator)
+                .isValidDomainOrSubDomain(
+                        "domain2.gravitee.io",
+                        List.of("domain1.gravitee.io", "domain2.gravitee.io"));
 
         TestSubscriber<Entrypoint> obs = cut.createDefaults(organization).test();
 
         obs.awaitTerminalEvent();
-        obs.assertValueAt(0, entrypoint -> entrypoint.getId() != null
-                && entrypoint.isDefaultEntrypoint() && entrypoint.getOrganizationId().equals(ORGANIZATION_ID));
-        obs.assertValueAt(1, entrypoint -> entrypoint.getId() != null
-                && !entrypoint.isDefaultEntrypoint() && entrypoint.getOrganizationId().equals(ORGANIZATION_ID));
+        obs.assertValueAt(
+                0,
+                entrypoint ->
+                        entrypoint.getId() != null
+                                && entrypoint.isDefaultEntrypoint()
+                                && entrypoint.getOrganizationId().equals(ORGANIZATION_ID));
+        obs.assertValueAt(
+                1,
+                entrypoint ->
+                        entrypoint.getId() != null
+                                && !entrypoint.isDefaultEntrypoint()
+                                && entrypoint.getOrganizationId().equals(ORGANIZATION_ID));
 
-        verify(auditService, times(2)).report(argThat(builder -> {
-            Audit audit = builder.build(new ObjectMapper());
-            assertEquals(EventType.ENTRYPOINT_CREATED, audit.getType());
-            assertEquals(ReferenceType.ORGANIZATION, audit.getReferenceType());
-            assertEquals(ORGANIZATION_ID, audit.getReferenceId());
-            assertEquals("system", audit.getActor().getId());
+        verify(auditService, times(2))
+                .report(
+                        argThat(
+                                builder -> {
+                                    Audit audit = builder.build(new ObjectMapper());
+                                    assertEquals(EventType.ENTRYPOINT_CREATED, audit.getType());
+                                    assertEquals(
+                                            ReferenceType.ORGANIZATION, audit.getReferenceType());
+                                    assertEquals(ORGANIZATION_ID, audit.getReferenceId());
+                                    assertEquals("system", audit.getActor().getId());
 
-            return true;
-        }));
+                                    return true;
+                                }));
     }
 
     @Test
@@ -190,28 +237,39 @@ public class EntrypointServiceTest {
         newEntrypoint.setUrl("https://auth.company.com");
 
         when(organizationService.findById(ORGANIZATION_ID)).thenReturn(Single.just(organization));
-        when(entrypointRepository.create(any(Entrypoint.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
-        doReturn(true).when(virtualHostValidator).isValidDomainOrSubDomain("auth.company.com", null);
+        when(entrypointRepository.create(any(Entrypoint.class)))
+                .thenAnswer(i -> Single.just(i.getArgument(0)));
+        doReturn(true)
+                .when(virtualHostValidator)
+                .isValidDomainOrSubDomain("auth.company.com", null);
         TestObserver<Entrypoint> obs = cut.create(ORGANIZATION_ID, newEntrypoint, user).test();
 
         obs.awaitTerminalEvent();
-        obs.assertValue(entrypoint -> entrypoint.getId() != null
-                && !entrypoint.isDefaultEntrypoint()
-                && entrypoint.getOrganizationId().equals(ORGANIZATION_ID)
-                && entrypoint.getName().equals(newEntrypoint.getName())
-                && entrypoint.getDescription().equals(newEntrypoint.getDescription())
-                && entrypoint.getTags().equals(newEntrypoint.getTags())
-                && entrypoint.getUrl().equals(newEntrypoint.getUrl()));
+        obs.assertValue(
+                entrypoint ->
+                        entrypoint.getId() != null
+                                && !entrypoint.isDefaultEntrypoint()
+                                && entrypoint.getOrganizationId().equals(ORGANIZATION_ID)
+                                && entrypoint.getName().equals(newEntrypoint.getName())
+                                && entrypoint
+                                        .getDescription()
+                                        .equals(newEntrypoint.getDescription())
+                                && entrypoint.getTags().equals(newEntrypoint.getTags())
+                                && entrypoint.getUrl().equals(newEntrypoint.getUrl()));
 
-        verify(auditService, times(1)).report(argThat(builder -> {
-            Audit audit = builder.build(new ObjectMapper());
-            assertEquals(EventType.ENTRYPOINT_CREATED, audit.getType());
-            assertEquals(ReferenceType.ORGANIZATION, audit.getReferenceType());
-            assertEquals(ORGANIZATION_ID, audit.getReferenceId());
-            assertEquals(user.getId(), audit.getActor().getId());
+        verify(auditService, times(1))
+                .report(
+                        argThat(
+                                builder -> {
+                                    Audit audit = builder.build(new ObjectMapper());
+                                    assertEquals(EventType.ENTRYPOINT_CREATED, audit.getType());
+                                    assertEquals(
+                                            ReferenceType.ORGANIZATION, audit.getReferenceType());
+                                    assertEquals(ORGANIZATION_ID, audit.getReferenceId());
+                                    assertEquals(user.getId(), audit.getActor().getId());
 
-            return true;
-        }));
+                                    return true;
+                                }));
     }
 
     @Test
@@ -226,7 +284,8 @@ public class EntrypointServiceTest {
         newEntrypoint.setTags(Arrays.asList("tag#1", "tags#2"));
         newEntrypoint.setUrl("invalid");
 
-        when(entrypointRepository.create(any(Entrypoint.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(entrypointRepository.create(any(Entrypoint.class)))
+                .thenAnswer(i -> Single.just(i.getArgument(0)));
 
         TestObserver<Entrypoint> obs = cut.create(ORGANIZATION_ID, newEntrypoint, user).test();
 
@@ -252,32 +311,46 @@ public class EntrypointServiceTest {
         updateEntrypoint.setTags(Arrays.asList("tag#1", "tags#2"));
         updateEntrypoint.setUrl("https://auth.company.com");
 
-        when(organizationService.findById(ORGANIZATION_ID)).thenReturn(Single.just(new Organization()));
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.just(existingEntrypoint));
-        when(entrypointRepository.update(any(Entrypoint.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
-        doReturn(true).when(virtualHostValidator).isValidDomainOrSubDomain("auth.company.com", null);
+        when(organizationService.findById(ORGANIZATION_ID))
+                .thenReturn(Single.just(new Organization()));
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID))
+                .thenReturn(Maybe.just(existingEntrypoint));
+        when(entrypointRepository.update(any(Entrypoint.class)))
+                .thenAnswer(i -> Single.just(i.getArgument(0)));
+        doReturn(true)
+                .when(virtualHostValidator)
+                .isValidDomainOrSubDomain("auth.company.com", null);
 
-        TestObserver<Entrypoint> obs = cut.update(ENTRYPOINT_ID, ORGANIZATION_ID, updateEntrypoint, user).test();
+        TestObserver<Entrypoint> obs =
+                cut.update(ENTRYPOINT_ID, ORGANIZATION_ID, updateEntrypoint, user).test();
 
         obs.awaitTerminalEvent();
-        obs.assertValue(entrypoint -> entrypoint.getId() != null
-                && !entrypoint.isDefaultEntrypoint()
-                && entrypoint.getOrganizationId().equals(ORGANIZATION_ID)
-                && entrypoint.getName().equals(updateEntrypoint.getName())
-                && entrypoint.getDescription().equals(updateEntrypoint.getDescription())
-                && entrypoint.getTags().equals(updateEntrypoint.getTags())
-                && entrypoint.getUrl().equals(updateEntrypoint.getUrl())
-                && entrypoint.getUpdatedAt() != null);
+        obs.assertValue(
+                entrypoint ->
+                        entrypoint.getId() != null
+                                && !entrypoint.isDefaultEntrypoint()
+                                && entrypoint.getOrganizationId().equals(ORGANIZATION_ID)
+                                && entrypoint.getName().equals(updateEntrypoint.getName())
+                                && entrypoint
+                                        .getDescription()
+                                        .equals(updateEntrypoint.getDescription())
+                                && entrypoint.getTags().equals(updateEntrypoint.getTags())
+                                && entrypoint.getUrl().equals(updateEntrypoint.getUrl())
+                                && entrypoint.getUpdatedAt() != null);
 
-        verify(auditService, times(1)).report(argThat(builder -> {
-            Audit audit = builder.build(new ObjectMapper());
-            assertEquals(EventType.ENTRYPOINT_UPDATED, audit.getType());
-            assertEquals(ReferenceType.ORGANIZATION, audit.getReferenceType());
-            assertEquals(ORGANIZATION_ID, audit.getReferenceId());
-            assertEquals(user.getId(), audit.getActor().getId());
+        verify(auditService, times(1))
+                .report(
+                        argThat(
+                                builder -> {
+                                    Audit audit = builder.build(new ObjectMapper());
+                                    assertEquals(EventType.ENTRYPOINT_UPDATED, audit.getType());
+                                    assertEquals(
+                                            ReferenceType.ORGANIZATION, audit.getReferenceType());
+                                    assertEquals(ORGANIZATION_ID, audit.getReferenceId());
+                                    assertEquals(user.getId(), audit.getActor().getId());
 
-            return true;
-        }));
+                                    return true;
+                                }));
     }
 
     @Test
@@ -296,10 +369,13 @@ public class EntrypointServiceTest {
         updateEntrypoint.setTags(Arrays.asList("tag#1", "tags#2"));
         updateEntrypoint.setUrl("invalid");
 
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.just(existingEntrypoint));
-        when(entrypointRepository.update(any(Entrypoint.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID))
+                .thenReturn(Maybe.just(existingEntrypoint));
+        when(entrypointRepository.update(any(Entrypoint.class)))
+                .thenAnswer(i -> Single.just(i.getArgument(0)));
 
-        TestObserver<Entrypoint> obs = cut.update(ENTRYPOINT_ID, ORGANIZATION_ID, updateEntrypoint, user).test();
+        TestObserver<Entrypoint> obs =
+                cut.update(ENTRYPOINT_ID, ORGANIZATION_ID, updateEntrypoint, user).test();
 
         obs.awaitTerminalEvent();
         obs.assertError(InvalidEntrypointException.class);
@@ -313,9 +389,11 @@ public class EntrypointServiceTest {
         DefaultUser user = new DefaultUser("test");
         user.setId(USER_ID);
 
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.empty());
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID))
+                .thenReturn(Maybe.empty());
 
-        TestObserver<Entrypoint> obs = cut.update(ENTRYPOINT_ID, ORGANIZATION_ID, new UpdateEntrypoint(), user).test();
+        TestObserver<Entrypoint> obs =
+                cut.update(ENTRYPOINT_ID, ORGANIZATION_ID, new UpdateEntrypoint(), user).test();
 
         obs.awaitTerminalEvent();
         obs.assertError(EntrypointNotFoundException.class);
@@ -343,32 +421,44 @@ public class EntrypointServiceTest {
         updateEntrypoint.setTags(Arrays.asList("tag#1", "tags#2"));
         updateEntrypoint.setUrl("https://changed.com");
 
-        when(organizationService.findById(ORGANIZATION_ID)).thenReturn(Single.just(new Organization()));
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.just(existingEntrypoint));
-        when(entrypointRepository.update(any(Entrypoint.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(organizationService.findById(ORGANIZATION_ID))
+                .thenReturn(Single.just(new Organization()));
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID))
+                .thenReturn(Maybe.just(existingEntrypoint));
+        when(entrypointRepository.update(any(Entrypoint.class)))
+                .thenAnswer(i -> Single.just(i.getArgument(0)));
         doReturn(true).when(virtualHostValidator).isValidDomainOrSubDomain("changed.com", null);
 
-        TestObserver<Entrypoint> obs = cut.update(ENTRYPOINT_ID, ORGANIZATION_ID, updateEntrypoint, user).test();
+        TestObserver<Entrypoint> obs =
+                cut.update(ENTRYPOINT_ID, ORGANIZATION_ID, updateEntrypoint, user).test();
 
         obs.awaitTerminalEvent();
-        obs.assertValue(entrypoint -> entrypoint.getId() != null
-                && !entrypoint.isDefaultEntrypoint()
-                && entrypoint.getOrganizationId().equals(ORGANIZATION_ID)
-                && entrypoint.getName().equals(updateEntrypoint.getName())
-                && entrypoint.getDescription().equals(updateEntrypoint.getDescription())
-                && entrypoint.getTags().equals(updateEntrypoint.getTags())
-                && entrypoint.getUrl().equals(updateEntrypoint.getUrl())
-                && entrypoint.getUpdatedAt() != null);
+        obs.assertValue(
+                entrypoint ->
+                        entrypoint.getId() != null
+                                && !entrypoint.isDefaultEntrypoint()
+                                && entrypoint.getOrganizationId().equals(ORGANIZATION_ID)
+                                && entrypoint.getName().equals(updateEntrypoint.getName())
+                                && entrypoint
+                                        .getDescription()
+                                        .equals(updateEntrypoint.getDescription())
+                                && entrypoint.getTags().equals(updateEntrypoint.getTags())
+                                && entrypoint.getUrl().equals(updateEntrypoint.getUrl())
+                                && entrypoint.getUpdatedAt() != null);
 
-        verify(auditService, times(1)).report(argThat(builder -> {
-            Audit audit = builder.build(new ObjectMapper());
-            assertEquals(EventType.ENTRYPOINT_UPDATED, audit.getType());
-            assertEquals(ReferenceType.ORGANIZATION, audit.getReferenceType());
-            assertEquals(ORGANIZATION_ID, audit.getReferenceId());
-            assertEquals(user.getId(), audit.getActor().getId());
+        verify(auditService, times(1))
+                .report(
+                        argThat(
+                                builder -> {
+                                    Audit audit = builder.build(new ObjectMapper());
+                                    assertEquals(EventType.ENTRYPOINT_UPDATED, audit.getType());
+                                    assertEquals(
+                                            ReferenceType.ORGANIZATION, audit.getReferenceType());
+                                    assertEquals(ORGANIZATION_ID, audit.getReferenceId());
+                                    assertEquals(user.getId(), audit.getActor().getId());
 
-            return true;
-        }));
+                                    return true;
+                                }));
     }
 
     @Test
@@ -392,8 +482,10 @@ public class EntrypointServiceTest {
         updateEntrypoint.setTags(Collections.emptyList());
         updateEntrypoint.setUrl("https://changed.com");
 
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.just(existingEntrypoint));
-        when(entrypointRepository.update(any(Entrypoint.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID))
+                .thenReturn(Maybe.just(existingEntrypoint));
+        when(entrypointRepository.update(any(Entrypoint.class)))
+                .thenAnswer(i -> Single.just(i.getArgument(0)));
 
         TestObserver<Entrypoint> obs;
 
@@ -427,7 +519,8 @@ public class EntrypointServiceTest {
         existingEntrypoint.setId(ENTRYPOINT_ID);
         existingEntrypoint.setOrganizationId(ORGANIZATION_ID);
 
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.just(existingEntrypoint));
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID))
+                .thenReturn(Maybe.just(existingEntrypoint));
         when(entrypointRepository.delete(ENTRYPOINT_ID)).thenReturn(Completable.complete());
 
         TestObserver<Void> obs = cut.delete(ENTRYPOINT_ID, ORGANIZATION_ID, user).test();
@@ -435,17 +528,20 @@ public class EntrypointServiceTest {
         obs.awaitTerminalEvent();
         obs.assertComplete();
 
-        verify(auditService, times(1)).report(argThat(builder -> {
-            Audit audit = builder.build(new ObjectMapper());
-            assertEquals(EventType.ENTRYPOINT_DELETED, audit.getType());
-            assertEquals(ReferenceType.ORGANIZATION, audit.getReferenceType());
-            assertEquals(ORGANIZATION_ID, audit.getReferenceId());
-            assertEquals(user.getId(), audit.getActor().getId());
+        verify(auditService, times(1))
+                .report(
+                        argThat(
+                                builder -> {
+                                    Audit audit = builder.build(new ObjectMapper());
+                                    assertEquals(EventType.ENTRYPOINT_DELETED, audit.getType());
+                                    assertEquals(
+                                            ReferenceType.ORGANIZATION, audit.getReferenceType());
+                                    assertEquals(ORGANIZATION_ID, audit.getReferenceId());
+                                    assertEquals(user.getId(), audit.getActor().getId());
 
-            return true;
-        }));
+                                    return true;
+                                }));
     }
-
 
     @Test
     public void shouldNotDelete_notExistingEntrypoint() {
@@ -453,7 +549,8 @@ public class EntrypointServiceTest {
         DefaultUser user = new DefaultUser("test");
         user.setId(USER_ID);
 
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.empty());
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID))
+                .thenReturn(Maybe.empty());
 
         TestObserver<Void> obs = cut.delete(ENTRYPOINT_ID, ORGANIZATION_ID, user).test();
 

@@ -1,43 +1,44 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.notification.UserNotification;
 import io.gravitee.am.model.notification.UserNotificationStatus;
 import io.gravitee.am.repository.management.api.UserNotificationRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.UserNotificationMongo;
 import io.reactivex.*;
+
 import org.bson.Document;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-
 import java.util.Date;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import javax.annotation.PostConstruct;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class MongoUserNotificationRepository extends AbstractManagementMongoRepository implements UserNotificationRepository {
+public class MongoUserNotificationRepository extends AbstractManagementMongoRepository
+        implements UserNotificationRepository {
 
     public static final String COLLECTION_NAME = "user_notifications";
 
@@ -51,27 +52,35 @@ public class MongoUserNotificationRepository extends AbstractManagementMongoRepo
 
     @PostConstruct
     protected void init() {
-        this.mongoCollection = mongoOperations.getCollection(COLLECTION_NAME, UserNotificationMongo.class);
+        this.mongoCollection =
+                mongoOperations.getCollection(COLLECTION_NAME, UserNotificationMongo.class);
         super.init(mongoCollection);
-        createIndex(this.mongoCollection, new Document(FIELD_AUDIENCE, 1).append(FIELD_TYPE, 1).append(FIELD_STATUS, 1));
+        createIndex(
+                this.mongoCollection,
+                new Document(FIELD_AUDIENCE, 1).append(FIELD_TYPE, 1).append(FIELD_STATUS, 1));
     }
 
     @Override
     public Maybe<UserNotification> findById(String id) {
-        return Observable.fromPublisher(mongoCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return Observable.fromPublisher(mongoCollection.find(eq(FIELD_ID, id)).first())
+                .firstElement()
+                .map(this::convert);
     }
 
     @Override
     public Single<UserNotification> create(UserNotification item) {
         UserNotificationMongo entity = convert(item);
         entity.setId(entity.getId() == null ? RandomString.generate() : entity.getId());
-        return Single.fromPublisher(mongoCollection.insertOne(entity)).flatMap(success -> findById(entity.getId()).toSingle());
+        return Single.fromPublisher(mongoCollection.insertOne(entity))
+                .flatMap(success -> findById(entity.getId()).toSingle());
     }
 
     @Override
     public Single<UserNotification> update(UserNotification item) {
         UserNotificationMongo entity = convert(item);
-        return Single.fromPublisher(mongoCollection.replaceOne(eq(FIELD_ID, entity.getId()), entity)).flatMap(updateResult -> findById(entity.getId()).toSingle());
+        return Single.fromPublisher(
+                        mongoCollection.replaceOne(eq(FIELD_ID, entity.getId()), entity))
+                .flatMap(updateResult -> findById(entity.getId()).toSingle());
     }
 
     @Override
@@ -80,13 +89,16 @@ public class MongoUserNotificationRepository extends AbstractManagementMongoRepo
     }
 
     @Override
-    public Flowable<UserNotification> findAllByAudienceAndStatus(String audience, UserNotificationStatus status) {
-        return Flowable.fromPublisher(mongoCollection.find(and(
-                                eq(FIELD_AUDIENCE, audience),
-                                eq(FIELD_STATUS, status.name())))
-                        .limit(NOTIFICATION_LIMIT)
-                        .sort(new Document(FIELD_CREATED_AT, 1))
-                )
+    public Flowable<UserNotification> findAllByAudienceAndStatus(
+            String audience, UserNotificationStatus status) {
+        return Flowable.fromPublisher(
+                        mongoCollection
+                                .find(
+                                        and(
+                                                eq(FIELD_AUDIENCE, audience),
+                                                eq(FIELD_STATUS, status.name())))
+                                .limit(NOTIFICATION_LIMIT)
+                                .sort(new Document(FIELD_CREATED_AT, 1)))
                 .map(this::convert);
     }
 

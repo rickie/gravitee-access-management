@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
@@ -21,6 +19,7 @@ import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.common.utils.UUID;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,8 +30,7 @@ import java.util.Date;
  * @author GraviteeSource Team
  */
 public class FactorRepositoryTest extends AbstractManagementTest {
-    @Autowired
-    private FactorRepository factorRepository;
+    @Autowired private FactorRepository factorRepository;
 
     @Test
     public void testFindByDomain() throws TechnicalException {
@@ -53,11 +51,11 @@ public class FactorRepositoryTest extends AbstractManagementTest {
     private Factor buildFactor() {
         Factor factor = new Factor();
         String random = UUID.random().toString();
-        factor.setName("name"+random);
-        factor.setDomain("domain"+random);
-        factor.setConfiguration("{\"config\": \"" + random +"\"}");
+        factor.setName("name" + random);
+        factor.setDomain("domain" + random);
+        factor.setConfiguration("{\"config\": \"" + random + "\"}");
         factor.setFactorType("EMAIL");
-        factor.setType("type"+random);
+        factor.setType("type" + random);
         factor.setCreatedAt(new Date());
         factor.setUpdatedAt(new Date());
         return factor;
@@ -77,7 +75,8 @@ public class FactorRepositoryTest extends AbstractManagementTest {
         testObserver.assertNoErrors();
         testObserver.assertValue(f -> f.getId().equals(factorCreated.getId()));
         testObserver.assertValue(f -> f.getName().equals(factorCreated.getName()));
-        testObserver.assertValue(f -> f.getConfiguration().equals(factorCreated.getConfiguration()));
+        testObserver.assertValue(
+                f -> f.getConfiguration().equals(factorCreated.getConfiguration()));
         testObserver.assertValue(f -> f.getDomain().equals(factorCreated.getDomain()));
         testObserver.assertValue(f -> f.getFactorType().equals(factorCreated.getFactorType()));
         testObserver.assertValue(f -> f.getType().equals(factorCreated.getType()));
@@ -149,5 +148,4 @@ public class FactorRepositoryTest extends AbstractManagementTest {
         // fetch factor
         factorRepository.findById(factorCreated.getId()).test().assertEmpty();
     }
-
 }

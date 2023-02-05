@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.uma;
+
+import static io.gravitee.am.gateway.handler.uma.constants.UMAConstants.*;
 
 import io.gravitee.am.common.oidc.Scope;
 import io.gravitee.am.gateway.handler.api.ProtocolProvider;
@@ -38,45 +38,36 @@ import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.ext.web.Router;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.handler.CorsHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import static io.gravitee.am.gateway.handler.uma.constants.UMAConstants.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
  * @author GraviteeSource Team
  */
-public class UMAProvider extends AbstractService<ProtocolProvider> implements ProtocolProvider{
+public class UMAProvider extends AbstractService<ProtocolProvider> implements ProtocolProvider {
 
-    @Autowired
-    private Vertx vertx;
+    @Autowired private Vertx vertx;
 
-    @Autowired
-    private Router router;
+    @Autowired private Router router;
 
-    @Autowired
-    private CorsHandler corsHandler;
+    @Autowired private CorsHandler corsHandler;
 
-    @Autowired
-    private Domain domain;
+    @Autowired private Domain domain;
 
-    @Autowired
-    private OAuth2AuthProvider oAuth2AuthProvider;
+    @Autowired private OAuth2AuthProvider oAuth2AuthProvider;
 
-    @Autowired
-    private UMADiscoveryService discoveryService;
+    @Autowired private UMADiscoveryService discoveryService;
 
-    @Autowired
-    private ResourceService resourceService;
+    @Autowired private ResourceService resourceService;
 
-    @Autowired
-    private PermissionTicketService permissionTicketService;
+    @Autowired private PermissionTicketService permissionTicketService;
 
     @Override
     protected void doStart() throws Exception {
         super.doStart();
 
-        if(domain.getUma()!=null && domain.getUma().isEnabled()) {
+        if (domain.getUma() != null && domain.getUma().isEnabled()) {
             // Init web router
             initRouter();
         }
@@ -96,36 +87,55 @@ public class UMAProvider extends AbstractService<ProtocolProvider> implements Pr
         final Router umaRouter = Router.router(vertx);
 
         // UMA Provider configuration information endpoint
-        Handler<RoutingContext> umaProviderConfigurationEndpoint = new ProviderConfigurationEndpoint(discoveryService);
+        Handler<RoutingContext> umaProviderConfigurationEndpoint =
+                new ProviderConfigurationEndpoint(discoveryService);
         umaRouter.route(WELL_KNOWN_PATH).handler(corsHandler);
-        umaRouter
-                .get(WELL_KNOWN_PATH)
-                .handler(umaProviderConfigurationEndpoint);
+        umaRouter.get(WELL_KNOWN_PATH).handler(umaProviderConfigurationEndpoint);
 
         // User-Managed Access (UMA) 2.0 resources Auth handler
-        OAuth2AuthHandler umaProtectionApiResourcesAuthHandler = OAuth2AuthHandler.create(oAuth2AuthProvider, Scope.UMA.getKey());
+        OAuth2AuthHandler umaProtectionApiResourcesAuthHandler =
+                OAuth2AuthHandler.create(oAuth2AuthProvider, Scope.UMA.getKey());
         umaProtectionApiResourcesAuthHandler.extractToken(true);
         umaProtectionApiResourcesAuthHandler.extractClient(true);
-        umaProtectionApiResourcesAuthHandler.forceEndUserToken(true);//It must be a resource owner
+        umaProtectionApiResourcesAuthHandler.forceEndUserToken(true); // It must be a resource owner
 
         // User-Managed Access (UMA) 2.0 permissions Auth handler
-        OAuth2AuthHandler umaProtectionApiPermissionsAuthHandler = OAuth2AuthHandler.create(oAuth2AuthProvider, Scope.UMA.getKey());
+        OAuth2AuthHandler umaProtectionApiPermissionsAuthHandler =
+                OAuth2AuthHandler.create(oAuth2AuthProvider, Scope.UMA.getKey());
         umaProtectionApiPermissionsAuthHandler.extractToken(true);
         umaProtectionApiPermissionsAuthHandler.extractClient(true);
-        umaProtectionApiPermissionsAuthHandler.forceClientToken(true);//It must be a client (client_credentials)
+        umaProtectionApiPermissionsAuthHandler.forceClientToken(
+                true); // It must be a client (client_credentials)
 
         // UMA resources Protection API Access Handler
-        UMAProtectionApiAccessHandler umaProtectionApiResourcesAccessHandler = new UMAProtectionApiAccessHandler(domain, umaProtectionApiResourcesAuthHandler);
+        UMAProtectionApiAccessHandler umaProtectionApiResourcesAccessHandler =
+                new UMAProtectionApiAccessHandler(domain, umaProtectionApiResourcesAuthHandler);
 
         // UMA permissions Protection API Access Handler
-        UMAProtectionApiAccessHandler umaProtectionApiPermissionsAccessHandler = new UMAProtectionApiAccessHandler(domain, umaProtectionApiPermissionsAuthHandler);
+        UMAProtectionApiAccessHandler umaProtectionApiPermissionsAccessHandler =
+                new UMAProtectionApiAccessHandler(domain, umaProtectionApiPermissionsAuthHandler);
 
         // Resource Registration endpoint
-        ResourceRegistrationEndpoint resourceRegistrationEndpoint = new ResourceRegistrationEndpoint(domain, resourceService);
+        ResourceRegistrationEndpoint resourceRegistrationEndpoint =
+                new ResourceRegistrationEndpoint(domain, resourceService);
         umaRouter.route(RESOURCE_REGISTRATION_PATH).handler(corsHandler);
         umaRouter.route(RESOURCE_REGISTRATION_PATH + "/:" + RESOURCE_ID).handler(corsHandler);
-        umaRouter.route(RESOURCE_REGISTRATION_PATH + "/:" + RESOURCE_ID + RESOURCE_ACCESS_POLICIES_PATH).handler(corsHandler);
-        umaRouter.route(RESOURCE_REGISTRATION_PATH + "/:" + RESOURCE_ID + RESOURCE_ACCESS_POLICIES_PATH + "/:"+ POLICY_ID).handler(corsHandler);
+        umaRouter
+                .route(
+                        RESOURCE_REGISTRATION_PATH
+                                + "/:"
+                                + RESOURCE_ID
+                                + RESOURCE_ACCESS_POLICIES_PATH)
+                .handler(corsHandler);
+        umaRouter
+                .route(
+                        RESOURCE_REGISTRATION_PATH
+                                + "/:"
+                                + RESOURCE_ID
+                                + RESOURCE_ACCESS_POLICIES_PATH
+                                + "/:"
+                                + POLICY_ID)
+                .handler(corsHandler);
 
         umaRouter
                 .get(RESOURCE_REGISTRATION_PATH)
@@ -137,46 +147,74 @@ public class UMAProvider extends AbstractService<ProtocolProvider> implements Pr
                 .handler(umaProtectionApiResourcesAccessHandler)
                 .handler(resourceRegistrationEndpoint::create);
         umaRouter
-                .get(RESOURCE_REGISTRATION_PATH+"/:"+RESOURCE_ID)
+                .get(RESOURCE_REGISTRATION_PATH + "/:" + RESOURCE_ID)
                 .handler(umaProtectionApiResourcesAccessHandler)
                 .handler(resourceRegistrationEndpoint::get);
         umaRouter
-                .put(RESOURCE_REGISTRATION_PATH+"/:"+RESOURCE_ID)
+                .put(RESOURCE_REGISTRATION_PATH + "/:" + RESOURCE_ID)
                 .consumes(MediaType.APPLICATION_JSON)
                 .handler(umaProtectionApiResourcesAccessHandler)
                 .handler(resourceRegistrationEndpoint::update);
         umaRouter
-                .delete(RESOURCE_REGISTRATION_PATH+"/:"+RESOURCE_ID)
+                .delete(RESOURCE_REGISTRATION_PATH + "/:" + RESOURCE_ID)
                 .handler(umaProtectionApiResourcesAccessHandler)
                 .handler(resourceRegistrationEndpoint::delete);
 
         // Resource Access Policies endpoint
-        ResourceAccessPoliciesEndpoint resourceAccessPoliciesEndpoint = new ResourceAccessPoliciesEndpoint(domain, resourceService);
+        ResourceAccessPoliciesEndpoint resourceAccessPoliciesEndpoint =
+                new ResourceAccessPoliciesEndpoint(domain, resourceService);
         umaRouter
-                .get(RESOURCE_REGISTRATION_PATH+"/:"+RESOURCE_ID+RESOURCE_ACCESS_POLICIES_PATH)
+                .get(
+                        RESOURCE_REGISTRATION_PATH
+                                + "/:"
+                                + RESOURCE_ID
+                                + RESOURCE_ACCESS_POLICIES_PATH)
                 .handler(umaProtectionApiResourcesAccessHandler)
                 .handler(resourceAccessPoliciesEndpoint::list);
         umaRouter
-                .post(RESOURCE_REGISTRATION_PATH+"/:"+RESOURCE_ID+RESOURCE_ACCESS_POLICIES_PATH)
+                .post(
+                        RESOURCE_REGISTRATION_PATH
+                                + "/:"
+                                + RESOURCE_ID
+                                + RESOURCE_ACCESS_POLICIES_PATH)
                 .consumes(MediaType.APPLICATION_JSON)
                 .handler(umaProtectionApiResourcesAccessHandler)
                 .handler(resourceAccessPoliciesEndpoint::create);
         umaRouter
-                .get(RESOURCE_REGISTRATION_PATH+"/:"+RESOURCE_ID+RESOURCE_ACCESS_POLICIES_PATH+"/:"+POLICY_ID)
+                .get(
+                        RESOURCE_REGISTRATION_PATH
+                                + "/:"
+                                + RESOURCE_ID
+                                + RESOURCE_ACCESS_POLICIES_PATH
+                                + "/:"
+                                + POLICY_ID)
                 .handler(umaProtectionApiResourcesAccessHandler)
                 .handler(resourceAccessPoliciesEndpoint::get);
         umaRouter
-                .put(RESOURCE_REGISTRATION_PATH+"/:"+RESOURCE_ID+RESOURCE_ACCESS_POLICIES_PATH+"/:"+POLICY_ID)
+                .put(
+                        RESOURCE_REGISTRATION_PATH
+                                + "/:"
+                                + RESOURCE_ID
+                                + RESOURCE_ACCESS_POLICIES_PATH
+                                + "/:"
+                                + POLICY_ID)
                 .consumes(MediaType.APPLICATION_JSON)
                 .handler(umaProtectionApiResourcesAccessHandler)
                 .handler(resourceAccessPoliciesEndpoint::update);
         umaRouter
-                .delete(RESOURCE_REGISTRATION_PATH+"/:"+RESOURCE_ID+RESOURCE_ACCESS_POLICIES_PATH+"/:"+POLICY_ID)
+                .delete(
+                        RESOURCE_REGISTRATION_PATH
+                                + "/:"
+                                + RESOURCE_ID
+                                + RESOURCE_ACCESS_POLICIES_PATH
+                                + "/:"
+                                + POLICY_ID)
                 .handler(umaProtectionApiResourcesAccessHandler)
                 .handler(resourceAccessPoliciesEndpoint::delete);
 
         // Permission endpoint Access Handler
-        PermissionEndpoint permissionEndpoint = new PermissionEndpoint(domain, permissionTicketService);
+        PermissionEndpoint permissionEndpoint =
+                new PermissionEndpoint(domain, permissionTicketService);
         umaRouter.route(PERMISSION_PATH).handler(corsHandler);
         umaRouter
                 .post(PERMISSION_PATH)
@@ -186,12 +224,18 @@ public class UMAProvider extends AbstractService<ProtocolProvider> implements Pr
 
         umaRouter
                 .get(CLAIMS_INTERACTION_PATH)
-                .handler(context -> context.response().setStatusCode(HttpStatusCode.NOT_IMPLEMENTED_501).end("Not Implemented Yet"));
+                .handler(
+                        context ->
+                                context.response()
+                                        .setStatusCode(HttpStatusCode.NOT_IMPLEMENTED_501)
+                                        .end("Not Implemented Yet"));
 
         // Not supported method for others method
         MethodNotSupportedHandler notSupportedFallbackHandler = new MethodNotSupportedHandler();
         umaRouter.route(RESOURCE_REGISTRATION_PATH).handler(notSupportedFallbackHandler);
-        umaRouter.route(RESOURCE_REGISTRATION_PATH+"/:"+RESOURCE_ID).handler(notSupportedFallbackHandler);
+        umaRouter
+                .route(RESOURCE_REGISTRATION_PATH + "/:" + RESOURCE_ID)
+                .handler(notSupportedFallbackHandler);
         umaRouter.route(PERMISSION_PATH).handler(notSupportedFallbackHandler);
 
         // error handler

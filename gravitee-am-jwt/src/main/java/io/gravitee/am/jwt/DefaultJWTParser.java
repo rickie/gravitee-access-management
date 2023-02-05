@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.jwt;
@@ -24,15 +22,16 @@ import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.crypto.bc.BouncyCastleProviderSingleton;
 import com.nimbusds.jose.jca.JCASupport;
 import com.nimbusds.jwt.SignedJWT;
+
 import io.gravitee.am.common.exception.jwt.ExpiredJWTException;
 import io.gravitee.am.common.exception.jwt.MalformedJWTException;
 import io.gravitee.am.common.exception.jwt.PrematureJWTException;
 import io.gravitee.am.common.exception.jwt.SignatureException;
 import io.gravitee.am.common.jwt.JWT;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.crypto.SecretKey;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.PublicKey;
@@ -42,6 +41,8 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.crypto.SecretKey;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -73,7 +74,7 @@ public class DefaultJWTParser implements JWTParser {
     }
 
     private void initialiseVerifier(PublicKey key) throws InvalidKeyException {
-        if (key instanceof RSAPublicKey){
+        if (key instanceof RSAPublicKey) {
             verifier = new RSASSAVerifier((RSAPublicKey) key);
         } else if (key instanceof ECPublicKey) {
             try {
@@ -96,12 +97,9 @@ public class DefaultJWTParser implements JWTParser {
             if (!verified) {
                 throw new JOSEException("The signature was not verified");
             }
-            Map<String, Object> claims = signedJWT
-                    .getPayload()
-                    .toJSONObject()
-                    .entrySet()
-                    .stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            Map<String, Object> claims =
+                    signedJWT.getPayload().toJSONObject().entrySet().stream()
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             JWT jwt = new JWT(claims);
 
             // verify exp and nbf values
@@ -143,10 +141,16 @@ public class DefaultJWTParser implements JWTParser {
             Instant nbfInstant = Instant.ofEpochSecond(nbf);
             if (now.isBefore(nbfInstant)) {
                 long differenceMillis = nbfInstant.toEpochMilli() - now.toEpochMilli();
-                String msg = "JWT must not be accepted before " + nbfInstant + ". Current time: " + now +
-                        ", a difference of " +
-                        differenceMillis + " milliseconds.  Allowed clock skew: " +
-                        clockSkew + " milliseconds.";
+                String msg =
+                        "JWT must not be accepted before "
+                                + nbfInstant
+                                + ". Current time: "
+                                + now
+                                + ", a difference of "
+                                + differenceMillis
+                                + " milliseconds.  Allowed clock skew: "
+                                + clockSkew
+                                + " milliseconds.";
                 throw new PrematureJWTException(msg);
             }
         }
@@ -163,9 +167,16 @@ public class DefaultJWTParser implements JWTParser {
             Instant expInstant = Instant.ofEpochSecond(exp);
             if (now.isAfter(expInstant)) {
                 long differenceMillis = now.toEpochMilli() - expInstant.toEpochMilli();
-                String msg = "JWT expired at " + expInstant + ". Current time: " + now + ", a difference of " +
-                        differenceMillis + " milliseconds.  Allowed clock skew: " +
-                        clockSkew + " milliseconds.";
+                String msg =
+                        "JWT expired at "
+                                + expInstant
+                                + ". Current time: "
+                                + now
+                                + ", a difference of "
+                                + differenceMillis
+                                + " milliseconds.  Allowed clock skew: "
+                                + clockSkew
+                                + " milliseconds.";
                 throw new ExpiredJWTException(msg);
             }
         }

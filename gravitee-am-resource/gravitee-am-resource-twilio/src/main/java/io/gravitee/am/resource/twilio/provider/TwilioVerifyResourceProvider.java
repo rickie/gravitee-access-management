@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.resource.twilio.provider;
@@ -21,6 +19,7 @@ import com.twilio.http.NetworkHttpClient;
 import com.twilio.http.TwilioRestClient;
 import com.twilio.rest.verify.v2.service.Verification;
 import com.twilio.rest.verify.v2.service.VerificationCheck;
+
 import io.gravitee.am.common.exception.mfa.InvalidCodeException;
 import io.gravitee.am.common.exception.mfa.SendChallengeException;
 import io.gravitee.am.resource.api.ResourceProvider;
@@ -30,6 +29,7 @@ import io.gravitee.am.resource.api.mfa.MFAResourceProvider;
 import io.gravitee.am.resource.twilio.TwilioVerifyResourceConfiguration;
 import io.gravitee.common.util.EnvironmentUtils;
 import io.reactivex.Completable;
+
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -49,7 +49,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 
-import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.net.*;
 import java.security.NoSuchAlgorithmException;
@@ -57,23 +56,24 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.net.ssl.SSLContext;
+
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class TwilioVerifyResourceProvider implements MFAResourceProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TwilioVerifyResourceProvider.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(TwilioVerifyResourceProvider.class);
     public static final String APPROVED = "approved";
 
     private static final String TWILIO_API_HOSTNAME = "api.twilio.com";
     private static final Pattern WILCARD_PATTERN = Pattern.compile("\\*\\.");
 
-    @Autowired
-    private TwilioVerifyResourceConfiguration configuration;
+    @Autowired private TwilioVerifyResourceConfiguration configuration;
 
-    @Autowired
-    private Environment env;
+    @Autowired private Environment env;
 
     @Value("${httpClient.timeout:10000}")
     private int httpClientTimeout;
@@ -98,29 +98,41 @@ public class TwilioVerifyResourceProvider implements MFAResourceProvider {
 
     @Override
     public ResourceProvider start() throws Exception {
-        // call init first otherwise HttpClient will be reset to the default one by the setUsername & setPassword done by the init method.
+        // call init first otherwise HttpClient will be reset to the default one by the setUsername
+        // & setPassword done by the init method.
         Twilio.init(configuration.getAccountSid(), configuration.getAuthToken());
 
         if (configuration.isUseSystemProxy() && isProxyConfigured) {
-            final List<String> proxyExcludeHosts = EnvironmentUtils
-                    .getPropertiesStartingWith((ConfigurableEnvironment) env, "httpClient.proxy.exclude-hosts")
-                    .values()
-                    .stream()
-                    .map(String::valueOf)
-                    .collect(Collectors.toList());
+            final List<String> proxyExcludeHosts =
+                    EnvironmentUtils.getPropertiesStartingWith(
+                                    (ConfigurableEnvironment) env, "httpClient.proxy.exclude-hosts")
+                            .values()
+                            .stream()
+                            .map(String::valueOf)
+                            .collect(Collectors.toList());
 
-            final boolean ignoreProxy = proxyExcludeHosts.stream().anyMatch(excludedHost -> {
-                if (excludedHost.startsWith("*.")) {
-                    return TWILIO_API_HOSTNAME.endsWith(WILCARD_PATTERN.matcher(excludedHost).replaceFirst(""));
-                } else {
-                    return TWILIO_API_HOSTNAME.equals(excludedHost);
-                }
-            });
+            final boolean ignoreProxy =
+                    proxyExcludeHosts.stream()
+                            .anyMatch(
+                                    excludedHost -> {
+                                        if (excludedHost.startsWith("*.")) {
+                                            return TWILIO_API_HOSTNAME.endsWith(
+                                                    WILCARD_PATTERN
+                                                            .matcher(excludedHost)
+                                                            .replaceFirst(""));
+                                        } else {
+                                            return TWILIO_API_HOSTNAME.equals(excludedHost);
+                                        }
+                                    });
 
             if (!ignoreProxy) {
                 HttpClientBuilder httpClientBuild = buildHttpClient();
                 final NetworkHttpClient twilioClient = new NetworkHttpClient(httpClientBuild);
-                Twilio.setRestClient(new TwilioRestClient.Builder(configuration.getAccountSid(), configuration.getAuthToken()).httpClient(twilioClient).build());
+                Twilio.setRestClient(
+                        new TwilioRestClient.Builder(
+                                        configuration.getAccountSid(), configuration.getAuthToken())
+                                .httpClient(twilioClient)
+                                .build());
             } else {
                 LOGGER.debug("Twilio APIs belongs to the hosts excluded from the proxy settings");
             }
@@ -150,19 +162,27 @@ public class TwilioVerifyResourceProvider implements MFAResourceProvider {
             }
         } else {
             try {
-                Registry<ConnectionSocketFactory> reg = RegistryBuilder.<ConnectionSocketFactory>create()
-                        .register("https", new SSLProxySocksConnectionSocketFactory(SSLContext.getDefault(), hostname, port, username, password))
-                        .build();
+                Registry<ConnectionSocketFactory> reg =
+                        RegistryBuilder.<ConnectionSocketFactory>create()
+                                .register(
+                                        "https",
+                                        new SSLProxySocksConnectionSocketFactory(
+                                                SSLContext.getDefault(),
+                                                hostname,
+                                                port,
+                                                username,
+                                                password))
+                                .build();
                 PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(reg);
                 httpClientBuild.setConnectionManager(cm);
             } catch (NoSuchAlgorithmException e) {
-                LOGGER.error("Unable to initialize SSLContext for Twilio client using SOCKS proxy", e);
+                LOGGER.error(
+                        "Unable to initialize SSLContext for Twilio client using SOCKS proxy", e);
             }
         }
 
         return httpClientBuild;
     }
-
 
     @Override
     public ResourceProvider stop() {
@@ -184,44 +204,54 @@ public class TwilioVerifyResourceProvider implements MFAResourceProvider {
                 channel = "call";
                 break;
             default:
-                return Completable.error(new IllegalArgumentException("Unsupported verification channel '" + target.getChannel() + "'"));
+                return Completable.error(
+                        new IllegalArgumentException(
+                                "Unsupported verification channel '" + target.getChannel() + "'"));
         }
 
-        return Completable.create((emitter) -> {
-            try {
-                Verification verification = Verification.creator(
-                                configuration.getSid(),
-                                target.getTarget(),
-                                channel)
-                        .create();
+        return Completable.create(
+                (emitter) -> {
+                    try {
+                        Verification verification =
+                                Verification.creator(
+                                                configuration.getSid(), target.getTarget(), channel)
+                                        .create();
 
-                LOGGER.debug("Twilio Verification code asked with ID '{}'", verification.getSid());
-                emitter.onComplete();
-            } catch (ApiException e) {
-                LOGGER.error("Challenge emission fails", e);
-                emitter.onError(new SendChallengeException("Unable to send challenge"));
-            }
-        });
+                        LOGGER.debug(
+                                "Twilio Verification code asked with ID '{}'",
+                                verification.getSid());
+                        emitter.onComplete();
+                    } catch (ApiException e) {
+                        LOGGER.error("Challenge emission fails", e);
+                        emitter.onError(new SendChallengeException("Unable to send challenge"));
+                    }
+                });
     }
 
     @Override
     public Completable verify(MFAChallenge challenge) {
-        return Completable.create((emitter) -> {
-            try {
-                VerificationCheck verification = VerificationCheck.creator(configuration.getSid(), challenge.getCode())
-                        .setTo(challenge.getTarget())
-                        .create();
+        return Completable.create(
+                (emitter) -> {
+                    try {
+                        VerificationCheck verification =
+                                VerificationCheck.creator(
+                                                configuration.getSid(), challenge.getCode())
+                                        .setTo(challenge.getTarget())
+                                        .create();
 
-                LOGGER.debug("Twilio Verification code with ID '{}' verified with status '{}'", verification.getSid(), verification.getStatus());
-                if (!APPROVED.equalsIgnoreCase(verification.getStatus())) {
-                    emitter.onError(new InvalidCodeException("Invalid 2FA Code"));
-                }
-                emitter.onComplete();
-            } catch (ApiException e) {
-                LOGGER.error("Challenge verification fails", e);
-                emitter.onError(new InvalidCodeException("Invalid 2FA Code"));
-            }
-        });
+                        LOGGER.debug(
+                                "Twilio Verification code with ID '{}' verified with status '{}'",
+                                verification.getSid(),
+                                verification.getStatus());
+                        if (!APPROVED.equalsIgnoreCase(verification.getStatus())) {
+                            emitter.onError(new InvalidCodeException("Invalid 2FA Code"));
+                        }
+                        emitter.onComplete();
+                    } catch (ApiException e) {
+                        LOGGER.error("Challenge verification fails", e);
+                        emitter.onError(new InvalidCodeException("Invalid 2FA Code"));
+                    }
+                });
     }
 
     private static class SSLProxySocksConnectionSocketFactory extends SSLConnectionSocketFactory {
@@ -229,7 +259,12 @@ public class TwilioVerifyResourceProvider implements MFAResourceProvider {
         private final String hostname;
         private final int port;
 
-        public SSLProxySocksConnectionSocketFactory(SSLContext sslContext, String hostname, int port, String username, String password) {
+        public SSLProxySocksConnectionSocketFactory(
+                SSLContext sslContext,
+                String hostname,
+                int port,
+                String username,
+                String password) {
             super(sslContext);
             this.hostname = hostname;
             this.port = port;
@@ -240,11 +275,9 @@ public class TwilioVerifyResourceProvider implements MFAResourceProvider {
                             protected PasswordAuthentication getPasswordAuthentication() {
                                 return new PasswordAuthentication(
                                         username,
-                                        password != null ? password.toCharArray() : new char[0]
-                                );
+                                        password != null ? password.toCharArray() : new char[0]);
                             }
-                        }
-                );
+                        });
             }
         }
 

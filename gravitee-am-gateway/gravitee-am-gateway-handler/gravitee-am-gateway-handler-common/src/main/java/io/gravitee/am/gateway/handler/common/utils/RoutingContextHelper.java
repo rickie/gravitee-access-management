@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.utils;
+
+import static io.gravitee.am.common.utils.ConstantKeys.RISK_ASSESSMENT_KEY;
 
 import io.gravitee.am.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User;
@@ -24,18 +24,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.gravitee.am.common.utils.ConstantKeys.RISK_ASSESSMENT_KEY;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class RoutingContextHelper {
-    private static final List<String> BLACKLIST_CONTEXT_ATTRIBUTES = Arrays.asList("X-XSRF-TOKEN", "_csrf", "__body-handled");
+    private static final List<String> BLACKLIST_CONTEXT_ATTRIBUTES =
+            Arrays.asList("X-XSRF-TOKEN", "_csrf", "__body-handled");
 
     /**
-     * Return the {@link RoutingContext#data()} entries without technical attributes defined in {@link #BLACKLIST_CONTEXT_ATTRIBUTES}
-     * If {@link RoutingContext#data()} doesn't contain {@link ConstantKeys#USER_CONTEXT_KEY}, then the {@link RoutingContext#user()} is added if present
+     * Return the {@link RoutingContext#data()} entries without technical attributes defined in
+     * {@link #BLACKLIST_CONTEXT_ATTRIBUTES} If {@link RoutingContext#data()} doesn't contain {@link
+     * ConstantKeys#USER_CONTEXT_KEY}, then the {@link RoutingContext#user()} is added if present
      *
      * @param routingContext
      * @return
@@ -47,10 +47,13 @@ public class RoutingContextHelper {
         if (user != null) {
             contextData.put(ConstantKeys.USER_CONTEXT_KEY, user);
         } else if (routingContext.user() != null) {
-            contextData.put(ConstantKeys.USER_CONTEXT_KEY, ((User) routingContext.user().getDelegate()).getUser());
+            contextData.put(
+                    ConstantKeys.USER_CONTEXT_KEY,
+                    ((User) routingContext.user().getDelegate()).getUser());
         }
 
-        if (routingContext.session() != null && routingContext.session().get(RISK_ASSESSMENT_KEY) != null) {
+        if (routingContext.session() != null
+                && routingContext.session().get(RISK_ASSESSMENT_KEY) != null) {
             contextData.put(RISK_ASSESSMENT_KEY, routingContext.session().get(RISK_ASSESSMENT_KEY));
         }
 
@@ -58,5 +61,4 @@ public class RoutingContextHelper {
         BLACKLIST_CONTEXT_ATTRIBUTES.forEach(attribute -> contextData.remove(attribute));
         return contextData;
     }
-
 }

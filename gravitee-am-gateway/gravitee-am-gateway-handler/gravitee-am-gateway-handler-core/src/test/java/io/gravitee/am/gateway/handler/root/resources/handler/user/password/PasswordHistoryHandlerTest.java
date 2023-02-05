@@ -1,19 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.root.resources.handler.user.password;
+
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import io.gravitee.am.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.root.service.user.UserService;
@@ -27,6 +32,7 @@ import io.reactivex.Single;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.core.http.HttpServerResponse;
 import io.vertx.reactivex.ext.web.RoutingContext;
+
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -37,21 +43,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
-
 @ExtendWith(MockitoExtension.class)
 class PasswordHistoryHandlerTest {
 
-    @Mock
-    private PasswordHistoryService passwordHistoryService;
-    @Mock
-    private UserService userService;
+    @Mock private PasswordHistoryService passwordHistoryService;
+    @Mock private UserService userService;
 
     @ParameterizedTest
     @MethodSource()
@@ -64,7 +60,8 @@ class PasswordHistoryHandlerTest {
         user.setId(UUID.randomUUID().toString());
         var userToken = new UserToken(user, null);
         given(userService.verifyToken(any())).willReturn(Maybe.just(userToken));
-        given(passwordHistoryService.passwordAlreadyUsed(any(),any(),any(),any(),any())).willReturn(Single.just(passwordUsed));
+        given(passwordHistoryService.passwordAlreadyUsed(any(), any(), any(), any(), any()))
+                .willReturn(Single.just(passwordUsed));
 
         var context = mock(RoutingContext.class);
         var request = mock(HttpServerRequest.class);
@@ -75,13 +72,15 @@ class PasswordHistoryHandlerTest {
         given(context.request()).willReturn(request);
         given(context.response()).willReturn(response);
 
-        //when
+        // when
         handler.handle(context);
 
         verify(response).setStatusCode(statusCode);
     }
 
     static Stream<Arguments> shouldReturnAppropriateStatusCode() {
-        return Stream.of(arguments(true, HttpStatusCode.BAD_REQUEST_400), arguments(false, HttpStatusCode.OK_200));
+        return Stream.of(
+                arguments(true, HttpStatusCode.BAD_REQUEST_400),
+                arguments(false, HttpStatusCode.OK_200));
     }
 }

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.context;
@@ -23,6 +21,7 @@ import io.gravitee.gateway.api.Request;
 import io.gravitee.gateway.api.Response;
 import io.gravitee.gateway.api.context.MutableExecutionContext;
 import io.gravitee.tracing.api.Tracer;
+
 import org.springframework.context.ApplicationContext;
 
 import java.util.Collection;
@@ -36,9 +35,9 @@ import java.util.Map;
  */
 public class ReactableExecutionContext implements MutableExecutionContext {
 
-    private final static String TEMPLATE_ATTRIBUTE_REQUEST = "request";
-    private final static String TEMPLATE_ATTRIBUTE_RESPONSE = "response";
-    private final static String TEMPLATE_ATTRIBUTE_CONTEXT = "context";
+    private static final String TEMPLATE_ATTRIBUTE_REQUEST = "request";
+    private static final String TEMPLATE_ATTRIBUTE_RESPONSE = "response";
+    private static final String TEMPLATE_ATTRIBUTE_CONTEXT = "context";
 
     private final ApplicationContext applicationContext;
 
@@ -48,7 +47,8 @@ public class ReactableExecutionContext implements MutableExecutionContext {
 
     private final MutableExecutionContext context;
 
-    ReactableExecutionContext(final MutableExecutionContext context, ApplicationContext applicationContext) {
+    ReactableExecutionContext(
+            final MutableExecutionContext context, ApplicationContext applicationContext) {
         this.context = context;
         this.applicationContext = applicationContext;
 
@@ -112,14 +112,18 @@ public class ReactableExecutionContext implements MutableExecutionContext {
         if (templateEngine == null) {
             templateEngine = TemplateEngine.templateEngine();
 
-
             TemplateContext templateContext = templateEngine.getTemplateContext();
-            templateContext.setVariable(TEMPLATE_ATTRIBUTE_REQUEST, new EvaluableRequest(request()));
-            templateContext.setVariable(TEMPLATE_ATTRIBUTE_RESPONSE, new EvaluableResponse(response()));
-            templateContext.setVariable(TEMPLATE_ATTRIBUTE_CONTEXT, new EvaluableExecutionContext(this));
+            templateContext.setVariable(
+                    TEMPLATE_ATTRIBUTE_REQUEST, new EvaluableRequest(request()));
+            templateContext.setVariable(
+                    TEMPLATE_ATTRIBUTE_RESPONSE, new EvaluableResponse(response()));
+            templateContext.setVariable(
+                    TEMPLATE_ATTRIBUTE_CONTEXT, new EvaluableExecutionContext(this));
 
             if (providers != null) {
-                providers.forEach(templateVariableProvider -> templateVariableProvider.provide(templateContext));
+                providers.forEach(
+                        templateVariableProvider ->
+                                templateVariableProvider.provide(templateContext));
             }
         }
 

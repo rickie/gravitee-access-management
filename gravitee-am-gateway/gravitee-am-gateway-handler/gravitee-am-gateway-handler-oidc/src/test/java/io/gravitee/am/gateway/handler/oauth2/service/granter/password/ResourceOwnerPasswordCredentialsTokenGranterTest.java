@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.service.granter.password;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 import io.gravitee.am.common.oauth2.Parameters;
 import io.gravitee.am.gateway.handler.common.auth.user.UserAuthenticationManager;
@@ -29,6 +30,7 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.util.LinkedMultiValueMap;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,9 +40,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author GraviteeSource Team
@@ -48,20 +47,15 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ResourceOwnerPasswordCredentialsTokenGranterTest {
 
-    @InjectMocks
-    private ResourceOwnerPasswordCredentialsTokenGranter granter;
+    @InjectMocks private ResourceOwnerPasswordCredentialsTokenGranter granter;
 
-    @Mock
-    private UserAuthenticationManager userAuthenticationManager;
+    @Mock private UserAuthenticationManager userAuthenticationManager;
 
-    @Mock
-    private TokenRequest tokenRequest;
+    @Mock private TokenRequest tokenRequest;
 
-    @Mock
-    private TokenRequestResolver tokenRequestResolver;
+    @Mock private TokenRequestResolver tokenRequestResolver;
 
-    @Mock
-    private TokenService tokenService;
+    @Mock private TokenService tokenService;
 
     @Before
     public void setUp() {
@@ -76,22 +70,22 @@ public class ResourceOwnerPasswordCredentialsTokenGranterTest {
 
         Client client = new Client();
         client.setClientId("my-client-id");
-        client.setAuthorizedGrantTypes(Arrays.asList(new String[]{"password"}));
+        client.setAuthorizedGrantTypes(Arrays.asList(new String[] {"password"}));
 
         Token accessToken = new AccessToken("test-token");
 
         when(tokenRequest.parameters()).thenReturn(parameters);
         when(tokenRequest.createOAuth2Request()).thenReturn(new OAuth2Request());
 
-        when(tokenRequestResolver.resolve(any(), any(), any())).thenReturn(Single.just(tokenRequest));
+        when(tokenRequestResolver.resolve(any(), any(), any()))
+                .thenReturn(Single.just(tokenRequest));
         when(tokenService.create(any(), any(), any())).thenReturn(Single.just(accessToken));
-        when(userAuthenticationManager.authenticate(any(Client.class), any(Authentication.class))).thenReturn(Single.just(new User()));
+        when(userAuthenticationManager.authenticate(any(Client.class), any(Authentication.class)))
+                .thenReturn(Single.just(new User()));
 
         TestObserver<Token> testObserver = granter.grant(tokenRequest, client).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(token -> token.getValue().equals("test-token"));
-
     }
-
 }

@@ -1,20 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.gravitee.am.gateway.handler.root.resources.handler.user.activity;
+
+import static io.gravitee.am.common.utils.ConstantKeys.GEOIP_KEY;
+import static io.gravitee.am.common.utils.ConstantKeys.LOGIN_ATTEMPT_KEY;
+import static io.gravitee.am.service.impl.user.activity.utils.ConsentUtils.canSaveIp;
+import static io.gravitee.am.service.impl.user.activity.utils.ConsentUtils.canSaveUserAgent;
+
+import static java.util.Optional.ofNullable;
 
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.gateway.handler.common.vertx.utils.RequestUtils;
@@ -23,15 +27,11 @@ import io.gravitee.am.model.UserActivity.Type;
 import io.gravitee.am.service.UserActivityService;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.ext.web.RoutingContext;
-import java.util.HashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.gravitee.am.common.utils.ConstantKeys.GEOIP_KEY;
-import static io.gravitee.am.common.utils.ConstantKeys.LOGIN_ATTEMPT_KEY;
-import static io.gravitee.am.service.impl.user.activity.utils.ConsentUtils.canSaveIp;
-import static io.gravitee.am.service.impl.user.activity.utils.ConsentUtils.canSaveUserAgent;
-import static java.util.Optional.ofNullable;
+import java.util.HashMap;
 
 /**
  * @author Rémi SULTAN (remi.sultan at graviteesource.com)
@@ -48,15 +48,19 @@ public class UserActivityHandler implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext context) {
-        var optionalUser = ofNullable(context.user())
-                .filter(__ -> userActivityService.canSaveUserActivity())
-                .map(u -> (io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User) u.getDelegate())
-                .map(io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User::getUser);
-        
-        optionalUser.ifPresentOrElse(
-                user -> saveUserActivity(context, user),
-                context::next
-        );
+        var optionalUser =
+                ofNullable(context.user())
+                        .filter(__ -> userActivityService.canSaveUserActivity())
+                        .map(
+                                u ->
+                                        (io.gravitee.am.gateway.handler.common.vertx.web.auth.user
+                                                        .User)
+                                                u.getDelegate())
+                        .map(
+                                io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User
+                                        ::getUser);
+
+        optionalUser.ifPresentOrElse(user -> saveUserActivity(context, user), context::next);
     }
 
     private void saveUserActivity(RoutingContext context, User user) {
@@ -65,9 +69,15 @@ public class UserActivityHandler implements Handler<RoutingContext> {
         addUserAgent(context, data);
         addLoginAttempt(context, data);
 
-        userActivityService.save(user.getReferenceId(), user.getId(), Type.LOGIN, data)
+        userActivityService
+                .save(user.getReferenceId(), user.getId(), Type.LOGIN, data)
                 .doOnComplete(() -> logger.debug("User Activity saved successfully"))
-                .doOnError(err -> logger.error("An unexpected error has occurred '{}'", err.getMessage(), err))
+                .doOnError(
+                        err ->
+                                logger.error(
+                                        "An unexpected error has occurred '{}'",
+                                        err.getMessage(),
+                                        err))
                 .doFinally(context::next)
                 .subscribe();
     }

@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
+
+import static org.junit.Assert.assertTrue;
 
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.repository.management.AbstractManagementTest;
@@ -21,15 +21,13 @@ import io.gravitee.node.api.Monitoring;
 import io.gravitee.node.api.NodeMonitoringRepository;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
-import org.junit.Assert;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -40,13 +38,13 @@ public class NodeMonitoringRepositoryTest extends AbstractManagementTest {
     private static final String NODE_ID = "node#1";
     private static final String MONITORING_TYPE = "MONITOR";
 
-    @Autowired
-    private NodeMonitoringRepository nodeMonitoringRepository;
+    @Autowired private NodeMonitoringRepository nodeMonitoringRepository;
 
     @Test
     public void testCreate() {
         Monitoring alertNotifier = buildMonitoring();
-        TestObserver<Monitoring> testObserver = nodeMonitoringRepository.create(alertNotifier).test();
+        TestObserver<Monitoring> testObserver =
+                nodeMonitoringRepository.create(alertNotifier).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -65,13 +63,16 @@ public class NodeMonitoringRepositoryTest extends AbstractManagementTest {
         updatedMonitoring.setId(monitoringCreated.getId());
         updatedMonitoring.setPayload("updatedPayload");
 
-        TestObserver<Monitoring> testObserver = nodeMonitoringRepository.update(updatedMonitoring).test();
+        TestObserver<Monitoring> testObserver =
+                nodeMonitoringRepository.update(updatedMonitoring).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        testObserver.assertValue(updated -> updated.getId().equals(updatedMonitoring.getId())
-                && updated.getPayload().equals(updatedMonitoring.getPayload()));
+        testObserver.assertValue(
+                updated ->
+                        updated.getId().equals(updatedMonitoring.getId())
+                                && updated.getPayload().equals(updatedMonitoring.getPayload()));
     }
 
     @Test
@@ -88,9 +89,11 @@ public class NodeMonitoringRepositoryTest extends AbstractManagementTest {
         monitoringToCreate = buildMonitoring();
         monitoringToCreate.setNodeId(NODE_ID);
         monitoringToCreate.setType(MONITORING_TYPE);
-        final Monitoring monitoringCreated = nodeMonitoringRepository.create(monitoringToCreate).blockingGet();
+        final Monitoring monitoringCreated =
+                nodeMonitoringRepository.create(monitoringToCreate).blockingGet();
 
-        TestObserver<Monitoring> obs = nodeMonitoringRepository.findByNodeIdAndType(NODE_ID, MONITORING_TYPE).test();
+        TestObserver<Monitoring> obs =
+                nodeMonitoringRepository.findByNodeIdAndType(NODE_ID, MONITORING_TYPE).test();
         obs.awaitTerminalEvent();
         obs.assertComplete();
         obs.assertNoErrors();
@@ -100,8 +103,14 @@ public class NodeMonitoringRepositoryTest extends AbstractManagementTest {
     @Test
     public void findByTypeAndTimeFrame() {
 
-        long from = LocalDateTime.of(1970, 12, 25, 10, 0, 0, 0).toInstant(ZoneOffset.UTC).toEpochMilli();
-        long to = LocalDateTime.of(1970, 12, 25, 11, 0, 0, 0).toInstant(ZoneOffset.UTC).toEpochMilli();
+        long from =
+                LocalDateTime.of(1970, 12, 25, 10, 0, 0, 0)
+                        .toInstant(ZoneOffset.UTC)
+                        .toEpochMilli();
+        long to =
+                LocalDateTime.of(1970, 12, 25, 11, 0, 0, 0)
+                        .toInstant(ZoneOffset.UTC)
+                        .toEpochMilli();
         Monitoring monitoringToCreate;
 
         // Create 10 monitoring objects.
@@ -120,16 +129,19 @@ public class NodeMonitoringRepositoryTest extends AbstractManagementTest {
             nodeMonitoringRepository.create(monitoringToCreate).blockingGet();
         }
 
-        TestSubscriber<Monitoring> obs = nodeMonitoringRepository.findByTypeAndTimeFrame(MONITORING_TYPE, from, to).test();
+        TestSubscriber<Monitoring> obs =
+                nodeMonitoringRepository.findByTypeAndTimeFrame(MONITORING_TYPE, from, to).test();
         obs.awaitTerminalEvent();
         obs.assertValueCount(4);
 
-        obs.values().forEach(monitoring -> {
-            assertTrue(monitoring.getUpdatedAt().getTime() >= from
-                    && monitoring.getUpdatedAt().getTime() <= to
-                    && monitoring.getType().equals(MONITORING_TYPE));
-        });
-
+        obs.values()
+                .forEach(
+                        monitoring -> {
+                            assertTrue(
+                                    monitoring.getUpdatedAt().getTime() >= from
+                                            && monitoring.getUpdatedAt().getTime() <= to
+                                            && monitoring.getType().equals(MONITORING_TYPE));
+                        });
     }
 
     private Monitoring buildMonitoring() {

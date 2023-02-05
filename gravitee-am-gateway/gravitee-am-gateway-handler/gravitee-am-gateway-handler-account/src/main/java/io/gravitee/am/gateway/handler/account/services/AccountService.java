@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.account.services;
@@ -39,15 +37,24 @@ public interface AccountService {
 
     Maybe<User> get(String userId);
 
-    Single<Page<Audit>> getActivity(User user, AuditReportableCriteria criteria, int page, int size);
+    Single<Page<Audit>> getActivity(
+            User user, AuditReportableCriteria criteria, int page, int size);
 
     Single<User> update(User user);
 
-    Single<ResetPasswordResponse> resetPassword(User user, Client client, String password, io.gravitee.am.identityprovider.api.User principal);
+    Single<ResetPasswordResponse> resetPassword(
+            User user,
+            Client client,
+            String password,
+            io.gravitee.am.identityprovider.api.User principal);
 
-    Single<User> upsertFactor(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal);
+    Single<User> upsertFactor(
+            String userId,
+            EnrolledFactor enrolledFactor,
+            io.gravitee.am.identityprovider.api.User principal);
 
-    Completable removeFactor(String userId, String factorId, io.gravitee.am.identityprovider.api.User principal);
+    Completable removeFactor(
+            String userId, String factorId, io.gravitee.am.identityprovider.api.User principal);
 
     Single<List<Factor>> getFactors(String domain);
 
@@ -57,11 +64,13 @@ public interface AccountService {
 
     Single<Credential> getWebAuthnCredential(String id);
 
-    Completable removeWebAuthnCredential(String userId, String id, io.gravitee.am.identityprovider.api.User principal);
+    Completable removeWebAuthnCredential(
+            String userId, String id, io.gravitee.am.identityprovider.api.User principal);
 
     Single<List<ScopeApproval>> getConsentList(User user, Client client);
 
     Single<ScopeApproval> getConsent(String id);
 
-    Completable removeConsent(String userId, String consentId, io.gravitee.am.identityprovider.api.User principal);
+    Completable removeConsent(
+            String userId, String consentId, io.gravitee.am.identityprovider.api.User principal);
 }

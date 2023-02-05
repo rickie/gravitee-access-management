@@ -1,22 +1,21 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.utils;
 
 import io.gravitee.am.common.email.Email;
 import io.gravitee.am.service.exception.TechnicalManagementException;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -27,7 +26,6 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
-import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -37,8 +35,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.activation.MimetypesFileTypeMap;
+
 /**
- * Utility class created to avoid duplication between {@link io.gravitee.am.service.impl.EmailServiceImpl} and the SmtpResourceProvider
+ * Utility class created to avoid duplication between {@link
+ * io.gravitee.am.service.impl.EmailServiceImpl} and the SmtpResourceProvider
  *
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
@@ -58,7 +59,9 @@ public class EmailSender {
 
     public void send(Email email) {
         try {
-            final MimeMessageHelper mailMessage = new MimeMessageHelper(mailSender.createMimeMessage(), true, StandardCharsets.UTF_8.name());
+            final MimeMessageHelper mailMessage =
+                    new MimeMessageHelper(
+                            mailSender.createMimeMessage(), true, StandardCharsets.UTF_8.name());
             final String subject = email.getSubject();
             final String content = email.getContent();
             final String from = email.getFrom();
@@ -75,7 +78,11 @@ public class EmailSender {
             mailMessage.setSubject(subject);
 
             final String html = addResourcesInMessage(mailMessage, content);
-            LOGGER.debug("Sending an email to: {}\nSubject: {}\nMessage: {}", email.getTo(), email.getSubject(), html);
+            LOGGER.debug(
+                    "Sending an email to: {}\nSubject: {}\nMessage: {}",
+                    email.getTo(),
+                    email.getSubject(),
+                    html);
             mailSender.send(mailMessage.getMimeMessage());
         } catch (final Exception ex) {
             LOGGER.error("Error while creating email", ex);
@@ -83,21 +90,24 @@ public class EmailSender {
         }
     }
 
-    private String addResourcesInMessage(final MimeMessageHelper mailMessage, final String htmlText) throws Exception {
+    private String addResourcesInMessage(final MimeMessageHelper mailMessage, final String htmlText)
+            throws Exception {
         final Document document = Jsoup.parse(htmlText);
 
         final List<String> resources = new ArrayList<>();
 
         final Elements imageElements = document.getElementsByTag("img");
-        resources.addAll(imageElements.stream()
-                .filter(imageElement -> imageElement.hasAttr("src"))
-                .filter(imageElement -> !imageElement.attr("src").startsWith("http"))
-                .map(imageElement -> {
-                    final String src = imageElement.attr("src");
-                    imageElement.attr("src", "cid:" + src);
-                    return src;
-                })
-                .collect(Collectors.toList()));
+        resources.addAll(
+                imageElements.stream()
+                        .filter(imageElement -> imageElement.hasAttr("src"))
+                        .filter(imageElement -> !imageElement.attr("src").startsWith("http"))
+                        .map(
+                                imageElement -> {
+                                    final String src = imageElement.attr("src");
+                                    imageElement.attr("src", "cid:" + src);
+                                    return src;
+                                })
+                        .collect(Collectors.toList()));
 
         final String html = document.html();
         mailMessage.setText(html, true);
@@ -132,14 +142,14 @@ public class EmailSender {
 
     /**
      * Extract the MIME type from a base64 string
+     *
      * @param encoded Base64 string
      * @return MIME type string
      */
     private static String extractMimeType(final String encoded) {
         final Pattern mime = Pattern.compile("^data:([a-zA-Z0-9]+/[a-zA-Z0-9]+).*,.*");
         final Matcher matcher = mime.matcher(encoded);
-        if (!matcher.find())
-            return "";
+        if (!matcher.find()) return "";
         return matcher.group(1).toLowerCase();
     }
 }

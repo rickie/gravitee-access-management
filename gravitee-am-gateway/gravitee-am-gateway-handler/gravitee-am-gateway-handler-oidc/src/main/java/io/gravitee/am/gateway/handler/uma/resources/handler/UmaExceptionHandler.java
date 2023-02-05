@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.uma.resources.handler;
@@ -34,10 +32,11 @@ public class UmaExceptionHandler extends ExceptionHandler {
 
     @Override
     public void handle(RoutingContext routingContext) {
-        if(routingContext.failed()) {
+        if (routingContext.failed()) {
             Throwable throwable = routingContext.failure();
             if (isInvalidRequest(throwable)) {
-                OAuth2ErrorResponse oAuth2ErrorResponse = new OAuth2ErrorResponse("invalid_request");
+                OAuth2ErrorResponse oAuth2ErrorResponse =
+                        new OAuth2ErrorResponse("invalid_request");
                 oAuth2ErrorResponse.setDescription(throwable.getMessage());
                 routingContext
                         .response()
@@ -47,8 +46,11 @@ public class UmaExceptionHandler extends ExceptionHandler {
                         .setStatusCode(HttpStatusCode.BAD_REQUEST_400)
                         .end(Json.encodePrettily(oAuth2ErrorResponse));
             } else if (throwable instanceof AbstractNotFoundException) {
-                OAuth2Exception oAuth2Exception = new io.gravitee.am.gateway.handler.oauth2.exception.ResourceNotFoundException(throwable.getMessage());
-                OAuth2ErrorResponse oAuth2ErrorResponse = new OAuth2ErrorResponse(oAuth2Exception.getOAuth2ErrorCode());
+                OAuth2Exception oAuth2Exception =
+                        new io.gravitee.am.gateway.handler.oauth2.exception
+                                .ResourceNotFoundException(throwable.getMessage());
+                OAuth2ErrorResponse oAuth2ErrorResponse =
+                        new OAuth2ErrorResponse(oAuth2Exception.getOAuth2ErrorCode());
                 oAuth2ErrorResponse.setDescription(oAuth2Exception.getMessage());
                 routingContext
                         .response()
@@ -64,8 +66,8 @@ public class UmaExceptionHandler extends ExceptionHandler {
     }
 
     private boolean isInvalidRequest(Throwable throwable) {
-        return throwable instanceof MissingScopeException ||
-                throwable instanceof MalformedIconUriException ||
-                throwable instanceof ScopeNotFoundException;
+        return throwable instanceof MissingScopeException
+                || throwable instanceof MalformedIconUriException
+                || throwable instanceof ScopeNotFoundException;
     }
 }

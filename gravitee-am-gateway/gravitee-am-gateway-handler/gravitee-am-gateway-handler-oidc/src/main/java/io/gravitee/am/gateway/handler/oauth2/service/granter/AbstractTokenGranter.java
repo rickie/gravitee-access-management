@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.service.granter;
@@ -22,8 +20,8 @@ import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequestResolver;
 import io.gravitee.am.gateway.handler.oauth2.service.token.Token;
 import io.gravitee.am.gateway.handler.oauth2.service.token.TokenService;
-import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.User;
+import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 
@@ -65,14 +63,17 @@ public class AbstractTokenGranter implements TokenGranter {
     }
 
     /**
-     * The authorization server validates the request to ensure that all required parameters are present and valid.
+     * The authorization server validates the request to ensure that all required parameters are
+     * present and valid.
+     *
      * @param tokenRequest Access Token Request
      * @param client OAuth2 client
      * @return Access Token Request or invalid request exception
      */
     protected Single<TokenRequest> parseRequest(TokenRequest tokenRequest, Client client) {
         // Is client allowed to use such grant type ?
-        if (client.getAuthorizedGrantTypes() != null && !client.getAuthorizedGrantTypes().isEmpty()
+        if (client.getAuthorizedGrantTypes() != null
+                && !client.getAuthorizedGrantTypes().isEmpty()
                 && !client.getAuthorizedGrantTypes().contains(grantType)) {
             throw new UnauthorizedClientException("Unauthorized grant type: " + grantType);
         }
@@ -80,7 +81,9 @@ public class AbstractTokenGranter implements TokenGranter {
     }
 
     /**
-     * If the request is valid, the authorization server authenticates the resource owner and obtains an authorization decision
+     * If the request is valid, the authorization server authenticates the resource owner and
+     * obtains an authorization decision
+     *
      * @param tokenRequest Access Token Request
      * @param client OAuth2 client
      * @return Resource Owner or empty for protocol flow like client_credentials
@@ -90,30 +93,36 @@ public class AbstractTokenGranter implements TokenGranter {
     }
 
     /**
-     * Validates the request to ensure that all required parameters meet the Client and Resource Owner requirements
+     * Validates the request to ensure that all required parameters meet the Client and Resource
+     * Owner requirements
+     *
      * @param tokenRequest Access Token Request
      * @param client OAuth2 client
      * @param endUser Resource Owner (if exists)
      * @return Access Token Request or OAuth 2.0 exception
      */
-    protected Single<TokenRequest> resolveRequest(TokenRequest tokenRequest, Client client, User endUser) {
+    protected Single<TokenRequest> resolveRequest(
+            TokenRequest tokenRequest, Client client, User endUser) {
         return tokenRequestResolver.resolve(tokenRequest, client, endUser);
     }
 
     /**
      * Determines if a refresh token should be included in the token response
+     *
      * @param supportRefreshToken
      */
     protected void setSupportRefreshToken(boolean supportRefreshToken) {
         this.supportRefreshToken = supportRefreshToken;
     }
 
-    protected Single<Token> createAccessToken(OAuth2Request oAuth2Request, Client client, User endUser) {
+    protected Single<Token> createAccessToken(
+            OAuth2Request oAuth2Request, Client client, User endUser) {
         return tokenService.create(oAuth2Request, client, endUser);
     }
 
     protected boolean isSupportRefreshToken(Client client) {
-        return supportRefreshToken && client.getAuthorizedGrantTypes().contains(GrantType.REFRESH_TOKEN);
+        return supportRefreshToken
+                && client.getAuthorizedGrantTypes().contains(GrantType.REFRESH_TOKEN);
     }
 
     public TokenRequestResolver getTokenRequestResolver() {
@@ -138,15 +147,16 @@ public class AbstractTokenGranter implements TokenGranter {
                 .flatMap(oAuth2Request -> createAccessToken(oAuth2Request, client, endUser));
     }
 
-    private Single<OAuth2Request> createOAuth2Request(TokenRequest tokenRequest, Client client, User endUser) {
+    private Single<OAuth2Request> createOAuth2Request(
+            TokenRequest tokenRequest, Client client, User endUser) {
         return Single.just(tokenRequest.createOAuth2Request())
-                .map(oAuth2Request -> {
-                    if (endUser != null) {
-                        oAuth2Request.setSubject(endUser.getId());
-                    }
-                    oAuth2Request.setSupportRefreshToken(isSupportRefreshToken(client));
-                    return oAuth2Request;
-                });
+                .map(
+                        oAuth2Request -> {
+                            if (endUser != null) {
+                                oAuth2Request.setSubject(endUser.getId());
+                            }
+                            oAuth2Request.setSupportRefreshToken(isSupportRefreshToken(client));
+                            return oAuth2Request;
+                        });
     }
-
 }

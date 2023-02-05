@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service;
@@ -52,25 +50,33 @@ public interface FormService {
 
     Single<Form> getDefaultByDomainAndTemplate(String domain, String template);
 
-    Maybe<Form> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template);
+    Maybe<Form> findByClientAndTemplate(
+            ReferenceType referenceType, String referenceId, String client, String template);
 
     Maybe<Form> findByDomainAndClientAndTemplate(String domain, String client, String template);
 
     Single<List<Form>> copyFromClient(String domain, String clientSource, String clientTarget);
 
-    Single<Form> create(ReferenceType referenceType, String referenceId, NewForm newForm, User principal);
+    Single<Form> create(
+            ReferenceType referenceType, String referenceId, NewForm newForm, User principal);
 
     Single<Form> create(String domain, NewForm form, User principal);
 
     Single<Form> create(String domain, String client, NewForm form, User principal);
 
-    Single<Form> update(ReferenceType referenceType, String referenceId, String id, UpdateForm updateForm, User principal);
+    Single<Form> update(
+            ReferenceType referenceType,
+            String referenceId,
+            String id,
+            UpdateForm updateForm,
+            User principal);
 
     Single<Form> update(String domain, String id, UpdateForm form, User principal);
 
     Single<Form> update(String domain, String client, String id, UpdateForm form, User principal);
 
-    Completable delete(ReferenceType referenceType, String referenceId, String formId, User principal);
+    Completable delete(
+            ReferenceType referenceType, String referenceId, String formId, User principal);
 
     Completable delete(String domain, String pageId, User principal);
 
@@ -93,5 +99,4 @@ public interface FormService {
     default Completable delete(String domain, String pageId) {
         return delete(domain, pageId, null);
     }
-
 }

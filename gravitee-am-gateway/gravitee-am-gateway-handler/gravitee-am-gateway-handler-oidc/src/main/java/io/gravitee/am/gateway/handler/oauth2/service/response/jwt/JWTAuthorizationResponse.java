@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.service.response.jwt;
@@ -27,13 +25,15 @@ import io.gravitee.am.gateway.handler.oauth2.service.response.ImplicitResponse;
 import java.net.URISyntaxException;
 
 /**
- * Response after authorization code flow or implicit flow or hybrid flow in JWT format.
- * See <a href="https://openid.net//specs/openid-financial-api-jarm.html#the-jwt-response-document">4.1.  The JWT Response Document</a>
+ * Response after authorization code flow or implicit flow or hybrid flow in JWT format. See <a
+ * href="https://openid.net//specs/openid-financial-api-jarm.html#the-jwt-response-document">4.1.
+ * The JWT Response Document</a>
  *
  * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author GraviteeSource Team
  */
-public abstract class JWTAuthorizationResponse<T extends AuthorizationResponse> extends AuthorizationResponse {
+public abstract class JWTAuthorizationResponse<T extends AuthorizationResponse>
+        extends AuthorizationResponse {
 
     private final JWT jwt = new JWT();
 
@@ -43,19 +43,13 @@ public abstract class JWTAuthorizationResponse<T extends AuthorizationResponse> 
         this.response = response;
     }
 
-    /**
-     * The issuer URL of the authorization server that created the response.
-     */
+    /** The issuer URL of the authorization server that created the response. */
     private String iss;
 
-    /**
-     * The client_id of the client the response is intended for.
-     */
+    /** The client_id of the client the response is intended for. */
     private String aud;
 
-    /**
-     * Expiration of the JWT.
-     */
+    /** Expiration of the JWT. */
     private long exp;
 
     private String responseType;
@@ -119,13 +113,12 @@ public abstract class JWTAuthorizationResponse<T extends AuthorizationResponse> 
 
         if (response instanceof AuthorizationCodeResponse) {
             return new JWTAuthorizationCodeResponse((AuthorizationCodeResponse) response);
-        }  else if (response instanceof ImplicitResponse) {
+        } else if (response instanceof ImplicitResponse) {
             return new JWTImplicitResponse((ImplicitResponse) response);
         }
 
         return null;
     }
-
 
     public JWT build() {
         jwt.setAud(this.aud);
@@ -146,14 +139,16 @@ public abstract class JWTAuthorizationResponse<T extends AuthorizationResponse> 
         if (ResponseMode.QUERY_JWT.equalsIgnoreCase(responseMode)) {
             uriBuilder.addParameter(io.gravitee.am.common.oidc.Parameters.RESPONSE, token);
         } else if (ResponseMode.FRAGMENT_JWT.equalsIgnoreCase(responseMode)) {
-            uriBuilder.addFragmentParameter(io.gravitee.am.common.oidc.Parameters.RESPONSE,token);
+            uriBuilder.addFragmentParameter(io.gravitee.am.common.oidc.Parameters.RESPONSE, token);
         } else if (ResponseMode.JWT.equalsIgnoreCase(responseMode)) {
             if (responseType == null || ResponseType.NONE.equalsIgnoreCase(responseType)) {
                 // Nothing to do here
-            } else if (io.gravitee.am.common.oauth2.ResponseType.CODE.equalsIgnoreCase(responseType)) {
+            } else if (io.gravitee.am.common.oauth2.ResponseType.CODE.equalsIgnoreCase(
+                    responseType)) {
                 uriBuilder.addParameter(io.gravitee.am.common.oidc.Parameters.RESPONSE, token);
             } else {
-                uriBuilder.addFragmentParameter(io.gravitee.am.common.oidc.Parameters.RESPONSE,token);
+                uriBuilder.addFragmentParameter(
+                        io.gravitee.am.common.oidc.Parameters.RESPONSE, token);
             }
         }
 

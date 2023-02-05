@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.certificate.pkcs12.provider;
@@ -18,6 +16,7 @@ package io.gravitee.am.certificate.pkcs12.provider;
 import io.gravitee.am.certificate.api.AbstractCertificateProvider;
 import io.gravitee.am.certificate.api.CertificateMetadata;
 import io.gravitee.am.certificate.pkcs12.PKCS12Configuration;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,9 +30,8 @@ import java.util.Set;
  */
 public class PKCS12Provider extends AbstractCertificateProvider implements InitializingBean {
 
-    private final static String KEYSTORE_TYPE = "pkcs12";
-    @Autowired
-    private PKCS12Configuration configuration;
+    private static final String KEYSTORE_TYPE = "pkcs12";
+    @Autowired private PKCS12Configuration configuration;
 
     @Override
     public void afterPropertiesSet() throws Exception {

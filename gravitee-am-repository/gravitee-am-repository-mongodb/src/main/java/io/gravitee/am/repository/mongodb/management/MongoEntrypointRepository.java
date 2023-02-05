@@ -1,40 +1,41 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Entrypoint;
 import io.gravitee.am.repository.management.api.EntrypointRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.EntrypointMongo;
 import io.reactivex.*;
+
 import org.bson.Document;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class MongoEntrypointRepository extends AbstractManagementMongoRepository implements EntrypointRepository {
+public class MongoEntrypointRepository extends AbstractManagementMongoRepository
+        implements EntrypointRepository {
 
     private MongoCollection<EntrypointMongo> collection;
 
@@ -47,30 +48,48 @@ public class MongoEntrypointRepository extends AbstractManagementMongoRepository
 
     @Override
     public Maybe<Entrypoint> findById(String id, String organizationId) {
-        return Observable.fromPublisher(collection.find(and(eq(FIELD_ID, id), eq(FIELD_ORGANIZATION_ID, organizationId))).first()).firstElement().map(this::convert);
+        return Observable.fromPublisher(
+                        collection
+                                .find(
+                                        and(
+                                                eq(FIELD_ID, id),
+                                                eq(FIELD_ORGANIZATION_ID, organizationId)))
+                                .first())
+                .firstElement()
+                .map(this::convert);
     }
 
     @Override
     public Maybe<Entrypoint> findById(String id) {
-        return Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first())
+                .firstElement()
+                .map(this::convert);
     }
 
     @Override
     public Flowable<Entrypoint> findAll(String organizationId) {
-        return Flowable.fromPublisher(collection.find(eq("organizationId", organizationId))).map(this::convert);
+        return Flowable.fromPublisher(collection.find(eq("organizationId", organizationId)))
+                .map(this::convert);
     }
 
     @Override
     public Single<Entrypoint> create(Entrypoint item) {
         EntrypointMongo entrypoint = convert(item);
         entrypoint.setId(entrypoint.getId() == null ? RandomString.generate() : entrypoint.getId());
-        return Single.fromPublisher(collection.insertOne(entrypoint)).flatMap(success -> { item.setId(entrypoint.getId()); return Single.just(item); });
+        return Single.fromPublisher(collection.insertOne(entrypoint))
+                .flatMap(
+                        success -> {
+                            item.setId(entrypoint.getId());
+                            return Single.just(item);
+                        });
     }
 
     @Override
     public Single<Entrypoint> update(Entrypoint item) {
         EntrypointMongo entrypoint = convert(item);
-        return Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, entrypoint.getId()), entrypoint)).flatMap(updateResult -> Single.just(item));
+        return Single.fromPublisher(
+                        collection.replaceOne(eq(FIELD_ID, entrypoint.getId()), entrypoint))
+                .flatMap(updateResult -> Single.just(item));
     }
 
     @Override

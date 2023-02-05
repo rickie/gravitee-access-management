@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.resources.platform.plugins;
@@ -41,22 +39,24 @@ import javax.ws.rs.core.Response;
 @Api(tags = {"Plugin", "Identity Provider"})
 public class IdentityProviderPluginResource {
 
-    @Context
-    private ResourceContext resourceContext;
+    @Context private ResourceContext resourceContext;
 
-    @Inject
-    private IdentityProviderPluginService identityProviderPluginService;
+    @Inject private IdentityProviderPluginService identityProviderPluginService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Get an identity provider",
+    @ApiOperation(
+            value = "Get an identity provider",
             notes = "There is no particular permission needed. User must be authenticated.")
     public void get(
             @PathParam("identity") String identityProviderId,
             @Suspended final AsyncResponse response) {
 
-        identityProviderPluginService.findById(identityProviderId)
-                .switchIfEmpty(Maybe.error(new IdentityProviderPluginNotFoundException(identityProviderId)))
+        identityProviderPluginService
+                .findById(identityProviderId)
+                .switchIfEmpty(
+                        Maybe.error(
+                                new IdentityProviderPluginNotFoundException(identityProviderId)))
                 .map(identityProviderPlugin -> Response.ok(identityProviderPlugin).build())
                 .subscribe(response::resume, response::resume);
     }
@@ -64,16 +64,20 @@ public class IdentityProviderPluginResource {
     @GET
     @Path("schema")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Get an identity provider plugin's schema",
+    @ApiOperation(
+            value = "Get an identity provider plugin's schema",
             notes = "There is no particular permission needed. User must be authenticated.")
     public void getSchema(
             @PathParam("identity") String identityProviderId,
             @Suspended final AsyncResponse response) {
 
         // Check that the identity provider exists
-        identityProviderPluginService.findById(identityProviderId)
+        identityProviderPluginService
+                .findById(identityProviderId)
                 .flatMap(irrelevant -> identityProviderPluginService.getSchema(identityProviderId))
-                .map(identityProviderPluginSchema -> Response.ok(identityProviderPluginSchema).build())
+                .map(
+                        identityProviderPluginSchema ->
+                                Response.ok(identityProviderPluginSchema).build())
                 .switchIfEmpty(Maybe.just(Response.noContent().build()))
                 .subscribe(response::resume, response::resume);
     }

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.identityprovider.http.authentication;
@@ -24,6 +22,7 @@ import io.gravitee.common.http.HttpHeader;
 import io.gravitee.common.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.Vertx;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -53,11 +52,14 @@ public class HttpAuthenticationProviderTestConfiguration {
         httpResourceConfiguration.setHttpBody(jsonObject.encode());
         HttpResponseErrorCondition errorCondition = new HttpResponseErrorCondition();
         errorCondition.setValue("{#authenticationResponse.status == 401}");
-        errorCondition.setException("io.gravitee.am.common.exception.authentication.BadCredentialsException");
+        errorCondition.setException(
+                "io.gravitee.am.common.exception.authentication.BadCredentialsException");
         HttpResponseErrorCondition errorCondition2 = new HttpResponseErrorCondition();
         errorCondition2.setValue("{#authenticationResponse.status == 404}");
-        errorCondition2.setException("io.gravitee.am.common.exception.authentication.UsernameNotFoundException");
-        httpResourceConfiguration.setHttpResponseErrorConditions(Arrays.asList(errorCondition, errorCondition2));
+        errorCondition2.setException(
+                "io.gravitee.am.common.exception.authentication.UsernameNotFoundException");
+        httpResourceConfiguration.setHttpResponseErrorConditions(
+                Arrays.asList(errorCondition, errorCondition2));
         configuration.setAuthenticationResource(httpResourceConfiguration);
 
         return configuration;

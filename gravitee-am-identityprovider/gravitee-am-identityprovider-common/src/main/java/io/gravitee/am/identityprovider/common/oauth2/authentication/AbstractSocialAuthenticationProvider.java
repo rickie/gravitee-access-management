@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.identityprovider.common.oauth2.authentication;
+
+import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
 
 import io.gravitee.am.common.oauth2.Parameters;
 import io.gravitee.am.common.oauth2.TokenTypeHint;
@@ -25,39 +25,47 @@ import io.gravitee.am.identityprovider.api.social.SocialIdentityProviderConfigur
 import io.gravitee.common.http.HttpMethod;
 import io.reactivex.Maybe;
 import io.vertx.reactivex.ext.web.client.WebClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
 
-import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
-public abstract class AbstractSocialAuthenticationProvider<T extends SocialIdentityProviderConfiguration> implements SocialAuthenticationProvider {
+public abstract class AbstractSocialAuthenticationProvider<
+                T extends SocialIdentityProviderConfiguration>
+        implements SocialAuthenticationProvider {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     protected abstract T getConfiguration();
+
     protected abstract IdentityProviderMapper getIdentityProviderMapper();
+
     protected abstract IdentityProviderRoleMapper getIdentityProviderRoleMapper();
+
     protected abstract WebClient getClient();
 
     @Override
     public Request signInUrl(String redirectUri, String state) {
         try {
-            UriBuilder builder = UriBuilder.fromHttpUrl(getConfiguration().getUserAuthorizationUri());
+            UriBuilder builder =
+                    UriBuilder.fromHttpUrl(getConfiguration().getUserAuthorizationUri());
             builder.addParameter(Parameters.CLIENT_ID, getConfiguration().getClientId());
             builder.addParameter(Parameters.REDIRECT_URI, redirectUri);
             builder.addParameter(Parameters.RESPONSE_TYPE, getConfiguration().getResponseType());
-            if (getConfiguration().getScopes() != null && !getConfiguration().getScopes().isEmpty()) {
-                builder.addParameter(Parameters.SCOPE, String.join(SCOPE_DELIMITER, getConfiguration().getScopes()));
+            if (getConfiguration().getScopes() != null
+                    && !getConfiguration().getScopes().isEmpty()) {
+                builder.addParameter(
+                        Parameters.SCOPE,
+                        String.join(SCOPE_DELIMITER, getConfiguration().getScopes()));
             }
 
-            if(!StringUtils.isEmpty(state)) {
+            if (!StringUtils.isEmpty(state)) {
                 builder.addParameter(Parameters.STATE, state);
             }
 
@@ -95,15 +103,16 @@ public abstract class AbstractSocialAuthenticationProvider<T extends SocialIdent
         return Maybe.empty();
     }
 
-
-    protected Map<String, Object> applyUserMapping(AuthenticationContext authContext, Map<String, Object> attributes) {
+    protected Map<String, Object> applyUserMapping(
+            AuthenticationContext authContext, Map<String, Object> attributes) {
         if (!mappingEnabled()) {
             return defaultClaims(attributes);
         }
         return this.getIdentityProviderMapper().apply(authContext, attributes);
     }
 
-    protected List<String> applyRoleMapping(AuthenticationContext authContext, Map<String, Object> attributes) {
+    protected List<String> applyRoleMapping(
+            AuthenticationContext authContext, Map<String, Object> attributes) {
         if (!roleMappingEnabled()) {
             return Collections.emptyList();
         }

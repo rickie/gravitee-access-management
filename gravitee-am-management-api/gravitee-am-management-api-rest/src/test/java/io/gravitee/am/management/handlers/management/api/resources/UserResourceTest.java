@@ -1,19 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.resources;
+
+import static org.glassfish.jersey.client.HttpUrlConnectorProvider.SET_METHOD_WORKAROUND;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+
+import static javax.ws.rs.HttpMethod.PATCH;
 
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.management.handlers.management.api.model.PasswordValue;
@@ -28,19 +34,14 @@ import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.junit.Test;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 
-import static javax.ws.rs.HttpMethod.PATCH;
-import static org.glassfish.jersey.client.HttpUrlConnectorProvider.SET_METHOD_WORKAROUND;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -66,14 +67,15 @@ public class UserResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.just(mockUser)).when(userService).findById(userId);
 
-        final Response response = target("domains").path(domainId).path("users").path(userId).request().get();
+        final Response response =
+                target("domains").path(domainId).path("users").path(userId).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
         final Map user = readEntity(response, HashMap.class);
         assertEquals(domainId, user.get("referenceId"));
         assertEquals(mockUser.getUsername(), user.get("username"));
         assertEquals(mockUser.getSource(), user.get("sourceId"));
-     }
+    }
 
     @Test
     public void shouldGetUser_notFound() {
@@ -87,7 +89,9 @@ public class UserResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetUser_technicalManagementException() {
         final String domainId = "domain-id";
-        doReturn(Maybe.error(new TechnicalManagementException("error occurs"))).when(domainService).findById(domainId);
+        doReturn(Maybe.error(new TechnicalManagementException("error occurs")))
+                .when(domainService)
+                .findById(domainId);
 
         final Response response = target("domains").path(domainId).request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -99,7 +103,10 @@ public class UserResourceTest extends JerseySpringTest {
         final String userId = "userId";
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
-        final Response response = target("domains/" + domainId + "/users/" + userId + "/lock").request().post(Entity.json(null));
+        final Response response =
+                target("domains/" + domainId + "/users/" + userId + "/lock")
+                        .request()
+                        .post(Entity.json(null));
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }
 
@@ -111,9 +118,18 @@ public class UserResourceTest extends JerseySpringTest {
 
         final String userId = "userId";
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Completable.complete()).when(userService).lock(eq(ReferenceType.DOMAIN), eq(domainId), eq(userId), any());
+        doReturn(Completable.complete())
+                .when(userService)
+                .lock(eq(ReferenceType.DOMAIN), eq(domainId), eq(userId), any());
 
-        final Response response = target("domains").path(domainId).path("users").path(userId).path("lock").request().post(Entity.json(null));
+        final Response response =
+                target("domains")
+                        .path(domainId)
+                        .path("users")
+                        .path(userId)
+                        .path("lock")
+                        .request()
+                        .post(Entity.json(null));
         assertEquals(HttpStatusCode.NO_CONTENT_204, response.getStatus());
     }
 
@@ -123,7 +139,14 @@ public class UserResourceTest extends JerseySpringTest {
         final String userId = "userId";
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
-        final Response response = target("domains").path(domainId).path("users").path(userId).path("unlock").request().post(Entity.json(null));
+        final Response response =
+                target("domains")
+                        .path(domainId)
+                        .path("users")
+                        .path(userId)
+                        .path("unlock")
+                        .request()
+                        .post(Entity.json(null));
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }
 
@@ -135,9 +158,18 @@ public class UserResourceTest extends JerseySpringTest {
 
         final String userId = "userId";
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Completable.complete()).when(userService).unlock(eq(ReferenceType.DOMAIN), eq(domainId), eq(userId), any());
+        doReturn(Completable.complete())
+                .when(userService)
+                .unlock(eq(ReferenceType.DOMAIN), eq(domainId), eq(userId), any());
 
-        final Response response = target("domains").path(domainId).path("users").path(userId).path("unlock").request().post(Entity.json(null));
+        final Response response =
+                target("domains")
+                        .path(domainId)
+                        .path("users")
+                        .path(userId)
+                        .path("unlock")
+                        .request()
+                        .post(Entity.json(null));
         assertEquals(HttpStatusCode.NO_CONTENT_204, response.getStatus());
     }
 
@@ -149,7 +181,14 @@ public class UserResourceTest extends JerseySpringTest {
 
         final PasswordValue entity = new PasswordValue();
         entity.setPassword("aPassword");
-        final Response response = target("domains").path(domainId).path("users").path(userId).path("resetPassword").request().post(Entity.json(entity));
+        final Response response =
+                target("domains")
+                        .path(domainId)
+                        .path("users")
+                        .path(userId)
+                        .path("resetPassword")
+                        .request()
+                        .post(Entity.json(entity));
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }
 
@@ -162,11 +201,18 @@ public class UserResourceTest extends JerseySpringTest {
         final String userId = "userId";
         final String somePassword = "somePassword";
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Completable.complete()).when(userService).resetPassword(eq(mockDomain), eq(userId), eq(somePassword), any());
+        doReturn(Completable.complete())
+                .when(userService)
+                .resetPassword(eq(mockDomain), eq(userId), eq(somePassword), any());
 
-        final Response response = target("domains").path(domainId).path("users").path(userId).path("resetPassword")
-                .request()
-                .post(Entity.json(null));
+        final Response response =
+                target("domains")
+                        .path(domainId)
+                        .path("users")
+                        .path(userId)
+                        .path("resetPassword")
+                        .request()
+                        .post(Entity.json(null));
         assertEquals(HttpStatusCode.BAD_REQUEST_400, response.getStatus());
     }
 
@@ -180,11 +226,18 @@ public class UserResourceTest extends JerseySpringTest {
         final String somePassword = "somePassword";
         var passwordValue = new PasswordValue();
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Completable.complete()).when(userService).resetPassword(eq(mockDomain), eq(userId), eq(somePassword), any());
+        doReturn(Completable.complete())
+                .when(userService)
+                .resetPassword(eq(mockDomain), eq(userId), eq(somePassword), any());
 
-        final Response response = target("domains").path(domainId).path("users").path(userId).path("resetPassword")
-                .request()
-                .post(Entity.json(passwordValue));
+        final Response response =
+                target("domains")
+                        .path(domainId)
+                        .path("users")
+                        .path(userId)
+                        .path("resetPassword")
+                        .request()
+                        .post(Entity.json(passwordValue));
         assertEquals(HttpStatusCode.BAD_REQUEST_400, response.getStatus());
     }
 
@@ -198,11 +251,18 @@ public class UserResourceTest extends JerseySpringTest {
         var passwordValue = new PasswordValue();
         passwordValue.setPassword("somePassword");
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Completable.complete()).when(userService).resetPassword(eq(mockDomain), eq(userId), eq(passwordValue.getPassword()), any());
+        doReturn(Completable.complete())
+                .when(userService)
+                .resetPassword(eq(mockDomain), eq(userId), eq(passwordValue.getPassword()), any());
 
-        final Response response = target("domains").path(domainId).path("users").path(userId).path("resetPassword")
-                .request()
-                .post(Entity.json(passwordValue));
+        final Response response =
+                target("domains")
+                        .path(domainId)
+                        .path("users")
+                        .path(userId)
+                        .path("resetPassword")
+                        .request()
+                        .post(Entity.json(passwordValue));
         assertEquals(HttpStatusCode.NO_CONTENT_204, response.getStatus());
     }
 
@@ -214,9 +274,18 @@ public class UserResourceTest extends JerseySpringTest {
 
         final String userId = "userId";
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Completable.complete()).when(userService).sendRegistrationConfirmation(eq(domainId), eq(userId), any());
+        doReturn(Completable.complete())
+                .when(userService)
+                .sendRegistrationConfirmation(eq(domainId), eq(userId), any());
 
-        final Response response = target("domains").path(domainId).path("users").path(userId).path("sendRegistrationConfirmation").request().post(Entity.json(null));
+        final Response response =
+                target("domains")
+                        .path(domainId)
+                        .path("users")
+                        .path(userId)
+                        .path("sendRegistrationConfirmation")
+                        .request()
+                        .post(Entity.json(null));
         assertEquals(HttpStatusCode.NO_CONTENT_204, response.getStatus());
     }
 
@@ -226,7 +295,8 @@ public class UserResourceTest extends JerseySpringTest {
         final String userId = "userId";
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
-        final Response response = target("domains").path(domainId).path("users").path(userId).request().delete();
+        final Response response =
+                target("domains").path(domainId).path("users").path(userId).request().delete();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }
 
@@ -238,10 +308,15 @@ public class UserResourceTest extends JerseySpringTest {
 
         final String userId = "userId";
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Completable.complete()).when(userService).delete(eq(ReferenceType.DOMAIN), eq(domainId), eq(userId), any());
-        doReturn(Completable.complete()).when(userActivityService).deleteByDomainAndUser(eq(domainId), eq(userId));
+        doReturn(Completable.complete())
+                .when(userService)
+                .delete(eq(ReferenceType.DOMAIN), eq(domainId), eq(userId), any());
+        doReturn(Completable.complete())
+                .when(userActivityService)
+                .deleteByDomainAndUser(eq(domainId), eq(userId));
 
-        final Response response = target("domains").path(domainId).path("users").path(userId).request().delete();
+        final Response response =
+                target("domains").path(domainId).path("users").path(userId).request().delete();
         assertEquals(HttpStatusCode.NO_CONTENT_204, response.getStatus());
     }
 
@@ -260,11 +335,24 @@ public class UserResourceTest extends JerseySpringTest {
         var usernameEntity = new UsernameEntity();
         usernameEntity.setUsername(username);
         doReturn(Maybe.just(domain)).when(domainService).findById(domainId);
-        doReturn(Single.just(userToUpdate)).when(userService).updateUsername(eq(ReferenceType.DOMAIN), eq(domainId), eq(userId), eq(usernameEntity.getUsername()), any());
+        doReturn(Single.just(userToUpdate))
+                .when(userService)
+                .updateUsername(
+                        eq(ReferenceType.DOMAIN),
+                        eq(domainId),
+                        eq(userId),
+                        eq(usernameEntity.getUsername()),
+                        any());
 
-        final var response = target("domains").path(domainId).path("users").path(userId).path("username").request()
-                                              .property(SET_METHOD_WORKAROUND, true)
-                                              .method(PATCH, Entity.json(usernameEntity));
+        final var response =
+                target("domains")
+                        .path(domainId)
+                        .path("users")
+                        .path(userId)
+                        .path("username")
+                        .request()
+                        .property(SET_METHOD_WORKAROUND, true)
+                        .method(PATCH, Entity.json(usernameEntity));
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         final var updatedUser = readEntity(response, User.class);
         assertEquals(usernameEntity.getUsername(), updatedUser.getUsername());
@@ -275,9 +363,15 @@ public class UserResourceTest extends JerseySpringTest {
         doReturn(Maybe.empty()).when(domainService).findById("domainId");
         var usernameEntity = new UsernameEntity();
         usernameEntity.setUsername("username");
-        var response = target("domains").path("domainId").path("users").path("userId").path("username").request()
-                                        .property(SET_METHOD_WORKAROUND, true)
-                                        .method(PATCH, Entity.json(usernameEntity));
+        var response =
+                target("domains")
+                        .path("domainId")
+                        .path("users")
+                        .path("userId")
+                        .path("username")
+                        .request()
+                        .property(SET_METHOD_WORKAROUND, true)
+                        .method(PATCH, Entity.json(usernameEntity));
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }
 
@@ -298,9 +392,23 @@ public class UserResourceTest extends JerseySpringTest {
         var statusEntity = new StatusEntity();
         statusEntity.setEnabled(false);
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.just(mockUser)).when(userService).updateStatus(eq(ReferenceType.DOMAIN), eq(domainId), eq(userId), eq(statusEntity.isEnabled()), any());
+        doReturn(Single.just(mockUser))
+                .when(userService)
+                .updateStatus(
+                        eq(ReferenceType.DOMAIN),
+                        eq(domainId),
+                        eq(userId),
+                        eq(statusEntity.isEnabled()),
+                        any());
 
-        final Response response = target("domains").path(domainId).path("users").path(userId).path("status").request().put(Entity.json(statusEntity));
+        final Response response =
+                target("domains")
+                        .path(domainId)
+                        .path("users")
+                        .path(userId)
+                        .path("status")
+                        .request()
+                        .put(Entity.json(statusEntity));
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         final User user = readEntity(response, User.class);
         assertEquals(domainId, user.getReferenceId());
@@ -327,7 +435,13 @@ public class UserResourceTest extends JerseySpringTest {
         entity.setEmail("email@email.com");
         entity.setFirstName("firstname");
 
-        final Response response = target("domains").path(domainId).path("users").path(userId).request().put(Entity.json(entity));
+        final Response response =
+                target("domains")
+                        .path(domainId)
+                        .path("users")
+                        .path(userId)
+                        .request()
+                        .put(Entity.json(entity));
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }
 
@@ -351,13 +465,20 @@ public class UserResourceTest extends JerseySpringTest {
         updateUser.setFirstName("firstname");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.just(mockUser)).when(userService).update(eq(ReferenceType.DOMAIN), eq(domainId), eq(userId), any(), any());
+        doReturn(Single.just(mockUser))
+                .when(userService)
+                .update(eq(ReferenceType.DOMAIN), eq(domainId), eq(userId), any(), any());
 
-        final Response response = target("domains").path(domainId).path("users").path(userId).request().put(Entity.json(updateUser));
+        final Response response =
+                target("domains")
+                        .path(domainId)
+                        .path("users")
+                        .path(userId)
+                        .request()
+                        .put(Entity.json(updateUser));
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         final User user = readEntity(response, User.class);
         assertEquals(domainId, user.getReferenceId());
         assertEquals("firstname", user.getFirstName());
     }
-
 }

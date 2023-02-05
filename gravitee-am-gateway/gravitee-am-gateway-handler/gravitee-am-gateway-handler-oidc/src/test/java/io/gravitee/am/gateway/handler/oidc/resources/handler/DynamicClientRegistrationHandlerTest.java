@@ -1,24 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oidc.resources.handler;
+
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.gateway.handler.common.vertx.web.auth.handler.OAuth2AuthHandler;
 import io.gravitee.am.gateway.handler.oidc.exception.ClientRegistrationForbiddenException;
 import io.gravitee.am.model.Domain;
 import io.vertx.reactivex.ext.web.RoutingContext;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,8 +28,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.*;
-
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
  * @author GraviteeSource Team
@@ -36,17 +35,15 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class DynamicClientRegistrationHandlerTest {
 
-    @Mock
-    private Domain domain;
+    @Mock private Domain domain;
 
-    @Mock
-    private OAuth2AuthHandler oAuth2AuthHandler;
+    @Mock private OAuth2AuthHandler oAuth2AuthHandler;
 
     @InjectMocks
-    private DynamicClientRegistrationHandler handler = new DynamicClientRegistrationHandler(domain, oAuth2AuthHandler);
+    private DynamicClientRegistrationHandler handler =
+            new DynamicClientRegistrationHandler(domain, oAuth2AuthHandler);
 
-    @Mock
-    private RoutingContext context;
+    @Mock private RoutingContext context;
 
     @Test
     public void register_withNullOidcSettings() {
@@ -55,7 +52,9 @@ public class DynamicClientRegistrationHandlerTest {
 
         handler.handle(context);
 
-        Assert.assertTrue("Should return a DCR disabled exception", exceptionCaptor.getValue() instanceof ClientRegistrationForbiddenException);
+        Assert.assertTrue(
+                "Should return a DCR disabled exception",
+                exceptionCaptor.getValue() instanceof ClientRegistrationForbiddenException);
     }
 
     @Test
@@ -66,7 +65,9 @@ public class DynamicClientRegistrationHandlerTest {
 
         ArgumentCaptor<Throwable> exceptionCaptor = ArgumentCaptor.forClass(Throwable.class);
         verify(context, times(1)).fail(exceptionCaptor.capture());
-        Assert.assertTrue("Should return a DCR disabled exception", exceptionCaptor.getValue() instanceof ClientRegistrationForbiddenException);
+        Assert.assertTrue(
+                "Should return a DCR disabled exception",
+                exceptionCaptor.getValue() instanceof ClientRegistrationForbiddenException);
     }
 
     @Test

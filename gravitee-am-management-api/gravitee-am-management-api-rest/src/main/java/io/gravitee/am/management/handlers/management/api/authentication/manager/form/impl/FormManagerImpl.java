@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.authentication.manager.form.impl;
@@ -25,6 +23,7 @@ import io.gravitee.am.service.FormService;
 import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.event.EventManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -37,19 +36,17 @@ import java.util.concurrent.ConcurrentMap;
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class FormManagerImpl implements FormManager, InitializingBean, EventListener<FormEvent, Payload> {
+public class FormManagerImpl
+        implements FormManager, InitializingBean, EventListener<FormEvent, Payload> {
 
     private static final Logger logger = LoggerFactory.getLogger(FormManagerImpl.class);
     private ConcurrentMap<String, Form> forms = new ConcurrentHashMap<>();
 
-    @Autowired
-    private FormService formService;
+    @Autowired private FormService formService;
 
-    @Autowired
-    private EventManager eventManager;
+    @Autowired private EventManager eventManager;
 
-    @Autowired
-    private TemplateResolver templateResolver;
+    @Autowired private TemplateResolver templateResolver;
 
     @Override
     public void afterPropertiesSet() {
@@ -58,7 +55,8 @@ public class FormManagerImpl implements FormManager, InitializingBean, EventList
 
         logger.info("Initializing forms");
 
-        formService.findAll(ReferenceType.ORGANIZATION)
+        formService
+                .findAll(ReferenceType.ORGANIZATION)
                 .subscribe(
                         form -> {
                             updateForm(form);
@@ -70,7 +68,8 @@ public class FormManagerImpl implements FormManager, InitializingBean, EventList
     @Override
     public void onEvent(Event<FormEvent, Payload> event) {
 
-        if (event.content().getReferenceType() == ReferenceType.ORGANIZATION && event.content().getReferenceId() != null) {
+        if (event.content().getReferenceType() == ReferenceType.ORGANIZATION
+                && event.content().getReferenceId() != null) {
             switch (event.type()) {
                 case DEPLOY:
                 case UPDATE:
@@ -86,7 +85,8 @@ public class FormManagerImpl implements FormManager, InitializingBean, EventList
     private void updateForm(String formId, FormEvent formEvent) {
         final String eventType = formEvent.toString().toLowerCase();
         logger.info("Received {} form event for {}", eventType, formId);
-        formService.findById(formId)
+        formService
+                .findById(formId)
                 .subscribe(
                         form -> {
                             if (needDeployment(form)) {

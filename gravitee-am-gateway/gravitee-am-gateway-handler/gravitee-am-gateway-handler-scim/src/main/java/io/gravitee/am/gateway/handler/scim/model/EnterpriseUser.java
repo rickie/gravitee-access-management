@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.scim.model;
@@ -23,55 +21,45 @@ import java.util.List;
 /**
  * SCIM Enterprise User Resource
  *
- * See <a href="https://tools.ietf.org/html/rfc7643#section-4.3">4.3. Enterprise User Schema Extension</a>
+ * <p>See <a href="https://tools.ietf.org/html/rfc7643#section-4.3">4.3. Enterprise User Schema
+ * Extension</a>
  *
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class EnterpriseUser extends User {
 
-    public static final List<String> SCHEMAS = Arrays.asList(Schema.SCHEMA_URI_USER, Schema.SCHEMA_URI_ENTERPRISE_USER);
+    public static final List<String> SCHEMAS =
+            Arrays.asList(Schema.SCHEMA_URI_USER, Schema.SCHEMA_URI_ENTERPRISE_USER);
 
     /**
-     * A string identifier, typically numeric or alphanumeric, assigned
-     *       to a person, typically based on order of hire or association with
-     *       an organization.
+     * A string identifier, typically numeric or alphanumeric, assigned to a person, typically based
+     * on order of hire or association with an organization.
      */
     private String employeeNumber;
 
-    /**
-     * Identifies the name of a cost center.
-     */
+    /** Identifies the name of a cost center. */
     private String costCenter;
 
-    /**
-     * Identifies the name of an organization.
-     */
+    /** Identifies the name of an organization. */
     private String organization;
 
-    /**
-     * Identifies the name of a division.
-     */
+    /** Identifies the name of a division. */
     private String division;
 
-    /**
-     * Identifies the name of a department.
-     */
+    /** Identifies the name of a department. */
     private String department;
 
     /**
-     * The user's manager.  A complex type that optionally allows service
-     *       providers to represent organizational hierarchy by referencing the
-     *       "id" attribute of another User.
+     * The user's manager. A complex type that optionally allows service providers to represent
+     * organizational hierarchy by referencing the "id" attribute of another User.
      *
-     *       value  The "id" of the SCIM resource representing the user's
-     *          manager.  RECOMMENDED.
+     * <p>value The "id" of the SCIM resource representing the user's manager. RECOMMENDED.
      *
-     *       $ref  The URI of the SCIM resource representing the User's
-     *          manager.  RECOMMENDED.
+     * <p>$ref The URI of the SCIM resource representing the User's manager. RECOMMENDED.
      *
-     *       displayName  The displayName of the user's manager.  This
-     *          attribute is OPTIONAL, and mutability is "readOnly".
+     * <p>displayName The displayName of the user's manager. This attribute is OPTIONAL, and
+     * mutability is "readOnly".
      */
     private String manager;
 

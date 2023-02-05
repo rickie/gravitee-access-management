@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.vertx.web.handler.impl.internal;
@@ -33,7 +31,10 @@ public class WebAuthnLoginStep extends AuthenticationFlowStep {
     private final Domain domain;
     private final WebAuthnCookieService webAuthnCookieService;
 
-    public WebAuthnLoginStep(Handler<RoutingContext> handler, Domain domain, WebAuthnCookieService webAuthnCookieService) {
+    public WebAuthnLoginStep(
+            Handler<RoutingContext> handler,
+            Domain domain,
+            WebAuthnCookieService webAuthnCookieService) {
         super(handler);
         this.domain = domain;
         this.webAuthnCookieService = webAuthnCookieService;
@@ -50,7 +51,8 @@ public class WebAuthnLoginStep extends AuthenticationFlowStep {
         // get current application
         final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
-        // get login settings, if passwordless is disabled or passwordless remember is disabled, continue
+        // get login settings, if passwordless is disabled or passwordless remember is disabled,
+        // continue
         LoginSettings loginSettings = LoginSettings.getInstance(domain, client);
         if (loginSettings == null
                 || !loginSettings.isPasswordlessEnabled()
@@ -60,7 +62,10 @@ public class WebAuthnLoginStep extends AuthenticationFlowStep {
         }
 
         // check if passwordless device recognition is present
-        Cookie cookie = routingContext.request().getCookie(webAuthnCookieService.getRememberDeviceCookieName());
+        Cookie cookie =
+                routingContext
+                        .request()
+                        .getCookie(webAuthnCookieService.getRememberDeviceCookieName());
         if (cookie == null) {
             // no cookie, continue
             flow.doNext(routingContext);
@@ -68,7 +73,8 @@ public class WebAuthnLoginStep extends AuthenticationFlowStep {
         }
 
         // check cookie value and continue
-        webAuthnCookieService.verifyRememberDeviceCookieValue(cookie.getValue())
+        webAuthnCookieService
+                .verifyRememberDeviceCookieValue(cookie.getValue())
                 .subscribe(
                         () -> {
                             /// go to the WebAuthn login page
@@ -77,7 +83,6 @@ public class WebAuthnLoginStep extends AuthenticationFlowStep {
                         error -> {
                             // unable to decode the cookie, continue
                             flow.doNext(routingContext);
-                        }
-                );
+                        });
     }
 }

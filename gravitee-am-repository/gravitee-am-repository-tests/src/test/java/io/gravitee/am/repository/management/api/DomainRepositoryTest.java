@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
@@ -32,6 +30,7 @@ import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.management.api.search.DomainCriteria;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -48,8 +47,7 @@ import java.util.UUID;
  */
 public class DomainRepositoryTest extends AbstractManagementTest {
 
-    @Autowired
-    private DomainRepository domainRepository;
+    @Autowired private DomainRepository domainRepository;
 
     @Test
     public void testFindAll() throws TechnicalException {
@@ -79,18 +77,18 @@ public class DomainRepositoryTest extends AbstractManagementTest {
         domain.setDescription(name + " description");
         domain.setEnabled(true);
         domain.setAlertEnabled(false);
-        domain.setPath("/"+name);
-        domain.setReferenceId("refId"+name);
+        domain.setPath("/" + name);
+        domain.setReferenceId("refId" + name);
         domain.setReferenceType(ReferenceType.ENVIRONMENT);
         domain.setVhostMode(true);
 
         VirtualHost host = new VirtualHost();
-        host.setHost("hostname-"+name);
-        host.setPath("/hostname-"+name);
+        host.setHost("hostname-" + name);
+        host.setPath("/hostname-" + name);
         host.setOverrideEntrypoint(true);
         VirtualHost host2 = new VirtualHost();
-        host2.setHost("hostname2-"+name);
-        host2.setPath("/hostname2-"+name);
+        host2.setHost("hostname2-" + name);
+        host2.setPath("/hostname2-" + name);
         host2.setOverrideEntrypoint(true);
         domain.setVhosts(Arrays.asList(host, host2));
 
@@ -132,7 +130,8 @@ public class DomainRepositoryTest extends AbstractManagementTest {
         domainRepository.create(otherDomain).blockingGet();
 
         // fetch domains
-        TestSubscriber<Domain> testObserver1 = domainRepository.findAllByReferenceId("environment#1").test();
+        TestSubscriber<Domain> testObserver1 =
+                domainRepository.findAllByReferenceId("environment#1").test();
         testObserver1.awaitTerminalEvent();
 
         testObserver1.assertComplete();
@@ -147,7 +146,8 @@ public class DomainRepositoryTest extends AbstractManagementTest {
         Domain domainCreated = domainRepository.create(domain).blockingGet();
 
         // fetch domains
-        TestSubscriber<Domain> testSubscriber = domainRepository.findByIdIn(Collections.singleton(domainCreated.getId())).test();
+        TestSubscriber<Domain> testSubscriber =
+                domainRepository.findByIdIn(Collections.singleton(domainCreated.getId())).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -174,24 +174,39 @@ public class DomainRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(d -> d.getReferenceType().equals(domain.getReferenceType()));
         testObserver.assertValue(d -> d.isEnabled() == domain.isEnabled());
         testObserver.assertValue(d -> d.isVhostMode() == domain.isVhostMode());
-        testObserver.assertValue(d -> d.getTags() != null &&
-                domain.getTags() != null &&
-                d.getTags().size() == domain.getTags().size() &&
-                d.getTags().containsAll(domain.getTags()));
-        testObserver.assertValue(d -> d.getIdentities() != null &&
-                domain.getIdentities() != null &&
-                d.getIdentities().size() == domain.getIdentities().size() &&
-                d.getIdentities().containsAll(domain.getIdentities()));
-        testObserver.assertValue(d -> d.getVhosts() != null &&
-                domain.getVhosts() != null &&
-                d.getVhosts().size() == domain.getVhosts().size());
+        testObserver.assertValue(
+                d ->
+                        d.getTags() != null
+                                && domain.getTags() != null
+                                && d.getTags().size() == domain.getTags().size()
+                                && d.getTags().containsAll(domain.getTags()));
+        testObserver.assertValue(
+                d ->
+                        d.getIdentities() != null
+                                && domain.getIdentities() != null
+                                && d.getIdentities().size() == domain.getIdentities().size()
+                                && d.getIdentities().containsAll(domain.getIdentities()));
+        testObserver.assertValue(
+                d ->
+                        d.getVhosts() != null
+                                && domain.getVhosts() != null
+                                && d.getVhosts().size() == domain.getVhosts().size());
         testObserver.assertValue(d -> d.getAccountSettings() != null);
         testObserver.assertValue(d -> d.getLoginSettings() != null);
         testObserver.assertValue(d -> d.getUma() != null);
         testObserver.assertValue(d -> d.getOidc() != null);
-        testObserver.assertValue(d -> d.getOidc().getCibaSettings() != null && d.getOidc().getCibaSettings().isEnabled());
-        testObserver.assertValue(d -> d.getOidc().getCibaSettings().getDeviceNotifiers() != null && d.getOidc().getCibaSettings().getDeviceNotifiers().size() == 1);
-        testObserver.assertValue(d -> d.getOidc().getRequestUris() != null && d.getOidc().getRequestUris().size() == 1);
+        testObserver.assertValue(
+                d ->
+                        d.getOidc().getCibaSettings() != null
+                                && d.getOidc().getCibaSettings().isEnabled());
+        testObserver.assertValue(
+                d ->
+                        d.getOidc().getCibaSettings().getDeviceNotifiers() != null
+                                && d.getOidc().getCibaSettings().getDeviceNotifiers().size() == 1);
+        testObserver.assertValue(
+                d ->
+                        d.getOidc().getRequestUris() != null
+                                && d.getOidc().getRequestUris().size() == 1);
         testObserver.assertValue(d -> d.getScim() != null);
         testObserver.assertValue(d -> d.getWebAuthnSettings() != null);
         testObserver.assertValue(d -> d.getSelfServiceAccountManagementSettings() != null);
@@ -242,20 +257,27 @@ public class DomainRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(d -> d.getName().equals(updatedDomain.getName()));
         testObserver.assertValue(d -> d.getPath().equals(updatedDomain.getPath()));
         testObserver.assertValue(d -> d.getReferenceId().equals(updatedDomain.getReferenceId()));
-        testObserver.assertValue(d -> d.getReferenceType().equals(updatedDomain.getReferenceType()));
+        testObserver.assertValue(
+                d -> d.getReferenceType().equals(updatedDomain.getReferenceType()));
         testObserver.assertValue(d -> d.isEnabled() == updatedDomain.isEnabled());
         testObserver.assertValue(d -> d.isVhostMode() == updatedDomain.isVhostMode());
-        testObserver.assertValue(d -> d.getVhosts() != null &&
-                domain.getVhosts() != null &&
-                d.getVhosts().size() == domain.getVhosts().size());
-        testObserver.assertValue(d -> d.getTags() != null &&
-                updatedDomain.getTags() != null &&
-                d.getTags().size() == updatedDomain.getTags().size() &&
-                d.getTags().containsAll(updatedDomain.getTags()));
-        testObserver.assertValue(d -> d.getIdentities() != null &&
-                updatedDomain.getIdentities() != null &&
-                d.getIdentities().size() == updatedDomain.getIdentities().size() &&
-                d.getIdentities().containsAll(updatedDomain.getIdentities()));
+        testObserver.assertValue(
+                d ->
+                        d.getVhosts() != null
+                                && domain.getVhosts() != null
+                                && d.getVhosts().size() == domain.getVhosts().size());
+        testObserver.assertValue(
+                d ->
+                        d.getTags() != null
+                                && updatedDomain.getTags() != null
+                                && d.getTags().size() == updatedDomain.getTags().size()
+                                && d.getTags().containsAll(updatedDomain.getTags()));
+        testObserver.assertValue(
+                d ->
+                        d.getIdentities() != null
+                                && updatedDomain.getIdentities() != null
+                                && d.getIdentities().size() == updatedDomain.getIdentities().size()
+                                && d.getIdentities().containsAll(updatedDomain.getIdentities()));
         testObserver.assertValue(d -> d.getAccountSettings() == null);
         testObserver.assertValue(d -> d.getLoginSettings() == null);
         testObserver.assertValue(d -> d.getUma() == null);
@@ -306,7 +328,6 @@ public class DomainRepositoryTest extends AbstractManagementTest {
         testObserver1.assertComplete();
         testObserver1.assertNoErrors();
         testObserver1.assertValue(domain -> domain.getId().equals(domainUpdated.getId()));
-
     }
 
     @Test
@@ -318,12 +339,12 @@ public class DomainRepositoryTest extends AbstractManagementTest {
         domainRepository.create(domain).blockingGet();
 
         // fetch domains
-        TestSubscriber<Domain> testObserver1 = domainRepository.search("environment#1", "testName").test();
+        TestSubscriber<Domain> testObserver1 =
+                domainRepository.search("environment#1", "testName").test();
         testObserver1.awaitTerminalEvent();
 
         testObserver1.assertComplete();
         testObserver1.assertNoErrors();
         testObserver1.assertValueCount(1);
-
     }
 }

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.policy.impl;
@@ -80,15 +78,15 @@ public class PolicyImpl implements Policy {
 
     @Override
     public boolean isRunnable() {
-        return (policyMetadata.method(OnRequest.class) != null ||
-                policyMetadata.method(OnResponse.class) != null);
+        return (policyMetadata.method(OnRequest.class) != null
+                || policyMetadata.method(OnResponse.class) != null);
     }
 
     public static Builder target(Object policyInstance) {
         return new Builder(policyInstance);
     }
 
-    private Object invoke(Method invokedMethod, Object ... args) throws PolicyException {
+    private Object invoke(Method invokedMethod, Object... args) throws PolicyException {
         if (invokedMethod != null) {
             Class<?>[] parametersType = invokedMethod.getParameterTypes();
             Object[] parameters = new Object[parametersType.length];
@@ -110,8 +108,8 @@ public class PolicyImpl implements Policy {
         return null;
     }
 
-    private <T> T getParameterAssignableTo(Class<T> paramType, Object ... args) {
-        for(Object arg: args) {
+    private <T> T getParameterAssignableTo(Class<T> paramType, Object... args) {
+        for (Object arg : args) {
             if (paramType.isAssignableFrom(arg.getClass())) {
                 return (T) arg;
             }
@@ -151,9 +149,7 @@ public class PolicyImpl implements Policy {
         }
 
         public PolicyImpl build() {
-            return new PolicyImpl(policyInstance)
-                    .definition(policyMetadata)
-                    .condition(condition);
+            return new PolicyImpl(policyInstance).definition(policyMetadata).condition(condition);
         }
     }
 }

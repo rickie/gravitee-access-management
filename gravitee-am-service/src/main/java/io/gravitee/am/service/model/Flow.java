@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.model;
@@ -18,8 +16,9 @@ package io.gravitee.am.service.model;
 import io.gravitee.am.model.flow.Step;
 import io.gravitee.am.model.flow.Type;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * Entity used for both create and update operation
@@ -30,13 +29,11 @@ import java.util.List;
 public class Flow {
 
     private String id;
-    @NotNull
-    private String name;
+    @NotNull private String name;
     private List<Step> pre;
     private List<Step> post;
     private boolean enabled = true;
-    @NotNull
-    private Type type;
+    @NotNull private Type type;
     private String condition;
 
     public String getId() {

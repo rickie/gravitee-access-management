@@ -1,19 +1,26 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.policy.enroll.mfa;
+
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import io.gravitee.am.common.factor.FactorDataKeys;
 import io.gravitee.am.common.factor.FactorType;
@@ -32,6 +39,7 @@ import io.gravitee.gateway.api.Request;
 import io.gravitee.gateway.api.Response;
 import io.gravitee.policy.api.PolicyChain;
 import io.reactivex.Single;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -42,38 +50,23 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.argThat;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class EnrollMfaPolicyTest {
 
-    @Mock
-    private ExecutionContext executionContext;
+    @Mock private ExecutionContext executionContext;
 
-    @Mock
-    private Request request;
+    @Mock private Request request;
 
-    @Mock
-    private Response response;
+    @Mock private Response response;
 
-    @Mock
-    private PolicyChain policyChain;
+    @Mock private PolicyChain policyChain;
 
-    @Mock
-    private EnrollMfaPolicyConfiguration configuration;
+    @Mock private EnrollMfaPolicyConfiguration configuration;
 
-    @Mock
-    private TemplateEngine templateEngine;
+    @Mock private TemplateEngine templateEngine;
 
     @Before
     public void init() {
@@ -114,7 +107,8 @@ public class EnrollMfaPolicyTest {
     public void shouldContinue_alreadyEnrolled() throws Exception {
         when(configuration.getFactorId()).thenReturn("factor-id");
         FactorManager factorManager = mock(FactorManager.class);
-        when(factorManager.getClientFactor(any(), eq("factor-id"))).thenReturn(Optional.of(new Factor()));
+        when(factorManager.getClientFactor(any(), eq("factor-id")))
+                .thenReturn(Optional.of(new Factor()));
         FactorProvider factorProvider = mock(FactorProvider.class);
         when(factorProvider.useVariableFactorSecurity()).thenReturn(false);
         when(factorManager.get(eq("factor-id"))).thenReturn(factorProvider);
@@ -147,7 +141,11 @@ public class EnrollMfaPolicyTest {
 
         executePolicy(configuration, request, response, executionContext, policyChain);
         verify(policyChain, times(1))
-                .failWith(argThat(result -> EnrollMfaPolicy.GATEWAY_POLICY_ENROLL_MFA_ERROR_KEY.equals(result.key())));
+                .failWith(
+                        argThat(
+                                result ->
+                                        EnrollMfaPolicy.GATEWAY_POLICY_ENROLL_MFA_ERROR_KEY.equals(
+                                                result.key())));
     }
 
     @Test
@@ -209,10 +207,19 @@ public class EnrollMfaPolicyTest {
 
         executePolicy(configuration, request, response, executionContext, policyChain);
         verify(policyChain, times(1)).doNext(request, response);
-        verify(userService).addFactor(anyString(), argThat(enrolledFactor -> {
-            final EnrolledFactorSecurity security = enrolledFactor.getSecurity();
-            return security != null && security.getAdditionalData() != null && security.getAdditionalData().containsKey(FactorDataKeys.KEY_MOVING_FACTOR);
-        }), any());
+        verify(userService)
+                .addFactor(
+                        anyString(),
+                        argThat(
+                                enrolledFactor -> {
+                                    final EnrolledFactorSecurity security =
+                                            enrolledFactor.getSecurity();
+                                    return security != null
+                                            && security.getAdditionalData() != null
+                                            && security.getAdditionalData()
+                                                    .containsKey(FactorDataKeys.KEY_MOVING_FACTOR);
+                                }),
+                        any());
     }
 
     @Test
@@ -235,7 +242,8 @@ public class EnrollMfaPolicyTest {
         when(user.getFactors()).thenReturn(Collections.emptyList());
         when(executionContext.getAttribute(ConstantKeys.USER_CONTEXT_KEY)).thenReturn(user);
         when(executionContext.getTemplateEngine()).thenReturn(templateEngine);
-        when(templateEngine.getValue(configuration.getValue(), String.class)).thenReturn("0102030405");
+        when(templateEngine.getValue(configuration.getValue(), String.class))
+                .thenReturn("0102030405");
 
         UserService userService = mock(UserService.class);
         when(userService.addFactor(anyString(), any(), any())).thenReturn(Single.just(new User()));
@@ -250,13 +258,13 @@ public class EnrollMfaPolicyTest {
             Request request,
             Response response,
             ExecutionContext executionContext,
-            PolicyChain policyChain
-    ) throws InterruptedException {
+            PolicyChain policyChain)
+            throws InterruptedException {
         final CountDownLatch lock = new CountDownLatch(1);
 
-        new EnrollMfaPolicy(configuration).onRequest(request, response, executionContext, policyChain);
+        new EnrollMfaPolicy(configuration)
+                .onRequest(request, response, executionContext, policyChain);
 
         lock.await(50, TimeUnit.MILLISECONDS);
     }
-
 }

@@ -1,19 +1,22 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.validators;
+
+import static io.gravitee.am.service.validators.email.EmailValidatorImpl.EMAIL_PATTERN;
+import static io.gravitee.am.service.validators.user.UserValidatorImpl.*;
+
+import static org.junit.Assert.*;
 
 import io.gravitee.am.model.User;
 import io.gravitee.am.service.exception.EmailFormatInvalidException;
@@ -21,11 +24,8 @@ import io.gravitee.am.service.exception.InvalidUserException;
 import io.gravitee.am.service.validators.email.EmailValidatorImpl;
 import io.gravitee.am.service.validators.user.UserValidator;
 import io.gravitee.am.service.validators.user.UserValidatorImpl;
-import org.junit.Test;
 
-import static io.gravitee.am.service.validators.email.EmailValidatorImpl.EMAIL_PATTERN;
-import static io.gravitee.am.service.validators.user.UserValidatorImpl.*;
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -33,12 +33,12 @@ import static org.junit.Assert.*;
  */
 public class UserValidatorTest {
 
-    private final UserValidator userValidator = new UserValidatorImpl(
-            NAME_STRICT_PATTERN,
-            NAME_LAX_PATTERN,
-            USERNAME_PATTERN,
-            new EmailValidatorImpl(EMAIL_PATTERN)
-    );
+    private final UserValidator userValidator =
+            new UserValidatorImpl(
+                    NAME_STRICT_PATTERN,
+                    NAME_LAX_PATTERN,
+                    USERNAME_PATTERN,
+                    new EmailValidatorImpl(EMAIL_PATTERN));
 
     @Test
     public void validate() {

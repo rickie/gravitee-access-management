@@ -1,21 +1,24 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.policy.impl;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
+import static java.util.Objects.nonNull;
+
 import com.google.common.base.Throwables;
+
 import io.gravitee.am.gateway.core.processor.AbstractProcessor;
 import io.gravitee.am.gateway.policy.Policy;
 import io.gravitee.am.gateway.policy.PolicyChainException;
@@ -26,20 +29,20 @@ import io.gravitee.gateway.api.ExecutionContext;
 import io.gravitee.gateway.api.Request;
 import io.gravitee.gateway.api.Response;
 import io.gravitee.policy.api.PolicyResult;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Objects.nonNull;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class PolicyChain extends AbstractProcessor<ExecutionContext> implements io.gravitee.policy.api.PolicyChain {
+public class PolicyChain extends AbstractProcessor<ExecutionContext>
+        implements io.gravitee.policy.api.PolicyChain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PolicyChain.class);
     private static final String GATEWAY_POLICY_INTERNAL_ERROR_KEY = "GATEWAY_POLICY_INTERNAL_ERROR";
@@ -76,18 +79,24 @@ public class PolicyChain extends AbstractProcessor<ExecutionContext> implements 
                     doNext(executionContext.request(), executionContext.response());
                 }
             } catch (Exception ex) {
-                final String message = "An error occurs in policy[" + policy.id() + "] error[" + Throwables.getStackTraceAsString(ex) + "]";
+                final String message =
+                        "An error occurs in policy["
+                                + policy.id()
+                                + "] error["
+                                + Throwables.getStackTraceAsString(ex)
+                                + "]";
                 LOGGER.error(message);
                 request.metrics().setMessage(message);
                 if (errorHandler != null) {
-                    errorHandler.handle(new PolicyChainProcessorFailure(PolicyResult.failure(
-                            GATEWAY_POLICY_INTERNAL_ERROR_KEY, ex.getMessage())));
+                    errorHandler.handle(
+                            new PolicyChainProcessorFailure(
+                                    PolicyResult.failure(
+                                            GATEWAY_POLICY_INTERNAL_ERROR_KEY, ex.getMessage())));
                 }
             }
         } else {
             next.handle(executionContext);
         }
-
     }
 
     private boolean isRunnable(Policy policy) {
@@ -102,7 +111,8 @@ public class PolicyChain extends AbstractProcessor<ExecutionContext> implements 
 
         final TemplateEngine templateEngine = executionContext.getTemplateEngine();
         try {
-            return nonNull(templateEngine) && templateEngine.getValue(condition.trim(), Boolean.class);
+            return nonNull(templateEngine)
+                    && templateEngine.getValue(condition.trim(), Boolean.class);
         } catch (Exception e) {
             LOGGER.warn("Could not execute rule [{}] for policy [{}]", condition, policy.id(), e);
             return false;

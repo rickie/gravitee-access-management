@@ -1,19 +1,29 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.service.token;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.oauth2.TokenTypeHint;
@@ -41,6 +51,7 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -53,18 +64,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -72,32 +71,23 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class TokenServiceTest {
 
-    @InjectMocks
-    private TokenService tokenService = new TokenServiceImpl();
+    @InjectMocks private TokenService tokenService = new TokenServiceImpl();
 
-    @Mock
-    private AccessTokenRepository accessTokenRepository;
+    @Mock private AccessTokenRepository accessTokenRepository;
 
-    @Mock
-    private RefreshTokenRepository refreshTokenRepository;
+    @Mock private RefreshTokenRepository refreshTokenRepository;
 
-    @Mock
-    private TokenEnhancer tokenEnhancer;
+    @Mock private TokenEnhancer tokenEnhancer;
 
-    @Mock
-    private JWTService jwtService;
+    @Mock private JWTService jwtService;
 
-    @Mock
-    private ClientSyncService clientSyncService;
+    @Mock private ClientSyncService clientSyncService;
 
-    @Mock
-    private OpenIDDiscoveryService openIDDiscoveryService;
+    @Mock private OpenIDDiscoveryService openIDDiscoveryService;
 
-    @Mock
-    private ExecutionContextFactory executionContextFactory;
+    @Mock private ExecutionContextFactory executionContextFactory;
 
-    @Mock
-    private TokenManager tokenManager;
+    @Mock private TokenManager tokenManager;
 
     @Test
     public void shouldCreate() {
@@ -109,7 +99,8 @@ public class TokenServiceTest {
         ExecutionContext executionContext = mock(ExecutionContext.class);
 
         when(jwtService.encode(any(), any(Client.class))).thenReturn(Single.just(""));
-        when(tokenEnhancer.enhance(any(), any(), any(), any(), any())).thenReturn(Single.just(new AccessToken("token-id")));
+        when(tokenEnhancer.enhance(any(), any(), any(), any(), any()))
+                .thenReturn(Single.just(new AccessToken("token-id")));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
         doReturn(Completable.complete()).when(tokenManager).storeAccessToken(any());
         TestObserver<Token> testObserver = tokenService.create(oAuth2Request, client, null).test();
@@ -131,9 +122,12 @@ public class TokenServiceTest {
         ExecutionContext executionContext = mock(ExecutionContext.class);
 
         when(jwtService.encode(any(), any(Client.class))).thenReturn(Single.just(""));
-        when(tokenEnhancer.enhance(any(), any(), any(), any(), any())).thenReturn(Single.just(new AccessToken("token-id")));
+        when(tokenEnhancer.enhance(any(), any(), any(), any(), any()))
+                .thenReturn(Single.just(new AccessToken("token-id")));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
-        doReturn(Completable.error(new TechnicalException())).when(tokenManager).storeAccessToken(any());
+        doReturn(Completable.error(new TechnicalException()))
+                .when(tokenManager)
+                .storeAccessToken(any());
 
         TestObserver<Token> testObserver = tokenService.create(oAuth2Request, client, null).test();
         testObserver.awaitTerminalEvent();
@@ -147,7 +141,8 @@ public class TokenServiceTest {
     @Test
     public void shouldCreateWithPermissions() {
         OAuth2Request oAuth2Request = new OAuth2Request();
-        oAuth2Request.setPermissions(Arrays.asList(new PermissionRequest().setResourceId("rs_one")));
+        oAuth2Request.setPermissions(
+                Arrays.asList(new PermissionRequest().setResourceId("rs_one")));
 
         Client client = new Client();
         client.setClientId("my-client-id");
@@ -156,7 +151,8 @@ public class TokenServiceTest {
 
         ArgumentCaptor<JWT> jwtCaptor = ArgumentCaptor.forClass(JWT.class);
         when(jwtService.encode(jwtCaptor.capture(), any(Client.class))).thenReturn(Single.just(""));
-        when(tokenEnhancer.enhance(any(), any(), any(), any(), any())).thenReturn(Single.just(new AccessToken("token-id")));
+        when(tokenEnhancer.enhance(any(), any(), any(), any(), any()))
+                .thenReturn(Single.just(new AccessToken("token-id")));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
         doReturn(Completable.complete()).when(tokenManager).storeAccessToken(any());
         TestObserver<Token> testObserver = tokenService.create(oAuth2Request, client, null).test();
@@ -164,7 +160,7 @@ public class TokenServiceTest {
         testObserver.assertNoErrors();
 
         JWT jwt = jwtCaptor.getValue();
-        assertTrue(jwt!=null && jwt.get("permissions")!=null);
+        assertTrue(jwt != null && jwt.get("permissions") != null);
         verify(tokenManager, times(1)).storeAccessToken(any());
         verify(accessTokenRepository, never()).delete(anyString());
         verify(refreshTokenRepository, never()).delete(anyString());
@@ -173,7 +169,9 @@ public class TokenServiceTest {
     @Test
     public void shouldCreateWithCustomClaims() {
         OAuth2Request oAuth2Request = new OAuth2Request();
-        oAuth2Request.getContext().put(ConstantKeys.AUTH_FLOW_CONTEXT_ATTRIBUTES_KEY, new HashMap<>());
+        oAuth2Request
+                .getContext()
+                .put(ConstantKeys.AUTH_FLOW_CONTEXT_ATTRIBUTES_KEY, new HashMap<>());
 
         TokenClaim customClaim = new TokenClaim();
         customClaim.setTokenType(TokenTypeHint.ACCESS_TOKEN);
@@ -191,13 +189,15 @@ public class TokenServiceTest {
 
         ReactableExecutionContext executionContext = mock(ReactableExecutionContext.class);
         TemplateEngine templateEngine = mock(TemplateEngine.class);
-        when(templateEngine.getValue("https://custom-iss", Object.class)).thenReturn("https://custom-iss");
+        when(templateEngine.getValue("https://custom-iss", Object.class))
+                .thenReturn("https://custom-iss");
         when(templateEngine.getValue("my-api", Object.class)).thenReturn("my-api");
         when(executionContext.getTemplateEngine()).thenReturn(templateEngine);
 
         ArgumentCaptor<JWT> jwtCaptor = ArgumentCaptor.forClass(JWT.class);
         when(jwtService.encode(jwtCaptor.capture(), any(Client.class))).thenReturn(Single.just(""));
-        when(tokenEnhancer.enhance(any(), any(), any(), any(), any())).thenReturn(Single.just(new AccessToken("token-id")));
+        when(tokenEnhancer.enhance(any(), any(), any(), any(), any()))
+                .thenReturn(Single.just(new AccessToken("token-id")));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
         doReturn(Completable.complete()).when(tokenManager).storeAccessToken(any());
 
@@ -212,7 +212,8 @@ public class TokenServiceTest {
         verify(tokenManager, times(1)).storeAccessToken(any());
         verify(accessTokenRepository, never()).delete(anyString());
         verify(refreshTokenRepository, never()).delete(anyString());
-        verify(executionContext).setAttribute(eq(ConstantKeys.AUTH_FLOW_CONTEXT_ATTRIBUTES_KEY), any());
+        verify(executionContext)
+                .setAttribute(eq(ConstantKeys.AUTH_FLOW_CONTEXT_ATTRIBUTES_KEY), any());
     }
 
     @Test
@@ -241,7 +242,8 @@ public class TokenServiceTest {
         when(refreshTokenRepository.findByToken(any())).thenReturn(Maybe.just(refreshToken));
         when(refreshTokenRepository.delete(anyString())).thenReturn(Completable.complete());
 
-        TestObserver<Token> testObserver = tokenService.refresh(refreshToken.getToken(), tokenRequest, client).test();
+        TestObserver<Token> testObserver =
+                tokenService.refresh(refreshToken.getToken(), tokenRequest, client).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
@@ -270,21 +272,31 @@ public class TokenServiceTest {
         jwt.setJti(token);
         jwt.setAud(clientId);
         jwt.setExp(refreshToken.getExpireAt().getTime() / 1000l);
-        jwt.put("permissions", Arrays.asList(new PermissionRequest().setResourceId("one").setResourceScopes(Arrays.asList("A"))));
+        jwt.put(
+                "permissions",
+                Arrays.asList(
+                        new PermissionRequest()
+                                .setResourceId("one")
+                                .setResourceScopes(Arrays.asList("A"))));
 
         when(jwtService.decodeAndVerify(any(), any(Client.class))).thenReturn(Single.just(jwt));
         when(refreshTokenRepository.findByToken(any())).thenReturn(Maybe.just(refreshToken));
         when(refreshTokenRepository.delete(anyString())).thenReturn(Completable.complete());
 
-        TestObserver<Token> testObserver = tokenService.refresh(refreshToken.getToken(), tokenRequest, client).test();
+        TestObserver<Token> testObserver =
+                tokenService.refresh(refreshToken.getToken(), tokenRequest, client).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        //Check permissions are well available into the refresh_token object.
-        testObserver.assertValue(token1 -> token1.getAdditionalInformation().get("permissions")!=null);
-        //Check TokenRequest permissions field is well filled (will be used to propagate the permission into the final access_token)
+        // Check permissions are well available into the refresh_token object.
+        testObserver.assertValue(
+                token1 -> token1.getAdditionalInformation().get("permissions") != null);
+        // Check TokenRequest permissions field is well filled (will be used to propagate the
+        // permission into the final access_token)
         List<PermissionRequest> permissions = tokenRequest.getPermissions();
         assertNotNull(permissions);
-        assertTrue("one".equals(permissions.get(0).getResourceId()) && "A".equals(permissions.get(0).getResourceScopes().get(0)));
+        assertTrue(
+                "one".equals(permissions.get(0).getResourceId())
+                        && "A".equals(permissions.get(0).getResourceScopes().get(0)));
         verify(refreshTokenRepository, times(1)).findByToken(any());
         verify(refreshTokenRepository, times(1)).delete(anyString());
     }
@@ -309,10 +321,12 @@ public class TokenServiceTest {
         jwt.setAud(clientId);
         jwt.setExp(refreshToken.getExpireAt().getTime() / 1000l);
 
-        when(jwtService.decodeAndVerify(eq("encoded"), any(Client.class))).thenReturn(Single.just(jwt));
+        when(jwtService.decodeAndVerify(eq("encoded"), any(Client.class)))
+                .thenReturn(Single.just(jwt));
         when(refreshTokenRepository.findByToken(any())).thenReturn(Maybe.empty());
 
-        TestObserver<Token> testObserver = tokenService.refresh("encoded", tokenRequest, client).test();
+        TestObserver<Token> testObserver =
+                tokenService.refresh("encoded", tokenRequest, client).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidGrantException.class);
 
@@ -341,10 +355,12 @@ public class TokenServiceTest {
         jwt.setAud(clientId);
         jwt.setExp(refreshToken.getExpireAt().getTime() / 1000l);
 
-        when(jwtService.decodeAndVerify(eq(refreshToken.getToken()), any(Client.class))).thenReturn(Single.just(jwt));
+        when(jwtService.decodeAndVerify(eq(refreshToken.getToken()), any(Client.class)))
+                .thenReturn(Single.just(jwt));
         when(refreshTokenRepository.findByToken(any())).thenReturn(Maybe.just(refreshToken));
 
-        TestObserver<Token> testObserver = tokenService.refresh(refreshToken.getToken(), tokenRequest, client).test();
+        TestObserver<Token> testObserver =
+                tokenService.refresh(refreshToken.getToken(), tokenRequest, client).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidGrantException.class);
 
@@ -376,7 +392,8 @@ public class TokenServiceTest {
         when(jwtService.decodeAndVerify(any(), any(Client.class))).thenReturn(Single.just(jwt));
         when(refreshTokenRepository.findByToken(any())).thenReturn(Maybe.just(refreshToken));
 
-        TestObserver<Token> testObserver = tokenService.refresh(refreshToken.getToken(), tokenRequest, client).test();
+        TestObserver<Token> testObserver =
+                tokenService.refresh(refreshToken.getToken(), tokenRequest, client).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidGrantException.class);
 
@@ -411,7 +428,8 @@ public class TokenServiceTest {
         when(jwtService.decodeAndVerify(any(), any(Client.class))).thenReturn(Single.just(jwt));
         when(refreshTokenRepository.findByToken(any())).thenReturn(Maybe.just(refreshToken));
 
-        TestObserver<Token> testObserver = tokenService.refresh(refreshToken.getToken(), tokenRequest, client).test();
+        TestObserver<Token> testObserver =
+                tokenService.refresh(refreshToken.getToken(), tokenRequest, client).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 

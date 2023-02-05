@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.service.request;
@@ -31,34 +29,25 @@ public class AuthorizationRequest extends OAuth2Request {
     /**
      * RECOMMENDED
      *
-     * An opaque value used by the client to maintain
-     * state between the request and callback.  The authorization
-     * server includes this value when redirecting the user-agent back
-     * to the client.  The parameter SHOULD be used for preventing
-     * cross-site request forgery as described in Section 10.12.
+     * <p>An opaque value used by the client to maintain state between the request and callback. The
+     * authorization server includes this value when redirecting the user-agent back to the client.
+     * The parameter SHOULD be used for preventing cross-site request forgery as described in
+     * Section 10.12.
      *
-     * See <a href="https://tools.ietf.org/html/rfc6749#section-10.12"></a>
+     * <p>See <a href="https://tools.ietf.org/html/rfc6749#section-10.12"></a>
      */
     private String state;
 
-    /**
-     * Indicates if the authorization request has been approved by the end-user (user consent)
-     */
+    /** Indicates if the authorization request has been approved by the end-user (user consent) */
     private boolean approved;
 
-    /**
-     * OAuth 2.0 Authorization Response
-     */
+    /** OAuth 2.0 Authorization Response */
     private AuthorizationResponse response;
 
-    /**
-     * OpenID Connect Prompt values
-     */
+    /** OpenID Connect Prompt values */
     private Set<String> prompts;
 
-    /**
-     * User consents if any
-     */
+    /** User consents if any */
     private List<ScopeApproval> consents;
 
     private String responseMode;

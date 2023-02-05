@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
@@ -39,6 +37,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.validation.Valid;
@@ -57,35 +56,34 @@ import javax.ws.rs.core.Response;
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public class UserResource extends AbstractResource {
 
-    @Context
-    private ResourceContext resourceContext;
+    @Context private ResourceContext resourceContext;
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
-    @Autowired
-    private DomainService domainService;
+    @Autowired private DomainService domainService;
 
-    @Autowired
-    private IdentityProviderServiceProxy identityProviderService;
+    @Autowired private IdentityProviderServiceProxy identityProviderService;
 
-    @Autowired
-    private ApplicationService applicationService;
+    @Autowired private ApplicationService applicationService;
 
-    @Autowired
-    private IdentityProviderManager identityProviderManager;
+    @Autowired private IdentityProviderManager identityProviderManager;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(
             nickname = "findUser",
             value = "Get a user",
-            notes = "User must have the DOMAIN_USER[READ] permission on the specified domain " +
-                    "or DOMAIN_USER[READ] permission on the specified environment " +
-                    "or DOMAIN_USER[READ] permission on the specified organization")
+            notes =
+                    "User must have the DOMAIN_USER[READ] permission on the specified domain "
+                            + "or DOMAIN_USER[READ] permission on the specified environment "
+                            + "or DOMAIN_USER[READ] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "User successfully fetched", response = UserEntity.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(
+                code = 200,
+                message = "User successfully fetched",
+                response = UserEntity.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void get(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -94,20 +92,25 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
 
         checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)
-                .andThen(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMap(irrelevant -> userService.findById(user))
-                        .switchIfEmpty(Maybe.error(new UserNotFoundException(user)))
-                        .flatMap(user1 -> {
-                            if (user1.getReferenceType() == ReferenceType.DOMAIN
-                                    && !user1.getReferenceId().equalsIgnoreCase(domain)) {
-                                throw new BadRequestException("User does not belong to domain");
-                            }
+                .andThen(
+                        domainService
+                                .findById(domain)
+                                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
+                                .flatMap(irrelevant -> userService.findById(user))
+                                .switchIfEmpty(Maybe.error(new UserNotFoundException(user)))
+                                .flatMap(
+                                        user1 -> {
+                                            if (user1.getReferenceType() == ReferenceType.DOMAIN
+                                                    && !user1.getReferenceId()
+                                                            .equalsIgnoreCase(domain)) {
+                                                throw new BadRequestException(
+                                                        "User does not belong to domain");
+                                            }
 
-                            return Maybe.just(new UserEntity(user1));
-                        })
-                        .flatMap(this::enhanceIdentityProvider)
-                        .flatMap(this::enhanceClient))
+                                            return Maybe.just(new UserEntity(user1));
+                                        })
+                                .flatMap(this::enhanceIdentityProvider)
+                                .flatMap(this::enhanceClient))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -117,12 +120,14 @@ public class UserResource extends AbstractResource {
     @ApiOperation(
             nickname = "updateUser",
             value = "Update a user",
-            notes = "User must have the DOMAIN_USER[UPDATE] permission on the specified domain " +
-                    "or DOMAIN_USER[UPDATE] permission on the specified environment " +
-                    "or DOMAIN_USER[UPDATE] permission on the specified organization")
+            notes =
+                    "User must have the DOMAIN_USER[UPDATE] permission on the specified domain "
+                            + "or DOMAIN_USER[UPDATE] permission on the specified environment "
+                            + "or DOMAIN_USER[UPDATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 201, message = "User successfully updated", response = User.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 201, message = "User successfully updated", response = User.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void updateUser(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -132,10 +137,20 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)
-                .andThen(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(irrelevant -> userService.update(ReferenceType.DOMAIN, domain, user, updateUser, authenticatedUser)))
+        checkAnyPermission(
+                        organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)
+                .andThen(
+                        domainService
+                                .findById(domain)
+                                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
+                                .flatMapSingle(
+                                        irrelevant ->
+                                                userService.update(
+                                                        ReferenceType.DOMAIN,
+                                                        domain,
+                                                        user,
+                                                        updateUser,
+                                                        authenticatedUser)))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -146,12 +161,17 @@ public class UserResource extends AbstractResource {
     @ApiOperation(
             nickname = "updateUserStatus",
             value = "Update a user status",
-            notes = "User must have the DOMAIN_USER[UPDATE] permission on the specified domain " +
-                    "or DOMAIN_USER[UPDATE] permission on the specified environment " +
-                    "or DOMAIN_USER[UPDATE] permission on the specified organization")
+            notes =
+                    "User must have the DOMAIN_USER[UPDATE] permission on the specified domain "
+                            + "or DOMAIN_USER[UPDATE] permission on the specified environment "
+                            + "or DOMAIN_USER[UPDATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 201, message = "User status successfully updated", response = User.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(
+                code = 201,
+                message = "User status successfully updated",
+                response = User.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void updateUserStatus(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -161,10 +181,20 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)
-                .andThen(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(irrelevant -> userService.updateStatus(ReferenceType.DOMAIN, domain, user, status.isEnabled(), authenticatedUser)))
+        checkAnyPermission(
+                        organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)
+                .andThen(
+                        domainService
+                                .findById(domain)
+                                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
+                                .flatMapSingle(
+                                        irrelevant ->
+                                                userService.updateStatus(
+                                                        ReferenceType.DOMAIN,
+                                                        domain,
+                                                        user,
+                                                        status.isEnabled(),
+                                                        authenticatedUser)))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -175,12 +205,17 @@ public class UserResource extends AbstractResource {
     @ApiOperation(
             nickname = "updateUsername",
             value = "Update a user username",
-            notes = "User must have the DOMAIN_USER[UPDATE] permission on the specified domain " +
-                    "or DOMAIN_USER[UPDATE] permission on the specified environment " +
-                    "or DOMAIN_USER[UPDATE] permission on the specified organization")
+            notes =
+                    "User must have the DOMAIN_USER[UPDATE] permission on the specified domain "
+                            + "or DOMAIN_USER[UPDATE] permission on the specified environment "
+                            + "or DOMAIN_USER[UPDATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 201, message = "User username successfully updated", response = User.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(
+                code = 201,
+                message = "User username successfully updated",
+                response = User.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void updateUsername(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -190,10 +225,20 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)
-                .andThen(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(irrelevant -> userService.updateUsername(ReferenceType.DOMAIN, domain, userId, username.getUsername(), authenticatedUser)))
+        checkAnyPermission(
+                        organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)
+                .andThen(
+                        domainService
+                                .findById(domain)
+                                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
+                                .flatMapSingle(
+                                        irrelevant ->
+                                                userService.updateUsername(
+                                                        ReferenceType.DOMAIN,
+                                                        domain,
+                                                        userId,
+                                                        username.getUsername(),
+                                                        authenticatedUser)))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -201,12 +246,14 @@ public class UserResource extends AbstractResource {
     @ApiOperation(
             nickname = "deleteUser",
             value = "Delete a user",
-            notes = "User must have the DOMAIN_USER[DELETE] permission on the specified domain " +
-                    "or DOMAIN_USER[DELETE] permission on the specified environment " +
-                    "or DOMAIN_USER[DELETE] permission on the specified organization")
+            notes =
+                    "User must have the DOMAIN_USER[DELETE] permission on the specified domain "
+                            + "or DOMAIN_USER[DELETE] permission on the specified environment "
+                            + "or DOMAIN_USER[DELETE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 204, message = "User successfully deleted"),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 204, message = "User successfully deleted"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void delete(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -215,10 +262,19 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.DELETE)
-                .andThen(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapCompletable(irrelevant -> userService.delete(ReferenceType.DOMAIN, domain, user, authenticatedUser)))
+        checkAnyPermission(
+                        organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.DELETE)
+                .andThen(
+                        domainService
+                                .findById(domain)
+                                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
+                                .flatMapCompletable(
+                                        irrelevant ->
+                                                userService.delete(
+                                                        ReferenceType.DOMAIN,
+                                                        domain,
+                                                        user,
+                                                        authenticatedUser)))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 
@@ -227,12 +283,14 @@ public class UserResource extends AbstractResource {
     @ApiOperation(
             nickname = "resetPassword",
             value = "Reset password",
-            notes = "User must have the DOMAIN_USER[UPDATE] permission on the specified domain " +
-                    "or DOMAIN_USER[UPDATE] permission on the specified environment " +
-                    "or DOMAIN_USER[UPDATE] permission on the specified organization")
+            notes =
+                    "User must have the DOMAIN_USER[UPDATE] permission on the specified domain "
+                            + "or DOMAIN_USER[UPDATE] permission on the specified environment "
+                            + "or DOMAIN_USER[UPDATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Password reset"),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 200, message = "Password reset"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void resetPassword(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -242,12 +300,20 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN_USER, Acl.UPDATE)
-                .andThen(domainService.findById(domainId)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domainId)))
-                        .flatMapCompletable(domain -> userService.resetPassword(domain, user, password.getPassword(), authenticatedUser)))
+        checkAnyPermission(
+                        organizationId, environmentId, domainId, Permission.DOMAIN_USER, Acl.UPDATE)
+                .andThen(
+                        domainService
+                                .findById(domainId)
+                                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domainId)))
+                                .flatMapCompletable(
+                                        domain ->
+                                                userService.resetPassword(
+                                                        domain,
+                                                        user,
+                                                        password.getPassword(),
+                                                        authenticatedUser)))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
-
     }
 
     @POST
@@ -255,12 +321,14 @@ public class UserResource extends AbstractResource {
     @ApiOperation(
             nickname = "sendRegistrationConfirmation",
             value = "Send registration confirmation email",
-            notes = "User must have the DOMAIN_USER[UPDATE] permission on the specified domain " +
-                    "or DOMAIN_USER[UPDATE] permission on the specified environment " +
-                    "or DOMAIN_USER[UPDATE] permission on the specified organization")
+            notes =
+                    "User must have the DOMAIN_USER[UPDATE] permission on the specified domain "
+                            + "or DOMAIN_USER[UPDATE] permission on the specified environment "
+                            + "or DOMAIN_USER[UPDATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Email sent"),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 200, message = "Email sent"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void sendRegistrationConfirmation(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -269,7 +337,8 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)
+        checkAnyPermission(
+                        organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)
                 .andThen(userService.sendRegistrationConfirmation(domain, user, authenticatedUser))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
@@ -279,12 +348,14 @@ public class UserResource extends AbstractResource {
     @ApiOperation(
             nickname = "lockUser",
             value = "Lock a user",
-            notes = "User must have the DOMAIN_USER[UPDATE] permission on the specified domain " +
-                    "or DOMAIN_USER[UPDATE] permission on the specified environment " +
-                    "or DOMAIN_USER[UPDATE] permission on the specified organization")
+            notes =
+                    "User must have the DOMAIN_USER[UPDATE] permission on the specified domain "
+                            + "or DOMAIN_USER[UPDATE] permission on the specified environment "
+                            + "or DOMAIN_USER[UPDATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 204, message = "User locked"),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 204, message = "User locked"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void lockUser(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -293,10 +364,19 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)
-                .andThen(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapCompletable(irrelevant -> userService.lock(ReferenceType.DOMAIN, domain, user, authenticatedUser)))
+        checkAnyPermission(
+                        organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)
+                .andThen(
+                        domainService
+                                .findById(domain)
+                                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
+                                .flatMapCompletable(
+                                        irrelevant ->
+                                                userService.lock(
+                                                        ReferenceType.DOMAIN,
+                                                        domain,
+                                                        user,
+                                                        authenticatedUser)))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 
@@ -305,12 +385,14 @@ public class UserResource extends AbstractResource {
     @ApiOperation(
             nickname = "unlockUser",
             value = "Unlock a user",
-            notes = "User must have the DOMAIN_USER[UPDATE] permission on the specified domain " +
-                    "or DOMAIN_USER[UPDATE] permission on the specified environment " +
-                    "or DOMAIN_USER[UPDATE] permission on the specified organization")
+            notes =
+                    "User must have the DOMAIN_USER[UPDATE] permission on the specified domain "
+                            + "or DOMAIN_USER[UPDATE] permission on the specified environment "
+                            + "or DOMAIN_USER[UPDATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 204, message = "User unlocked"),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 204, message = "User unlocked"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void unlockUser(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -319,10 +401,19 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)
-                .andThen(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapCompletable(irrelevant -> userService.unlock(ReferenceType.DOMAIN, domain, user, authenticatedUser)))
+        checkAnyPermission(
+                        organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)
+                .andThen(
+                        domainService
+                                .findById(domain)
+                                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
+                                .flatMapCompletable(
+                                        irrelevant ->
+                                                userService.unlock(
+                                                        ReferenceType.DOMAIN,
+                                                        domain,
+                                                        user,
+                                                        authenticatedUser)))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 
@@ -358,18 +449,24 @@ public class UserResource extends AbstractResource {
 
     private Maybe<UserEntity> enhanceIdentityProvider(UserEntity userEntity) {
         if (userEntity.getSource() != null) {
-            return identityProviderService.findById(userEntity.getSource())
-                    .flatMap(idP -> {
-                        userEntity.setSource(idP.getName());
-                        userEntity.setInternal(false);
-                        // try to load the UserProvider to mark the user as internal or not
-                        // Since Github issue #8695, the UserProvider maybe disabled for MongoDB & JDBC implementation
-                        return identityProviderManager.getUserProvider(userEntity.getSourceId())
-                                .map(up -> {
-                                    userEntity.setInternal(true);
-                                    return userEntity;
-                                }).defaultIfEmpty(userEntity);
-                    })
+            return identityProviderService
+                    .findById(userEntity.getSource())
+                    .flatMap(
+                            idP -> {
+                                userEntity.setSource(idP.getName());
+                                userEntity.setInternal(false);
+                                // try to load the UserProvider to mark the user as internal or not
+                                // Since Github issue #8695, the UserProvider maybe disabled for
+                                // MongoDB & JDBC implementation
+                                return identityProviderManager
+                                        .getUserProvider(userEntity.getSourceId())
+                                        .map(
+                                                up -> {
+                                                    userEntity.setInternal(true);
+                                                    return userEntity;
+                                                })
+                                        .defaultIfEmpty(userEntity);
+                            })
                     .defaultIfEmpty(userEntity);
         }
         return Maybe.just(userEntity);
@@ -377,12 +474,19 @@ public class UserResource extends AbstractResource {
 
     private Maybe<UserEntity> enhanceClient(UserEntity userEntity) {
         if (userEntity.getClient() != null) {
-            return applicationService.findById(userEntity.getClient())
-                    .switchIfEmpty(Maybe.defer(() -> applicationService.findByDomainAndClientId(userEntity.getReferenceId(), userEntity.getClient())))
-                    .map(application -> {
-                        userEntity.setApplicationEntity(new ApplicationEntity(application));
-                        return userEntity;
-                    })
+            return applicationService
+                    .findById(userEntity.getClient())
+                    .switchIfEmpty(
+                            Maybe.defer(
+                                    () ->
+                                            applicationService.findByDomainAndClientId(
+                                                    userEntity.getReferenceId(),
+                                                    userEntity.getClient())))
+                    .map(
+                            application -> {
+                                userEntity.setApplicationEntity(new ApplicationEntity(application));
+                                return userEntity;
+                            })
                     .defaultIfEmpty(userEntity);
         }
         return Maybe.just(userEntity);

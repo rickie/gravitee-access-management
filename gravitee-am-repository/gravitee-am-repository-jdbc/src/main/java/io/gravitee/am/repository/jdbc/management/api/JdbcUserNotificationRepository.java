@@ -1,19 +1,22 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.management.api;
+
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.Query.query;
+
+import static reactor.adapter.rxjava.RxJava2Adapter.*;
 
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.notification.UserNotification;
@@ -25,22 +28,20 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.Query.query;
-import static reactor.adapter.rxjava.RxJava2Adapter.*;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Repository
-public class JdbcUserNotificationRepository extends AbstractJdbcRepository implements UserNotificationRepository {
+public class JdbcUserNotificationRepository extends AbstractJdbcRepository
+        implements UserNotificationRepository {
 
     public static final String COL_ID = "id";
     public static final String COL_TYPE = "type";
@@ -60,9 +61,11 @@ public class JdbcUserNotificationRepository extends AbstractJdbcRepository imple
     @Override
     public Maybe<UserNotification> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return monoToMaybe(this.template.select(JdbcUserNotification.class)
-                .matching(query(where(COL_ID).is(id)))
-                .first())
+        return monoToMaybe(
+                        this.template
+                                .select(JdbcUserNotification.class)
+                                .matching(query(where(COL_ID).is(id)))
+                                .first())
                 .map(this::toEntity);
     }
 
@@ -84,25 +87,42 @@ public class JdbcUserNotificationRepository extends AbstractJdbcRepository imple
     @Override
     public Completable delete(String id) {
         LOGGER.debug("delete({})", id);
-        return monoToCompletable(this.template.delete(JdbcUserNotification.class).matching(query(where(COL_ID).is(id))).all());
+        return monoToCompletable(
+                this.template
+                        .delete(JdbcUserNotification.class)
+                        .matching(query(where(COL_ID).is(id)))
+                        .all());
     }
 
     @Override
-    public Flowable<UserNotification> findAllByAudienceAndStatus(String audience, UserNotificationStatus status) {
+    public Flowable<UserNotification> findAllByAudienceAndStatus(
+            String audience, UserNotificationStatus status) {
         LOGGER.debug("findAllByAudienceAndStatus({}, {})", audience, status);
-        return fluxToFlowable(template.select(JdbcUserNotification.class).matching(query(
-                where(COL_AUDIENCE).is(audience)
-                        .and(where(COL_STATUS).is(status.name())))
-                        .sort(Sort.by(COL_CREATED_AT))
-                        .limit(NOTIFICATION_LIMIT))
-                .all()).map(this::toEntity);
+        return fluxToFlowable(
+                        template.select(JdbcUserNotification.class)
+                                .matching(
+                                        query(
+                                                        where(COL_AUDIENCE)
+                                                                .is(audience)
+                                                                .and(
+                                                                        where(COL_STATUS)
+                                                                                .is(status.name())))
+                                                .sort(Sort.by(COL_CREATED_AT))
+                                                .limit(NOTIFICATION_LIMIT))
+                                .all())
+                .map(this::toEntity);
     }
 
     @Override
     public Completable updateNotificationStatus(String id, UserNotificationStatus status) {
-        return monoToCompletable(template.getDatabaseClient().sql("UPDATE user_notifications SET updated_at = :update, status = :status WHERE id = :id")
-                .bind("update", LocalDateTime.now(ZoneOffset.UTC))
-                .bind("status", status.name())
-                .bind("id", id).fetch().rowsUpdated());
+        return monoToCompletable(
+                template.getDatabaseClient()
+                        .sql(
+                                "UPDATE user_notifications SET updated_at = :update, status = :status WHERE id = :id")
+                        .bind("update", LocalDateTime.now(ZoneOffset.UTC))
+                        .bind("status", status.name())
+                        .bind("id", id)
+                        .fetch()
+                        .rowsUpdated());
     }
 }

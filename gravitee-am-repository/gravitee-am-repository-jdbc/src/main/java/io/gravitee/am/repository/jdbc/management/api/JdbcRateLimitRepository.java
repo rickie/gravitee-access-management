@@ -1,19 +1,23 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.management.api;
+
+import static org.springframework.data.relational.core.query.Criteria.where;
+
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToCompletable;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToMaybe;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.RateLimit;
@@ -27,17 +31,13 @@ import io.gravitee.am.repository.management.api.search.RateLimitCriteria;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Repository;
-
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToCompletable;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToMaybe;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
 /**
  * @author Ashraful Hasan (ashraful.hasan at graviteesource.com)
@@ -46,24 +46,32 @@ import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 @Repository
 public class JdbcRateLimitRepository extends AbstractJdbcRepository implements RateLimitRepository {
 
-    @Autowired
-    protected SpringRateLimitRepository rateLimitRepository;
+    @Autowired protected SpringRateLimitRepository rateLimitRepository;
 
-    protected RateLimit toEntity(JdbcRateLimit entity) { return mapper.map(entity, RateLimit.class);}
-    protected JdbcRateLimit toJdbcEntity(RateLimit entity) {return mapper.map(entity, JdbcRateLimit.class);}
+    protected RateLimit toEntity(JdbcRateLimit entity) {
+        return mapper.map(entity, RateLimit.class);
+    }
+
+    protected JdbcRateLimit toJdbcEntity(RateLimit entity) {
+        return mapper.map(entity, JdbcRateLimit.class);
+    }
 
     @Override
     public Maybe<RateLimit> findById(String id) {
         LOGGER.debug("RateLimit findById({})", id);
-        return rateLimitRepository.findById(id)
-                .map(this::toEntity);
+        return rateLimitRepository.findById(id).map(this::toEntity);
     }
 
     @Override
     public Maybe<RateLimit> findByCriteria(RateLimitCriteria criteria) {
         Criteria whereClause = buildWhereClause(criteria);
-        return monoToMaybe(template.select(Query.query(whereClause).with(PageRequest.of(0,1, Sort.by("id"))), JdbcRateLimit.class)
-                .singleOrEmpty()).map(this::toEntity);
+        return monoToMaybe(
+                        template.select(
+                                        Query.query(whereClause)
+                                                .with(PageRequest.of(0, 1, Sort.by("id"))),
+                                        JdbcRateLimit.class)
+                                .singleOrEmpty())
+                .map(this::toEntity);
     }
 
     @Override
@@ -76,8 +84,7 @@ public class JdbcRateLimitRepository extends AbstractJdbcRepository implements R
     @Override
     public Single<RateLimit> update(RateLimit item) {
         LOGGER.debug("update RateLimit with id '{}'", item.getId());
-        return rateLimitRepository.save(toJdbcEntity(item))
-                .map(this::toEntity);
+        return rateLimitRepository.save(toJdbcEntity(item)).map(this::toEntity);
     }
 
     @Override
@@ -92,7 +99,8 @@ public class JdbcRateLimitRepository extends AbstractJdbcRepository implements R
         Criteria whereClause = buildWhereClause(criteria);
 
         if (!whereClause.isEmpty()) {
-            return monoToCompletable(template.delete(JdbcRateLimit.class).matching(Query.query(whereClause)).all());
+            return monoToCompletable(
+                    template.delete(JdbcRateLimit.class).matching(Query.query(whereClause)).all());
         }
 
         throw new RepositoryIllegalQueryException("Unable to delete from RateLimit with criteria");
@@ -103,12 +111,13 @@ public class JdbcRateLimitRepository extends AbstractJdbcRepository implements R
         LOGGER.debug("delete RateLimit with user id '{}'", userId);
 
         Criteria whereClause = Criteria.empty();
-        if(userId != null && !userId.isEmpty()){
+        if (userId != null && !userId.isEmpty()) {
             whereClause = whereClause.and(where("user_id").is(userId));
         }
 
         if (!whereClause.isEmpty()) {
-            return monoToCompletable(template.delete(JdbcRateLimit.class).matching(Query.query(whereClause)).all());
+            return monoToCompletable(
+                    template.delete(JdbcRateLimit.class).matching(Query.query(whereClause)).all());
         }
 
         throw new RepositoryIllegalQueryException("Unable to delete from RateLimit with userId");
@@ -116,32 +125,39 @@ public class JdbcRateLimitRepository extends AbstractJdbcRepository implements R
 
     @Override
     public Completable deleteByDomain(String domainId, ReferenceType referenceType) {
-        LOGGER.debug("delete RateLimit with domain id '{}' and reference type {}", domainId, referenceType);
+        LOGGER.debug(
+                "delete RateLimit with domain id '{}' and reference type {}",
+                domainId,
+                referenceType);
 
         Criteria whereClause = Criteria.empty();
-        if(domainId != null && !domainId.isEmpty()){
-            whereClause = whereClause.and(where("reference_id").is(domainId)).and(where("reference_type").is(referenceType));
+        if (domainId != null && !domainId.isEmpty()) {
+            whereClause =
+                    whereClause
+                            .and(where("reference_id").is(domainId))
+                            .and(where("reference_type").is(referenceType));
         }
 
         if (!whereClause.isEmpty()) {
-            return monoToCompletable(template.delete(JdbcRateLimit.class).matching(Query.query(whereClause)).all());
+            return monoToCompletable(
+                    template.delete(JdbcRateLimit.class).matching(Query.query(whereClause)).all());
         }
 
         throw new RepositoryIllegalQueryException("Unable to delete from RateLimit with domainId");
     }
 
-    protected Criteria buildWhereClause(RateLimitCriteria criteria){
+    protected Criteria buildWhereClause(RateLimitCriteria criteria) {
         Criteria whereClause = Criteria.empty();
 
-        if(criteria.userId() != null && !criteria.userId().isEmpty()){
+        if (criteria.userId() != null && !criteria.userId().isEmpty()) {
             whereClause = whereClause.and(where("user_id").is(criteria.userId()));
         }
 
-        if(criteria.factorId() != null && !criteria.factorId().isEmpty()){
+        if (criteria.factorId() != null && !criteria.factorId().isEmpty()) {
             whereClause = whereClause.and(where("factor_id").is(criteria.factorId()));
         }
 
-        if(criteria.client() != null && !criteria.client().isEmpty()){
+        if (criteria.client() != null && !criteria.client().isEmpty()) {
             whereClause = whereClause.and(where("client").is(criteria.client()));
         }
 

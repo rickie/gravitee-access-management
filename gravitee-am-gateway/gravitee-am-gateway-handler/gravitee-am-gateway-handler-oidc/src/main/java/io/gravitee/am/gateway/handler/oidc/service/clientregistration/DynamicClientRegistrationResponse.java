@@ -1,22 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oidc.service.clientregistration;
 
+import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
+
+import static java.util.stream.Collectors.joining;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.gravitee.am.gateway.handler.oidc.model.jwk.JWKSet;
 import io.gravitee.am.gateway.handler.oidc.model.jwk.converter.JWKConverter;
 import io.gravitee.am.model.application.ApplicationScopeSettings;
@@ -25,9 +28,6 @@ import io.gravitee.am.model.oidc.Client;
 import java.util.Date;
 import java.util.List;
 
-import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
-import static java.util.stream.Collectors.joining;
-
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
  * @author GraviteeSource Team
@@ -35,7 +35,7 @@ import static java.util.stream.Collectors.joining;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DynamicClientRegistrationResponse {
 
-    //Force to build response from a Client.
+    // Force to build response from a Client.
     private DynamicClientRegistrationResponse() {}
 
     /*******************************************************************************
@@ -133,26 +133,24 @@ public class DynamicClientRegistrationResponse {
     @JsonProperty("request_uris")
     private List<String> requestUris;
 
-
     /*******************************************************************************
      * Oauth2 metadata in addition to RFC specification
      * https://tools.ietf.org/html/rfc7591#section-2
      * https://tools.ietf.org/html/rfc7591#section-3.1.1
      ********************************************************************************/
 
-    //https://tools.ietf.org/html/rfc7591#section-4.1.2 : scope is string space delimited
+    // https://tools.ietf.org/html/rfc7591#section-4.1.2 : scope is string space delimited
     @JsonProperty("scope")
     private String scope;
 
     @JsonProperty("software_id")
-    private String softwareId; //Should be UUID
+    private String softwareId; // Should be UUID
 
     @JsonProperty("software_version")
     private String softwareVersion;
 
     @JsonProperty("software_statement")
-    private String softwareStatement; //Should be JWT
-
+    private String softwareStatement; // Should be JWT
 
     /*******************************************************************************
      * Additional metadata for the response
@@ -554,7 +552,8 @@ public class DynamicClientRegistrationResponse {
      * https://openid.net/specs/openid-connect-registration-1_0.html#RegistrationResponse
      */
     public void setClientSecretExpiresAt(Date clientSecretExpiresAt) {
-        this.clientSecretExpiresAt=clientSecretExpiresAt!=null?clientSecretExpiresAt.getTime():0;
+        this.clientSecretExpiresAt =
+                clientSecretExpiresAt != null ? clientSecretExpiresAt.getTime() : 0;
     }
 
     public String getDomain() {
@@ -633,7 +632,8 @@ public class DynamicClientRegistrationResponse {
         return backchannelClientNotificationEndpoint;
     }
 
-    public void setBackchannelClientNotificationEndpoint(String backchannelClientNotificationEndpoint) {
+    public void setBackchannelClientNotificationEndpoint(
+            String backchannelClientNotificationEndpoint) {
         this.backchannelClientNotificationEndpoint = backchannelClientNotificationEndpoint;
     }
 
@@ -702,20 +702,26 @@ public class DynamicClientRegistrationResponse {
         response.setCreatedAt(client.getCreatedAt());
         response.setUpdatedAt(client.getUpdatedAt());
         response.setAuthorizationSignedResponseAlg(client.getAuthorizationSignedResponseAlg());
-        response.setAuthorizationEncryptedResponseAlg(client.getAuthorizationEncryptedResponseAlg());
-        response.setAuthorizationEncryptedResponseEnc(client.getAuthorizationEncryptedResponseEnc());
+        response.setAuthorizationEncryptedResponseAlg(
+                client.getAuthorizationEncryptedResponseAlg());
+        response.setAuthorizationEncryptedResponseEnc(
+                client.getAuthorizationEncryptedResponseEnc());
         response.setBackchannelTokenDeliveryMode(client.getBackchannelTokenDeliveryMode());
         response.setBackchannelUserCodeParameter(client.getBackchannelUserCodeParameter());
         response.setBackchannelAuthRequestSignAlg(client.getBackchannelAuthRequestSignAlg());
-        response.setBackchannelClientNotificationEndpoint(client.getBackchannelClientNotificationEndpoint());
+        response.setBackchannelClientNotificationEndpoint(
+                client.getBackchannelClientNotificationEndpoint());
         return response;
     }
 
     private static String extractScope(Client client) {
-        if (client.getScopeSettings() == null){
+        if (client.getScopeSettings() == null) {
             return null;
         }
-        final String scope = client.getScopeSettings().stream().map(ApplicationScopeSettings::getScope).collect(joining(SCOPE_DELIMITER));
+        final String scope =
+                client.getScopeSettings().stream()
+                        .map(ApplicationScopeSettings::getScope)
+                        .collect(joining(SCOPE_DELIMITER));
         return scope.trim().isEmpty() ? null : scope;
     }
 }

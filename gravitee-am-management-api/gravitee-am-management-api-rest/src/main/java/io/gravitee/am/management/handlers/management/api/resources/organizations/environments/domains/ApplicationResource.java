@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
@@ -35,7 +33,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -54,9 +57,6 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -64,29 +64,28 @@ import java.util.stream.Collectors;
  */
 public class ApplicationResource extends AbstractResource {
 
-    @Autowired
-    private ApplicationService applicationService;
+    @Autowired private ApplicationService applicationService;
 
-    @Autowired
-    private DomainService domainService;
+    @Autowired private DomainService domainService;
 
-    @Context
-    private ResourceContext resourceContext;
+    @Context private ResourceContext resourceContext;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(
             nickname = "findApplication",
             value = "Get an application",
-            notes = "User must have the APPLICATION[READ] permission on the specified application " +
-                    "or APPLICATION[READ] permission on the specified domain " +
-                    "or APPLICATION[READ] permission on the specified environment " +
-                    "or APPLICATION[READ] permission on the specified organization. " +
-                    "Application will be filtered according to permissions (READ on APPLICATION_IDENTITY_PROVIDER, " +
-                    "APPLICATION_CERTIFICATE, APPLICATION_METADATA, APPLICATION_USER_ACCOUNT, APPLICATION_SETTINGS)")
+            notes =
+                    "User must have the APPLICATION[READ] permission on the specified application "
+                            + "or APPLICATION[READ] permission on the specified domain "
+                            + "or APPLICATION[READ] permission on the specified environment "
+                            + "or APPLICATION[READ] permission on the specified organization. "
+                            + "Application will be filtered according to permissions (READ on APPLICATION_IDENTITY_PROVIDER, "
+                            + "APPLICATION_CERTIFICATE, APPLICATION_METADATA, APPLICATION_USER_ACCOUNT, APPLICATION_SETTINGS)")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Application", response = Application.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 200, message = "Application", response = Application.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void get(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -96,19 +95,41 @@ public class ApplicationResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.READ)
-                .andThen(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMap(irrelevant -> applicationService.findById(application))
-                        .switchIfEmpty(Maybe.error(new ApplicationNotFoundException(application)))
-                        .flatMapSingle(app -> findAllPermissions(authenticatedUser, organizationId, environmentId, domain, application)
-                                .map(userPermissions -> filterApplicationInfos(app, userPermissions))))
-                .map(application1 -> {
-                    if (!application1.getDomain().equalsIgnoreCase(domain)) {
-                        throw new BadRequestException("Application does not belong to domain");
-                    }
-                    return Response.ok(application1).build();
-                })
+        checkAnyPermission(
+                        organizationId,
+                        environmentId,
+                        domain,
+                        application,
+                        Permission.APPLICATION,
+                        Acl.READ)
+                .andThen(
+                        domainService
+                                .findById(domain)
+                                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
+                                .flatMap(irrelevant -> applicationService.findById(application))
+                                .switchIfEmpty(
+                                        Maybe.error(new ApplicationNotFoundException(application)))
+                                .flatMapSingle(
+                                        app ->
+                                                findAllPermissions(
+                                                                authenticatedUser,
+                                                                organizationId,
+                                                                environmentId,
+                                                                domain,
+                                                                application)
+                                                        .map(
+                                                                userPermissions ->
+                                                                        filterApplicationInfos(
+                                                                                app,
+                                                                                userPermissions))))
+                .map(
+                        application1 -> {
+                            if (!application1.getDomain().equalsIgnoreCase(domain)) {
+                                throw new BadRequestException(
+                                        "Application does not belong to domain");
+                            }
+                            return Response.ok(application1).build();
+                        })
                 .subscribe(response::resume, t -> response.resume(t));
     }
 
@@ -118,22 +139,29 @@ public class ApplicationResource extends AbstractResource {
     @ApiOperation(
             nickname = "patchApplication",
             value = "Patch an application",
-            notes = "User must have APPLICATION[UPDATE] permission on the specified application " +
-                    "or APPLICATION[UPDATE] permission on the specified domain " +
-                    "or APPLICATION[UPDATE] permission on the specified environment " +
-                    "or APPLICATION[UPDATE] permission on the specified organization")
+            notes =
+                    "User must have APPLICATION[UPDATE] permission on the specified application "
+                            + "or APPLICATION[UPDATE] permission on the specified domain "
+                            + "or APPLICATION[UPDATE] permission on the specified environment "
+                            + "or APPLICATION[UPDATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Application successfully patched", response = Application.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(
+                code = 200,
+                message = "Application successfully patched",
+                response = Application.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void patch(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("application") String application,
-            @ApiParam(name = "application", required = true) @Valid @NotNull PatchApplication patchApplication,
+            @ApiParam(name = "application", required = true) @Valid @NotNull
+                    PatchApplication patchApplication,
             @Suspended final AsyncResponse response) {
 
-        updateInternal(organizationId, environmentId, domain, application, patchApplication, response);
+        updateInternal(
+                organizationId, environmentId, domain, application, patchApplication, response);
     }
 
     @PUT
@@ -142,22 +170,29 @@ public class ApplicationResource extends AbstractResource {
     @ApiOperation(
             nickname = "updateApplication",
             value = "Update an application",
-            notes = "User must have APPLICATION[UPDATE] permission on the specified application " +
-                    "or APPLICATION[UPDATE] permission on the specified domain " +
-                    "or APPLICATION[UPDATE] permission on the specified environment " +
-                    "or APPLICATION[UPDATE] permission on the specified organization")
+            notes =
+                    "User must have APPLICATION[UPDATE] permission on the specified application "
+                            + "or APPLICATION[UPDATE] permission on the specified domain "
+                            + "or APPLICATION[UPDATE] permission on the specified environment "
+                            + "or APPLICATION[UPDATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Application successfully updated", response = Application.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(
+                code = 200,
+                message = "Application successfully updated",
+                response = Application.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void update(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("application") String application,
-            @ApiParam(name = "application", required = true) @Valid @NotNull PatchApplication patchApplication,
+            @ApiParam(name = "application", required = true) @Valid @NotNull
+                    PatchApplication patchApplication,
             @Suspended final AsyncResponse response) {
 
-        updateInternal(organizationId, environmentId, domain, application, patchApplication, response);
+        updateInternal(
+                organizationId, environmentId, domain, application, patchApplication, response);
     }
 
     @PUT
@@ -167,24 +202,41 @@ public class ApplicationResource extends AbstractResource {
     @ApiOperation(
             nickname = "updateApplicationType",
             value = "Update an application type",
-            notes = "User must have APPLICATION[UPDATE] permission on the specified application " +
-                    "or APPLICATION[UPDATE] permission on the specified domain " +
-                    "or APPLICATION[UPDATE] permission on the specified environment " +
-                    "or APPLICATION[UPDATE] permission on the specified organization")
+            notes =
+                    "User must have APPLICATION[UPDATE] permission on the specified application "
+                            + "or APPLICATION[UPDATE] permission on the specified domain "
+                            + "or APPLICATION[UPDATE] permission on the specified environment "
+                            + "or APPLICATION[UPDATE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Application type successfully updated", response = Application.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(
+                code = 200,
+                message = "Application type successfully updated",
+                response = Application.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void update(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("application") String application,
-            @ApiParam(name = "type", required = true) @Valid @NotNull PatchApplicationType patchApplicationType,
+            @ApiParam(name = "type", required = true) @Valid @NotNull
+                    PatchApplicationType patchApplicationType,
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.UPDATE)
-                .andThen(applicationService.updateType(domain, application, patchApplicationType.getType(), authenticatedUser))
+        checkAnyPermission(
+                        organizationId,
+                        environmentId,
+                        domain,
+                        application,
+                        Permission.APPLICATION,
+                        Acl.UPDATE)
+                .andThen(
+                        applicationService.updateType(
+                                domain,
+                                application,
+                                patchApplicationType.getType(),
+                                authenticatedUser))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -192,13 +244,15 @@ public class ApplicationResource extends AbstractResource {
     @ApiOperation(
             nickname = "deleteApplication",
             value = "Delete an application",
-            notes = "User must have APPLICATION[DELETE] permission on the specified application " +
-                    "or APPLICATION[DELETE] permission on the specified domain " +
-                    "or APPLICATION[DELETE] permission on the specified environment " +
-                    "or APPLICATION[DELETE] permission on the specified organization")
+            notes =
+                    "User must have APPLICATION[DELETE] permission on the specified application "
+                            + "or APPLICATION[DELETE] permission on the specified domain "
+                            + "or APPLICATION[DELETE] permission on the specified environment "
+                            + "or APPLICATION[DELETE] permission on the specified organization")
     @ApiResponses({
-            @ApiResponse(code = 204, message = "Application successfully deleted"),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 204, message = "Application successfully deleted"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void delete(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -207,7 +261,13 @@ public class ApplicationResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.DELETE)
+        checkAnyPermission(
+                        organizationId,
+                        environmentId,
+                        domain,
+                        application,
+                        Permission.APPLICATION,
+                        Acl.DELETE)
                 .andThen(applicationService.delete(application, authenticatedUser))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
@@ -217,14 +277,19 @@ public class ApplicationResource extends AbstractResource {
     @ApiOperation(
             nickname = "renewClientSecret",
             value = "Renew application secret",
-            notes = "User must have APPLICATION_OPENID[UPDATE] permission on the specified application " +
-                    "or APPLICATION_OPENID[UPDATE] permission on the specified domain " +
-                    "or APPLICATION_OPENID[UPDATE] permission on the specified environment " +
-                    "or APPLICATION_OPENID[UPDATE] permission on the specified organization")
+            notes =
+                    "User must have APPLICATION_OPENID[UPDATE] permission on the specified application "
+                            + "or APPLICATION_OPENID[UPDATE] permission on the specified domain "
+                            + "or APPLICATION_OPENID[UPDATE] permission on the specified environment "
+                            + "or APPLICATION_OPENID[UPDATE] permission on the specified organization")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Application secret successfully updated", response = Application.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(
+                code = 200,
+                message = "Application secret successfully updated",
+                response = Application.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void renewClientSecret(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -233,10 +298,21 @@ public class ApplicationResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_OPENID, Acl.READ)
-                .andThen(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(__ -> applicationService.renewClientSecret(domain, application, authenticatedUser)))
+        checkAnyPermission(
+                        organizationId,
+                        environmentId,
+                        domain,
+                        application,
+                        Permission.APPLICATION_OPENID,
+                        Acl.READ)
+                .andThen(
+                        domainService
+                                .findById(domain)
+                                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
+                                .flatMapSingle(
+                                        __ ->
+                                                applicationService.renewClientSecret(
+                                                        domain, application, authenticatedUser)))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -270,28 +346,67 @@ public class ApplicationResource extends AbstractResource {
         return resourceContext.getResource(ApplicationFlowsResource.class);
     }
 
-    public void updateInternal(String organizationId, String environmentId, String domain, String application, PatchApplication patchApplication, final AsyncResponse response) {
+    public void updateInternal(
+            String organizationId,
+            String environmentId,
+            String domain,
+            String application,
+            PatchApplication patchApplication,
+            final AsyncResponse response) {
 
         final User authenticatedUser = getAuthenticatedUser();
         Set<Permission> requiredPermissions = patchApplication.getRequiredPermissions();
 
         if (requiredPermissions.isEmpty()) {
-            // If there is no require permission, it means there is nothing to update. This is not a valid request.
-            response.resume(new BadRequestException("You need to specify at least one value to update."));
+            // If there is no require permission, it means there is nothing to update. This is not a
+            // valid request.
+            response.resume(
+                    new BadRequestException("You need to specify at least one value to update."));
         } else {
-            Completable.merge(requiredPermissions.stream()
-                    .map(permission -> checkAnyPermission(organizationId, environmentId, domain, application, permission, Acl.UPDATE))
-                    .collect(Collectors.toList()))
-                    .andThen(domainService.findById(domain)
-                            .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                            .flatMapSingle(patch -> applicationService.patch(domain, application, patchApplication, authenticatedUser)
-                                    .flatMap(updatedApplication -> findAllPermissions(authenticatedUser, organizationId, environmentId, domain, application)
-                                            .map(userPermissions -> filterApplicationInfos(updatedApplication, userPermissions)))))
+            Completable.merge(
+                            requiredPermissions.stream()
+                                    .map(
+                                            permission ->
+                                                    checkAnyPermission(
+                                                            organizationId,
+                                                            environmentId,
+                                                            domain,
+                                                            application,
+                                                            permission,
+                                                            Acl.UPDATE))
+                                    .collect(Collectors.toList()))
+                    .andThen(
+                            domainService
+                                    .findById(domain)
+                                    .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
+                                    .flatMapSingle(
+                                            patch ->
+                                                    applicationService
+                                                            .patch(
+                                                                    domain,
+                                                                    application,
+                                                                    patchApplication,
+                                                                    authenticatedUser)
+                                                            .flatMap(
+                                                                    updatedApplication ->
+                                                                            findAllPermissions(
+                                                                                            authenticatedUser,
+                                                                                            organizationId,
+                                                                                            environmentId,
+                                                                                            domain,
+                                                                                            application)
+                                                                                    .map(
+                                                                                            userPermissions ->
+                                                                                                    filterApplicationInfos(
+                                                                                                            updatedApplication,
+                                                                                                            userPermissions)))))
                     .subscribe(response::resume, response::resume);
         }
     }
 
-    private Application filterApplicationInfos(Application application, Map<ReferenceType, Map<Permission, Set<Acl>>> userPermissions) {
+    private Application filterApplicationInfos(
+            Application application,
+            Map<ReferenceType, Map<Permission, Set<Acl>>> userPermissions) {
 
         Application filteredApplication = new Application();
 

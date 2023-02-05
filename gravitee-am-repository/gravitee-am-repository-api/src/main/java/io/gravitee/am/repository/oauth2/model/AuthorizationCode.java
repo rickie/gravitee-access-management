@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.oauth2.model;
@@ -26,60 +24,38 @@ import java.util.Set;
  */
 public class AuthorizationCode {
 
-    /**
-     * Technical ID
-     */
+    /** Technical ID */
     private String id;
 
-    /**
-     * Transaction ID
-     */
+    /** Transaction ID */
     private String transactionId;
 
-    /**
-     * Context version
-     */
+    /** Context version */
     private int contextVersion;
 
-    /**
-     * Authorization code value
-     */
+    /** Authorization code value */
     private String code;
 
-    /**
-     * The authorization code creation date
-     */
+    /** The authorization code creation date */
     private Date createdAt;
 
-    /**
-     * The authorization code expiration date
-     */
+    /** The authorization code expiration date */
     private Date expireAt;
 
-    /**
-     * The client which asks for the authorization code
-     */
+    /** The client which asks for the authorization code */
     private String clientId;
 
-    /**
-     * Technical identifier for logged user
-     */
+    /** Technical identifier for logged user */
     private String subject;
 
-    /**
-     * Redirect URI used while asking for an authorization code
-     */
+    /** Redirect URI used while asking for an authorization code */
     private String redirectUri;
 
-    /**
-     * The scopes of the access request
-     */
+    /** The scopes of the access request */
     private Set<String> scopes;
 
-    /**
-     * The Authorization request parameters
-     */
-    private MultiValueMap<String,String> requestParameters;
+    /** The Authorization request parameters */
+    private MultiValueMap<String, String> requestParameters;
 
     public String getId() {
         return id;
@@ -161,11 +137,11 @@ public class AuthorizationCode {
         this.scopes = scopes;
     }
 
-    public MultiValueMap<String,String> getRequestParameters() {
+    public MultiValueMap<String, String> getRequestParameters() {
         return requestParameters;
     }
 
-    public void setRequestParameters(MultiValueMap<String,String> requestParameters) {
+    public void setRequestParameters(MultiValueMap<String, String> requestParameters) {
         this.requestParameters = requestParameters;
     }
 

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.common.web;
@@ -31,7 +29,7 @@ import java.util.regex.Pattern;
  */
 public class UriBuilder {
 
-    //private static final Pattern QUERY_PARAM_PATTERN = Pattern.compile("([^&=]+)(=?)([^&]+)?");
+    // private static final Pattern QUERY_PARAM_PATTERN = Pattern.compile("([^&=]+)(=?)([^&]+)?");
 
     private static final String SCHEME_REGEX = "([^:/?#]+):";
 
@@ -54,22 +52,56 @@ public class UriBuilder {
     private static final String LAST_REGEX = "(.*)";
 
     // Regex patterns that matches URIs. See RFC 3986, appendix B
-    private static final Pattern URI_PATTERN = Pattern.compile(
-            "^(" + SCHEME_REGEX + ")?" + "(//(" + USERINFO_REGEX + "@)?" + HOST_REGEX + "(:" + PORT_REGEX +
-                    ")?" + ")?" + PATH_REGEX + "(\\?" + QUERY_REGEX + ")?" + "(#" + LAST_REGEX + ")?");
+    private static final Pattern URI_PATTERN =
+            Pattern.compile(
+                    "^("
+                            + SCHEME_REGEX
+                            + ")?"
+                            + "(//("
+                            + USERINFO_REGEX
+                            + "@)?"
+                            + HOST_REGEX
+                            + "(:"
+                            + PORT_REGEX
+                            + ")?"
+                            + ")?"
+                            + PATH_REGEX
+                            + "(\\?"
+                            + QUERY_REGEX
+                            + ")?"
+                            + "(#"
+                            + LAST_REGEX
+                            + ")?");
 
-    private static final Pattern HTTP_URL_PATTERN = Pattern.compile(
-            "^" + HTTP_REGEX + "(//(" + USERINFO_REGEX + "@)?" + HOST_REGEX + "(:" + PORT_REGEX +
-                    ")?" + ")?" + PATH_REGEX + "(\\?" + QUERY_REGEX + ")?" + "(#" + LAST_REGEX + ")?");
+    private static final Pattern HTTP_URL_PATTERN =
+            Pattern.compile(
+                    "^"
+                            + HTTP_REGEX
+                            + "(//("
+                            + USERINFO_REGEX
+                            + "@)?"
+                            + HOST_REGEX
+                            + "(:"
+                            + PORT_REGEX
+                            + ")?"
+                            + ")?"
+                            + PATH_REGEX
+                            + "(\\?"
+                            + QUERY_REGEX
+                            + ")?"
+                            + "(#"
+                            + LAST_REGEX
+                            + ")?");
 
-    private static final Pattern HTTP_PATTERN = Pattern.compile(HTTP_REGEX.replace(":",""));
+    private static final Pattern HTTP_PATTERN = Pattern.compile(HTTP_REGEX.replace(":", ""));
 
     private static final String LOCALHOST_HOST_REGEX = "^localhost$";
     private static final String LOCALHOST_IPV4_REGEX = "^127(?:\\.[0-9]+){0,2}\\.[0-9]+$";
     private static final String LOCALHOST_IPV6_REGEX = "^(?:0*\\:)*?:?0*1$";
 
-    private static final Pattern LOCALHOST_PATTERN = Pattern.compile(
-            LOCALHOST_HOST_REGEX +"|"+ LOCALHOST_IPV4_REGEX +"|"+ LOCALHOST_IPV6_REGEX);
+    private static final Pattern LOCALHOST_PATTERN =
+            Pattern.compile(
+                    LOCALHOST_HOST_REGEX + "|" + LOCALHOST_IPV4_REGEX + "|" + LOCALHOST_IPV6_REGEX);
 
     private String scheme;
     private String host;
@@ -104,8 +136,7 @@ public class UriBuilder {
             builder.query(query);
             builder.fragment(fragment);
             return builder;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("[" + uri + "] is not a valid URI");
         }
     }
@@ -130,15 +161,12 @@ public class UriBuilder {
             builder.query(matcher.group(10));
             builder.fragment(matcher.group(12));
             return builder;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("[" + httpUrl + "] is not a valid HTTP URL");
         }
     }
 
-    /**
-     * Convert a String to the application/x-www-form-urlencoded MIME format
-     */
+    /** Convert a String to the application/x-www-form-urlencoded MIME format */
     public static String encodeURIComponent(String s) {
         String result;
         try {

@@ -1,21 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.spring.security;
 
+import static io.gravitee.am.management.handlers.management.api.authentication.csrf.CookieCsrfSignedTokenRepository.DEFAULT_CSRF_HEADER_NAME;
+
+import static java.util.Arrays.asList;
+import static java.util.Objects.nonNull;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.gravitee.am.jwt.JWTParser;
 import io.gravitee.am.management.handlers.management.api.authentication.csrf.CookieCsrfSignedTokenRepository;
 import io.gravitee.am.management.handlers.management.api.authentication.csrf.CsrfRequestMatcher;
@@ -29,6 +33,7 @@ import io.gravitee.am.management.handlers.management.api.authentication.web.*;
 import io.gravitee.am.management.service.OrganizationUserService;
 import io.gravitee.am.service.AuditService;
 import io.gravitee.am.service.ReCaptchaService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
@@ -59,15 +64,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import javax.servlet.Filter;
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.gravitee.am.management.handlers.management.api.authentication.csrf.CookieCsrfSignedTokenRepository.DEFAULT_CSRF_HEADER_NAME;
-import static java.util.Arrays.asList;
-import static java.util.Objects.nonNull;
+import javax.servlet.Filter;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -82,36 +84,27 @@ public class SecurityConfiguration {
     public static final String DEFAULT_DEFAULT_SRC_CSP_DIRECTIVE = "default-src self;";
     public static final String DEFAULT_FRAME_ANCESTOR_CSP_DIRECTIVE = "frame-ancestors 'none';";
     public static final String HTTP_CSP_DIRECTIVES = "http.csp.directives[%d]";
-    @Autowired
-    private Environment environment;
+    @Autowired private Environment environment;
 
-    @Autowired
-    private AuditService auditService;
+    @Autowired private AuditService auditService;
 
     @Autowired
     @Qualifier("managementJwtParser")
     private JWTParser jwtParser;
 
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
+    @Autowired private ApplicationEventPublisher applicationEventPublisher;
 
-    @Autowired
-    private IdentityProviderManager identityProviderManager;
+    @Autowired private IdentityProviderManager identityProviderManager;
 
-    @Autowired
-    private Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint;
+    @Autowired private Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint;
 
-    @Autowired
-    private ReCaptchaService reCaptchaService;
+    @Autowired private ReCaptchaService reCaptchaService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
-    @Autowired
-    private CockpitAuthenticationFilter cockpitAuthenticationFilter;
+    @Autowired private CockpitAuthenticationFilter cockpitAuthenticationFilter;
 
-    @Autowired
-    private OrganizationUserService userService;
+    @Autowired private OrganizationUserService userService;
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) {
@@ -126,40 +119,62 @@ public class SecurityConfiguration {
         protected void configure(HttpSecurity http) throws Exception {
 
             http.requestMatchers()
-                .antMatchers("/auth/authorize", "/auth/login", "/auth/cockpit", "/auth/login/callback", "/auth/logout", "/auth/assets/**")
-                .and()
-            .authorizeRequests()
-                .antMatchers("/auth/login", "/auth/assets/**", "/auth/cockpit").permitAll()
-                .anyRequest().authenticated()
-                .and()
-            .formLogin()
-                .loginPage("/auth/login")
-                .authenticationDetailsSource(authenticationDetailsSource())
-                .successHandler(authenticationSuccessHandler())
-                .failureHandler(authenticationFailureHandler())
-                .permitAll()
-                .and()
-            .logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/auth/logout"))
-                .logoutSuccessHandler(new CustomLogoutSuccessHandler(auditService, environment, jwtParser, userService))
-                .addLogoutHandler(cookieClearingLogoutHandler())
-                .and()
-            .exceptionHandling()
-                .authenticationEntryPoint(loginUrlAuthenticationEntryPoint())
-                .and()
-            .cors()
-            .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .addFilterBefore(cockpitAuthenticationFilter, AbstractPreAuthenticatedProcessingFilter.class)
-            .addFilterBefore(new RecaptchaFilter(reCaptchaService, objectMapper), AbstractPreAuthenticatedProcessingFilter.class)
-            .addFilterBefore(new CheckRedirectionCookieFilter(), AbstractPreAuthenticatedProcessingFilter.class)
-            .addFilterBefore(checkLoginRedirectUriFilter(), AbstractPreAuthenticatedProcessingFilter.class)
-            .addFilterBefore(checkLogoutRedirectUriFilter(), LogoutFilter.class)
-            .addFilterBefore(builtInAuthFilter(), AbstractPreAuthenticatedProcessingFilter.class)
-            .addFilterBefore(socialAuthFilter(), AbstractPreAuthenticatedProcessingFilter.class)
-            .addFilterBefore(checkAuthCookieFilter(), AbstractPreAuthenticatedProcessingFilter.class);
+                    .antMatchers(
+                            "/auth/authorize",
+                            "/auth/login",
+                            "/auth/cockpit",
+                            "/auth/login/callback",
+                            "/auth/logout",
+                            "/auth/assets/**")
+                    .and()
+                    .authorizeRequests()
+                    .antMatchers("/auth/login", "/auth/assets/**", "/auth/cockpit")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated()
+                    .and()
+                    .formLogin()
+                    .loginPage("/auth/login")
+                    .authenticationDetailsSource(authenticationDetailsSource())
+                    .successHandler(authenticationSuccessHandler())
+                    .failureHandler(authenticationFailureHandler())
+                    .permitAll()
+                    .and()
+                    .logout()
+                    .logoutRequestMatcher(new AntPathRequestMatcher("/auth/logout"))
+                    .logoutSuccessHandler(
+                            new CustomLogoutSuccessHandler(
+                                    auditService, environment, jwtParser, userService))
+                    .addLogoutHandler(cookieClearingLogoutHandler())
+                    .and()
+                    .exceptionHandling()
+                    .authenticationEntryPoint(loginUrlAuthenticationEntryPoint())
+                    .and()
+                    .cors()
+                    .and()
+                    .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .and()
+                    .addFilterBefore(
+                            cockpitAuthenticationFilter,
+                            AbstractPreAuthenticatedProcessingFilter.class)
+                    .addFilterBefore(
+                            new RecaptchaFilter(reCaptchaService, objectMapper),
+                            AbstractPreAuthenticatedProcessingFilter.class)
+                    .addFilterBefore(
+                            new CheckRedirectionCookieFilter(),
+                            AbstractPreAuthenticatedProcessingFilter.class)
+                    .addFilterBefore(
+                            checkLoginRedirectUriFilter(),
+                            AbstractPreAuthenticatedProcessingFilter.class)
+                    .addFilterBefore(checkLogoutRedirectUriFilter(), LogoutFilter.class)
+                    .addFilterBefore(
+                            builtInAuthFilter(), AbstractPreAuthenticatedProcessingFilter.class)
+                    .addFilterBefore(
+                            socialAuthFilter(), AbstractPreAuthenticatedProcessingFilter.class)
+                    .addFilterBefore(
+                            checkAuthCookieFilter(),
+                            AbstractPreAuthenticatedProcessingFilter.class);
 
             csrf(http);
         }
@@ -172,19 +187,20 @@ public class SecurityConfiguration {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
 
-            http
-                .antMatcher("/auth/token")
+            http.antMatcher("/auth/token")
                     .authorizeRequests()
-                        .anyRequest().authenticated()
+                    .anyRequest()
+                    .authenticated()
                     .and()
-                        .httpBasic()
-                            .realmName("Gravitee.io AM Management API")
-                            .authenticationDetailsSource(authenticationDetailsSource())
+                    .httpBasic()
+                    .realmName("Gravitee.io AM Management API")
+                    .authenticationDetailsSource(authenticationDetailsSource())
                     .and()
-                        .sessionManagement()
-                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                     .and()
-                        .csrf().disable();
+                    .csrf()
+                    .disable();
         }
     }
 
@@ -198,20 +214,22 @@ public class SecurityConfiguration {
             http.requestMatchers()
                     .antMatchers("/organizations/**", "/user/**", "/platform/**")
                     .and()
-                .sessionManagement()
+                    .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+                    .and()
                     .cors()
-                .and()
+                    .and()
                     .authorizeRequests()
-                        .anyRequest().authenticated()
-                .and()
+                    .anyRequest()
+                    .authenticated()
+                    .and()
                     .httpBasic()
-                        .disable()
-                .exceptionHandling()
+                    .disable()
+                    .exceptionHandling()
                     .authenticationEntryPoint(http401UnauthorizedEntryPoint)
                     .and()
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                    .addFilterBefore(
+                            jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
             csrf(http);
             csp(http);
@@ -223,16 +241,21 @@ public class SecurityConfiguration {
         }
 
         private void csp(HttpSecurity security) throws Exception {
-            if(environment.getProperty(HTTP_CSP_ENABLED, Boolean.class, true)) {
+            if (environment.getProperty(HTTP_CSP_ENABLED, Boolean.class, true)) {
                 final List<String> directives = getDirectives();
                 if (directives.isEmpty()) {
                     directives.add(DEFAULT_DEFAULT_SRC_CSP_DIRECTIVE);
                     directives.add(DEFAULT_FRAME_ANCESTOR_CSP_DIRECTIVE);
                 }
                 security.headers()
-                        .contentSecurityPolicy(directives.stream()
-                                .map(directive -> directive.trim().endsWith(";") ? directive : directive + ";")
-                                .collect(Collectors.joining(" ")));
+                        .contentSecurityPolicy(
+                                directives.stream()
+                                        .map(
+                                                directive ->
+                                                        directive.trim().endsWith(";")
+                                                                ? directive
+                                                                : directive + ";")
+                                        .collect(Collectors.joining(" ")));
             }
         }
 
@@ -255,21 +278,24 @@ public class SecurityConfiguration {
 
     private HttpSecurity csrf(HttpSecurity security) throws Exception {
 
-        if(environment.getProperty("http.csrf.enabled", Boolean.class, true)) {
+        if (environment.getProperty("http.csrf.enabled", Boolean.class, true)) {
             return security.csrf()
                     .csrfTokenRepository(cookieCsrfSignedTokenRepository())
-                    .requireCsrfProtectionMatcher(new CsrfRequestMatcher(environment.getProperty("jwt.cookie-name", "Auth-Graviteeio-AM")))
+                    .requireCsrfProtectionMatcher(
+                            new CsrfRequestMatcher(
+                                    environment.getProperty(
+                                            "jwt.cookie-name", "Auth-Graviteeio-AM")))
                     .and()
                     .addFilterAfter(new CsrfIncludeFilter(), CsrfFilter.class);
-        }else {
+        } else {
             return security.csrf().disable();
         }
     }
 
-
     @Bean
     public ManagementAuthenticationProvider userAuthenticationProvider() {
-        ManagementAuthenticationProvider authenticationProvider = new ManagementAuthenticationProvider();
+        ManagementAuthenticationProvider authenticationProvider =
+                new ManagementAuthenticationProvider();
         authenticationProvider.setIdentityProviderManager(identityProviderManager);
 
         return authenticationProvider;
@@ -297,7 +323,8 @@ public class SecurityConfiguration {
 
     @Bean
     public Filter socialAuthFilter() {
-        SocialAuthenticationFilter socialAuthenticationFilter = new SocialAuthenticationFilter("/auth/login/callback");
+        SocialAuthenticationFilter socialAuthenticationFilter =
+                new SocialAuthenticationFilter("/auth/login/callback");
         socialAuthenticationFilter.setApplicationEventPublisher(applicationEventPublisher);
         return socialAuthenticationFilter;
     }
@@ -318,20 +345,23 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> authenticationDetailsSource() {
+    public AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails>
+            authenticationDetailsSource() {
         return new WebAuthenticationDetailsSource();
     }
 
     @Bean
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
-        CustomAuthenticationSuccessHandler successHandler = new CustomAuthenticationSuccessHandler();
+        CustomAuthenticationSuccessHandler successHandler =
+                new CustomAuthenticationSuccessHandler();
         successHandler.setRedirectStrategy(redirectStrategy());
         return successHandler;
     }
 
     @Bean
     public AuthenticationFailureHandler authenticationFailureHandler() {
-        SimpleUrlAuthenticationFailureHandler authenticationFailureHandler = new CustomAuthenticationFailureHandler("/auth/login?error");
+        SimpleUrlAuthenticationFailureHandler authenticationFailureHandler =
+                new CustomAuthenticationFailureHandler("/auth/login?error");
         authenticationFailureHandler.setRedirectStrategy(redirectStrategy());
         return authenticationFailureHandler;
     }
@@ -350,7 +380,8 @@ public class SecurityConfiguration {
     public Filter checkLoginRedirectUriFilter() {
         CheckRedirectUriFilter checkRedirectUriFilter = new CheckRedirectUriFilter("/authorize");
         checkRedirectUriFilter.setParamName("redirect_uri");
-        checkRedirectUriFilter.setAllowedUrls(getPropertiesAsList("http.login.allow-redirect-urls", "*"));
+        checkRedirectUriFilter.setAllowedUrls(
+                getPropertiesAsList("http.login.allow-redirect-urls", "*"));
         return checkRedirectUriFilter;
     }
 
@@ -358,7 +389,8 @@ public class SecurityConfiguration {
     public Filter checkLogoutRedirectUriFilter() {
         CheckRedirectUriFilter checkRedirectUriFilter = new CheckRedirectUriFilter("/logout");
         checkRedirectUriFilter.setParamName("target_url");
-        checkRedirectUriFilter.setAllowedUrls(getPropertiesAsList("http.logout.allow-redirect-urls", "*"));
+        checkRedirectUriFilter.setAllowedUrls(
+                getPropertiesAsList("http.logout.allow-redirect-urls", "*"));
         return checkRedirectUriFilter;
     }
 
@@ -367,9 +399,17 @@ public class SecurityConfiguration {
         final CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOriginPatterns(getPropertiesAsList("http.cors.allow-origin", "*"));
-        config.setAllowedHeaders(getPropertiesAsList("http.cors.allow-headers", "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With, If-Match, " + DEFAULT_CSRF_HEADER_NAME));
-        config.setAllowedMethods(getPropertiesAsList("http.cors.allow-methods", "OPTIONS, GET, POST, PUT, PATCH, DELETE"));
-        config.setExposedHeaders(getPropertiesAsList("http.cors.exposed-headers", "ETag, " + DEFAULT_CSRF_HEADER_NAME));
+        config.setAllowedHeaders(
+                getPropertiesAsList(
+                        "http.cors.allow-headers",
+                        "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With, If-Match, "
+                                + DEFAULT_CSRF_HEADER_NAME));
+        config.setAllowedMethods(
+                getPropertiesAsList(
+                        "http.cors.allow-methods", "OPTIONS, GET, POST, PUT, PATCH, DELETE"));
+        config.setExposedHeaders(
+                getPropertiesAsList(
+                        "http.cors.exposed-headers", "ETag, " + DEFAULT_CSRF_HEADER_NAME));
         config.setMaxAge(environment.getProperty("http.cors.max-age", Long.class, 1728000L));
 
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -393,6 +433,6 @@ public class SecurityConfiguration {
         if (property == null) {
             property = defaultValue;
         }
-        return asList(property.replaceAll("\\s+","").split(","));
+        return asList(property.replaceAll("\\s+", "").split(","));
     }
 }

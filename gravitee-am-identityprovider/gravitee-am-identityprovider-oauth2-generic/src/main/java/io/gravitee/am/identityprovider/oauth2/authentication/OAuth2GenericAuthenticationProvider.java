@@ -1,21 +1,18 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.identityprovider.oauth2.authentication;
 
-import com.nimbusds.jwt.proc.JWTProcessor;
 import io.gravitee.am.identityprovider.api.IdentityProviderMapper;
 import io.gravitee.am.identityprovider.api.IdentityProviderRoleMapper;
 import io.gravitee.am.identityprovider.api.oidc.OpenIDConnectIdentityProviderConfiguration;
@@ -23,19 +20,17 @@ import io.gravitee.am.identityprovider.api.oidc.jwt.KeyResolver;
 import io.gravitee.am.identityprovider.common.oauth2.authentication.AbstractOpenIDConnectAuthenticationProvider;
 import io.gravitee.am.identityprovider.oauth2.OAuth2GenericIdentityProviderConfiguration;
 import io.gravitee.am.identityprovider.oauth2.authentication.spring.OAuth2GenericAuthenticationProviderConfiguration;
-import io.gravitee.am.model.flow.Flow;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
-import io.reactivex.Maybe;
 import io.reactivex.functions.Function;
 import io.vertx.reactivex.ext.web.client.WebClient;
+
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -45,7 +40,8 @@ import java.util.concurrent.TimeUnit;
  * @author GraviteeSource Team
  */
 @Import(OAuth2GenericAuthenticationProviderConfiguration.class)
-public class OAuth2GenericAuthenticationProvider extends AbstractOpenIDConnectAuthenticationProvider {
+public class OAuth2GenericAuthenticationProvider
+        extends AbstractOpenIDConnectAuthenticationProvider {
 
     private static final String AUTHORIZATION_ENDPOINT = "authorization_endpoint";
     private static final String TOKEN_ENDPOINT = "token_endpoint";
@@ -57,14 +53,11 @@ public class OAuth2GenericAuthenticationProvider extends AbstractOpenIDConnectAu
     @Qualifier("oauthWebClient")
     private WebClient client;
 
-    @Autowired
-    private IdentityProviderMapper mapper;
+    @Autowired private IdentityProviderMapper mapper;
 
-    @Autowired
-    private IdentityProviderRoleMapper roleMapper;
+    @Autowired private IdentityProviderRoleMapper roleMapper;
 
-    @Autowired
-    private OAuth2GenericIdentityProviderConfiguration configuration;
+    @Autowired private OAuth2GenericIdentityProviderConfiguration configuration;
 
     @Override
     public OpenIDConnectIdentityProviderConfiguration getConfiguration() {
@@ -93,8 +86,10 @@ public class OAuth2GenericAuthenticationProvider extends AbstractOpenIDConnectAu
         // check configuration
         // a client secret is required if authorization code flow is used
         if (io.gravitee.am.common.oauth2.ResponseType.CODE.equals(configuration.getResponseType())
-                && (configuration.getClientSecret() == null || configuration.getClientSecret().isEmpty())) {
-            throw new IllegalArgumentException("A client_secret must be supplied in order to use the Authorization Code flow");
+                && (configuration.getClientSecret() == null
+                        || configuration.getClientSecret().isEmpty())) {
+            throw new IllegalArgumentException(
+                    "A client_secret must be supplied in order to use the Authorization Code flow");
         }
 
         initializeAuthProvider().subscribe();
@@ -104,51 +99,77 @@ public class OAuth2GenericAuthenticationProvider extends AbstractOpenIDConnectAu
         // fetch OpenID Provider information
         final RetryWithDelay retryHandler = new RetryWithDelay();
         return Completable.fromAction(() -> getOpenIDProviderConfiguration(configuration))
-                .doOnError((error) -> LOGGER.warn("Unable to load configuration from '{}' due to : {}", configuration.getWellKnownUri(), error.getMessage()))
+                .doOnError(
+                        (error) ->
+                                LOGGER.warn(
+                                        "Unable to load configuration from '{}' due to : {}",
+                                        configuration.getWellKnownUri(),
+                                        error.getMessage()))
                 .retryWhen(retryHandler)
                 .andThen(Completable.fromAction(() -> generateJWTProcessor(configuration)));
     }
 
-    private void getOpenIDProviderConfiguration(OAuth2GenericIdentityProviderConfiguration configuration) {
+    private void getOpenIDProviderConfiguration(
+            OAuth2GenericIdentityProviderConfiguration configuration) {
         // fetch OpenID Provider information
         if (configuration.getWellKnownUri() != null && !configuration.getWellKnownUri().isEmpty()) {
             try {
-                Map<String, Object> providerConfiguration = client.getAbs(configuration.getWellKnownUri())
-                        .rxSend()
-                        .map(httpClientResponse -> {
-                            if (httpClientResponse.statusCode() != 200) {
-                                throw new IllegalArgumentException("Invalid OIDC Well-Known Endpoint : " + httpClientResponse.statusMessage());
-                            }
-                            return httpClientResponse.bodyAsJsonObject().getMap();
-                        }).blockingGet();
+                Map<String, Object> providerConfiguration =
+                        client.getAbs(configuration.getWellKnownUri())
+                                .rxSend()
+                                .map(
+                                        httpClientResponse -> {
+                                            if (httpClientResponse.statusCode() != 200) {
+                                                throw new IllegalArgumentException(
+                                                        "Invalid OIDC Well-Known Endpoint : "
+                                                                + httpClientResponse
+                                                                        .statusMessage());
+                                            }
+                                            return httpClientResponse.bodyAsJsonObject().getMap();
+                                        })
+                                .blockingGet();
 
                 if (providerConfiguration.containsKey(AUTHORIZATION_ENDPOINT)) {
-                    configuration.setUserAuthorizationUri((String) providerConfiguration.get(AUTHORIZATION_ENDPOINT));
+                    configuration.setUserAuthorizationUri(
+                            (String) providerConfiguration.get(AUTHORIZATION_ENDPOINT));
                 }
                 if (providerConfiguration.containsKey(TOKEN_ENDPOINT)) {
-                    configuration.setAccessTokenUri((String) providerConfiguration.get(TOKEN_ENDPOINT));
+                    configuration.setAccessTokenUri(
+                            (String) providerConfiguration.get(TOKEN_ENDPOINT));
                 }
                 if (providerConfiguration.containsKey(USERINFO_ENDPOINT)) {
-                    configuration.setUserProfileUri((String) providerConfiguration.get(USERINFO_ENDPOINT));
+                    configuration.setUserProfileUri(
+                            (String) providerConfiguration.get(USERINFO_ENDPOINT));
                 }
                 if (providerConfiguration.containsKey(END_SESSION_ENDPOINT)) {
-                    configuration.setLogoutUri((String) providerConfiguration.get(END_SESSION_ENDPOINT));
+                    configuration.setLogoutUri(
+                            (String) providerConfiguration.get(END_SESSION_ENDPOINT));
                 }
 
-                // try to use the JWKS provided by the well-known endpoint if it is not specified into the configuration form
-                if (configuration.getPublicKeyResolver() == KeyResolver.JWKS_URL && ObjectUtils.isEmpty(configuration.getResolverParameter())) {
-                    configuration.setResolverParameter((String) providerConfiguration.get(JWKS_ENDPOINT));
+                // try to use the JWKS provided by the well-known endpoint if it is not specified
+                // into the configuration form
+                if (configuration.getPublicKeyResolver() == KeyResolver.JWKS_URL
+                        && ObjectUtils.isEmpty(configuration.getResolverParameter())) {
+                    configuration.setResolverParameter(
+                            (String) providerConfiguration.get(JWKS_ENDPOINT));
                 }
 
                 // configuration verification
-                Assert.notNull(configuration.getUserAuthorizationUri(), "OAuth 2.0 Authorization endpoint is required");
+                Assert.notNull(
+                        configuration.getUserAuthorizationUri(),
+                        "OAuth 2.0 Authorization endpoint is required");
 
-                if (configuration.getAccessTokenUri() == null && io.gravitee.am.common.oauth2.ResponseType.CODE.equals(configuration.getResponseType())) {
-                    throw new IllegalStateException("OAuth 2.0 token endpoint is required for the Authorization code flow");
+                if (configuration.getAccessTokenUri() == null
+                        && io.gravitee.am.common.oauth2.ResponseType.CODE.equals(
+                                configuration.getResponseType())) {
+                    throw new IllegalStateException(
+                            "OAuth 2.0 token endpoint is required for the Authorization code flow");
                 }
 
-                if (configuration.getUserProfileUri() == null && !configuration.isUseIdTokenForUserInfo()) {
-                    throw new IllegalStateException("OpenID Connect UserInfo Endpoint is required to retrieve user information");
+                if (configuration.getUserProfileUri() == null
+                        && !configuration.isUseIdTokenForUserInfo()) {
+                    throw new IllegalStateException(
+                            "OpenID Connect UserInfo Endpoint is required to retrieve user information");
                 }
             } catch (Exception e) {
                 throw new IllegalStateException(e.getMessage());
@@ -156,21 +177,20 @@ public class OAuth2GenericAuthenticationProvider extends AbstractOpenIDConnectAu
         }
     }
 
-    /**
-     * trigger a retry with a delay of 1 second up to 60 seconds.
-     */
+    /** trigger a retry with a delay of 1 second up to 60 seconds. */
     private class RetryWithDelay implements Function<Flowable<Throwable>, Publisher<?>> {
 
         private int delayInSec = 0;
 
         @Override
         public Publisher<?> apply(Flowable<Throwable> throwableFlowable) throws Exception {
-            return throwableFlowable.flatMap(err-> {
-                if (delayInSec < 60) {
-                    delayInSec = delayInSec + Math.max(delayInSec, 1);
-                }
-                return Flowable.timer(delayInSec, TimeUnit.SECONDS);
-            });
+            return throwableFlowable.flatMap(
+                    err -> {
+                        if (delayInSec < 60) {
+                            delayInSec = delayInSec + Math.max(delayInSec, 1);
+                        }
+                        return Flowable.timer(delayInSec, TimeUnit.SECONDS);
+                    });
         }
     }
 }

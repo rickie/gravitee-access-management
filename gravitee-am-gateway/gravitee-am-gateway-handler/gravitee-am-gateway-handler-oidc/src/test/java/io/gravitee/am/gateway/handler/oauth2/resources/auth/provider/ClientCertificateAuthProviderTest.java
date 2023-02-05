@@ -1,38 +1,38 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.auth.provider;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.model.oidc.Client;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import javax.net.ssl.SSLPeerUnverifiedException;
-import javax.net.ssl.SSLSession;
 import java.security.Principal;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
 
 /**
  * Client Authentication method : tls_client_auth
@@ -58,11 +58,14 @@ public class ClientCertificateAuthProviderTest {
         when(context.request()).thenReturn(httpServerRequest);
 
         CountDownLatch latch = new CountDownLatch(1);
-        authProvider.handle(client, context, clientAsyncResult -> {
-            latch.countDown();
-            Assert.assertNotNull(clientAsyncResult);
-            Assert.assertNotNull(clientAsyncResult.cause());
-        });
+        authProvider.handle(
+                client,
+                context,
+                clientAsyncResult -> {
+                    latch.countDown();
+                    Assert.assertNotNull(clientAsyncResult);
+                    Assert.assertNotNull(clientAsyncResult.cause());
+                });
 
         assertTrue(latch.await(10, TimeUnit.SECONDS));
     }
@@ -80,17 +83,20 @@ public class ClientCertificateAuthProviderTest {
         when(subjectDN.getName()).thenReturn("CN=localhost, O=GraviteeSource, C=FR");
         when(certificate.getSubjectDN()).thenReturn(subjectDN);
         when(httpServerRequest.sslSession()).thenReturn(sslSession);
-        when(sslSession.getPeerCertificates()).thenReturn(new Certificate[]{certificate});
+        when(sslSession.getPeerCertificates()).thenReturn(new Certificate[] {certificate});
 
         RoutingContext context = mock(RoutingContext.class);
         when(context.request()).thenReturn(httpServerRequest);
 
         CountDownLatch latch = new CountDownLatch(1);
-        authProvider.handle(client, context, clientAsyncResult -> {
-            latch.countDown();
-            Assert.assertNotNull(clientAsyncResult);
-            Assert.assertNotNull(clientAsyncResult.cause());
-        });
+        authProvider.handle(
+                client,
+                context,
+                clientAsyncResult -> {
+                    latch.countDown();
+                    Assert.assertNotNull(clientAsyncResult);
+                    Assert.assertNotNull(clientAsyncResult.cause());
+                });
 
         assertTrue(latch.await(10, TimeUnit.SECONDS));
     }
@@ -108,17 +114,20 @@ public class ClientCertificateAuthProviderTest {
         when(subjectDN.getName()).thenReturn("CN=localhost, O=GraviteeSource, C=FR");
         when(certificate.getSubjectDN()).thenReturn(subjectDN);
         when(httpServerRequest.sslSession()).thenReturn(sslSession);
-        when(sslSession.getPeerCertificates()).thenReturn(new Certificate[]{certificate});
+        when(sslSession.getPeerCertificates()).thenReturn(new Certificate[] {certificate});
 
         RoutingContext context = mock(RoutingContext.class);
         when(context.request()).thenReturn(httpServerRequest);
 
         CountDownLatch latch = new CountDownLatch(1);
-        authProvider.handle(client, context, clientAsyncResult -> {
-            latch.countDown();
-            Assert.assertNotNull(clientAsyncResult);
-            Assert.assertNotNull(clientAsyncResult.result());
-        });
+        authProvider.handle(
+                client,
+                context,
+                clientAsyncResult -> {
+                    latch.countDown();
+                    Assert.assertNotNull(clientAsyncResult);
+                    Assert.assertNotNull(clientAsyncResult.result());
+                });
 
         assertTrue(latch.await(10, TimeUnit.SECONDS));
     }

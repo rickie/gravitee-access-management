@@ -1,21 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.spring.email;
 
 import io.gravitee.common.util.EnvironmentUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -34,8 +33,8 @@ import java.util.Properties;
 @Configuration
 public class EmailConfiguration {
 
-    private final static String EMAIL_PROPERTIES_PREFIX = "email.properties";
-    private final static String MAILAPI_PROPERTIES_PREFIX = "mail.smtp.";
+    private static final String EMAIL_PROPERTIES_PREFIX = "email.properties";
+    private static final String MAILAPI_PROPERTIES_PREFIX = "mail.smtp.";
 
     @Value("${email.enabled:false}")
     private boolean enabled;
@@ -58,8 +57,7 @@ public class EmailConfiguration {
     @Value("${email.from}")
     private String from;
 
-    @Autowired
-    private ConfigurableEnvironment environment;
+    @Autowired private ConfigurableEnvironment environment;
 
     @Bean
     public JavaMailSender mailSender() {
@@ -77,12 +75,16 @@ public class EmailConfiguration {
     }
 
     private Properties loadProperties() {
-        Map<String, Object> envProperties = EnvironmentUtils.getPropertiesStartingWith(environment, EMAIL_PROPERTIES_PREFIX);
+        Map<String, Object> envProperties =
+                EnvironmentUtils.getPropertiesStartingWith(environment, EMAIL_PROPERTIES_PREFIX);
 
         Properties properties = new Properties();
-        envProperties.forEach((key, value) -> properties.setProperty(
-                MAILAPI_PROPERTIES_PREFIX + key.substring(EMAIL_PROPERTIES_PREFIX.length() + 1),
-                value.toString()));
+        envProperties.forEach(
+                (key, value) ->
+                        properties.setProperty(
+                                MAILAPI_PROPERTIES_PREFIX
+                                        + key.substring(EMAIL_PROPERTIES_PREFIX.length() + 1),
+                                value.toString()));
 
         return properties;
     }
@@ -120,7 +122,8 @@ public class EmailConfiguration {
     }
 
     private <T> T getProperty(String propName, T defaultValue, Class<T> clazz) {
-        final Map<String, Object> emailProperties = EnvironmentUtils.getPropertiesStartingWith(environment, EMAIL_PROPERTIES_PREFIX);
+        final Map<String, Object> emailProperties =
+                EnvironmentUtils.getPropertiesStartingWith(environment, EMAIL_PROPERTIES_PREFIX);
         if (emailProperties.containsKey(EMAIL_PROPERTIES_PREFIX + "." + propName)) {
             return (T) emailProperties.get(EMAIL_PROPERTIES_PREFIX + "." + propName);
         } else {
@@ -131,5 +134,4 @@ public class EmailConfiguration {
     public boolean useStartTls() {
         return getProperty("starttls.enable", false, Boolean.class);
     }
-
 }

@@ -1,19 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.reporter.jdbc.audit;
+
+import static io.r2dbc.spi.ConnectionFactoryOptions.DATABASE;
+import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.HOST;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PASSWORD;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PORT;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PROTOCOL;
+import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
 
 import io.gravitee.am.reporter.jdbc.JdbcReporterConfiguration;
 import io.gravitee.am.reporter.jdbc.spring.JdbcReporterSpringConfiguration;
@@ -24,6 +30,7 @@ import io.gravitee.am.repository.provider.ClientWrapper;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryOptions;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,14 +50,6 @@ import org.springframework.transaction.ReactiveTransactionManager;
 
 import java.util.Optional;
 
-import static io.r2dbc.spi.ConnectionFactoryOptions.DATABASE;
-import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
-import static io.r2dbc.spi.ConnectionFactoryOptions.HOST;
-import static io.r2dbc.spi.ConnectionFactoryOptions.PASSWORD;
-import static io.r2dbc.spi.ConnectionFactoryOptions.PORT;
-import static io.r2dbc.spi.ConnectionFactoryOptions.PROTOCOL;
-import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
@@ -58,8 +57,7 @@ import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
 @Configuration
 public class JdbcReporterJUnitConfiguration extends JdbcReporterSpringConfiguration {
 
-    @Autowired
-    protected R2dbcDatabaseContainer dbContainer;
+    @Autowired protected R2dbcDatabaseContainer dbContainer;
 
     private ConnectionFactory connectionFactory;
 
@@ -67,13 +65,14 @@ public class JdbcReporterJUnitConfiguration extends JdbcReporterSpringConfigurat
     public ConnectionFactory connectionFactory() {
         if (connectionFactory == null) {
             ConnectionFactoryOptions options = dbContainer.getOptions();
-            options = ConnectionFactoryOptions.builder()
-                    .from(options)
-                    .option(DRIVER, "pool")
-                    .option(PROTOCOL, options.getValue(DRIVER))
-                    .build();
+            options =
+                    ConnectionFactoryOptions.builder()
+                            .from(options)
+                            .option(DRIVER, "pool")
+                            .option(PROTOCOL, options.getValue(DRIVER))
+                            .build();
             this.connectionFactory = ConnectionFactories.get(options);
-    }
+        }
         return this.connectionFactory;
     }
 
@@ -103,7 +102,8 @@ public class JdbcReporterJUnitConfiguration extends JdbcReporterSpringConfigurat
 
         @Override
         public ClientWrapper getClientWrapper(String name) {
-            return new R2DBCPoolWrapper(null, JdbcReporterJUnitConfiguration.this.connectionFactory());
+            return new R2DBCPoolWrapper(
+                    null, JdbcReporterJUnitConfiguration.this.connectionFactory());
         }
     }
 
@@ -128,13 +128,17 @@ public class JdbcReporterJUnitConfiguration extends JdbcReporterSpringConfigurat
     }
 
     @Override
-    public R2dbcEntityTemplate r2dbcEntityTemplate(DatabaseClient databaseClient, ReactiveDataAccessStrategy dataAccessStrategy) {
+    public R2dbcEntityTemplate r2dbcEntityTemplate(
+            DatabaseClient databaseClient, ReactiveDataAccessStrategy dataAccessStrategy) {
         return new R2dbcEntityTemplate(databaseClient, dataAccessStrategy);
     }
 
     @Override
-    public R2dbcMappingContext r2dbcMappingContext(Optional<NamingStrategy> namingStrategy, R2dbcCustomConversions r2dbcCustomConversions) {
-        R2dbcMappingContext context = new R2dbcMappingContext(namingStrategy.orElse(NamingStrategy.INSTANCE));
+    public R2dbcMappingContext r2dbcMappingContext(
+            Optional<NamingStrategy> namingStrategy,
+            R2dbcCustomConversions r2dbcCustomConversions) {
+        R2dbcMappingContext context =
+                new R2dbcMappingContext(namingStrategy.orElse(NamingStrategy.INSTANCE));
         context.setSimpleTypeHolder(r2dbcCustomConversions.getSimpleTypeHolder());
 
         return context;
@@ -146,7 +150,8 @@ public class JdbcReporterJUnitConfiguration extends JdbcReporterSpringConfigurat
     }
 
     @Override
-    public MappingR2dbcConverter r2dbcConverter(R2dbcMappingContext mappingContext, R2dbcCustomConversions r2dbcCustomConversions) {
+    public MappingR2dbcConverter r2dbcConverter(
+            R2dbcMappingContext mappingContext, R2dbcCustomConversions r2dbcCustomConversions) {
         return new MappingR2dbcConverter(mappingContext, r2dbcCustomConversions);
     }
 

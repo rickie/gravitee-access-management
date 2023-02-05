@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.model.uma;
@@ -21,68 +19,49 @@ import java.util.Date;
 import java.util.List;
 
 /**
- *
- * Resource as described <a href="https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-federated-authz-2.0.html#resource-set-desc">here</a>
+ * Resource as described <a
+ * href="https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-federated-authz-2.0.html#resource-set-desc">here</a>
  *
  * @author Alexandre FARIA (contact at alexandrefaria.net)
  * @author GraviteeSource Team
  */
 public class Resource {
 
-    /**
-     * Resource technical id
-     */
+    /** Resource technical id */
     private String id;
 
     /**
-     * An array of strings, serving as scope identifiers, indicating the available scopes for this resource.
+     * An array of strings, serving as scope identifiers, indicating the available scopes for this
+     * resource.
      */
     private List<String> resourceScopes;
 
-    /**
-     * A human-readable string describing the resource at length.
-     */
+    /** A human-readable string describing the resource at length. */
     private String description;
 
-    /**
-     * A URI for a graphic icon representing the resource.
-     */
+    /** A URI for a graphic icon representing the resource. */
     private String iconUri;
 
-    /**
-     * A human-readable string naming the resource.
-     */
+    /** A human-readable string naming the resource. */
     private String name;
 
-    /**
-     * A string identifying the semantics of the resource.
-     */
+    /** A string identifying the semantics of the resource. */
     private String type;
 
-    /**
-     * Security domain associated to the Resource
-     */
+    /** Security domain associated to the Resource */
     private String domain;
 
-    /**
-     * Resource Owner id
-     */
+    /** Resource Owner id */
     private String userId;
 
-    /**
-     * Resource Server client id
-     */
+    /** Resource Server client id */
     private String clientId;
 
-    /**
-     * The Client creation date
-     */
+    /** The Client creation date */
     @ApiModelProperty(dataType = "java.lang.Long")
     private Date createdAt;
 
-    /**
-     * The Client last updated date
-     */
+    /** The Client last updated date */
     @ApiModelProperty(dataType = "java.lang.Long")
     private Date updatedAt;
 

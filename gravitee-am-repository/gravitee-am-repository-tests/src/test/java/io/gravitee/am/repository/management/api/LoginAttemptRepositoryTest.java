@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
@@ -19,6 +17,7 @@ import io.gravitee.am.model.LoginAttempt;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.management.api.search.LoginAttemptCriteria;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,8 +30,7 @@ import java.util.UUID;
  * @author GraviteeSource Team
  */
 public class LoginAttemptRepositoryTest extends AbstractManagementTest {
-    @Autowired
-    protected LoginAttemptRepository repository;
+    @Autowired protected LoginAttemptRepository repository;
 
     @Test
     public void shouldCreate() {
@@ -50,7 +48,8 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
         LoginAttempt attempt = buildLoginAttempt();
         LoginAttempt createdAttempt = repository.create(attempt).blockingGet();
 
-        TestObserver<LoginAttempt> testObserver = repository.findById(createdAttempt.getId()).test();
+        TestObserver<LoginAttempt> testObserver =
+                repository.findById(createdAttempt.getId()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(l -> l.getId().equals(createdAttempt.getId()));
@@ -65,12 +64,16 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
         LoginAttempt unexpectedAttempt = buildLoginAttempt();
         repository.create(unexpectedAttempt).blockingGet();
 
-        TestObserver<LoginAttempt> testObserver = repository.findByCriteria(new LoginAttemptCriteria.Builder()
-                .client(attempt.getClient())
-                .domain(attempt.getDomain())
-                .username(attempt.getUsername())
-                .identityProvider(attempt.getIdentityProvider())
-                .build()).test();
+        TestObserver<LoginAttempt> testObserver =
+                repository
+                        .findByCriteria(
+                                new LoginAttemptCriteria.Builder()
+                                        .client(attempt.getClient())
+                                        .domain(attempt.getDomain())
+                                        .username(attempt.getUsername())
+                                        .identityProvider(attempt.getIdentityProvider())
+                                        .build())
+                        .test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
@@ -83,12 +86,16 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
         LoginAttempt attempt = buildLoginAttempt();
         repository.create(attempt).blockingGet();
 
-        TestObserver<LoginAttempt> testObserver = repository.findByCriteria(new LoginAttemptCriteria.Builder()
-                .client(attempt.getClient())
-                .domain("unknown")
-                .username(attempt.getUsername())
-                .identityProvider(attempt.getIdentityProvider())
-                .build()).test();
+        TestObserver<LoginAttempt> testObserver =
+                repository
+                        .findByCriteria(
+                                new LoginAttemptCriteria.Builder()
+                                        .client(attempt.getClient())
+                                        .domain("unknown")
+                                        .username(attempt.getUsername())
+                                        .identityProvider(attempt.getIdentityProvider())
+                                        .build())
+                        .test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
@@ -101,7 +108,8 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
         LoginAttempt attempt = buildLoginAttempt();
         LoginAttempt createdAttempt = repository.create(attempt).blockingGet();
 
-        TestObserver<LoginAttempt> testObserver = repository.findById(createdAttempt.getId()).test();
+        TestObserver<LoginAttempt> testObserver =
+                repository.findById(createdAttempt.getId()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         assertEqualsTo(createdAttempt, testObserver);
@@ -116,12 +124,16 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
         assertEqualsTo(createdUnexpectedAttempt, testObserver);
 
         // delete one of LoginAttempt
-        TestObserver<Void> deleteObserver = repository.delete(new LoginAttemptCriteria.Builder()
-                .client(attempt.getClient())
-                .domain(attempt.getDomain())
-                .username(attempt.getUsername())
-                .identityProvider(attempt.getIdentityProvider())
-                .build()).test();
+        TestObserver<Void> deleteObserver =
+                repository
+                        .delete(
+                                new LoginAttemptCriteria.Builder()
+                                        .client(attempt.getClient())
+                                        .domain(attempt.getDomain())
+                                        .username(attempt.getUsername())
+                                        .identityProvider(attempt.getIdentityProvider())
+                                        .build())
+                        .test();
 
         deleteObserver.awaitTerminalEvent();
         deleteObserver.assertNoErrors();
@@ -144,7 +156,8 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
         LoginAttempt attempt = buildLoginAttempt();
         LoginAttempt createdAttempt = repository.create(attempt).blockingGet();
 
-        TestObserver<LoginAttempt> testObserver = repository.findById(createdAttempt.getId()).test();
+        TestObserver<LoginAttempt> testObserver =
+                repository.findById(createdAttempt.getId()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(l -> l != null);
@@ -164,7 +177,8 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
         LoginAttempt attempt = buildLoginAttempt();
         LoginAttempt createdAttempt = repository.create(attempt).blockingGet();
 
-        TestObserver<LoginAttempt> testObserver = repository.findById(createdAttempt.getId()).test();
+        TestObserver<LoginAttempt> testObserver =
+                repository.findById(createdAttempt.getId()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(l -> l != null);
@@ -176,27 +190,27 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
         TestObserver<LoginAttempt> updateObserver = repository.update(updatableAttempt).test();
         updateObserver.awaitTerminalEvent();
         updateObserver.assertNoErrors();
-        updateObserver.assertValue( l -> l.getId().equals(createdAttempt.getId()));
+        updateObserver.assertValue(l -> l.getId().equals(createdAttempt.getId()));
         assertEqualsTo(updatableAttempt, updateObserver);
     }
-
 
     private void assertEqualsTo(LoginAttempt attempt, TestObserver<LoginAttempt> testObserver) {
         testObserver.assertValue(l -> l.getAttempts() == attempt.getAttempts());
         testObserver.assertValue(l -> l.getClient().equals(attempt.getClient()));
         testObserver.assertValue(l -> l.getDomain().equals(attempt.getDomain()));
         testObserver.assertValue(l -> l.getUsername().equals(attempt.getUsername()));
-        testObserver.assertValue(l -> l.getIdentityProvider().equals(attempt.getIdentityProvider()));
+        testObserver.assertValue(
+                l -> l.getIdentityProvider().equals(attempt.getIdentityProvider()));
     }
 
     private LoginAttempt buildLoginAttempt() {
         LoginAttempt attempt = new LoginAttempt();
         String random = UUID.randomUUID().toString();
         attempt.setAttempts(1);
-        attempt.setClient("client"+random);
-        attempt.setDomain("domain"+random);
-        attempt.setIdentityProvider("idp"+random);
-        attempt.setUsername("user"+random);
+        attempt.setClient("client" + random);
+        attempt.setDomain("domain" + random);
+        attempt.setIdentityProvider("idp" + random);
+        attempt.setUsername("user" + random);
         Date createdAt = new Date();
         attempt.setCreatedAt(createdAt);
         attempt.setUpdatedAt(createdAt);

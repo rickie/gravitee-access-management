@@ -1,19 +1,26 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.resources;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
@@ -30,9 +37,8 @@ import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.junit.Test;
 
-import javax.ws.rs.core.Response;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,21 +48,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
+import javax.ws.rs.core.Response;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class DomainResourceTest extends JerseySpringTest {
-
 
     public static final String ORGANIZATION_ID = "orga-1";
     public static final String ENTRYPOINT_ID1 = "entrypoint-1";
@@ -72,8 +70,12 @@ public class DomainResourceTest extends JerseySpringTest {
 
         final Domain mockDomain = buildDomainMock();
 
-        doReturn(Single.just(true)).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
-        doReturn(Single.just(Permission.allPermissionAcls(ReferenceType.DOMAIN))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString());
+        doReturn(Single.just(true))
+                .when(permissionService)
+                .hasPermission(any(User.class), any(PermissionAcls.class));
+        doReturn(Single.just(Permission.allPermissionAcls(ReferenceType.DOMAIN)))
+                .when(permissionService)
+                .findAllPermissions(any(User.class), any(ReferenceType.class), anyString());
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(mockDomain.getId());
 
         final Response response = target("domains").path(mockDomain.getId()).request().get();
@@ -101,8 +103,15 @@ public class DomainResourceTest extends JerseySpringTest {
 
         final Domain mockDomain = buildDomainMock();
 
-        doReturn(Single.just(true)).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
-        doReturn(Single.just(Permission.of(Permission.DOMAIN, Acl.READ))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString()); // only domain read permission
+        doReturn(Single.just(true))
+                .when(permissionService)
+                .hasPermission(any(User.class), any(PermissionAcls.class));
+        doReturn(Single.just(Permission.of(Permission.DOMAIN, Acl.READ)))
+                .when(permissionService)
+                .findAllPermissions(
+                        any(User.class),
+                        any(ReferenceType.class),
+                        anyString()); // only domain read permission
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(mockDomain.getId());
 
         final Response response = target("domains").path(mockDomain.getId()).request().get();
@@ -138,7 +147,9 @@ public class DomainResourceTest extends JerseySpringTest {
     public void shouldGetDomain_forbidden() {
         final String domainId = "domain-id";
 
-        doReturn(Single.just(false)).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
+        doReturn(Single.just(false))
+                .when(permissionService)
+                .hasPermission(any(User.class), any(PermissionAcls.class));
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
         final Response response = target("domains").path(domainId).request().get();
@@ -148,7 +159,9 @@ public class DomainResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetDomain_technicalManagementException() {
         final String domainId = "domain-id";
-        doReturn(Maybe.error(new TechnicalManagementException("error occurs"))).when(domainService).findById(domainId);
+        doReturn(Maybe.error(new TechnicalManagementException("error occurs")))
+                .when(domainService)
+                .findById(domainId);
 
         final Response response = target("domains").path(domainId).request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -161,9 +174,15 @@ public class DomainResourceTest extends JerseySpringTest {
         PatchDomain patchDomain = new PatchDomain();
         patchDomain.setDescription(Optional.of("New description"));
 
-        doReturn(Single.just(true)).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
-        doReturn(Single.just(Permission.allPermissionAcls(ReferenceType.DOMAIN))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString());
-        doReturn(Single.just(mockDomain)).when(domainService).patch(eq(mockDomain.getId()), any(PatchDomain.class), any(User.class));
+        doReturn(Single.just(true))
+                .when(permissionService)
+                .hasPermission(any(User.class), any(PermissionAcls.class));
+        doReturn(Single.just(Permission.allPermissionAcls(ReferenceType.DOMAIN)))
+                .when(permissionService)
+                .findAllPermissions(any(User.class), any(ReferenceType.class), anyString());
+        doReturn(Single.just(mockDomain))
+                .when(domainService)
+                .patch(eq(mockDomain.getId()), any(PatchDomain.class), any(User.class));
 
         final Response response = put(target("domains").path(mockDomain.getId()), patchDomain);
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -202,9 +221,15 @@ public class DomainResourceTest extends JerseySpringTest {
         patchDomain.setVhostMode(Optional.of(true));
         patchDomain.setVhosts(Optional.of(vhosts));
 
-        doReturn(Single.just(true)).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
-        doReturn(Single.just(Permission.allPermissionAcls(ReferenceType.DOMAIN))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString());
-        doReturn(Single.just(mockDomain)).when(domainService).patch(eq(mockDomain.getId()), any(PatchDomain.class), any(User.class));
+        doReturn(Single.just(true))
+                .when(permissionService)
+                .hasPermission(any(User.class), any(PermissionAcls.class));
+        doReturn(Single.just(Permission.allPermissionAcls(ReferenceType.DOMAIN)))
+                .when(permissionService)
+                .findAllPermissions(any(User.class), any(ReferenceType.class), anyString());
+        doReturn(Single.just(mockDomain))
+                .when(domainService)
+                .patch(eq(mockDomain.getId()), any(PatchDomain.class), any(User.class));
 
         final Response response = put(target("domains").path(mockDomain.getId()), patchDomain);
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -236,9 +261,18 @@ public class DomainResourceTest extends JerseySpringTest {
         PatchDomain patchDomain = new PatchDomain();
         patchDomain.setDescription(Optional.of("New description"));
 
-        doReturn(Single.just(true)).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
-        doReturn(Single.just(Permission.of(Permission.DOMAIN, Acl.READ))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString()); // only domain read permission
-        doReturn(Single.just(mockDomain)).when(domainService).patch(eq(mockDomain.getId()), any(PatchDomain.class), any(User.class));
+        doReturn(Single.just(true))
+                .when(permissionService)
+                .hasPermission(any(User.class), any(PermissionAcls.class));
+        doReturn(Single.just(Permission.of(Permission.DOMAIN, Acl.READ)))
+                .when(permissionService)
+                .findAllPermissions(
+                        any(User.class),
+                        any(ReferenceType.class),
+                        anyString()); // only domain read permission
+        doReturn(Single.just(mockDomain))
+                .when(domainService)
+                .patch(eq(mockDomain.getId()), any(PatchDomain.class), any(User.class));
 
         final Response response = put(target("domains").path(mockDomain.getId()), patchDomain);
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -267,8 +301,12 @@ public class DomainResourceTest extends JerseySpringTest {
         PatchDomain patchDomain = new PatchDomain();
         patchDomain.setDescription(Optional.of("New description"));
 
-        doReturn(Single.just(false)).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
-        doReturn(Single.just(new Domain())).when(domainService).patch(anyString(), any(PatchDomain.class), any(User.class));
+        doReturn(Single.just(false))
+                .when(permissionService)
+                .hasPermission(any(User.class), any(PermissionAcls.class));
+        doReturn(Single.just(new Domain()))
+                .when(domainService)
+                .patch(anyString(), any(PatchDomain.class), any(User.class));
 
         final Response response = put(target("domains").path(domainId), patchDomain);
         assertEquals(HttpStatusCode.FORBIDDEN_403, response.getStatus());
@@ -311,15 +349,20 @@ public class DomainResourceTest extends JerseySpringTest {
         mockDomain.setTags(new HashSet<>(Arrays.asList(TAG_ID1, TAG_ID2)));
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(mockDomain.getId());
-        doReturn(Flowable.just(entrypoint, entrypoint2, defaultEntrypoint)).when(entrypointService).findAll(ORGANIZATION_ID);
+        doReturn(Flowable.just(entrypoint, entrypoint2, defaultEntrypoint))
+                .when(entrypointService)
+                .findAll(ORGANIZATION_ID);
 
-        final Response response = target("organizations")
-                .path(ORGANIZATION_ID)
-                .path("environments")
-                .path(ENVIRONMENT_ID)
-                .path("domains")
-                .path(DOMAIN_ID)
-                .path("entrypoints").request().get();
+        final Response response =
+                target("organizations")
+                        .path(ORGANIZATION_ID)
+                        .path("environments")
+                        .path(ENVIRONMENT_ID)
+                        .path("domains")
+                        .path(DOMAIN_ID)
+                        .path("entrypoints")
+                        .request()
+                        .get();
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         List<Entrypoint> entrypoints = readListEntity(response, Entrypoint.class);
@@ -355,15 +398,20 @@ public class DomainResourceTest extends JerseySpringTest {
         mockDomain.setTags(new HashSet<>());
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(mockDomain.getId());
-        doReturn(Flowable.just(entrypoint, entrypoint2, defaultEntrypoint)).when(entrypointService).findAll(ORGANIZATION_ID);
+        doReturn(Flowable.just(entrypoint, entrypoint2, defaultEntrypoint))
+                .when(entrypointService)
+                .findAll(ORGANIZATION_ID);
 
-        final Response response = target("organizations")
-                .path(ORGANIZATION_ID)
-                .path("environments")
-                .path(ENVIRONMENT_ID)
-                .path("domains")
-                .path(DOMAIN_ID)
-                .path("entrypoints").request().get();
+        final Response response =
+                target("organizations")
+                        .path(ORGANIZATION_ID)
+                        .path("environments")
+                        .path(ENVIRONMENT_ID)
+                        .path("domains")
+                        .path(DOMAIN_ID)
+                        .path("entrypoints")
+                        .request()
+                        .get();
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         List<Entrypoint> entrypoints = readListEntity(response, Entrypoint.class);
@@ -399,15 +447,20 @@ public class DomainResourceTest extends JerseySpringTest {
         mockDomain.setTags(new HashSet<>(Arrays.asList(TAG_ID1, TAG_ID2)));
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(mockDomain.getId());
-        doReturn(Flowable.just(entrypoint, entrypoint2, defaultEntrypoint)).when(entrypointService).findAll(ORGANIZATION_ID);
+        doReturn(Flowable.just(entrypoint, entrypoint2, defaultEntrypoint))
+                .when(entrypointService)
+                .findAll(ORGANIZATION_ID);
 
-        final Response response = target("organizations")
-                .path(ORGANIZATION_ID)
-                .path("environments")
-                .path(ENVIRONMENT_ID)
-                .path("domains")
-                .path(DOMAIN_ID)
-                .path("entrypoints").request().get();
+        final Response response =
+                target("organizations")
+                        .path(ORGANIZATION_ID)
+                        .path("environments")
+                        .path(ENVIRONMENT_ID)
+                        .path("domains")
+                        .path(DOMAIN_ID)
+                        .path("entrypoints")
+                        .request()
+                        .get();
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         List<Entrypoint> entrypoints = readListEntity(response, Entrypoint.class);

@@ -1,34 +1,33 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.gravitee.am.repository.management.api;
+
+import static java.util.Objects.nonNull;
+import static java.util.concurrent.ThreadLocalRandom.current;
 
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.UserActivity;
 import io.gravitee.am.model.UserActivity.Type;
 import io.gravitee.am.repository.management.AbstractManagementTest;
+
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.UUID;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import static java.util.Objects.nonNull;
-import static java.util.concurrent.ThreadLocalRandom.current;
 
 /**
  * @author Rémi SULTAN (remi.sultan at graviteesource.com)
@@ -36,8 +35,7 @@ import static java.util.concurrent.ThreadLocalRandom.current;
  */
 public class UserActivityRepositoryTest extends AbstractManagementTest {
 
-    @Autowired
-    private UserActivityRepository userActivityRepository;
+    @Autowired private UserActivityRepository userActivityRepository;
 
     @Test
     public void must_find_by_id() {
@@ -51,14 +49,22 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
         testSubscriber.assertComplete();
         testSubscriber.assertNoErrors();
         testSubscriber.assertValue(ua -> createdUserActivity.getId().equals(ua.getId()));
-        testSubscriber.assertValue(ua -> createdUserActivity.getUserActivityKey().equals(ua.getUserActivityKey()));
-        testSubscriber.assertValue(ua -> createdUserActivity.getUserActivityType().equals(ua.getUserActivityType()));
-        testSubscriber.assertValue(ua -> createdUserActivity.getReferenceType().equals(ua.getReferenceType()));
-        testSubscriber.assertValue(ua -> createdUserActivity.getReferenceId().equals(ua.getReferenceId()));
-        testSubscriber.assertValue(ua -> createdUserActivity.getLatitude().equals(ua.getLatitude()));
-        testSubscriber.assertValue(ua -> createdUserActivity.getLongitude().equals(ua.getLongitude()));
-        testSubscriber.assertValue(ua -> createdUserActivity.getUserAgent().equals(ua.getUserAgent()));
-        testSubscriber.assertValue(ua -> createdUserActivity.getLoginAttempts().equals(ua.getLoginAttempts()));
+        testSubscriber.assertValue(
+                ua -> createdUserActivity.getUserActivityKey().equals(ua.getUserActivityKey()));
+        testSubscriber.assertValue(
+                ua -> createdUserActivity.getUserActivityType().equals(ua.getUserActivityType()));
+        testSubscriber.assertValue(
+                ua -> createdUserActivity.getReferenceType().equals(ua.getReferenceType()));
+        testSubscriber.assertValue(
+                ua -> createdUserActivity.getReferenceId().equals(ua.getReferenceId()));
+        testSubscriber.assertValue(
+                ua -> createdUserActivity.getLatitude().equals(ua.getLatitude()));
+        testSubscriber.assertValue(
+                ua -> createdUserActivity.getLongitude().equals(ua.getLongitude()));
+        testSubscriber.assertValue(
+                ua -> createdUserActivity.getUserAgent().equals(ua.getUserAgent()));
+        testSubscriber.assertValue(
+                ua -> createdUserActivity.getLoginAttempts().equals(ua.getLoginAttempts()));
         testSubscriber.assertValue(ua -> nonNull(ua.getCreatedAt()));
         testSubscriber.assertValue(ua -> nonNull(ua.getExpireAt()));
     }
@@ -94,16 +100,21 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
         testSubscriber.assertNoErrors();
 
         testSubscriber.assertValue(ua -> nonNull(ua.getId()));
-        testSubscriber.assertValue(ua -> userActivity.getUserActivityKey().equals(ua.getUserActivityKey()));
-        testSubscriber.assertValue(ua -> userActivity.getUserActivityType().equals(ua.getUserActivityType()));
-        testSubscriber.assertValue(ua -> userActivity.getReferenceType().equals(ua.getReferenceType()));
+        testSubscriber.assertValue(
+                ua -> userActivity.getUserActivityKey().equals(ua.getUserActivityKey()));
+        testSubscriber.assertValue(
+                ua -> userActivity.getUserActivityType().equals(ua.getUserActivityType()));
+        testSubscriber.assertValue(
+                ua -> userActivity.getReferenceType().equals(ua.getReferenceType()));
         testSubscriber.assertValue(ua -> userActivity.getReferenceId().equals(ua.getReferenceId()));
         testSubscriber.assertValue(ua -> userActivity.getLatitude().equals(ua.getLatitude()));
         testSubscriber.assertValue(ua -> userActivity.getLongitude().equals(ua.getLongitude()));
         testSubscriber.assertValue(ua -> userActivity.getUserAgent().equals(ua.getUserAgent()));
-        testSubscriber.assertValue(ua -> userActivity.getLoginAttempts().equals(ua.getLoginAttempts()));
+        testSubscriber.assertValue(
+                ua -> userActivity.getLoginAttempts().equals(ua.getLoginAttempts()));
         testSubscriber.assertValue(ua -> nonNull(ua.getCreatedAt()));
-        testSubscriber.assertValue(ua -> nonNull(ua.getExpireAt()));    }
+        testSubscriber.assertValue(ua -> nonNull(ua.getExpireAt()));
+    }
 
     @Test
     public void must_update_user_activity() {
@@ -112,9 +123,10 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
         var userActivity = buildUserActivity(id, key, "domainId");
         var createdUser = userActivityRepository.create(userActivity).blockingGet();
 
-        var activityToUpdate = copy(userActivity)
-                .setLatitude(randomCoordinate(90))
-                .setLongitude(randomCoordinate(180));
+        var activityToUpdate =
+                copy(userActivity)
+                        .setLatitude(randomCoordinate(90))
+                        .setLongitude(randomCoordinate(180));
 
         var testSubscriber = userActivityRepository.update(activityToUpdate).test();
 
@@ -131,7 +143,10 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
         userActivityRepository.create(buildUserActivity(null, key, "domainId")).blockingGet();
         userActivityRepository.create(buildUserActivity(null, key, "domainId")).blockingGet();
         userActivityRepository.create(buildUserActivity(null, "key-2", "domainId2")).blockingGet();
-        var testSubscriber = userActivityRepository.findByDomainAndTypeAndKey("domainId", Type.LOGIN, key).test();
+        var testSubscriber =
+                userActivityRepository
+                        .findByDomainAndTypeAndKey("domainId", Type.LOGIN, key)
+                        .test();
 
         testSubscriber.awaitTerminalEvent();
         testSubscriber.assertComplete();
@@ -145,7 +160,10 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
         userActivityRepository.create(buildUserActivity(null, key, "domainId")).blockingGet();
         userActivityRepository.create(buildUserActivity(null, key, "domainId")).blockingGet();
         userActivityRepository.create(buildUserActivity(null, "key-2", "domainId2")).blockingGet();
-        var testSubscriber = userActivityRepository.findByDomainAndTypeAndKeyAndLimit("domainId", Type.LOGIN, key, 1).test();
+        var testSubscriber =
+                userActivityRepository
+                        .findByDomainAndTypeAndKeyAndLimit("domainId", Type.LOGIN, key, 1)
+                        .test();
 
         testSubscriber.awaitTerminalEvent();
         testSubscriber.assertComplete();
@@ -156,10 +174,21 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
     @Test
     public void must_not_find_by_domain_and_key_expired() {
         final String key = "key-" + UUID.randomUUID();
-        userActivityRepository.create(buildUserActivity(null, key, "domainId").setExpireAt(new Date(System.currentTimeMillis() - 1000))).blockingGet();
-        userActivityRepository.create(buildUserActivity(null, key, "domainId").setExpireAt(new Date(System.currentTimeMillis() - 1000))).blockingGet();
+        userActivityRepository
+                .create(
+                        buildUserActivity(null, key, "domainId")
+                                .setExpireAt(new Date(System.currentTimeMillis() - 1000)))
+                .blockingGet();
+        userActivityRepository
+                .create(
+                        buildUserActivity(null, key, "domainId")
+                                .setExpireAt(new Date(System.currentTimeMillis() - 1000)))
+                .blockingGet();
         userActivityRepository.create(buildUserActivity(null, "key-2", "domainId2")).blockingGet();
-        var testSubscriber = userActivityRepository.findByDomainAndTypeAndKey("domainId", Type.LOGIN, key).test();
+        var testSubscriber =
+                userActivityRepository
+                        .findByDomainAndTypeAndKey("domainId", Type.LOGIN, key)
+                        .test();
 
         testSubscriber.assertEmpty();
     }
@@ -179,7 +208,10 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
         userActivityRepository.create(buildUserActivity(null, key, "domainId")).blockingGet();
         userActivityRepository.deleteByDomainAndKey("domainId", key).test().awaitTerminalEvent();
 
-        userActivityRepository.findByDomainAndTypeAndKey("domain", Type.LOGIN, key).test().assertEmpty();
+        userActivityRepository
+                .findByDomainAndTypeAndKey("domain", Type.LOGIN, key)
+                .test()
+                .assertEmpty();
     }
 
     @Test
@@ -188,7 +220,10 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
         userActivityRepository.create(buildUserActivity(null, key, "domainId")).blockingGet();
         userActivityRepository.deleteByDomain("domainId").test().awaitTerminalEvent();
 
-        userActivityRepository.findByDomainAndTypeAndKey("domainId", Type.LOGIN, key).test().assertEmpty();
+        userActivityRepository
+                .findByDomainAndTypeAndKey("domainId", Type.LOGIN, key)
+                .test()
+                .assertEmpty();
     }
 
     public UserActivity buildUserActivity(String id, String key, String refId) {

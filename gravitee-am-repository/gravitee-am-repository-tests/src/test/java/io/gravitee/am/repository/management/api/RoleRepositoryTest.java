@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
+
+import static org.junit.Assert.assertTrue;
 
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.Platform;
@@ -24,14 +24,13 @@ import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -40,8 +39,7 @@ import static org.junit.Assert.assertTrue;
 public class RoleRepositoryTest extends AbstractManagementTest {
     public static final String DOMAIN_ID = "domain#1";
 
-    @Autowired
-    private RoleRepository roleRepository;
+    @Autowired private RoleRepository roleRepository;
 
     @Test
     public void testFindByDomain() throws TechnicalException {
@@ -53,7 +51,8 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         roleRepository.create(role).blockingGet();
 
         // fetch roles
-        TestObserver<List<Role>> testObserver = roleRepository.findAll(ReferenceType.DOMAIN, "testDomain").toList().test();
+        TestObserver<List<Role>> testObserver =
+                roleRepository.findAll(ReferenceType.DOMAIN, "testDomain").toList().test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -97,12 +96,26 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         roleRepository.create(role4).blockingGet();
 
         // fetch roles 1 & 2
-        TestObserver<List<Role>> testObserver = roleRepository.findByNamesAndAssignableType(ReferenceType.PLATFORM, Platform.DEFAULT, Arrays.asList(NAME_1, NAME_2), ReferenceType.ORGANIZATION).toList().test();
+        TestObserver<List<Role>> testObserver =
+                roleRepository
+                        .findByNamesAndAssignableType(
+                                ReferenceType.PLATFORM,
+                                Platform.DEFAULT,
+                                Arrays.asList(NAME_1, NAME_2),
+                                ReferenceType.ORGANIZATION)
+                        .toList()
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        testObserver.assertValue(roles -> roles.size() == 2 && roles.stream().map(Role::getName).collect(Collectors.toList()).containsAll(Arrays.asList(NAME_1, NAME_2)));
+        testObserver.assertValue(
+                roles ->
+                        roles.size() == 2
+                                && roles.stream()
+                                        .map(Role::getName)
+                                        .collect(Collectors.toList())
+                                        .containsAll(Arrays.asList(NAME_1, NAME_2)));
     }
 
     @Test
@@ -126,12 +139,12 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         String random = UUID.randomUUID().toString();
         role.setSystem(true);
         role.setDefaultRole(true);
-        role.setName("name"+random);
-        role.setDescription("desc"+random);
-        role.setReferenceId("ref"+random);
+        role.setName("name" + random);
+        role.setDescription("desc" + random);
+        role.setReferenceId("ref" + random);
         role.setReferenceType(ReferenceType.DOMAIN);
         role.setAssignableType(ReferenceType.APPLICATION);
-        role.setOauthScopes(Arrays.asList("scope1"+random, "scope2"+random));
+        role.setOauthScopes(Arrays.asList("scope1" + random, "scope2" + random));
         role.setCreatedAt(new Date());
         role.setUpdatedAt(new Date());
         Map<Permission, Set<Acl>> permissions = new HashMap<>();
@@ -147,8 +160,13 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(r -> r.getReferenceId().equals(role.getReferenceId()));
         testObserver.assertValue(r -> r.getReferenceType().equals(role.getReferenceType()));
         testObserver.assertValue(r -> r.getOauthScopes().containsAll(role.getOauthScopes()));
-        testObserver.assertValue(r -> r.getPermissionAcls().keySet().containsAll(role.getPermissionAcls().keySet()));
-        testObserver.assertValue(r -> r.getPermissionAcls().get(Permission.APPLICATION).containsAll(role.getPermissionAcls().get(Permission.APPLICATION)));
+        testObserver.assertValue(
+                r -> r.getPermissionAcls().keySet().containsAll(role.getPermissionAcls().keySet()));
+        testObserver.assertValue(
+                r ->
+                        r.getPermissionAcls()
+                                .get(Permission.APPLICATION)
+                                .containsAll(role.getPermissionAcls().get(Permission.APPLICATION)));
     }
 
     @Test
@@ -160,7 +178,10 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         Role roleCreated = roleRepository.create(role).blockingGet();
 
         // fetch role
-        TestObserver<Role> testObserver = roleRepository.findById(ReferenceType.DOMAIN, DOMAIN_ID, roleCreated.getId()).test();
+        TestObserver<Role> testObserver =
+                roleRepository
+                        .findById(ReferenceType.DOMAIN, DOMAIN_ID, roleCreated.getId())
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -191,7 +212,8 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         roleRepository.create(role3).blockingGet();
 
         // fetch role
-        TestSubscriber<Role> testObserver = roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).test();
+        TestSubscriber<Role> testObserver =
+                roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -260,5 +282,4 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         // fetch role
         roleRepository.findById(roleCreated.getId()).test().assertEmpty();
     }
-
 }

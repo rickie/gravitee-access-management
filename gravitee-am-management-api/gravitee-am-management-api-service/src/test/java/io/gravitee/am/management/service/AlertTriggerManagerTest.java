@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.service;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.alert.api.trigger.Trigger;
 import io.gravitee.alert.api.trigger.TriggerProvider;
@@ -40,6 +41,7 @@ import io.gravitee.common.event.impl.SimpleEvent;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,9 +50,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.env.MockEnvironment;
 
 import java.util.Collections;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -63,33 +62,34 @@ public class AlertTriggerManagerTest {
     private static final String ALERT_NOTIFIER_ID = "alertNotifier#1";
     private static final String DOMAIN_NAME = "DomainName";
     private static final String ALERT_TRIGGER_ID = "alertTrigger#1";
-    @Mock
-    private TriggerProvider triggerProvider;
+    @Mock private TriggerProvider triggerProvider;
 
-    @Mock
-    private AlertTriggerService alertTriggerService;
+    @Mock private AlertTriggerService alertTriggerService;
 
-    @Mock
-    private AlertNotifierService alertNotifierService;
+    @Mock private AlertNotifierService alertNotifierService;
 
-    @Mock
-    private DomainService domainService;
+    @Mock private DomainService domainService;
 
-    @Mock
-    private EventManager eventManager;
+    @Mock private EventManager eventManager;
 
-    @Mock
-    private ResolvePropertyCommandHandler resolvePropertyCommandHandler;
+    @Mock private ResolvePropertyCommandHandler resolvePropertyCommandHandler;
 
-    @Mock
-    private AlertNotificationCommandHandler alertNotificationCommandHandler;
+    @Mock private AlertNotificationCommandHandler alertNotificationCommandHandler;
 
     private AlertTriggerManager cut;
 
     @Before
     public void before() {
-        cut = new AlertTriggerManager(triggerProvider, alertTriggerService, alertNotifierService, domainService, eventManager, new MockEnvironment(),
-                resolvePropertyCommandHandler, alertNotificationCommandHandler);
+        cut =
+                new AlertTriggerManager(
+                        triggerProvider,
+                        alertTriggerService,
+                        alertNotifierService,
+                        domainService,
+                        eventManager,
+                        new MockEnvironment(),
+                        resolvePropertyCommandHandler,
+                        alertNotificationCommandHandler);
     }
 
     @Test
@@ -111,9 +111,15 @@ public class AlertTriggerManagerTest {
         final AlertNotifier alertNotifier = new AlertNotifier();
         alertNotifier.setId(ALERT_NOTIFIER_ID);
 
-        when(domainService.findAllByCriteria(new DomainCriteria())).thenReturn(Flowable.just(domain));
-        when(alertTriggerService.findByDomainAndCriteria(DOMAIN_ID, new AlertTriggerCriteria())).thenReturn(Flowable.just(alertTrigger));
-        when(alertNotifierService.findByReferenceAndCriteria(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria)).thenReturn(Flowable.just(alertNotifier));
+        when(domainService.findAllByCriteria(new DomainCriteria()))
+                .thenReturn(Flowable.just(domain));
+        when(alertTriggerService.findByDomainAndCriteria(DOMAIN_ID, new AlertTriggerCriteria()))
+                .thenReturn(Flowable.just(alertTrigger));
+        when(alertNotifierService.findByReferenceAndCriteria(
+                        alertTrigger.getReferenceType(),
+                        alertTrigger.getReferenceId(),
+                        alertNotifierCriteria))
+                .thenReturn(Flowable.just(alertNotifier));
 
         this.cut.doOnConnect();
 
@@ -123,9 +129,9 @@ public class AlertTriggerManagerTest {
     @Test
     public void onDomainEvent() {
         final DomainEvent domainEvent = DomainEvent.actionOf(Action.CREATE);
-        final Payload payload = new Payload(DOMAIN_ID, ReferenceType.DOMAIN, DOMAIN_ID, Action.CREATE);
+        final Payload payload =
+                new Payload(DOMAIN_ID, ReferenceType.DOMAIN, DOMAIN_ID, Action.CREATE);
         final SimpleEvent<DomainEvent, Payload> event = new SimpleEvent<>(domainEvent, payload);
-
 
         final Domain domain = new Domain();
         domain.setId(DOMAIN_ID);
@@ -144,8 +150,13 @@ public class AlertTriggerManagerTest {
         alertNotifier.setId(ALERT_NOTIFIER_ID);
 
         when(domainService.findById(domain.getId())).thenReturn(Maybe.just(domain));
-        when(alertTriggerService.findByDomainAndCriteria(DOMAIN_ID, new AlertTriggerCriteria())).thenReturn(Flowable.just(alertTrigger));
-        when(alertNotifierService.findByReferenceAndCriteria(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria)).thenReturn(Flowable.just(alertNotifier));
+        when(alertTriggerService.findByDomainAndCriteria(DOMAIN_ID, new AlertTriggerCriteria()))
+                .thenReturn(Flowable.just(alertTrigger));
+        when(alertNotifierService.findByReferenceAndCriteria(
+                        alertTrigger.getReferenceType(),
+                        alertTrigger.getReferenceId(),
+                        alertNotifierCriteria))
+                .thenReturn(Flowable.just(alertNotifier));
 
         this.cut.onDomainEvent(event);
 
@@ -155,8 +166,10 @@ public class AlertTriggerManagerTest {
     @Test
     public void onAlertTriggerEvent() {
         final AlertTriggerEvent alertTriggerEvent = AlertTriggerEvent.actionOf(Action.CREATE);
-        final Payload payload = new Payload(ALERT_TRIGGER_ID, ReferenceType.DOMAIN, DOMAIN_ID, Action.CREATE);
-        final SimpleEvent<AlertTriggerEvent, Payload> event = new SimpleEvent<>(alertTriggerEvent, payload);
+        final Payload payload =
+                new Payload(ALERT_TRIGGER_ID, ReferenceType.DOMAIN, DOMAIN_ID, Action.CREATE);
+        final SimpleEvent<AlertTriggerEvent, Payload> event =
+                new SimpleEvent<>(alertTriggerEvent, payload);
 
         final Domain domain = new Domain();
         domain.setId(DOMAIN_ID);
@@ -176,7 +189,11 @@ public class AlertTriggerManagerTest {
 
         when(domainService.findById(domain.getId())).thenReturn(Maybe.just(domain));
         when(alertTriggerService.getById(ALERT_TRIGGER_ID)).thenReturn(Single.just(alertTrigger));
-        when(alertNotifierService.findByReferenceAndCriteria(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria)).thenReturn(Flowable.just(alertNotifier));
+        when(alertNotifierService.findByReferenceAndCriteria(
+                        alertTrigger.getReferenceType(),
+                        alertTrigger.getReferenceId(),
+                        alertNotifierCriteria))
+                .thenReturn(Flowable.just(alertNotifier));
 
         this.cut.onAlertTriggerEvent(event);
 
@@ -186,8 +203,10 @@ public class AlertTriggerManagerTest {
     @Test
     public void onAlertNotifierEvent() {
         final AlertNotifierEvent alertNotifierEvent = AlertNotifierEvent.actionOf(Action.CREATE);
-        final Payload payload = new Payload(ALERT_NOTIFIER_ID, ReferenceType.DOMAIN, DOMAIN_ID, Action.CREATE);
-        final SimpleEvent<AlertNotifierEvent, Payload> event = new SimpleEvent<>(alertNotifierEvent, payload);
+        final Payload payload =
+                new Payload(ALERT_NOTIFIER_ID, ReferenceType.DOMAIN, DOMAIN_ID, Action.CREATE);
+        final SimpleEvent<AlertNotifierEvent, Payload> event =
+                new SimpleEvent<>(alertNotifierEvent, payload);
 
         final Domain domain = new Domain();
         domain.setId(DOMAIN_ID);
@@ -212,8 +231,13 @@ public class AlertTriggerManagerTest {
         alertNotifier.setId(ALERT_NOTIFIER_ID);
 
         when(domainService.findById(domain.getId())).thenReturn(Maybe.just(domain));
-        when(alertTriggerService.findByDomainAndCriteria(DOMAIN_ID, alertTriggerCriteria)).thenReturn(Flowable.just(alertTrigger));
-        when(alertNotifierService.findByReferenceAndCriteria(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria)).thenReturn(Flowable.just(alertNotifier));
+        when(alertTriggerService.findByDomainAndCriteria(DOMAIN_ID, alertTriggerCriteria))
+                .thenReturn(Flowable.just(alertTrigger));
+        when(alertNotifierService.findByReferenceAndCriteria(
+                        alertTrigger.getReferenceType(),
+                        alertTrigger.getReferenceId(),
+                        alertNotifierCriteria))
+                .thenReturn(Flowable.just(alertNotifier));
 
         this.cut.onAlertNotifierEvent(event);
 
@@ -223,8 +247,10 @@ public class AlertTriggerManagerTest {
     @Test
     public void onAlertNotifierEventWithDomainDisabled() {
         final AlertNotifierEvent alertNotifierEvent = AlertNotifierEvent.actionOf(Action.CREATE);
-        final Payload payload = new Payload(ALERT_NOTIFIER_ID, ReferenceType.DOMAIN, DOMAIN_ID, Action.CREATE);
-        final SimpleEvent<AlertNotifierEvent, Payload> event = new SimpleEvent<>(alertNotifierEvent, payload);
+        final Payload payload =
+                new Payload(ALERT_NOTIFIER_ID, ReferenceType.DOMAIN, DOMAIN_ID, Action.CREATE);
+        final SimpleEvent<AlertNotifierEvent, Payload> event =
+                new SimpleEvent<>(alertNotifierEvent, payload);
 
         final Domain domain = new Domain();
         domain.setId(DOMAIN_ID);
@@ -242,8 +268,10 @@ public class AlertTriggerManagerTest {
     @Test
     public void onAlertNotifierEventWithDomainAlertDisabled() {
         final AlertNotifierEvent alertNotifierEvent = AlertNotifierEvent.actionOf(Action.CREATE);
-        final Payload payload = new Payload(ALERT_NOTIFIER_ID, ReferenceType.DOMAIN, DOMAIN_ID, Action.CREATE);
-        final SimpleEvent<AlertNotifierEvent, Payload> event = new SimpleEvent<>(alertNotifierEvent, payload);
+        final Payload payload =
+                new Payload(ALERT_NOTIFIER_ID, ReferenceType.DOMAIN, DOMAIN_ID, Action.CREATE);
+        final SimpleEvent<AlertNotifierEvent, Payload> event =
+                new SimpleEvent<>(alertNotifierEvent, payload);
 
         final Domain domain = new Domain();
         domain.setId(DOMAIN_ID);

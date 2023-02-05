@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.root.resources.endpoint.webauthn;
@@ -24,24 +22,26 @@ import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.auth.webauthn.WebAuthn;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.Session;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This endpoint returns the WebAuthn credential request options for the current user.
  *
- * These options tell the browser which credentials the server would like the user to authenticate with.
- * The credentialId retrieved and saved during registration is passed in here.
+ * <p>These options tell the browser which credentials the server would like the user to
+ * authenticate with. The credentialId retrieved and saved during registration is passed in here.
  * The server can optionally indicate what transports it prefers, like USB, NFC, and Bluetooth.
  *
- * https://webauthn.guide/#authentication
+ * <p>https://webauthn.guide/#authentication
  *
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class WebAuthnLoginCredentialsEndpoint extends WebAuthnHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebAuthnLoginCredentialsEndpoint.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(WebAuthnLoginCredentialsEndpoint.class);
     private final WebAuthn webAuthn;
 
     public WebAuthnLoginCredentialsEndpoint(WebAuthn webAuthn) {
@@ -83,23 +83,29 @@ public class WebAuthnLoginCredentialsEndpoint extends WebAuthnHandler {
             final String username = webauthnLogin.getString("name");
 
             // STEP 18 Generate assertion
-            webAuthn.getCredentialsOptions(username, generateServerGetAssertion -> {
-                if (generateServerGetAssertion.failed()) {
-                    logger.error("Unexpected exception", generateServerGetAssertion.cause());
-                    ctx.fail(generateServerGetAssertion.cause());
-                    return;
-                }
+            webAuthn.getCredentialsOptions(
+                    username,
+                    generateServerGetAssertion -> {
+                        if (generateServerGetAssertion.failed()) {
+                            logger.error(
+                                    "Unexpected exception", generateServerGetAssertion.cause());
+                            ctx.fail(generateServerGetAssertion.cause());
+                            return;
+                        }
 
-                final JsonObject getAssertion = generateServerGetAssertion.result();
+                        final JsonObject getAssertion = generateServerGetAssertion.result();
 
-                session
-                        .put(ConstantKeys.PASSWORDLESS_CHALLENGE_KEY, getAssertion.getString("challenge"))
-                        .put(ConstantKeys.PASSWORDLESS_CHALLENGE_USERNAME_KEY, username);
+                        session.put(
+                                        ConstantKeys.PASSWORDLESS_CHALLENGE_KEY,
+                                        getAssertion.getString("challenge"))
+                                .put(ConstantKeys.PASSWORDLESS_CHALLENGE_USERNAME_KEY, username);
 
-                ctx.response()
-                        .putHeader(io.vertx.core.http.HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8")
-                        .end(Json.encodePrettily(getAssertion));
-            });
+                        ctx.response()
+                                .putHeader(
+                                        io.vertx.core.http.HttpHeaders.CONTENT_TYPE,
+                                        "application/json; charset=utf-8")
+                                .end(Json.encodePrettily(getAssertion));
+                    });
         } catch (IllegalArgumentException e) {
             logger.error("Unexpected exception", e);
             ctx.fail(400);
@@ -114,5 +120,4 @@ public class WebAuthnLoginCredentialsEndpoint extends WebAuthnHandler {
         // this endpoint returns json response, no HTML template required
         throw new NotImplementedException("No need to render a template");
     }
-
 }

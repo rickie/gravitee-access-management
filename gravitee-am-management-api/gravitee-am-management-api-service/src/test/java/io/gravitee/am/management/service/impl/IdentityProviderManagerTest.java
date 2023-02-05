@@ -1,19 +1,21 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.service.impl;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.identityprovider.api.UserProvider;
 import io.gravitee.am.management.service.InMemoryIdentityProviderListener;
@@ -25,6 +27,7 @@ import io.gravitee.am.service.RoleService;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,10 +40,6 @@ import org.springframework.core.env.StandardEnvironment;
 
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
@@ -49,20 +48,15 @@ import static org.mockito.Mockito.*;
 public class IdentityProviderManagerTest {
     private static final String ADMIN_USERNAME = "admin";
 
-    @Spy
-    private Environment environment = new StandardEnvironment();
+    @Spy private Environment environment = new StandardEnvironment();
 
-    @Mock
-    private RoleService roleService;
+    @Mock private RoleService roleService;
 
-    @Mock
-    private InMemoryIdentityProviderListener listener;
+    @Mock private InMemoryIdentityProviderListener listener;
 
-    @Mock
-    private IdentityProviderPluginManager idpPluginManager;
+    @Mock private IdentityProviderPluginManager idpPluginManager;
 
-    @InjectMocks
-    private IdentityProviderManagerImpl cut = new IdentityProviderManagerImpl();
+    @InjectMocks private IdentityProviderManagerImpl cut = new IdentityProviderManagerImpl();
 
     @Before
     public void init() {
@@ -77,27 +71,34 @@ public class IdentityProviderManagerTest {
         role.setId("roleid");
         role.setName("ORGANIZATION_PRIMARY_OWNER");
 
-        when(roleService.findRolesByName(any(), any(), any(), any())).thenReturn(Flowable.just(role));
-        when(idpPluginManager.create(eq("gravitee-am-idp"), any(), any())).thenReturn(Single.just(Optional.of(mock(UserProvider.class))));
+        when(roleService.findRolesByName(any(), any(), any(), any()))
+                .thenReturn(Flowable.just(role));
+        when(idpPluginManager.create(eq("gravitee-am-idp"), any(), any()))
+                .thenReturn(Single.just(Optional.of(mock(UserProvider.class))));
 
         cut.loadIdentityProviders();
 
         verify(listener, times(2)).registerAuthenticationProvider(any());
 
-        verify(listener).registerAuthenticationProvider(argThat(idp -> {
-            return ReferenceType.ORGANIZATION.equals(idp.getReferenceType()) &&
-                    Organization.DEFAULT.equals(idp.getReferenceId()) &&
-                    idp.getRoleMapper() != null &&
-                    idp.getRoleMapper().containsKey("roleid");
-        }));
+        verify(listener)
+                .registerAuthenticationProvider(
+                        argThat(
+                                idp -> {
+                                    return ReferenceType.ORGANIZATION.equals(idp.getReferenceType())
+                                            && Organization.DEFAULT.equals(idp.getReferenceId())
+                                            && idp.getRoleMapper() != null
+                                            && idp.getRoleMapper().containsKey("roleid");
+                                }));
 
-        verify(listener).registerAuthenticationProvider(argThat(idp -> {
-            return ReferenceType.ORGANIZATION.equals(idp.getReferenceType()) &&
-                    Organization.DEFAULT.equals(idp.getReferenceId()) &&
-                    idp.getType().equals("gravitee-am-idp");
-        }));
+        verify(listener)
+                .registerAuthenticationProvider(
+                        argThat(
+                                idp -> {
+                                    return ReferenceType.ORGANIZATION.equals(idp.getReferenceType())
+                                            && Organization.DEFAULT.equals(idp.getReferenceId())
+                                            && idp.getType().equals("gravitee-am-idp");
+                                }));
         verify(idpPluginManager).create(eq("gravitee-am-idp"), any(), any());
-
     }
 
     @Test
@@ -107,15 +108,19 @@ public class IdentityProviderManagerTest {
         role.setId("roleid");
         role.setName("ORGANIZATION_PRIMARY_OWNER");
 
-        when(idpPluginManager.create(eq("gravitee-am-idp"), any(), any())).thenReturn(Single.just(Optional.of(mock(UserProvider.class))));
+        when(idpPluginManager.create(eq("gravitee-am-idp"), any(), any()))
+                .thenReturn(Single.just(Optional.of(mock(UserProvider.class))));
 
         cut.loadIdentityProviders();
 
-        verify(listener).registerAuthenticationProvider(argThat(idp -> {
-            return ReferenceType.ORGANIZATION.equals(idp.getReferenceType()) &&
-                    Organization.DEFAULT.equals(idp.getReferenceId()) &&
-                    idp.getType().equals("gravitee-am-idp");
-        }));
+        verify(listener)
+                .registerAuthenticationProvider(
+                        argThat(
+                                idp -> {
+                                    return ReferenceType.ORGANIZATION.equals(idp.getReferenceType())
+                                            && Organization.DEFAULT.equals(idp.getReferenceId())
+                                            && idp.getType().equals("gravitee-am-idp");
+                                }));
 
         verify(listener).registerAuthenticationProvider(any());
         verify(idpPluginManager).create(eq("gravitee-am-idp"), any(), any());
@@ -124,19 +129,31 @@ public class IdentityProviderManagerTest {
     private void defineDefaultSecurityConfig(boolean enabled) {
         reset(environment);
         doReturn("memory").when(environment).getProperty("security.providers[0].type");
-        doReturn("none").when(environment).getProperty(eq("security.providers[0].password-encoding-algo"), any(), any());
-        doReturn(ADMIN_USERNAME).when(environment).getProperty("security.providers[0].users[0].username");
-        doReturn("adminadmin").when(environment).getProperty("security.providers[0].users[0].password");
-        doReturn("ORGANIZATION_PRIMARY_OWNER").when(environment).getProperty("security.providers[0].users[0].role");
-        doReturn(enabled).when(environment).getProperty("security.providers[0].enabled", boolean.class, false);
+        doReturn("none")
+                .when(environment)
+                .getProperty(eq("security.providers[0].password-encoding-algo"), any(), any());
+        doReturn(ADMIN_USERNAME)
+                .when(environment)
+                .getProperty("security.providers[0].users[0].username");
+        doReturn("adminadmin")
+                .when(environment)
+                .getProperty("security.providers[0].users[0].password");
+        doReturn("ORGANIZATION_PRIMARY_OWNER")
+                .when(environment)
+                .getProperty("security.providers[0].users[0].role");
+        doReturn(enabled)
+                .when(environment)
+                .getProperty("security.providers[0].enabled", boolean.class, false);
     }
 
     @Test
     public void shouldGetGraviteeProvider() {
-        when(this.idpPluginManager.create(any(), any(), any())).thenReturn(Single.just(Optional.of(mock(UserProvider.class))));
+        when(this.idpPluginManager.create(any(), any(), any()))
+                .thenReturn(Single.just(Optional.of(mock(UserProvider.class))));
         cut.loadIdentityProviders().blockingGet();
 
-        final TestObserver<UserProvider> observer = this.cut.getUserProvider(IdentityProviderManagerImpl.IDP_GRAVITEE).test();
+        final TestObserver<UserProvider> observer =
+                this.cut.getUserProvider(IdentityProviderManagerImpl.IDP_GRAVITEE).test();
 
         observer.awaitTerminalEvent();
         observer.assertNoErrors();

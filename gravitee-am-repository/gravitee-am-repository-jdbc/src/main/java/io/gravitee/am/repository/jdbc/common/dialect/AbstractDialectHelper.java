@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.common.dialect;
@@ -19,6 +17,7 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.jdbc.common.JSONMapper;
 import io.gravitee.am.repository.jdbc.exceptions.RepositoryInitializationException;
 import io.gravitee.am.repository.management.api.search.FilterCriteria;
+
 import org.springframework.data.r2dbc.dialect.R2dbcDialect;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.r2dbc.core.DatabaseClient;
@@ -35,7 +34,8 @@ import java.util.Optional;
  */
 public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
 
-    public static final DateTimeFormatter UTC_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    public static final DateTimeFormatter UTC_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     private final R2dbcDialect dialect;
 
@@ -53,6 +53,7 @@ public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
 
     /**
      * Load JDBC driver in order to allow liquibase initialization
+     *
      * @throws Exception
      */
     protected abstract void loadJdbcDriver() throws Exception;
@@ -62,35 +63,39 @@ public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
     }
 
     @Override
-    public DatabaseClient.GenericExecuteSpec addJsonField(DatabaseClient.GenericExecuteSpec spec, String name, Object value) {
+    public DatabaseClient.GenericExecuteSpec addJsonField(
+            DatabaseClient.GenericExecuteSpec spec, String name, Object value) {
         try {
-            return value == null ?
-                    spec.bindNull(name, String.class) :
-                    spec.bind(name, JSONMapper.toJson(value));
+            return value == null
+                    ? spec.bindNull(name, String.class)
+                    : spec.bind(name, JSONMapper.toJson(value));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public Map<SqlIdentifier, Object> addJsonField(Map<SqlIdentifier, Object> spec, String name, Object value) {
+    public Map<SqlIdentifier, Object> addJsonField(
+            Map<SqlIdentifier, Object> spec, String name, Object value) {
         spec.put(SqlIdentifier.quoted(name), value == null ? null : JSONMapper.toJson(value));
         return spec;
     }
 
     @Override
-    public ScimUserSearch prepareScimSearchUserQuery(StringBuilder queryBuilder, FilterCriteria criteria, int page, int size) {
+    public ScimUserSearch prepareScimSearchUserQuery(
+            StringBuilder queryBuilder, FilterCriteria criteria, int page, int size) {
         ScimUserSearch search = new ScimUserSearch();
         processFilters(queryBuilder, criteria, search);
-        search.buildQueries(size > 0 ? buildPagingClause(page, size): "");
+        search.buildQueries(size > 0 ? buildPagingClause(page, size) : "");
         return search;
     }
 
-    private ScimUserSearch processFilters(StringBuilder queryBuilder, FilterCriteria criteria, ScimUserSearch search) {
+    private ScimUserSearch processFilters(
+            StringBuilder queryBuilder, FilterCriteria criteria, ScimUserSearch search) {
         if (criteria.getFilterComponents() != null && !criteria.getFilterComponents().isEmpty()) {
             queryBuilder.append("( ");
             Iterator<FilterCriteria> iterator = criteria.getFilterComponents().iterator();
-            while(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 FilterCriteria operand = iterator.next();
                 search = processFilters(queryBuilder, operand, search);
                 queryBuilder = search.getQueryBuilder();
@@ -107,7 +112,10 @@ public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
                 Optional fieldValue = fieldValue(criteria);
                 if (fieldValue.isPresent()) {
                     String bindingName = search.addBinding(filterName, fieldValue.get());
-                    queryBuilder.append(filterName).append(operatorConverter(criteria)).append(bindingName);
+                    queryBuilder
+                            .append(filterName)
+                            .append(operatorConverter(criteria))
+                            .append(bindingName);
                 } else {
                     queryBuilder.append(filterName).append(operatorConverter(criteria));
                 }
@@ -138,7 +146,8 @@ public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
             }
         }
 
-        return filterName.startsWith("additional_information.") || filterName.startsWith("additionalInformation.");
+        return filterName.startsWith("additional_information.")
+                || filterName.startsWith("additionalInformation.");
     }
 
     protected final String convertFieldName(FilterCriteria criteria) {
@@ -174,7 +183,8 @@ public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
                 return "email";
             default:
                 if (filterName.startsWith("additionalInformation.")) {
-                    return filterName.replaceFirst("additionalInformation", "additional_information");
+                    return filterName.replaceFirst(
+                            "additionalInformation", "additional_information");
                 } else {
                     return filterName;
                 }
@@ -183,7 +193,7 @@ public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
 
     protected final String operatorConverter(FilterCriteria criteria) {
         String result = " ";
-        if ( criteria.getOperator() != null) {
+        if (criteria.getOperator() != null) {
             final String operator = criteria.getOperator().toLowerCase().trim();
             switch (operator) {
                 case "and":
@@ -225,7 +235,8 @@ public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
 
     protected final Optional<Object> fieldValue(FilterCriteria criteria) {
         if (isDateInput(criteria.getFilterName())) {
-            return Optional.ofNullable(LocalDateTime.parse(criteria.getFilterValue(), UTC_FORMATTER));
+            return Optional.ofNullable(
+                    LocalDateTime.parse(criteria.getFilterValue(), UTC_FORMATTER));
         }
 
         if (isBooleanInput(criteria.getFilterName())) {
@@ -236,13 +247,13 @@ public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
         final String operator = criteria.getOperator().toLowerCase().trim();
         switch (operator) {
             case "co":
-                result = "%"+result+"%";
+                result = "%" + result + "%";
                 break;
             case "sw":
-                result = result+"%";
+                result = result + "%";
                 break;
             case "ew":
-                result = "%"+result;
+                result = "%" + result;
                 break;
             case "pr":
                 // IS NOT NULL operator doesn't need value
@@ -251,21 +262,25 @@ public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
         return Optional.of(result);
     }
 
-
     private boolean isDateInput(String filterName) {
-        return "meta.created".equals(filterName) ||
-                "meta.lastModified".equals(filterName);
+        return "meta.created".equals(filterName) || "meta.lastModified".equals(filterName);
     }
 
     private boolean isBooleanInput(String filterName) {
         return "active".equals(filterName);
     }
 
-    protected abstract ScimUserSearch processJsonFilter(StringBuilder queryBuilder, FilterCriteria criteria, ScimUserSearch search);
+    protected abstract ScimUserSearch processJsonFilter(
+            StringBuilder queryBuilder, FilterCriteria criteria, ScimUserSearch search);
 
     @Override
-    public String buildSearchUserQuery(boolean wildcard, int page, int size, boolean organizationUser) {
-        StringBuilder builder = new StringBuilder("SELECT * FROM " + (organizationUser ? "organization_users" : "users" )+ " u WHERE ");
+    public String buildSearchUserQuery(
+            boolean wildcard, int page, int size, boolean organizationUser) {
+        StringBuilder builder =
+                new StringBuilder(
+                        "SELECT * FROM "
+                                + (organizationUser ? "organization_users" : "users")
+                                + " u WHERE ");
         return buildSearchUser(wildcard, builder)
                 .append(buildPagingClause("username", page, size))
                 .toString();
@@ -273,29 +288,39 @@ public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
 
     @Override
     public String buildCountUserQuery(boolean wildcard, boolean organizationUser) {
-        StringBuilder builder = new StringBuilder("SELECT COUNT(DISTINCT u.id) FROM " + (organizationUser ? "organization_users" : "users" )+ " u WHERE ");
-        return buildSearchUser(wildcard, builder)
-                .toString();
+        StringBuilder builder =
+                new StringBuilder(
+                        "SELECT COUNT(DISTINCT u.id) FROM "
+                                + (organizationUser ? "organization_users" : "users")
+                                + " u WHERE ");
+        return buildSearchUser(wildcard, builder).toString();
     }
 
     @Override
-    public String buildCountScopeQuery(boolean wildcardSearch){
-        StringBuilder builder = new StringBuilder("SELECT COUNT(DISTINCT s."+toSql(SqlIdentifier.quoted("key"))+") FROM scopes s WHERE ");
-        return buildSearchScope(wildcardSearch, builder)
-                .toString();
+    public String buildCountScopeQuery(boolean wildcardSearch) {
+        StringBuilder builder =
+                new StringBuilder(
+                        "SELECT COUNT(DISTINCT s."
+                                + toSql(SqlIdentifier.quoted("key"))
+                                + ") FROM scopes s WHERE ");
+        return buildSearchScope(wildcardSearch, builder).toString();
     }
 
     @Override
-    public String buildSearchScopeQuery(boolean wildcardSearch, int page, int size){
+    public String buildSearchScopeQuery(boolean wildcardSearch, int page, int size) {
         StringBuilder builder = new StringBuilder("SELECT * FROM scopes s WHERE ");
         return buildSearchScope(wildcardSearch, builder)
-                .append(buildPagingClause("s."+toSql(SqlIdentifier.quoted("key")), page, size))
+                .append(buildPagingClause("s." + toSql(SqlIdentifier.quoted("key")), page, size))
                 .toString();
     }
 
     private StringBuilder buildSearchScope(boolean wildcardSearch, StringBuilder builder) {
         return builder.append("domain = :domain ")
-                .append(" AND upper(s."+toSql(SqlIdentifier.quoted("key"))+") " + (wildcardSearch ? "LIKE" : "="))
+                .append(
+                        " AND upper(s."
+                                + toSql(SqlIdentifier.quoted("key"))
+                                + ") "
+                                + (wildcardSearch ? "LIKE" : "="))
                 .append(" :value");
     }
 
@@ -303,33 +328,47 @@ public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
         return builder.append("u.reference_id = :refId")
                 .append(" AND u.reference_type = :refType")
                 .append(" AND (")
-                .append(" u.username ").append(wildcard ? "LIKE " : "= ")
+                .append(" u.username ")
+                .append(wildcard ? "LIKE " : "= ")
                 .append(":value")
-                .append(" OR u.email ").append(wildcard ? "LIKE " : "= ")
+                .append(" OR u.email ")
+                .append(wildcard ? "LIKE " : "= ")
                 .append(":value")
-                .append(" OR u.additional_information_email ").append(wildcard ? "LIKE " : "= ")
+                .append(" OR u.additional_information_email ")
+                .append(wildcard ? "LIKE " : "= ")
                 .append(":value")
-                .append(" OR u.display_name ").append(wildcard ? "LIKE " : "= ")
+                .append(" OR u.display_name ")
+                .append(wildcard ? "LIKE " : "= ")
                 .append(":value")
-                .append(" OR u.first_name ").append(wildcard ? "LIKE " : "= ")
+                .append(" OR u.first_name ")
+                .append(wildcard ? "LIKE " : "= ")
                 .append(":value")
-                .append(" OR u.last_name ").append(wildcard ? "LIKE " : "= ")
+                .append(" OR u.last_name ")
+                .append(wildcard ? "LIKE " : "= ")
                 .append(":value")
                 .append(" ) ");
     }
 
     @Override
-    public String buildFindUserByReferenceAndEmail(ReferenceType referenceType, String referenceId, String email, boolean strict) {
+    public String buildFindUserByReferenceAndEmail(
+            ReferenceType referenceType, String referenceId, String email, boolean strict) {
         boolean organizationUser = (ReferenceType.ORGANIZATION == referenceType);
-        return new StringBuilder("SELECT * FROM " + (organizationUser ? "organization_users" : "users" )+ " u WHERE ")
+        return new StringBuilder(
+                        "SELECT * FROM "
+                                + (organizationUser ? "organization_users" : "users")
+                                + " u WHERE ")
                 .append(" u.reference_type = :refType ")
                 .append(" AND u.reference_id = :refId AND (")
                 .append(strict ? "u.email" : "UPPER(u.email)")
                 .append(strict ? " = :email COLLATE " + collation : " = UPPER(:email)")
                 .append(" OR ")
-                .append(strict ? "u.additional_information_email" : "UPPER(u.additional_information_email)")
+                .append(
+                        strict
+                                ? "u.additional_information_email"
+                                : "UPPER(u.additional_information_email)")
                 .append(strict ? " = :email COLLATE " + collation : " = UPPER(:email)")
-                .append(")").toString();
+                .append(")")
+                .toString();
     }
 
     @Override
@@ -342,17 +381,19 @@ public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
 
     @Override
     public String buildCountApplicationsQuery(boolean wildcard) {
-        StringBuilder builder = new StringBuilder("SELECT COUNT(DISTINCT a.id) FROM applications a WHERE ");
-        return buildSearchApplications(wildcard, builder)
-                .toString();
+        StringBuilder builder =
+                new StringBuilder("SELECT COUNT(DISTINCT a.id) FROM applications a WHERE ");
+        return buildSearchApplications(wildcard, builder).toString();
     }
 
     protected StringBuilder buildSearchApplications(boolean wildcard, StringBuilder builder) {
         return builder.append("a.domain = :domain")
                 .append(" AND (")
-                .append(" upper(a.name) ").append(wildcard ? "LIKE " : "= ")
+                .append(" upper(a.name) ")
+                .append(wildcard ? "LIKE " : "= ")
                 .append(":value")
-                .append(" OR upper(a.settings_client_id) ").append(wildcard ? "LIKE " : "= ")
+                .append(" OR upper(a.settings_client_id) ")
+                .append(wildcard ? "LIKE " : "= ")
                 .append(":value")
                 .append(" ) ");
     }
@@ -361,7 +402,8 @@ public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
     public String buildFindApplicationByDomainAndClient() {
         return new StringBuilder("SELECT * FROM applications a WHERE ")
                 .append(" a.domain = :domain ")
-                .append(" AND a.settings_client_id = :clientId").toString();
+                .append(" AND a.settings_client_id = :clientId")
+                .toString();
     }
 
     @Override
@@ -374,9 +416,9 @@ public abstract class AbstractDialectHelper implements DatabaseDialectHelper {
 
     @Override
     public String buildCountRoleQuery(boolean wildcard) {
-        StringBuilder builder = new StringBuilder("SELECT COUNT(DISTINCT r.id) FROM roles r WHERE ");
-        return buildSearchRole(wildcard, builder)
-                .toString();
+        StringBuilder builder =
+                new StringBuilder("SELECT COUNT(DISTINCT r.id) FROM roles r WHERE ");
+        return buildSearchRole(wildcard, builder).toString();
     }
 
     protected StringBuilder buildSearchRole(boolean wildcard, StringBuilder builder) {

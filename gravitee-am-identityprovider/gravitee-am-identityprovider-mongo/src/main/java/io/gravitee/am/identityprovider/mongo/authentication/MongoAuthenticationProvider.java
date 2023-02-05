@@ -1,21 +1,22 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.identityprovider.mongo.authentication;
 
+import static java.util.Optional.ofNullable;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
+
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.exception.authentication.InternalAuthenticationServiceException;
 import io.gravitee.am.common.exception.authentication.UsernameNotFoundException;
@@ -34,6 +35,7 @@ import io.gravitee.am.identityprovider.mongo.authentication.spring.MongoAuthenti
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
+
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.slf4j.Logger;
@@ -47,15 +49,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static java.util.Optional.ofNullable;
-
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Import({MongoAuthenticationProviderConfiguration.class})
-public class MongoAuthenticationProvider extends MongoAbstractProvider implements AuthenticationProvider {
+public class MongoAuthenticationProvider extends MongoAbstractProvider
+        implements AuthenticationProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoAuthenticationProvider.class);
     private static final String FIELD_ID = "_id";
@@ -63,11 +64,9 @@ public class MongoAuthenticationProvider extends MongoAbstractProvider implement
     private static final String FIELD_CREATED_AT = "createdAt";
     private static final String FIELD_UPDATED_AT = "updatedAt";
 
-    @Autowired
-    private IdentityProviderMapper mapper;
+    @Autowired private IdentityProviderMapper mapper;
 
-    @Autowired
-    private IdentityProviderRoleMapper roleMapper;
+    @Autowired private IdentityProviderRoleMapper roleMapper;
 
     @Override
     public AuthenticationProvider stop() throws Exception {
@@ -81,57 +80,80 @@ public class MongoAuthenticationProvider extends MongoAbstractProvider implement
         String username = ((String) authentication.getPrincipal()).toLowerCase();
         return findUserByMultipleField(username)
                 .toList()
-                .flatMapPublisher(users -> {
-                    if (users.isEmpty()) {
-                        return Flowable.error(new UsernameNotFoundException(username));
-                    }
-                    return Flowable.fromIterable(users);
-                })
-                .map(user -> {
-                    String password = user.getString(this.configuration.getPasswordField());
-                    String presentedPassword = authentication.getCredentials().toString();
+                .flatMapPublisher(
+                        users -> {
+                            if (users.isEmpty()) {
+                                return Flowable.error(new UsernameNotFoundException(username));
+                            }
+                            return Flowable.fromIterable(users);
+                        })
+                .map(
+                        user -> {
+                            String password = user.getString(this.configuration.getPasswordField());
+                            String presentedPassword = authentication.getCredentials().toString();
 
-                    if (password == null) {
-                        LOGGER.debug("Authentication failed: password is null");
-                        return new UserCredentialEvaluation<>(false, user);
-                    }
+                            if (password == null) {
+                                LOGGER.debug("Authentication failed: password is null");
+                                return new UserCredentialEvaluation<>(false, user);
+                            }
 
-                    if (configuration.isUseDedicatedSalt()) {
-                        String hash = user.getString(configuration.getPasswordSaltAttribute());
-                        if (!passwordEncoder.matches(presentedPassword, password, hash)) {
-                            LOGGER.debug("Authentication failed: password does not match stored value");
-                            return new UserCredentialEvaluation<>(false, user);
-                        }
-                    } else {
-                        if (!passwordEncoder.matches(presentedPassword, password)) {
-                            LOGGER.debug("Authentication failed: password does not match stored value");
-                            return new UserCredentialEvaluation<>(false, user);
-                        }
-                    }
+                            if (configuration.isUseDedicatedSalt()) {
+                                String hash =
+                                        user.getString(configuration.getPasswordSaltAttribute());
+                                if (!passwordEncoder.matches(presentedPassword, password, hash)) {
+                                    LOGGER.debug(
+                                            "Authentication failed: password does not match stored value");
+                                    return new UserCredentialEvaluation<>(false, user);
+                                }
+                            } else {
+                                if (!passwordEncoder.matches(presentedPassword, password)) {
+                                    LOGGER.debug(
+                                            "Authentication failed: password does not match stored value");
+                                    return new UserCredentialEvaluation<>(false, user);
+                                }
+                            }
 
-                    return new UserCredentialEvaluation<>(true, user);
-                })
+                            return new UserCredentialEvaluation<>(true, user);
+                        })
                 .toList()
-                .flatMapMaybe(userEvaluations -> {
-                    final var validUsers = userEvaluations.stream().filter(UserCredentialEvaluation::isPasswordValid).collect(Collectors.toList());
-                    if (validUsers.size() > 1) {
-                        LOGGER.debug("Authentication failed: multiple accounts with same credentials");
-                        return Maybe.error(new BadCredentialsException("Bad credentials"));
-                    }
+                .flatMapMaybe(
+                        userEvaluations -> {
+                            final var validUsers =
+                                    userEvaluations.stream()
+                                            .filter(UserCredentialEvaluation::isPasswordValid)
+                                            .collect(Collectors.toList());
+                            if (validUsers.size() > 1) {
+                                LOGGER.debug(
+                                        "Authentication failed: multiple accounts with same credentials");
+                                return Maybe.error(new BadCredentialsException("Bad credentials"));
+                            }
 
-                    var userEvaluation = !validUsers.isEmpty() ?  validUsers.get(0) : userEvaluations.get(0);
+                            var userEvaluation =
+                                    !validUsers.isEmpty()
+                                            ? validUsers.get(0)
+                                            : userEvaluations.get(0);
 
-                    var user = this.createUser(authentication.getContext(), userEvaluation.getUser());
-                    ofNullable(authentication.getContext()).ifPresent(auth -> auth.set(ACTUAL_USERNAME, user.getUsername()));
-                    return userEvaluation.isPasswordValid() ?
-                            Maybe.just(user) :
-                            Maybe.error(new BadCredentialsException("Bad credentials"));
-                });
+                            var user =
+                                    this.createUser(
+                                            authentication.getContext(), userEvaluation.getUser());
+                            ofNullable(authentication.getContext())
+                                    .ifPresent(
+                                            auth -> auth.set(ACTUAL_USERNAME, user.getUsername()));
+                            return userEvaluation.isPasswordValid()
+                                    ? Maybe.just(user)
+                                    : Maybe.error(new BadCredentialsException("Bad credentials"));
+                        });
     }
 
     private Flowable<Document> findUserByMultipleField(String value) {
-        MongoCollection<Document> usersCol = this.mongoClient.getDatabase(this.configuration.getDatabase()).getCollection(this.configuration.getUsersCollection());
-        String findQuery = this.configuration.getFindUserByMultipleFieldsQuery() != null ? this.configuration.getFindUserByMultipleFieldsQuery() : this.configuration.getFindUserByUsernameQuery();
+        MongoCollection<Document> usersCol =
+                this.mongoClient
+                        .getDatabase(this.configuration.getDatabase())
+                        .getCollection(this.configuration.getUsersCollection());
+        String findQuery =
+                this.configuration.getFindUserByMultipleFieldsQuery() != null
+                        ? this.configuration.getFindUserByMultipleFieldsQuery()
+                        : this.configuration.getFindUserByUsernameQuery();
         String rawQuery = findQuery.replaceAll("\\?", value);
         String jsonQuery = convertToJsonString(rawQuery);
         BsonDocument query = BsonDocument.parse(jsonQuery);
@@ -145,8 +167,12 @@ public class MongoAuthenticationProvider extends MongoAbstractProvider implement
     }
 
     private Maybe<Document> findUserByUsername(String username) {
-        MongoCollection<Document> usersCol = this.mongoClient.getDatabase(this.configuration.getDatabase()).getCollection(this.configuration.getUsersCollection());
-        String rawQuery = this.configuration.getFindUserByUsernameQuery().replaceAll("\\?", username);
+        MongoCollection<Document> usersCol =
+                this.mongoClient
+                        .getDatabase(this.configuration.getDatabase())
+                        .getCollection(this.configuration.getUsersCollection());
+        String rawQuery =
+                this.configuration.getFindUserByUsernameQuery().replaceAll("\\?", username);
         String jsonQuery = convertToJsonString(rawQuery);
         BsonDocument query = BsonDocument.parse(jsonQuery);
         return Observable.fromPublisher(usersCol.find(query).first()).firstElement();
@@ -177,7 +203,8 @@ public class MongoAuthenticationProvider extends MongoAbstractProvider implement
         }
         // update username if user mapping has been changed
         if (additionalInformation.get(StandardClaims.PREFERRED_USERNAME) != null) {
-            user.setUsername(additionalInformation.get(StandardClaims.PREFERRED_USERNAME).toString());
+            user.setUsername(
+                    additionalInformation.get(StandardClaims.PREFERRED_USERNAME).toString());
         }
         // remove reserved claims
         additionalInformation.remove(FIELD_ID);
@@ -192,8 +219,10 @@ public class MongoAuthenticationProvider extends MongoAbstractProvider implement
             additionalInformation.remove(FIELD_UPDATED_AT);
         }
 
-        if (additionalInformation.isEmpty() || additionalInformation.get(StandardClaims.SUB) == null) {
-            throw new InternalAuthenticationServiceException("The 'sub' claim for the user is required");
+        if (additionalInformation.isEmpty()
+                || additionalInformation.get(StandardClaims.SUB) == null) {
+            throw new InternalAuthenticationServiceException(
+                    "The 'sub' claim for the user is required");
         }
 
         user.setAdditionalInformation(additionalInformation);
@@ -201,7 +230,9 @@ public class MongoAuthenticationProvider extends MongoAbstractProvider implement
     }
 
     private String getClaim(Map<String, Object> claims, String userAttribute, String defaultValue) {
-        return claims.containsKey(userAttribute) ? claims.get(userAttribute).toString() : defaultValue;
+        return claims.containsKey(userAttribute)
+                ? claims.get(userAttribute).toString()
+                : defaultValue;
     }
 
     private String convertToJsonString(String rawString) {
@@ -209,14 +240,16 @@ public class MongoAuthenticationProvider extends MongoAbstractProvider implement
         return rawString;
     }
 
-    private Map<String, Object> applyUserMapping(AuthenticationContext authContext, Map<String, Object> attributes) {
+    private Map<String, Object> applyUserMapping(
+            AuthenticationContext authContext, Map<String, Object> attributes) {
         if (!mappingEnabled()) {
             return attributes;
         }
         return this.mapper.apply(authContext, attributes);
     }
 
-    private List<String> applyRoleMapping(AuthenticationContext authContext, Map<String, Object> attributes) {
+    private List<String> applyRoleMapping(
+            AuthenticationContext authContext, Map<String, Object> attributes) {
         if (!roleMappingEnabled()) {
             return Collections.emptyList();
         }

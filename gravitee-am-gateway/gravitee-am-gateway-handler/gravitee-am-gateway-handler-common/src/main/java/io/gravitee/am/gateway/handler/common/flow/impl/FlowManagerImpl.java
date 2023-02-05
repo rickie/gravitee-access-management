@@ -1,19 +1,35 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.common.flow.impl;
+
+import static io.gravitee.am.common.policy.ExtensionPoint.POST_CONSENT;
+import static io.gravitee.am.common.policy.ExtensionPoint.POST_LOGIN;
+import static io.gravitee.am.common.policy.ExtensionPoint.POST_LOGIN_IDENTIFIER;
+import static io.gravitee.am.common.policy.ExtensionPoint.POST_REGISTER;
+import static io.gravitee.am.common.policy.ExtensionPoint.POST_REGISTRATION_CONFIRMATION;
+import static io.gravitee.am.common.policy.ExtensionPoint.POST_RESET_PASSWORD;
+import static io.gravitee.am.common.policy.ExtensionPoint.PRE_CONSENT;
+import static io.gravitee.am.common.policy.ExtensionPoint.PRE_LOGIN;
+import static io.gravitee.am.common.policy.ExtensionPoint.PRE_LOGIN_IDENTIFIER;
+import static io.gravitee.am.common.policy.ExtensionPoint.PRE_REGISTER;
+import static io.gravitee.am.common.policy.ExtensionPoint.PRE_REGISTRATION_CONFIRMATION;
+import static io.gravitee.am.common.policy.ExtensionPoint.PRE_RESET_PASSWORD;
+import static io.gravitee.am.common.policy.ExtensionPoint.ROOT;
+import static io.gravitee.am.gateway.handler.common.flow.ExecutionPredicate.alwaysTrue;
+
+import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toList;
 
 import io.gravitee.am.common.event.EventManager;
 import io.gravitee.am.common.event.FlowEvent;
@@ -35,6 +51,7 @@ import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Single;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -51,58 +68,42 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
-import static io.gravitee.am.common.policy.ExtensionPoint.POST_CONSENT;
-import static io.gravitee.am.common.policy.ExtensionPoint.POST_LOGIN;
-import static io.gravitee.am.common.policy.ExtensionPoint.POST_LOGIN_IDENTIFIER;
-import static io.gravitee.am.common.policy.ExtensionPoint.POST_REGISTER;
-import static io.gravitee.am.common.policy.ExtensionPoint.POST_REGISTRATION_CONFIRMATION;
-import static io.gravitee.am.common.policy.ExtensionPoint.POST_RESET_PASSWORD;
-import static io.gravitee.am.common.policy.ExtensionPoint.PRE_CONSENT;
-import static io.gravitee.am.common.policy.ExtensionPoint.PRE_LOGIN;
-import static io.gravitee.am.common.policy.ExtensionPoint.PRE_LOGIN_IDENTIFIER;
-import static io.gravitee.am.common.policy.ExtensionPoint.PRE_REGISTER;
-import static io.gravitee.am.common.policy.ExtensionPoint.PRE_REGISTRATION_CONFIRMATION;
-import static io.gravitee.am.common.policy.ExtensionPoint.PRE_RESET_PASSWORD;
-import static io.gravitee.am.common.policy.ExtensionPoint.ROOT;
-import static io.gravitee.am.gateway.handler.common.flow.ExecutionPredicate.alwaysTrue;
-import static java.util.Objects.isNull;
-import static java.util.stream.Collectors.toList;
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class FlowManagerImpl extends AbstractService implements FlowManager, InitializingBean, EventListener<FlowEvent, Payload> {
+public class FlowManagerImpl extends AbstractService
+        implements FlowManager, InitializingBean, EventListener<FlowEvent, Payload> {
 
     private static final Logger logger = LoggerFactory.getLogger(FlowManagerImpl.class);
     private static final Map<Type, List<ExtensionPoint>> extensionPoints;
 
     static {
-        extensionPoints = Map.of(
-                Type.ROOT, List.of(ExtensionPoint.ROOT),
-                Type.LOGIN_IDENTIFIER, List.of(PRE_LOGIN_IDENTIFIER, POST_LOGIN_IDENTIFIER),
-                Type.CONSENT, List.of(PRE_CONSENT, POST_CONSENT),
-                Type.LOGIN, List.of(PRE_LOGIN, POST_LOGIN),
-                Type.REGISTER, List.of(PRE_REGISTER, POST_REGISTER),
-                Type.RESET_PASSWORD, List.of(PRE_RESET_PASSWORD, POST_RESET_PASSWORD),
-                Type.REGISTRATION_CONFIRMATION, List.of(PRE_REGISTRATION_CONFIRMATION, POST_REGISTRATION_CONFIRMATION)
-        );
+        extensionPoints =
+                Map.of(
+                        Type.ROOT, List.of(ExtensionPoint.ROOT),
+                        Type.LOGIN_IDENTIFIER, List.of(PRE_LOGIN_IDENTIFIER, POST_LOGIN_IDENTIFIER),
+                        Type.CONSENT, List.of(PRE_CONSENT, POST_CONSENT),
+                        Type.LOGIN, List.of(PRE_LOGIN, POST_LOGIN),
+                        Type.REGISTER, List.of(PRE_REGISTER, POST_REGISTER),
+                        Type.RESET_PASSWORD, List.of(PRE_RESET_PASSWORD, POST_RESET_PASSWORD),
+                        Type.REGISTRATION_CONFIRMATION,
+                                List.of(
+                                        PRE_REGISTRATION_CONFIRMATION,
+                                        POST_REGISTRATION_CONFIRMATION));
     }
 
-    @Autowired
-    private Domain domain;
+    @Autowired private Domain domain;
 
-    @Autowired
-    private FlowService flowService;
+    @Autowired private FlowService flowService;
 
-    @Autowired
-    private PolicyPluginManager policyPluginManager;
+    @Autowired private PolicyPluginManager policyPluginManager;
 
-    @Autowired
-    private EventManager eventManager;
+    @Autowired private EventManager eventManager;
 
     private final ConcurrentMap<String, Flow> flows = new ConcurrentHashMap<>();
-    private final ConcurrentMap<ExtensionPoint, Set<ExecutionFlow>> policies = new ConcurrentHashMap<>();
+    private final ConcurrentMap<ExtensionPoint, Set<ExecutionFlow>> policies =
+            new ConcurrentHashMap<>();
 
     @Override
     public void afterPropertiesSet() {
@@ -128,8 +129,8 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
 
     @Override
     public void onEvent(Event<FlowEvent, Payload> event) {
-        if (event.content().getReferenceType() == ReferenceType.DOMAIN &&
-                domain.getId().equals(event.content().getReferenceId())) {
+        if (event.content().getReferenceType() == ReferenceType.DOMAIN
+                && domain.getId().equals(event.content().getReferenceId())) {
             switch (event.type()) {
                 case DEPLOY:
                 case UPDATE:
@@ -143,7 +144,8 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
     }
 
     @Override
-    public Single<List<Policy>> findByExtensionPoint(ExtensionPoint extensionPoint, Client client, ExecutionPredicate filter) {
+    public Single<List<Policy>> findByExtensionPoint(
+            ExtensionPoint extensionPoint, Client client, ExecutionPredicate filter) {
         if (filter == null) {
             filter = alwaysTrue();
         }
@@ -155,7 +157,8 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
         }
 
         // get domain policies
-        List<Policy> domainExecutionPolicies = getExecutionPolicies(executionFlows, client, true, filter);
+        List<Policy> domainExecutionPolicies =
+                getExecutionPolicies(executionFlows, client, true, filter);
 
         // if client is null, executes only security domain flows
         if (client == null) {
@@ -163,7 +166,8 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
         }
 
         // get application policies
-        List<Policy> applicationExecutionPolicies = getExecutionPolicies(executionFlows, client, false, filter);
+        List<Policy> applicationExecutionPolicies =
+                getExecutionPolicies(executionFlows, client, false, filter);
 
         // if client does not inherit domain flows, executes only application flows
         if (!client.isFlowsInherited()) {
@@ -172,22 +176,32 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
 
         return Single.just(
                 Stream.concat(
-                        domainExecutionPolicies.stream(),
-                        applicationExecutionPolicies.stream()
-                ).collect(toList()));
+                                domainExecutionPolicies.stream(),
+                                applicationExecutionPolicies.stream())
+                        .collect(toList()));
     }
 
     private void updateFlow(String flowId, FlowEvent flowEvent) {
         final String eventType = flowEvent.toString().toLowerCase();
-        logger.info("Domain {} has received {} flow event for {}", domain.getName(), eventType, flowId);
-        flowService.findById(flowId)
+        logger.info(
+                "Domain {} has received {} flow event for {}", domain.getName(), eventType, flowId);
+        flowService
+                .findById(flowId)
                 .subscribe(
                         flow -> {
                             loadFlow(flow);
                             flows.put(flow.getId(), flow);
-                            logger.info("Flow {} has been deployed for domain {}", flowId, domain.getName());
+                            logger.info(
+                                    "Flow {} has been deployed for domain {}",
+                                    flowId,
+                                    domain.getName());
                         },
-                        error -> logger.error("Unable to deploy flow {} for domain {}", flowId, domain.getName(), error),
+                        error ->
+                                logger.error(
+                                        "Unable to deploy flow {} for domain {}",
+                                        flowId,
+                                        domain.getName(),
+                                        error),
                         () -> logger.error("No flow found with id {}", flowId));
     }
 
@@ -195,28 +209,41 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
         logger.info("Domain {} has received flow event, delete flow {}", domain.getName(), flowId);
         Flow deletedFlow = flows.remove(flowId);
         if (deletedFlow != null) {
-            extensionPoints.get(deletedFlow.getType()).forEach(extensionPoint -> removeExecutionFlow(extensionPoint, deletedFlow.getId()));
+            extensionPoints
+                    .get(deletedFlow.getType())
+                    .forEach(
+                            extensionPoint ->
+                                    removeExecutionFlow(extensionPoint, deletedFlow.getId()));
         }
     }
 
     private void loadFlows() {
-        flowService.findAll(ReferenceType.DOMAIN, domain.getId())
+        flowService
+                .findAll(ReferenceType.DOMAIN, domain.getId())
                 .subscribe(
                         flow -> {
                             if (needDeployment(flow)) {
                                 loadFlow(flow);
                                 flows.put(flow.getId(), flow);
-                                logger.info("Flow {} loaded for domain {}", flow.getType(), domain.getName());
+                                logger.info(
+                                        "Flow {} loaded for domain {}",
+                                        flow.getType(),
+                                        domain.getName());
                             }
                         },
-                        error -> logger.error("Unable to initialize flows for domain {}", domain.getName(), error)
-                );
+                        error ->
+                                logger.error(
+                                        "Unable to initialize flows for domain {}",
+                                        domain.getName(),
+                                        error));
     }
 
     private void loadFlow(Flow flow) {
         if (!flow.isEnabled()) {
             logger.debug("Flow {} is disabled, skip process", flow.getId());
-            extensionPoints.get(flow.getType()).forEach(extensionPoint -> removeExecutionFlow(extensionPoint, flow.getId()));
+            extensionPoints
+                    .get(flow.getType())
+                    .forEach(extensionPoint -> removeExecutionFlow(extensionPoint, flow.getId()));
             return;
         }
 
@@ -254,7 +281,8 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
                 addExecutionFlow(POST_REGISTRATION_CONFIRMATION, flow, postPolicies);
                 break;
             default:
-                throw new IllegalArgumentException("No suitable flow type found for : " + flow.getType());
+                throw new IllegalArgumentException(
+                        "No suitable flow type found for : " + flow.getType());
         }
     }
 
@@ -269,7 +297,9 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
     private Policy createPolicy(Step step) {
         try {
             logger.info("\tInitializing policy: {} [{}]", step.getName(), step.getPolicy());
-            Policy policy = policyPluginManager.create(step.getPolicy(), step.getCondition(), step.getConfiguration());
+            Policy policy =
+                    policyPluginManager.create(
+                            step.getPolicy(), step.getCondition(), step.getConfiguration());
             logger.info("\tPolicy : {} [{}] has been loaded", step.getName(), step.getPolicy());
             policy.activate();
             return policy;
@@ -278,7 +308,8 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
         }
     }
 
-    private void addExecutionFlow(ExtensionPoint extensionPoint, Flow flow, List<Policy> executionPolicies) {
+    private void addExecutionFlow(
+            ExtensionPoint extensionPoint, Flow flow, List<Policy> executionPolicies) {
         Set<ExecutionFlow> existingFlows = policies.get(extensionPoint);
         if (existingFlows == null) {
             existingFlows = new HashSet<>();
@@ -297,10 +328,11 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
         existingFlows.removeIf(executionFlow -> flowId.equals(executionFlow.getFlowId()));
     }
 
-    private List<Policy> getExecutionPolicies(Set<ExecutionFlow> executionFlows,
-                                              Client client,
-                                              boolean excludeApps,
-                                              ExecutionPredicate predicate) {
+    private List<Policy> getExecutionPolicies(
+            Set<ExecutionFlow> executionFlows,
+            Client client,
+            boolean excludeApps,
+            ExecutionPredicate predicate) {
         return executionFlows.stream()
                 .filter(executionFlow -> excludeApps(client, excludeApps, executionFlow))
                 .filter(executionFlow -> predicate.evaluate(executionFlow.getCondition()))
@@ -311,7 +343,9 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
     }
 
     private boolean excludeApps(Client client, boolean excludeApps, ExecutionFlow executionFlow) {
-        return excludeApps ? isNull(executionFlow.getApplication()) : client.getId().equals(executionFlow.getApplication());
+        return excludeApps
+                ? isNull(executionFlow.getApplication())
+                : client.getId().equals(executionFlow.getApplication());
     }
 
     /**
@@ -321,10 +355,10 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
     private boolean needDeployment(Flow flow) {
         if (flow != null && flow.getId() != null) {
             final Flow deployedFlow = this.flows.get(flow.getId());
-            return (deployedFlow == null || deployedFlow.getUpdatedAt().before(flow.getUpdatedAt()));
+            return (deployedFlow == null
+                    || deployedFlow.getUpdatedAt().before(flow.getUpdatedAt()));
         } else {
             return false;
         }
     }
 }
-

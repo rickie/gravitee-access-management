@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oauth2.service.discovery;
@@ -21,11 +19,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 /**
- * OAuth 2.0 Authorization Server Metadata as described in RFC 8414.
- * This object follow RFC metadata available <a href="https://tools.ietf.org/html/rfc8414#section-2">here</a>
+ * OAuth 2.0 Authorization Server Metadata as described in RFC 8414. This object follow RFC metadata
+ * available <a href="https://tools.ietf.org/html/rfc8414#section-2">here</a>
  *
- * This metadata should be exposed under "/.well-known/oauth-authorization-server" configuration endpoint.
- * See <a href="https://tools.ietf.org/html/rfc8414#section-3">here</a> for more details.
+ * <p>This metadata should be exposed under "/.well-known/oauth-authorization-server" configuration
+ * endpoint. See <a href="https://tools.ietf.org/html/rfc8414#section-3">here</a> for more details.
  *
  * @author Alexandre FARIA (contact at alexandrefaria.net)
  * @author GraviteeSource Team
@@ -184,7 +182,8 @@ public class Oauth2ProviderMetadata {
         return tokenEndpointAuthMethodsSupported;
     }
 
-    public Oauth2ProviderMetadata setTokenEndpointAuthMethodsSupported(List<String> tokenEndpointAuthMethodsSupported) {
+    public Oauth2ProviderMetadata setTokenEndpointAuthMethodsSupported(
+            List<String> tokenEndpointAuthMethodsSupported) {
         this.tokenEndpointAuthMethodsSupported = tokenEndpointAuthMethodsSupported;
         return this;
     }
@@ -193,8 +192,10 @@ public class Oauth2ProviderMetadata {
         return tokenEndpointAuthSigningAlgValuesSupported;
     }
 
-    public Oauth2ProviderMetadata setTokenEndpointAuthSigningAlgValuesSupported(List<String> tokenEndpointAuthSigningAlgValuesSupported) {
-        this.tokenEndpointAuthSigningAlgValuesSupported = tokenEndpointAuthSigningAlgValuesSupported;
+    public Oauth2ProviderMetadata setTokenEndpointAuthSigningAlgValuesSupported(
+            List<String> tokenEndpointAuthSigningAlgValuesSupported) {
+        this.tokenEndpointAuthSigningAlgValuesSupported =
+                tokenEndpointAuthSigningAlgValuesSupported;
         return this;
     }
 
@@ -247,7 +248,8 @@ public class Oauth2ProviderMetadata {
         return revocationEndpointAuthMethodsSupported;
     }
 
-    public Oauth2ProviderMetadata setRevocationEndpointAuthMethodsSupported(List<String> revocationEndpointAuthMethodsSupported) {
+    public Oauth2ProviderMetadata setRevocationEndpointAuthMethodsSupported(
+            List<String> revocationEndpointAuthMethodsSupported) {
         this.revocationEndpointAuthMethodsSupported = revocationEndpointAuthMethodsSupported;
         return this;
     }
@@ -256,8 +258,10 @@ public class Oauth2ProviderMetadata {
         return revocationEndpointAuthSigningAlgValuesSupported;
     }
 
-    public Oauth2ProviderMetadata setRevocationEndpointAuthSigningAlgValuesSupported(List<String> revocationEndpointAuthSigningAlgValuesSupported) {
-        this.revocationEndpointAuthSigningAlgValuesSupported = revocationEndpointAuthSigningAlgValuesSupported;
+    public Oauth2ProviderMetadata setRevocationEndpointAuthSigningAlgValuesSupported(
+            List<String> revocationEndpointAuthSigningAlgValuesSupported) {
+        this.revocationEndpointAuthSigningAlgValuesSupported =
+                revocationEndpointAuthSigningAlgValuesSupported;
         return this;
     }
 
@@ -274,7 +278,8 @@ public class Oauth2ProviderMetadata {
         return introspectionEndpointAuthMethodsSupported;
     }
 
-    public Oauth2ProviderMetadata setIntrospectionEndpointAuthMethodsSupported(List<String> introspectionEndpointAuthMethodsSupported) {
+    public Oauth2ProviderMetadata setIntrospectionEndpointAuthMethodsSupported(
+            List<String> introspectionEndpointAuthMethodsSupported) {
         this.introspectionEndpointAuthMethodsSupported = introspectionEndpointAuthMethodsSupported;
         return this;
     }
@@ -283,8 +288,10 @@ public class Oauth2ProviderMetadata {
         return introspectionEndpointAuthSigningAlgValuesSupported;
     }
 
-    public Oauth2ProviderMetadata setIntrospectionEndpointAuthSigningAlgValuesSupported(List<String> introspectionEndpointAuthSigningAlgValuesSupported) {
-        this.introspectionEndpointAuthSigningAlgValuesSupported = introspectionEndpointAuthSigningAlgValuesSupported;
+    public Oauth2ProviderMetadata setIntrospectionEndpointAuthSigningAlgValuesSupported(
+            List<String> introspectionEndpointAuthSigningAlgValuesSupported) {
+        this.introspectionEndpointAuthSigningAlgValuesSupported =
+                introspectionEndpointAuthSigningAlgValuesSupported;
         return this;
     }
 
@@ -292,7 +299,8 @@ public class Oauth2ProviderMetadata {
         return codeChallengeMethodsSupported;
     }
 
-    public Oauth2ProviderMetadata setCodeChallengeMethodsSupported(List<String> codeChallengeMethodsSupported) {
+    public Oauth2ProviderMetadata setCodeChallengeMethodsSupported(
+            List<String> codeChallengeMethodsSupported) {
         this.codeChallengeMethodsSupported = codeChallengeMethodsSupported;
         return this;
     }

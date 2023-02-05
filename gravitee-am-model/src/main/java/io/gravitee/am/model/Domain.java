@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.model;
@@ -34,29 +32,19 @@ import java.util.Set;
  */
 public class Domain implements Resource {
 
-    /**
-     * Domain identifier.
-     */
+    /** Domain identifier. */
     private String id;
 
-    /**
-     * Domain human readable identifier.
-     */
+    /** Domain human readable identifier. */
     private String hrid;
 
-    /**
-     * Domain name.
-     */
+    /** Domain name. */
     private String name;
 
-    /**
-     * Domain description.
-     */
+    /** Domain description. */
     private String description;
 
-    /**
-     * The type of reference the domain is attached to (for now, should be ENVIRONMENT).
-     */
+    /** The type of reference the domain is attached to (for now, should be ENVIRONMENT). */
     private ReferenceType referenceType;
 
     /**
@@ -64,111 +52,71 @@ public class Domain implements Resource {
      */
     private String referenceId;
 
-    /**
-     * Domain enabled.
-     */
+    /** Domain enabled. */
     private boolean enabled;
 
-    /**
-     * Flag indicating if alerts are enabled or not.
-     */
+    /** Flag indicating if alerts are enabled or not. */
     private Boolean alertEnabled;
 
-    /**
-     * Domain HTTP path
-     */
+    /** Domain HTTP path */
     private String path;
 
-    /**
-     * NOTE: only use for the DefaultOrganizationUpgrader
-     */
+    /** NOTE: only use for the DefaultOrganizationUpgrader */
     private Set<String> identities;
 
-    /**
-     * If domain is master, it can do cross domains token introspection
-     */
+    /** If domain is master, it can do cross domains token introspection */
     private boolean master;
 
     /**
-     * Indicates if domain is in vhost mode or not. If true, then security domain will be exposed under specified virtual hosts.
+     * Indicates if domain is in vhost mode or not. If true, then security domain will be exposed
+     * under specified virtual hosts.
      */
     private boolean vhostMode = false;
 
-    /**
-     * The list of vhosts to expose the domain on.
-     */
+    /** The list of vhosts to expose the domain on. */
     private List<VirtualHost> vhosts;
 
-    /**
-     * The list of sharding tags to expose the domain on.
-     */
+    /** The list of sharding tags to expose the domain on. */
     private Set<String> tags;
 
-    /**
-     * Domain creation date
-     */
+    /** Domain creation date */
     @ApiModelProperty(dataType = "java.lang.Long")
     private Date createdAt;
 
-    /**
-     * Domain last updated date
-     */
+    /** Domain last updated date */
     @ApiModelProperty(dataType = "java.lang.Long")
     private Date updatedAt;
 
-    /**
-     * -------------------------
-     * Advanced settings section
-     * -------------------------
-     */
+    /** ------------------------- Advanced settings section ------------------------- */
 
-    /**
-     * OAuth 2.0 / OIDC settings
-     */
+    /** OAuth 2.0 / OIDC settings */
     private OIDCSettings oidc;
 
-    /**
-     * UMA 2.0 settings
-     */
+    /** UMA 2.0 settings */
     private UMASettings uma;
 
-    /**
-     * Login page settings
-     */
+    /** Login page settings */
     private LoginSettings loginSettings;
 
-    /**
-     * WebAuthn/Passwordless settings
-     */
+    /** WebAuthn/Passwordless settings */
     private WebAuthnSettings webAuthnSettings;
 
-    /**
-     * SCIM 2.0 settings
-     */
+    /** SCIM 2.0 settings */
     private SCIMSettings scim;
 
-    /**
-     * User accounts settings
-     */
+    /** User accounts settings */
     private AccountSettings accountSettings;
 
-    /**
-     * Password settings
-     */
+    /** Password settings */
     private PasswordSettings passwordSettings;
 
-    /**
-     * Self-service Account Management settings
-     */
+    /** Self-service Account Management settings */
     private SelfServiceAccountManagementSettings selfServiceAccountManagementSettings;
 
-    /**
-     * SAML 2.0 settings
-     */
+    /** SAML 2.0 settings */
     private SAMLSettings saml;
 
-    public Domain() {
-    }
+    public Domain() {}
 
     public Domain(Domain other) {
         this.id = other.id;
@@ -387,7 +335,8 @@ public class Domain implements Resource {
         return selfServiceAccountManagementSettings;
     }
 
-    public void setSelfServiceAccountManagementSettings(SelfServiceAccountManagementSettings selfServiceAccountManagementSettings) {
+    public void setSelfServiceAccountManagementSettings(
+            SelfServiceAccountManagementSettings selfServiceAccountManagementSettings) {
         this.selfServiceAccountManagementSettings = selfServiceAccountManagementSettings;
     }
 
@@ -400,62 +349,68 @@ public class Domain implements Resource {
     }
 
     public boolean isDynamicClientRegistrationEnabled() {
-        return this.getOidc()!=null &&
-                this.getOidc().getClientRegistrationSettings()!=null &&
-                this.getOidc().getClientRegistrationSettings().isDynamicClientRegistrationEnabled();
+        return this.getOidc() != null
+                && this.getOidc().getClientRegistrationSettings() != null
+                && this.getOidc()
+                        .getClientRegistrationSettings()
+                        .isDynamicClientRegistrationEnabled();
     }
 
     public boolean isOpenDynamicClientRegistrationEnabled() {
-        return this.getOidc()!=null &&
-                this.getOidc().getClientRegistrationSettings()!=null &&
-                this.getOidc().getClientRegistrationSettings().isDynamicClientRegistrationEnabled() &&
-                this.getOidc().getClientRegistrationSettings().isOpenDynamicClientRegistrationEnabled();
+        return this.getOidc() != null
+                && this.getOidc().getClientRegistrationSettings() != null
+                && this.getOidc()
+                        .getClientRegistrationSettings()
+                        .isDynamicClientRegistrationEnabled()
+                && this.getOidc()
+                        .getClientRegistrationSettings()
+                        .isOpenDynamicClientRegistrationEnabled();
     }
 
     public boolean isDynamicClientRegistrationTemplateEnabled() {
-        return this.getOidc()!=null &&
-                this.getOidc().getClientRegistrationSettings()!=null &&
-                this.getOidc().getClientRegistrationSettings().isClientTemplateEnabled();
+        return this.getOidc() != null
+                && this.getOidc().getClientRegistrationSettings() != null
+                && this.getOidc().getClientRegistrationSettings().isClientTemplateEnabled();
     }
 
     public boolean isRedirectUriLocalhostAllowed() {
-        return this.getOidc()!=null &&
-                this.getOidc().getClientRegistrationSettings()!=null &&
-                this.getOidc().getClientRegistrationSettings().isAllowLocalhostRedirectUri();
+        return this.getOidc() != null
+                && this.getOidc().getClientRegistrationSettings() != null
+                && this.getOidc().getClientRegistrationSettings().isAllowLocalhostRedirectUri();
     }
 
     public boolean isRedirectUriUnsecuredHttpSchemeAllowed() {
-        return this.getOidc()!=null &&
-                this.getOidc().getClientRegistrationSettings()!=null &&
-                this.getOidc().getClientRegistrationSettings().isAllowHttpSchemeRedirectUri();
+        return this.getOidc() != null
+                && this.getOidc().getClientRegistrationSettings() != null
+                && this.getOidc().getClientRegistrationSettings().isAllowHttpSchemeRedirectUri();
     }
 
     public boolean isRedirectUriWildcardAllowed() {
-        return this.getOidc()!=null &&
-                this.getOidc().getClientRegistrationSettings()!=null &&
-                this.getOidc().getClientRegistrationSettings().isAllowWildCardRedirectUri();
+        return this.getOidc() != null
+                && this.getOidc().getClientRegistrationSettings() != null
+                && this.getOidc().getClientRegistrationSettings().isAllowWildCardRedirectUri();
     }
 
     public boolean isRedirectUriStrictMatching() {
-        return this.getOidc()!=null && this.getOidc().isRedirectUriStrictMatching();
+        return this.getOidc() != null && this.getOidc().isRedirectUriStrictMatching();
     }
 
     public boolean usePlainFapiProfile() {
-        return this.getOidc() != null &&
-                this.getOidc().getSecurityProfileSettings() != null &&
-                this.getOidc().getSecurityProfileSettings().isEnablePlainFapi();
+        return this.getOidc() != null
+                && this.getOidc().getSecurityProfileSettings() != null
+                && this.getOidc().getSecurityProfileSettings().isEnablePlainFapi();
     }
 
     public boolean useFapiBrazilProfile() {
-        return this.getOidc() != null &&
-                this.getOidc().getSecurityProfileSettings() != null &&
-                this.getOidc().getSecurityProfileSettings().isEnableFapiBrazil();
+        return this.getOidc() != null
+                && this.getOidc().getSecurityProfileSettings() != null
+                && this.getOidc().getSecurityProfileSettings().isEnableFapiBrazil();
     }
 
     public boolean useCiba() {
-        return this.getOidc() != null &&
-                this.getOidc().getCibaSettings() != null &&
-                this.getOidc().getCibaSettings().isEnabled();
+        return this.getOidc() != null
+                && this.getOidc().getCibaSettings() != null
+                && this.getOidc().getCibaSettings().isEnabled();
     }
 
     @Override
@@ -472,5 +427,4 @@ public class Domain implements Resource {
     public int hashCode() {
         return id.hashCode();
     }
-
 }

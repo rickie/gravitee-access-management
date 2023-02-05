@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.certificate.api;
@@ -19,12 +17,14 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyOperation;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.util.Base64;
+
 import io.gravitee.am.common.jwt.SignatureAlgorithm;
 import io.gravitee.am.model.jose.ECKey;
 import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.jose.RSAKey;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
@@ -55,8 +55,7 @@ import java.util.stream.Stream;
 public abstract class AbstractCertificateProvider implements CertificateProvider {
     public static final String RSA = "RSA";
     public static final String EC = "EC";
-    @Autowired
-    protected CertificateMetadata certificateMetadata;
+    @Autowired protected CertificateMetadata certificateMetadata;
     private Date expirationDate;
     private Certificate cert;
     private JWKSet jwkSet;
@@ -86,7 +85,9 @@ public abstract class AbstractCertificateProvider implements CertificateProvider
                 // create key
                 certificateKey = new DefaultKey(getAlias(), keyPair);
                 // update metadata
-                certificateMetadata.getMetadata().put(CertificateMetadata.DIGEST_ALGORITHM_NAME, signature.getDigestName());
+                certificateMetadata
+                        .getMetadata()
+                        .put(CertificateMetadata.DIGEST_ALGORITHM_NAME, signature.getDigestName());
                 // generate public certificate keys
                 certificateKeys = new ArrayList<>();
                 // get Signing Algorithm name
@@ -97,10 +98,16 @@ public abstract class AbstractCertificateProvider implements CertificateProvider
                     expirationDate = ((X509Certificate) cert).getNotAfter();
                 }
                 PublicKey publicKey = keyPair.getPublic();
-                if (publicKey.getAlgorithm().equals(RSA)){
-                    certificateKeys.add(new CertificateKey(CertificateFormat.SSH_RSA, RSAKeyUtils.toSSHRSAString((RSAPublicKey) publicKey)));
-                } else if (publicKey.getAlgorithm().equals(EC)){
-                    certificateKeys.add(new CertificateKey(CertificateFormat.ECSDA, toEcdsaString((ECPublicKey) publicKey)));
+                if (publicKey.getAlgorithm().equals(RSA)) {
+                    certificateKeys.add(
+                            new CertificateKey(
+                                    CertificateFormat.SSH_RSA,
+                                    RSAKeyUtils.toSSHRSAString((RSAPublicKey) publicKey)));
+                } else if (publicKey.getAlgorithm().equals(EC)) {
+                    certificateKeys.add(
+                            new CertificateKey(
+                                    CertificateFormat.ECSDA,
+                                    toEcdsaString((ECPublicKey) publicKey)));
                 }
             } else {
                 throw new IllegalArgumentException("An ECSDA or RSA Signer must be supplied");
@@ -133,10 +140,13 @@ public abstract class AbstractCertificateProvider implements CertificateProvider
     @Override
     public Flowable<JWK> privateKey() {
         // CertificateProvider only manage RSA key.
-        com.nimbusds.jose.jwk.JWK nimbusJwk = new com.nimbusds.jose.jwk.RSAKey.Builder((RSAPublicKey) ((KeyPair) certificateKey.getValue()).getPublic())
-                .privateKey((RSAPrivateKey) ((KeyPair) certificateKey.getValue()).getPrivate())
-                .keyID(getAlias())
-                .build();
+        com.nimbusds.jose.jwk.JWK nimbusJwk =
+                new com.nimbusds.jose.jwk.RSAKey.Builder(
+                                (RSAPublicKey) ((KeyPair) certificateKey.getValue()).getPublic())
+                        .privateKey(
+                                (RSAPrivateKey) ((KeyPair) certificateKey.getValue()).getPrivate())
+                        .keyID(getAlias())
+                        .build();
         return Flowable.fromIterable(convert(nimbusJwk, true).collect(Collectors.toList()));
     }
 
@@ -149,8 +159,7 @@ public abstract class AbstractCertificateProvider implements CertificateProvider
     public Single<String> publicKey() {
         // fallback to ssh-rsa
         return Single.just(
-                certificateKeys
-                        .stream()
+                certificateKeys.stream()
                         .filter(c -> c.getFmt().equals(CertificateFormat.SSH_RSA))
                         .map(CertificateKey::getPayload)
                         .findFirst()
@@ -180,18 +189,24 @@ public abstract class AbstractCertificateProvider implements CertificateProvider
         return signature.getValue();
     }
 
-    private String toEcdsaString(ECPublicKey publicKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    private String toEcdsaString(ECPublicKey publicKey)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
         KeyFactory keyFactory = KeyFactory.getInstance(EC);
         X509EncodedKeySpec keySpec = keyFactory.getKeySpec(publicKey, X509EncodedKeySpec.class);
         return new String(java.util.Base64.getEncoder().encode(keySpec.getEncoded()));
     }
 
     private Set<JWK> getKeys() {
-        return jwkSet.toPublicJWKSet().getKeys().stream().flatMap(nimbusJwk -> convert(nimbusJwk, false)).collect(Collectors.toSet());
+        return jwkSet.toPublicJWKSet().getKeys().stream()
+                .flatMap(nimbusJwk -> convert(nimbusJwk, false))
+                .collect(Collectors.toSet());
     }
 
     private Stream<JWK> convert(com.nimbusds.jose.jwk.JWK nimbusJwk, boolean includePrivate) {
-        final Set<String> useFor = getUse() == null || getUse().isEmpty() ? Set.of(KeyUse.SIGNATURE.getValue()) : getUse();
+        final Set<String> useFor =
+                getUse() == null || getUse().isEmpty()
+                        ? Set.of(KeyUse.SIGNATURE.getValue())
+                        : getUse();
         return useFor.stream().map(use -> createKey(nimbusJwk, includePrivate, use));
     }
 
@@ -200,8 +215,7 @@ public abstract class AbstractCertificateProvider implements CertificateProvider
         JWK jwk;
         if (keyType.equals(RSA)) {
             jwk = new RSAKey();
-        }
-        else {
+        } else {
             jwk = new ECKey();
         }
 
@@ -212,7 +226,10 @@ public abstract class AbstractCertificateProvider implements CertificateProvider
         }
 
         if (nimbusJwk.getKeyOperations() != null) {
-            jwk.setKeyOps(nimbusJwk.getKeyOperations().stream().map(KeyOperation::identifier).collect(Collectors.toSet()));
+            jwk.setKeyOps(
+                    nimbusJwk.getKeyOperations().stream()
+                            .map(KeyOperation::identifier)
+                            .collect(Collectors.toSet()));
         }
 
         if (getAlgorithm() != null && !getAlgorithm().isEmpty()) {
@@ -227,7 +244,10 @@ public abstract class AbstractCertificateProvider implements CertificateProvider
             jwk.setX5u(nimbusJwk.getX509CertURL().toString());
         }
         if (nimbusJwk.getX509CertChain() != null) {
-            jwk.setX5c(nimbusJwk.getX509CertChain().stream().map(Base64::toString).collect(Collectors.toSet()));
+            jwk.setX5c(
+                    nimbusJwk.getX509CertChain().stream()
+                            .map(Base64::toString)
+                            .collect(Collectors.toSet()));
         }
         if (nimbusJwk.getX509CertThumbprint() != null) {
             jwk.setX5t(nimbusJwk.getX509CertThumbprint().toString());
@@ -238,14 +258,14 @@ public abstract class AbstractCertificateProvider implements CertificateProvider
 
         if (keyType.equals(RSA)) {
             createRsaJwk((com.nimbusds.jose.jwk.RSAKey) nimbusJwk, includePrivate, (RSAKey) jwk);
-        }
-        else {
+        } else {
             createEcJwk((com.nimbusds.jose.jwk.ECKey) nimbusJwk, includePrivate, (ECKey) jwk);
         }
         return jwk;
     }
 
-    private void createEcJwk(com.nimbusds.jose.jwk.ECKey nimbusEcJwk, boolean includePrivate, ECKey jwk) {
+    private void createEcJwk(
+            com.nimbusds.jose.jwk.ECKey nimbusEcJwk, boolean includePrivate, ECKey jwk) {
         if (nimbusEcJwk.getCurve() != null) {
             jwk.setCrv(nimbusEcJwk.getCurve().toString());
         }
@@ -260,7 +280,8 @@ public abstract class AbstractCertificateProvider implements CertificateProvider
         }
     }
 
-    private void createRsaJwk(com.nimbusds.jose.jwk.RSAKey nimbusRsaJwk, boolean includePrivate, RSAKey jwk) {
+    private void createRsaJwk(
+            com.nimbusds.jose.jwk.RSAKey nimbusRsaJwk, boolean includePrivate, RSAKey jwk) {
         if (nimbusRsaJwk.getPublicExponent() != null) {
             jwk.setE(nimbusRsaJwk.getPublicExponent().toString());
         }
@@ -298,7 +319,9 @@ public abstract class AbstractCertificateProvider implements CertificateProvider
     private SignatureAlgorithm getSignature(String signingAlgorithm) {
         return Stream.of(SignatureAlgorithm.values())
                 .filter(signatureAlgorithm -> signatureAlgorithm.getJcaName() != null)
-                .filter(signatureAlgorithm -> signatureAlgorithm.getJcaName().equals(signingAlgorithm))
+                .filter(
+                        signatureAlgorithm ->
+                                signatureAlgorithm.getJcaName().equals(signingAlgorithm))
                 .findFirst()
                 .orElse(SignatureAlgorithm.RS256);
     }

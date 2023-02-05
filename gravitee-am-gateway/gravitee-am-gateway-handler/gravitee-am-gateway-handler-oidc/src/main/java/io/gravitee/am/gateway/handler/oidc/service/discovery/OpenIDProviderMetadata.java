@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.oidc.service.discovery;
@@ -21,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 /**
- *
  * See <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata"></a>
  *
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -164,6 +161,7 @@ public class OpenIDProviderMetadata {
 
     @JsonProperty("request_object_endpoint")
     private String requestObjectEndpoint;
+
     public String getIssuer() {
         return issuer;
     }
@@ -333,7 +331,8 @@ public class OpenIDProviderMetadata {
         return idTokenEncryptionAlgValuesSupported;
     }
 
-    public void setIdTokenEncryptionAlgValuesSupported(List<String> idTokenEncryptionAlgValuesSupported) {
+    public void setIdTokenEncryptionAlgValuesSupported(
+            List<String> idTokenEncryptionAlgValuesSupported) {
         this.idTokenEncryptionAlgValuesSupported = idTokenEncryptionAlgValuesSupported;
     }
 
@@ -341,7 +340,8 @@ public class OpenIDProviderMetadata {
         return idTokenEncryptionEncValuesSupported;
     }
 
-    public void setIdTokenEncryptionEncValuesSupported(List<String> idTokenEncryptionEncValuesSupported) {
+    public void setIdTokenEncryptionEncValuesSupported(
+            List<String> idTokenEncryptionEncValuesSupported) {
         this.idTokenEncryptionEncValuesSupported = idTokenEncryptionEncValuesSupported;
     }
 
@@ -349,7 +349,8 @@ public class OpenIDProviderMetadata {
         return userinfoSigningAlgValuesSupported;
     }
 
-    public void setUserinfoSigningAlgValuesSupported(List<String> userinfoSigningAlgValuesSupported) {
+    public void setUserinfoSigningAlgValuesSupported(
+            List<String> userinfoSigningAlgValuesSupported) {
         this.userinfoSigningAlgValuesSupported = userinfoSigningAlgValuesSupported;
     }
 
@@ -357,7 +358,8 @@ public class OpenIDProviderMetadata {
         return userinfoEncryptionAlgValuesSupported;
     }
 
-    public void setUserinfoEncryptionAlgValuesSupported(List<String> userinfoEncryptionAlgValuesSupported) {
+    public void setUserinfoEncryptionAlgValuesSupported(
+            List<String> userinfoEncryptionAlgValuesSupported) {
         this.userinfoEncryptionAlgValuesSupported = userinfoEncryptionAlgValuesSupported;
     }
 
@@ -365,7 +367,8 @@ public class OpenIDProviderMetadata {
         return userinfoEncryptionEncValuesSupported;
     }
 
-    public void setUserinfoEncryptionEncValuesSupported(List<String> userinfoEncryptionEncValuesSupported) {
+    public void setUserinfoEncryptionEncValuesSupported(
+            List<String> userinfoEncryptionEncValuesSupported) {
         this.userinfoEncryptionEncValuesSupported = userinfoEncryptionEncValuesSupported;
     }
 
@@ -373,7 +376,8 @@ public class OpenIDProviderMetadata {
         return requestObjectSigningAlgValuesSupported;
     }
 
-    public void setRequestObjectSigningAlgValuesSupported(List<String> requestObjectSigningAlgValuesSupported) {
+    public void setRequestObjectSigningAlgValuesSupported(
+            List<String> requestObjectSigningAlgValuesSupported) {
         this.requestObjectSigningAlgValuesSupported = requestObjectSigningAlgValuesSupported;
     }
 
@@ -381,7 +385,8 @@ public class OpenIDProviderMetadata {
         return requestObjectEncryptionAlgValuesSupported;
     }
 
-    public void setRequestObjectEncryptionAlgValuesSupported(List<String> requestObjectEncryptionAlgValuesSupported) {
+    public void setRequestObjectEncryptionAlgValuesSupported(
+            List<String> requestObjectEncryptionAlgValuesSupported) {
         this.requestObjectEncryptionAlgValuesSupported = requestObjectEncryptionAlgValuesSupported;
     }
 
@@ -389,7 +394,8 @@ public class OpenIDProviderMetadata {
         return requestObjectEncryptionEncValuesSupported;
     }
 
-    public void setRequestObjectEncryptionEncValuesSupported(List<String> requestObjectEncryptionEncValuesSupported) {
+    public void setRequestObjectEncryptionEncValuesSupported(
+            List<String> requestObjectEncryptionEncValuesSupported) {
         this.requestObjectEncryptionEncValuesSupported = requestObjectEncryptionEncValuesSupported;
     }
 
@@ -397,7 +403,8 @@ public class OpenIDProviderMetadata {
         return tokenEndpointAuthMethodsSupported;
     }
 
-    public void setTokenEndpointAuthMethodsSupported(List<String> tokenEndpointAuthMethodsSupported) {
+    public void setTokenEndpointAuthMethodsSupported(
+            List<String> tokenEndpointAuthMethodsSupported) {
         this.tokenEndpointAuthMethodsSupported = tokenEndpointAuthMethodsSupported;
     }
 
@@ -405,8 +412,10 @@ public class OpenIDProviderMetadata {
         return tokenEndpointAuthSigningAlgValuesSupported;
     }
 
-    public void setTokenEndpointAuthSigningAlgValuesSupported(List<String> tokenEndpointAuthSigningAlgValuesSupported) {
-        this.tokenEndpointAuthSigningAlgValuesSupported = tokenEndpointAuthSigningAlgValuesSupported;
+    public void setTokenEndpointAuthSigningAlgValuesSupported(
+            List<String> tokenEndpointAuthSigningAlgValuesSupported) {
+        this.tokenEndpointAuthSigningAlgValuesSupported =
+                tokenEndpointAuthSigningAlgValuesSupported;
     }
 
     public List<String> getDisplayValuesSupported() {
@@ -517,7 +526,8 @@ public class OpenIDProviderMetadata {
         return authorizationSigningAlgValuesSupported;
     }
 
-    public void setAuthorizationSigningAlgValuesSupported(List<String> authorizationSigningAlgValuesSupported) {
+    public void setAuthorizationSigningAlgValuesSupported(
+            List<String> authorizationSigningAlgValuesSupported) {
         this.authorizationSigningAlgValuesSupported = authorizationSigningAlgValuesSupported;
     }
 
@@ -525,7 +535,8 @@ public class OpenIDProviderMetadata {
         return authorizationEncryptionAlgValuesSupported;
     }
 
-    public void setAuthorizationEncryptionAlgValuesSupported(List<String> authorizationEncryptionAlgValuesSupported) {
+    public void setAuthorizationEncryptionAlgValuesSupported(
+            List<String> authorizationEncryptionAlgValuesSupported) {
         this.authorizationEncryptionAlgValuesSupported = authorizationEncryptionAlgValuesSupported;
     }
 
@@ -533,7 +544,8 @@ public class OpenIDProviderMetadata {
         return authorizationEncryptionEncValuesSupported;
     }
 
-    public void setAuthorizationEncryptionEncValuesSupported(List<String> authorizationEncryptionEncValuesSupported) {
+    public void setAuthorizationEncryptionEncValuesSupported(
+            List<String> authorizationEncryptionEncValuesSupported) {
         this.authorizationEncryptionEncValuesSupported = authorizationEncryptionEncValuesSupported;
     }
 
@@ -549,7 +561,8 @@ public class OpenIDProviderMetadata {
         return tlsClientCertificateBoundAccessTokens;
     }
 
-    public void setTlsClientCertificateBoundAccessTokens(Boolean tlsClientCertificateBoundAccessTokens) {
+    public void setTlsClientCertificateBoundAccessTokens(
+            Boolean tlsClientCertificateBoundAccessTokens) {
         this.tlsClientCertificateBoundAccessTokens = tlsClientCertificateBoundAccessTokens;
     }
 
@@ -573,7 +586,8 @@ public class OpenIDProviderMetadata {
         return backchannelTokenDeliveryModesSupported;
     }
 
-    public void setBackchannelTokenDeliveryModesSupported(List<String> backchannelTokenDeliveryModesSupported) {
+    public void setBackchannelTokenDeliveryModesSupported(
+            List<String> backchannelTokenDeliveryModesSupported) {
         this.backchannelTokenDeliveryModesSupported = backchannelTokenDeliveryModesSupported;
     }
 
@@ -589,7 +603,8 @@ public class OpenIDProviderMetadata {
         return backchannelAuthenticationSigningAlg;
     }
 
-    public void setBackchannelAuthenticationSigningAlg(List<String> backchannelAuthenticationSigningAlg) {
+    public void setBackchannelAuthenticationSigningAlg(
+            List<String> backchannelAuthenticationSigningAlg) {
         this.backchannelAuthenticationSigningAlg = backchannelAuthenticationSigningAlg;
     }
 

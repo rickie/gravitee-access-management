@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.model;
@@ -156,11 +154,13 @@ public class PatchDomain {
         this.passwordSettings = passwordSettings;
     }
 
-    public Optional<SelfServiceAccountManagementSettings> getSelfServiceAccountManagementSettings() {
+    public Optional<SelfServiceAccountManagementSettings>
+            getSelfServiceAccountManagementSettings() {
         return selfServiceAccountManagementSettings;
     }
 
-    public void setSelfServiceAccountManagementSettings(Optional<SelfServiceAccountManagementSettings> selfServiceAccountManagementSettings) {
+    public void setSelfServiceAccountManagementSettings(
+            Optional<SelfServiceAccountManagementSettings> selfServiceAccountManagementSettings) {
         this.selfServiceAccountManagementSettings = selfServiceAccountManagementSettings;
     }
 
@@ -196,7 +196,9 @@ public class PatchDomain {
         SetterUtils.safeSet(toPatch::setLoginSettings, this.getLoginSettings());
         SetterUtils.safeSet(toPatch::setWebAuthnSettings, this.getWebAuthnSettings());
         SetterUtils.safeSet(toPatch::setAccountSettings, this.getAccountSettings());
-        SetterUtils.safeSet(toPatch::setSelfServiceAccountManagementSettings, this.getSelfServiceAccountManagementSettings());
+        SetterUtils.safeSet(
+                toPatch::setSelfServiceAccountManagementSettings,
+                this.getSelfServiceAccountManagementSettings());
         SetterUtils.safeSet(toPatch::setTags, this.getTags());
         SetterUtils.safeSet(toPatch::setMaster, this.getMaster(), boolean.class);
 
@@ -210,7 +212,8 @@ public class PatchDomain {
         }
 
         if (this.passwordSettings != null) {
-            this.passwordSettings.ifPresent(ps -> toPatch.setPasswordSettings(ps.patch(toPatch.getPasswordSettings())));
+            this.passwordSettings.ifPresent(
+                    ps -> toPatch.setPasswordSettings(ps.patch(toPatch.getPasswordSettings())));
         }
 
         if (this.getSaml() != null && this.getSaml().isPresent()) {
@@ -220,11 +223,11 @@ public class PatchDomain {
         return toPatch;
     }
 
-
     /**
      * Returns the list of required permission depending on what fields are filled.
-     * <p>
-     * Ex: if settings.oauth is filled, {@link Permission#DOMAIN_OPENID} will be added to the list of required permissions cause it means the user want to update this information.
+     *
+     * <p>Ex: if settings.oauth is filled, {@link Permission#DOMAIN_OPENID} will be added to the
+     * list of required permissions cause it means the user want to update this information.
      *
      * @return the list of required permissions.
      */
@@ -242,14 +245,15 @@ public class PatchDomain {
                 || webAuthnSettings != null && webAuthnSettings.isPresent()
                 || accountSettings != null && accountSettings.isPresent()
                 || passwordSettings != null && passwordSettings.isPresent()
-                || selfServiceAccountManagementSettings != null && selfServiceAccountManagementSettings.isPresent()
+                || selfServiceAccountManagementSettings != null
+                        && selfServiceAccountManagementSettings.isPresent()
                 || tags != null && tags.isPresent()
                 || master != null && master.isPresent()) {
 
             requiredPermissions.add(Permission.DOMAIN_SETTINGS);
         }
 
-        if(alertEnabled != null && alertEnabled.isPresent()) {
+        if (alertEnabled != null && alertEnabled.isPresent()) {
             requiredPermissions.add(Permission.DOMAIN_ALERT);
         }
 

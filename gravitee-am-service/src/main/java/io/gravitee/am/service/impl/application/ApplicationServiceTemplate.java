@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.impl.application;
@@ -39,10 +37,8 @@ public class ApplicationServiceTemplate implements ApplicationTemplate {
     }
 
     /**
-     * Backend/Service application are "confidential" client and need at least :
-     *   - client_id
-     *   - client_secret
-     *   - authorized_grant_types : client_credentials
+     * Backend/Service application are "confidential" client and need at least : - client_id -
+     * client_secret - authorized_grant_types : client_credentials
      */
     @Override
     public void handle(Application application) {
@@ -67,17 +63,29 @@ public class ApplicationServiceTemplate implements ApplicationTemplate {
 
         // assign values
         ApplicationOAuthSettings oAuthSettings = application.getSettings().getOauth();
-        oAuthSettings.setClientId(oAuthSettings.getClientId() == null ? RandomString.generate() : oAuthSettings.getClientId());
-        oAuthSettings.setClientSecret(oAuthSettings.getClientSecret() == null ? SecureRandomString.generate() : oAuthSettings.getClientSecret());
-        oAuthSettings.setClientName(oAuthSettings.getClientName() == null ? application.getName() : oAuthSettings.getClientName());
+        oAuthSettings.setClientId(
+                oAuthSettings.getClientId() == null
+                        ? RandomString.generate()
+                        : oAuthSettings.getClientId());
+        oAuthSettings.setClientSecret(
+                oAuthSettings.getClientSecret() == null
+                        ? SecureRandomString.generate()
+                        : oAuthSettings.getClientSecret());
+        oAuthSettings.setClientName(
+                oAuthSettings.getClientName() == null
+                        ? application.getName()
+                        : oAuthSettings.getClientName());
         oAuthSettings.setClientType(ClientType.CONFIDENTIAL);
         oAuthSettings.setApplicationType(io.gravitee.am.common.oidc.ApplicationType.WEB);
 
-        if (force || (oAuthSettings.getGrantTypes() == null || oAuthSettings.getGrantTypes().isEmpty())) {
+        if (force
+                || (oAuthSettings.getGrantTypes() == null
+                        || oAuthSettings.getGrantTypes().isEmpty())) {
             // service applications must have client_credentials
             oAuthSettings.setGrantTypes(Collections.singletonList(GrantType.CLIENT_CREDENTIALS));
             oAuthSettings.setResponseTypes(Collections.emptyList());
-            oAuthSettings.setTokenEndpointAuthMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+            oAuthSettings.setTokenEndpointAuthMethod(
+                    ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
         }
     }
 }

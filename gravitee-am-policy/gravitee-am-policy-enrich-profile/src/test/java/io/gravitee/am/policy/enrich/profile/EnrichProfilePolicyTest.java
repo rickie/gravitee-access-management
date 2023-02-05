@@ -1,19 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.policy.enrich.profile;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import io.gravitee.am.gateway.handler.context.EvaluableRequest;
 import io.gravitee.am.model.User;
@@ -31,6 +32,7 @@ import io.gravitee.gateway.api.Response;
 import io.gravitee.policy.api.PolicyChain;
 import io.gravitee.policy.api.PolicyResult;
 import io.reactivex.Single;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,9 +45,6 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
@@ -55,35 +54,32 @@ public class EnrichProfilePolicyTest {
 
     public static final String PARAM_VALUE = "Error Content";
     public static final String REQUEST_PARAM = "param";
-    @Mock
-    private ExecutionContext executionContext;
+    @Mock private ExecutionContext executionContext;
 
-    @Mock
-    private Request request;
+    @Mock private Request request;
 
-    @Mock
-    private Response response;
+    @Mock private Response response;
 
     private PolicyChain policyChain;
 
-    @Mock
-    private EnrichProfilePolicyConfiguration configuration;
+    @Mock private EnrichProfilePolicyConfiguration configuration;
 
-    @Mock
-    private UserRepository userRepository;
+    @Mock private UserRepository userRepository;
 
     @Before
     public void init() {
         reset(configuration, executionContext, request, response);
 
-        Request request = new RequestWrapper(mock(Request.class)) {
-            @Override
-            public MultiValueMap<String, String> parameters() {
-                LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-                parameters.add(REQUEST_PARAM, PARAM_VALUE);
-                return parameters;
-            }
-        };
+        Request request =
+                new RequestWrapper(mock(Request.class)) {
+                    @Override
+                    public MultiValueMap<String, String> parameters() {
+                        LinkedMultiValueMap<String, String> parameters =
+                                new LinkedMultiValueMap<>();
+                        parameters.add(REQUEST_PARAM, PARAM_VALUE);
+                        return parameters;
+                    }
+                };
 
         TemplateEngine tplEngine = new SpelTemplateEngineFactory().templateEngine();
         tplEngine.getTemplateContext().setVariable("request", new EvaluableRequest(request));
@@ -96,7 +92,7 @@ public class EnrichProfilePolicyTest {
         final CountDownLatch lock = new CountDownLatch(1);
         this.policyChain = spy(new CountDownPolicyChain(lock));
 
-        new EnrichProfilePolicy(configuration){
+        new EnrichProfilePolicy(configuration) {
             @Override
             protected boolean prepareUserProfile(ExecutionContext context) {
                 throw new RuntimeException("Exception thrown for test");
@@ -115,7 +111,7 @@ public class EnrichProfilePolicyTest {
         final CountDownLatch lock = new CountDownLatch(1);
         this.policyChain = spy(new CountDownPolicyChain(lock));
 
-        new EnrichProfilePolicy(configuration){
+        new EnrichProfilePolicy(configuration) {
             @Override
             protected boolean prepareUserProfile(ExecutionContext context) {
                 throw new RuntimeException("Exception thrown for test");
@@ -123,10 +119,13 @@ public class EnrichProfilePolicyTest {
         }.onRequest(request, response, executionContext, policyChain);
 
         lock.await(1, TimeUnit.SECONDS);
-        verify(policyChain).failWith(argThat(result -> result.message().equals(EnrichProfilePolicy.errorMessage)));
+        verify(policyChain)
+                .failWith(
+                        argThat(
+                                result ->
+                                        result.message().equals(EnrichProfilePolicy.errorMessage)));
         verify(policyChain, never()).doNext(any(), any());
     }
-
 
     @Test
     public void shouldFailOnError_InRxFlow() throws Exception {
@@ -138,10 +137,10 @@ public class EnrichProfilePolicyTest {
         User user = mock(User.class);
         when(executionContext.getAttribute("user")).thenReturn(user);
 
-        when(userRepository.update(any())).thenReturn(Single.error(new RuntimeException("Exception thrown for test")));
+        when(userRepository.update(any()))
+                .thenReturn(Single.error(new RuntimeException("Exception thrown for test")));
 
-
-        new EnrichProfilePolicy(configuration){
+        new EnrichProfilePolicy(configuration) {
             @Override
             protected boolean prepareUserProfile(ExecutionContext context) {
                 return true; // go to RxFlow
@@ -149,7 +148,11 @@ public class EnrichProfilePolicyTest {
         }.onRequest(request, response, executionContext, policyChain);
 
         lock.await(1, TimeUnit.SECONDS);
-        verify(policyChain).failWith(argThat(result -> result.message().equals(EnrichProfilePolicy.errorMessage)));
+        verify(policyChain)
+                .failWith(
+                        argThat(
+                                result ->
+                                        result.message().equals(EnrichProfilePolicy.errorMessage)));
         verify(policyChain, never()).doNext(any(), any());
     }
 
@@ -158,7 +161,8 @@ public class EnrichProfilePolicyTest {
         final CountDownLatch lock = new CountDownLatch(1);
         this.policyChain = spy(new CountDownPolicyChain(lock));
 
-        new EnrichProfilePolicy(configuration).onRequest(request, response, executionContext, policyChain);
+        new EnrichProfilePolicy(configuration)
+                .onRequest(request, response, executionContext, policyChain);
 
         lock.await(1, TimeUnit.SECONDS);
         verify(policyChain, never()).failWith(any());
@@ -171,9 +175,13 @@ public class EnrichProfilePolicyTest {
         final CountDownLatch lock = new CountDownLatch(1);
         this.policyChain = spy(new CountDownPolicyChain(lock));
 
-        when(configuration.getProperties()).thenReturn(Arrays.asList(
-                new Property("myclaim", "myclaimValue"),
-                new Property("myclaim-tpl", "{#request.params['"+REQUEST_PARAM+"']}")));
+        when(configuration.getProperties())
+                .thenReturn(
+                        Arrays.asList(
+                                new Property("myclaim", "myclaimValue"),
+                                new Property(
+                                        "myclaim-tpl",
+                                        "{#request.params['" + REQUEST_PARAM + "']}")));
 
         User user = mock(User.class);
         Map<String, Object> additionalInformation = new HashMap<>();
@@ -188,12 +196,22 @@ public class EnrichProfilePolicyTest {
         lock.await(1, TimeUnit.SECONDS);
         verify(policyChain, never()).failWith(any());
         verify(policyChain).doNext(any(), any());
-        verify(userRepository).update(argThat(u ->
-                u.getAdditionalInformation() != null &&
-                u.getAdditionalInformation().containsKey("myclaim") &&
-                "myclaimValue".equals(u.getAdditionalInformation().get("myclaim")) &&
-                u.getAdditionalInformation().containsKey("myclaim-tpl") &&
-                PARAM_VALUE.equals(u.getAdditionalInformation().get("myclaim-tpl"))));
+        verify(userRepository)
+                .update(
+                        argThat(
+                                u ->
+                                        u.getAdditionalInformation() != null
+                                                && u.getAdditionalInformation()
+                                                        .containsKey("myclaim")
+                                                && "myclaimValue"
+                                                        .equals(
+                                                                u.getAdditionalInformation()
+                                                                        .get("myclaim"))
+                                                && u.getAdditionalInformation()
+                                                        .containsKey("myclaim-tpl")
+                                                && PARAM_VALUE.equals(
+                                                        u.getAdditionalInformation()
+                                                                .get("myclaim-tpl"))));
     }
 
     class CountDownPolicyChain implements PolicyChain {

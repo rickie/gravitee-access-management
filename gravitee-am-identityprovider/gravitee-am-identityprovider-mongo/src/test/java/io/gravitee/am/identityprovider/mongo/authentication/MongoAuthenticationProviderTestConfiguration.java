@@ -1,28 +1,28 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.identityprovider.mongo.authentication;
 
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
+
 import io.gravitee.am.identityprovider.api.*;
 import io.gravitee.am.identityprovider.mongo.MongoIdentityProviderConfiguration;
 import io.gravitee.am.identityprovider.mongo.utils.PasswordEncoder;
 import io.gravitee.am.model.IdentityProvider;
 import io.gravitee.am.repository.provider.ConnectionProvider;
 import io.reactivex.Observable;
+
 import org.bson.Document;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,26 +38,40 @@ import java.util.List;
 @Configuration
 public class MongoAuthenticationProviderTestConfiguration implements InitializingBean {
 
-    @Autowired
-    private MongoDatabase mongoDatabase;
+    @Autowired private MongoDatabase mongoDatabase;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         MongoCollection<Document> collection = mongoDatabase.getCollection("users");
-        List<Document> users = List.of(
-                new Document("username", "bob").append("password", "bobspassword"),
-                new Document("username", "user01").append("email", "user01@acme.com").append("password", "user01"),
-                new Document("username", "user02").append("email", "common@acme.com").append("password", "user02"),
-                new Document("username", "user03").append("email", "common@acme.com").append("password", "user03")
-        );
-        users.stream().forEach(doc -> Observable.fromPublisher(collection.insertOne(doc)).blockingFirst());
+        List<Document> users =
+                List.of(
+                        new Document("username", "bob").append("password", "bobspassword"),
+                        new Document("username", "user01")
+                                .append("email", "user01@acme.com")
+                                .append("password", "user01"),
+                        new Document("username", "user02")
+                                .append("email", "common@acme.com")
+                                .append("password", "user02"),
+                        new Document("username", "user03")
+                                .append("email", "common@acme.com")
+                                .append("password", "user03"));
+        users.stream()
+                .forEach(
+                        doc -> Observable.fromPublisher(collection.insertOne(doc)).blockingFirst());
     }
 
     @Bean
     public MongoIdentityProviderConfiguration mongoIdentityProviderConfiguration() {
         MongoIdentityProviderConfiguration configuration = new MongoIdentityProviderConfiguration();
 
-        String host = embeddedClient().getMongoClient().getClusterDescription().getClusterSettings().getHosts().get(0).toString();
+        String host =
+                embeddedClient()
+                        .getMongoClient()
+                        .getClusterDescription()
+                        .getClusterSettings()
+                        .getHosts()
+                        .get(0)
+                        .toString();
         configuration.setUri("mongodb://" + host);
         configuration.setDatabase("test-idp-mongo");
         configuration.setUsersCollection("users");

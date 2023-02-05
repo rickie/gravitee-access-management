@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.service.impl.notifications;
@@ -27,34 +25,41 @@ public class EmailNotifierConfiguration {
 
     @Value("${notifiers.email.host:#{null}}")
     private String host;
+
     @Value("${notifiers.email.port:587}")
     private int port;
+
     @Value("${notifiers.email.username:#{null}}")
     private String username;
+
     @Value("${notifiers.email.password:#{null}}")
     private String password;
 
     @Value("${notifiers.email.from:#{null}}")
     private String from;
+
     @Value("${notifiers.email.to:#{null}}")
     private String to;
+
     @Value("${notifiers.email.subject:#{null}}")
     private String subject;
+
     @Value("${notifiers.email.body:#{null}}")
     private String body;
 
     @Value("${notifiers.email.startTLSEnabled:false}")
     private boolean startTLSEnabled;
+
     @Value("${notifiers.email.sslTrustAll:false}")
     private boolean sslTrustAll;
+
     @Value("${notifiers.email.sslKeyStore:#{null}}")
     private String sslKeyStore;
+
     @Value("${notifiers.email.sslKeyStorePassword:#{null}}")
     private String sslKeyStorePassword;
 
-
-    public EmailNotifierConfiguration() {
-    }
+    public EmailNotifierConfiguration() {}
 
     public EmailNotifierConfiguration(EmailNotifierConfiguration other) {
         this.host = other.getHost();

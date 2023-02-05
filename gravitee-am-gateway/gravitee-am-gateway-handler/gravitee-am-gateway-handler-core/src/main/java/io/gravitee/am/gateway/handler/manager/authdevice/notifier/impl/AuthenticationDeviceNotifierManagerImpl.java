@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.gateway.handler.manager.authdevice.notifier.impl;
@@ -18,7 +16,6 @@ package io.gravitee.am.gateway.handler.manager.authdevice.notifier.impl;
 import io.gravitee.am.authdevice.notifier.api.AuthenticationDeviceNotifierProvider;
 import io.gravitee.am.common.event.AuthenticationDeviceNotifierEvent;
 import io.gravitee.am.common.event.EventManager;
-import io.gravitee.am.gateway.handler.common.factor.impl.FactorManagerImpl;
 import io.gravitee.am.gateway.handler.manager.authdevice.notifier.AuthenticationDeviceNotifierManager;
 import io.gravitee.am.model.AuthenticationDeviceNotifier;
 import io.gravitee.am.model.Domain;
@@ -33,53 +30,63 @@ import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Maybe;
 import io.reactivex.schedulers.Schedulers;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class AuthenticationDeviceNotifierManagerImpl extends AbstractService implements AuthenticationDeviceNotifierManager, EventListener<AuthenticationDeviceNotifierEvent, Payload>, InitializingBean {
+public class AuthenticationDeviceNotifierManagerImpl extends AbstractService
+        implements AuthenticationDeviceNotifierManager,
+                EventListener<AuthenticationDeviceNotifierEvent, Payload>,
+                InitializingBean {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationDeviceNotifierManagerImpl.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(AuthenticationDeviceNotifierManagerImpl.class);
 
-    @Autowired
-    private AuthenticationDeviceNotifierPluginManager deviceNotifierPluginManager;
+    @Autowired private AuthenticationDeviceNotifierPluginManager deviceNotifierPluginManager;
 
-    @Autowired
-    private Domain domain;
+    @Autowired private Domain domain;
 
-    @Autowired
-    private EventManager eventManager;
+    @Autowired private EventManager eventManager;
 
-    @Autowired
-    private AuthenticationDeviceNotifierService deviceNotifierService;
+    @Autowired private AuthenticationDeviceNotifierService deviceNotifierService;
 
-    private final Map<String, AuthenticationDeviceNotifierProvider> deviceNotifierProviders = new ConcurrentHashMap<>();
-    private final Map<String, AuthenticationDeviceNotifier> deviceNotifiers = new ConcurrentHashMap<>();
+    private final Map<String, AuthenticationDeviceNotifierProvider> deviceNotifierProviders =
+            new ConcurrentHashMap<>();
+    private final Map<String, AuthenticationDeviceNotifier> deviceNotifiers =
+            new ConcurrentHashMap<>();
 
     @Override
     protected void doStart() throws Exception {
         super.doStart();
 
-        logger.info("Register event listener for authentication device notifier events for domain {}", domain.getName());
-        eventManager.subscribeForEvents(this, AuthenticationDeviceNotifierEvent.class, domain.getId());
+        logger.info(
+                "Register event listener for authentication device notifier events for domain {}",
+                domain.getName());
+        eventManager.subscribeForEvents(
+                this, AuthenticationDeviceNotifierEvent.class, domain.getId());
     }
 
     @Override
     protected void doStop() throws Exception {
         super.doStop();
 
-        logger.info("Dispose event listener for authentication device notifier events for domain {}", domain.getName());
-        eventManager.unsubscribeForEvents(this, AuthenticationDeviceNotifierEvent.class, domain.getId());
+        logger.info(
+                "Dispose event listener for authentication device notifier events for domain {}",
+                domain.getName());
+        eventManager.unsubscribeForEvents(
+                this, AuthenticationDeviceNotifierEvent.class, domain.getId());
         // stop providers and remove them from the local cache
         Set<String> providerIds = new HashSet<>(this.deviceNotifierProviders.keySet());
         providerIds.forEach(this::unloadDeviceNotifierProvider);
@@ -88,19 +95,29 @@ public class AuthenticationDeviceNotifierManagerImpl extends AbstractService imp
     @Override
     public void afterPropertiesSet() throws Exception {
         // load all known resource for the domain on startup
-        deviceNotifierService.findByDomain(this.domain.getId())
+        deviceNotifierService
+                .findByDomain(this.domain.getId())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         notifier -> {
-                            var providerConfiguration = new ProviderConfiguration(notifier.getType(), notifier.getConfiguration());
-                            var provider = deviceNotifierPluginManager.create(providerConfiguration);
+                            var providerConfiguration =
+                                    new ProviderConfiguration(
+                                            notifier.getType(), notifier.getConfiguration());
+                            var provider =
+                                    deviceNotifierPluginManager.create(providerConfiguration);
                             provider.start();
                             deviceNotifiers.put(notifier.getId(), notifier);
                             deviceNotifierProviders.put(notifier.getId(), provider);
-                            logger.info("Authentication Device Notifier {} loaded for domain {}", notifier.getName(), domain.getName());
+                            logger.info(
+                                    "Authentication Device Notifier {} loaded for domain {}",
+                                    notifier.getName(),
+                                    domain.getName());
                         },
-                        error -> logger.error("Unable to initialize Authentication Device Notifiers for domain {}", domain.getName(), error)
-                );
+                        error ->
+                                logger.error(
+                                        "Unable to initialize Authentication Device Notifiers for domain {}",
+                                        domain.getName(),
+                                        error));
     }
 
     @Override
@@ -115,7 +132,8 @@ public class AuthenticationDeviceNotifierManagerImpl extends AbstractService imp
 
     @Override
     public void onEvent(Event<AuthenticationDeviceNotifierEvent, Payload> event) {
-        if (event.content().getReferenceType() == ReferenceType.DOMAIN && domain.getId().equals(event.content().getReferenceId())) {
+        if (event.content().getReferenceType() == ReferenceType.DOMAIN
+                && domain.getId().equals(event.content().getReferenceId())) {
             switch (event.type()) {
                 case DEPLOY:
                 case UPDATE:
@@ -129,28 +147,49 @@ public class AuthenticationDeviceNotifierManagerImpl extends AbstractService imp
     }
 
     private void reloadDeviceNotifierProvider(String notifierId) {
-        deviceNotifierService.findById(notifierId)
-                .switchIfEmpty(Maybe.error(new AuthenticationDeviceNotifierNotFoundException("Authentication Device Notifier " + notifierId + " not found")))
-                .map(notifier -> {
-                    if (needDeployment(notifier)) {
-                        unloadDeviceNotifierProvider(notifierId);
-                        var provider = deviceNotifierPluginManager.create(new ProviderConfiguration(notifier.getType(), notifier.getConfiguration()));
-                        provider.start();
-                        this.deviceNotifierProviders.put(notifier.getId(), provider);
-                        this.deviceNotifiers.put(notifier.getId(), notifier);
-                    }
-                    return notifier;
-                })
+        deviceNotifierService
+                .findById(notifierId)
+                .switchIfEmpty(
+                        Maybe.error(
+                                new AuthenticationDeviceNotifierNotFoundException(
+                                        "Authentication Device Notifier "
+                                                + notifierId
+                                                + " not found")))
+                .map(
+                        notifier -> {
+                            if (needDeployment(notifier)) {
+                                unloadDeviceNotifierProvider(notifierId);
+                                var provider =
+                                        deviceNotifierPluginManager.create(
+                                                new ProviderConfiguration(
+                                                        notifier.getType(),
+                                                        notifier.getConfiguration()));
+                                provider.start();
+                                this.deviceNotifierProviders.put(notifier.getId(), provider);
+                                this.deviceNotifiers.put(notifier.getId(), notifier);
+                            }
+                            return notifier;
+                        })
                 .subscribe(
-                        provider -> logger.debug("Initialization of Authentication Device Notifier provider '{}' successful", notifierId),
-                        error -> logger.error("Initialization of Authentication Device Notifier provider '{}' failed", notifierId, error),
-                        ()-> logger.debug("Initialization of Authentication Device Notifier provider '{}' already done", notifierId)
-                );
+                        provider ->
+                                logger.debug(
+                                        "Initialization of Authentication Device Notifier provider '{}' successful",
+                                        notifierId),
+                        error ->
+                                logger.error(
+                                        "Initialization of Authentication Device Notifier provider '{}' failed",
+                                        notifierId,
+                                        error),
+                        () ->
+                                logger.debug(
+                                        "Initialization of Authentication Device Notifier provider '{}' already done",
+                                        notifierId));
     }
 
     private void unloadDeviceNotifierProvider(String notifierId) {
         try {
-            AuthenticationDeviceNotifierProvider provider = getAuthDeviceNotifierProvider(notifierId);
+            AuthenticationDeviceNotifierProvider provider =
+                    getAuthDeviceNotifierProvider(notifierId);
             if (provider != null) {
                 provider.stop();
                 this.deviceNotifierProviders.remove(notifierId);
@@ -163,10 +202,13 @@ public class AuthenticationDeviceNotifierManagerImpl extends AbstractService imp
 
     /**
      * @param notifier
-     * @return true if the Notifier has never been deployed or if the deployed version is not up to date
+     * @return true if the Notifier has never been deployed or if the deployed version is not up to
+     *     date
      */
     private boolean needDeployment(AuthenticationDeviceNotifier notifier) {
-        final AuthenticationDeviceNotifier deployedNotifier = this.deviceNotifiers.get(notifier.getId());
-        return (deployedNotifier == null || deployedNotifier.getUpdatedAt().before(notifier.getUpdatedAt()));
+        final AuthenticationDeviceNotifier deployedNotifier =
+                this.deviceNotifiers.get(notifier.getId());
+        return (deployedNotifier == null
+                || deployedNotifier.getUpdatedAt().before(notifier.getUpdatedAt()));
     }
 }

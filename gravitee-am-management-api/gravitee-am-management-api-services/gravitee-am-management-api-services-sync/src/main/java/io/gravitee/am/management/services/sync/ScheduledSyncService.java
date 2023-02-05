@@ -1,21 +1,20 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.services.sync;
 
 import io.gravitee.common.service.AbstractService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +31,10 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class ScheduledSyncService extends AbstractService implements Runnable {
 
-    /**
-     * Logger.
-     */
+    /** Logger. */
     private final Logger logger = LoggerFactory.getLogger(ScheduledSyncService.class);
 
-    @Autowired
-    private TaskScheduler scheduler;
+    @Autowired private TaskScheduler scheduler;
 
     @Value("${services.sync.cron:*/5 * * * * *}")
     private String cronTrigger;
@@ -46,8 +42,7 @@ public class ScheduledSyncService extends AbstractService implements Runnable {
     @Value("${services.sync.enabled:true}")
     private boolean enabled;
 
-    @Autowired
-    private SyncManager syncStateManager;
+    @Autowired private SyncManager syncStateManager;
 
     private final AtomicLong counter = new AtomicLong(0);
 
@@ -70,11 +65,14 @@ public class ScheduledSyncService extends AbstractService implements Runnable {
     }
 
     /**
-     * Synchronization done when Gravitee node is starting.
-     * This sync phase must be done by all node before starting.
+     * Synchronization done when Gravitee node is starting. This sync phase must be done by all node
+     * before starting.
      */
     private void doSync() {
-        logger.debug("Synchronization #{} started at {}", counter.incrementAndGet(), Instant.now().toString());
+        logger.debug(
+                "Synchronization #{} started at {}",
+                counter.incrementAndGet(),
+                Instant.now().toString());
 
         syncStateManager.refresh();
 

@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.oauth2.api;
@@ -26,6 +24,7 @@ import io.reactivex.*;
 public interface AccessTokenRepository {
     /**
      * Find access token by id
+     *
      * @param token access token's id
      * @return Access token if any
      */
@@ -33,6 +32,7 @@ public interface AccessTokenRepository {
 
     /**
      * Create an access token
+     *
      * @param accessToken access token to store
      * @return th created access token
      */
@@ -40,6 +40,7 @@ public interface AccessTokenRepository {
 
     /**
      * Delete token by its id
+     *
      * @param token token's id
      * @return acknowledge of the operation
      */
@@ -80,14 +81,13 @@ public interface AccessTokenRepository {
 
     /**
      * Delete access tokens by user id
+     *
      * @param userId end-user
      * @return acknowledge of the operation
      */
     Completable deleteByUserId(String userId);
 
-    /**
-     * Delete access token by domainId, clientId and userId.
-     */
+    /** Delete access token by domainId, clientId and userId. */
     Completable deleteByDomainIdClientIdAndUserId(String domainId, String clientId, String userId);
 
     Completable deleteByDomainIdAndUserId(String domainId, String userId);

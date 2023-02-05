@@ -1,19 +1,21 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.jdbc.management.api;
+
+import static org.springframework.data.relational.core.query.Criteria.where;
+
+import static reactor.adapter.rxjava.RxJava2Adapter.*;
 
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Organization;
@@ -28,34 +30,30 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.reactive.TransactionalOperator;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static reactor.adapter.rxjava.RxJava2Adapter.*;
-
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class JdbcOrganizationRepository extends AbstractJdbcRepository implements OrganizationRepository {
+public class JdbcOrganizationRepository extends AbstractJdbcRepository
+        implements OrganizationRepository {
 
-    @Autowired
-    private SpringOrganizationRepository organizationRepository;
-    @Autowired
-    private SpringOrganizationIdentitiesRepository identitiesRepository;
-    @Autowired
-    private SpringOrganizationDomainRestrictionRepository domainRestrictionRepository;
-    @Autowired
-    private SpringOrganizationHridsRepository hridsRepository;
+    @Autowired private SpringOrganizationRepository organizationRepository;
+    @Autowired private SpringOrganizationIdentitiesRepository identitiesRepository;
+    @Autowired private SpringOrganizationDomainRestrictionRepository domainRestrictionRepository;
+    @Autowired private SpringOrganizationHridsRepository hridsRepository;
 
     protected Organization toOrganization(JdbcOrganization entity) {
         return mapper.map(entity, Organization.class);
@@ -69,8 +67,7 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
     public Flowable<Organization> findByHrids(List<String> hrids) {
         LOGGER.debug("findByHrids({})", hrids);
 
-        return organizationRepository.findByHrids(hrids)
-                .map(this::toOrganization);
+        return organizationRepository.findByHrids(hrids).map(this::toOrganization);
     }
 
     @Override
@@ -82,41 +79,62 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
     public Maybe<Organization> findById(String organizationId) {
         LOGGER.debug("findById({})", organizationId);
 
-        Maybe<List<String>> identities = identitiesRepository.findAllByOrganizationId(organizationId)
-                .map(JdbcOrganization.Identity::getIdentity)
-                .toList()
-                .toMaybe();
+        Maybe<List<String>> identities =
+                identitiesRepository
+                        .findAllByOrganizationId(organizationId)
+                        .map(JdbcOrganization.Identity::getIdentity)
+                        .toList()
+                        .toMaybe();
 
-        Maybe<List<String>> domains = domainRestrictionRepository.findAllByOrganizationId(organizationId)
-                .map(JdbcOrganization.DomainRestriction::getDomainRestriction)
-                .toList()
-                .toMaybe();
+        Maybe<List<String>> domains =
+                domainRestrictionRepository
+                        .findAllByOrganizationId(organizationId)
+                        .map(JdbcOrganization.DomainRestriction::getDomainRestriction)
+                        .toList()
+                        .toMaybe();
 
-        Maybe<List<String>> hrids = hridsRepository.findAllByOrganizationId(organizationId)
-                .map(JdbcOrganization.Hrid::getHrid)
-                .toList()
-                .toMaybe();
+        Maybe<List<String>> hrids =
+                hridsRepository
+                        .findAllByOrganizationId(organizationId)
+                        .map(JdbcOrganization.Hrid::getHrid)
+                        .toList()
+                        .toMaybe();
 
-        return organizationRepository.findById(organizationId)
+        return organizationRepository
+                .findById(organizationId)
                 .map(this::toOrganization)
-                .zipWith(identities, (org, idp) -> {
-                    LOGGER.debug("findById({}) fetch {} identities", organizationId, idp.size());
-                    org.setIdentities(idp);
-                    return org;
-                }).zipWith(domains, (org, domain) -> {
-                    LOGGER.debug("findById({}) fetch {} domainRestrictions", organizationId, domain.size());
-                    org.setDomainRestrictions(domain);
-                    return org;
-                }).zipWith(hrids, (org, hrid) -> {
-                    LOGGER.debug("findById({}) fetch {} hrids", organizationId, hrid.size());
-                    org.setHrids(hrid);
-                    return org;
-                });
+                .zipWith(
+                        identities,
+                        (org, idp) -> {
+                            LOGGER.debug(
+                                    "findById({}) fetch {} identities", organizationId, idp.size());
+                            org.setIdentities(idp);
+                            return org;
+                        })
+                .zipWith(
+                        domains,
+                        (org, domain) -> {
+                            LOGGER.debug(
+                                    "findById({}) fetch {} domainRestrictions",
+                                    organizationId,
+                                    domain.size());
+                            org.setDomainRestrictions(domain);
+                            return org;
+                        })
+                .zipWith(
+                        hrids,
+                        (org, hrid) -> {
+                            LOGGER.debug(
+                                    "findById({}) fetch {} hrids", organizationId, hrid.size());
+                            org.setHrids(hrid);
+                            return org;
+                        });
     }
 
     @Override
     public Single<Organization> create(Organization organization) {
-        organization.setId(organization.getId() == null ? RandomString.generate() : organization.getId());
+        organization.setId(
+                organization.getId() == null ? RandomString.generate() : organization.getId());
         LOGGER.debug("create organization with id {}", organization.getId());
 
         TransactionalOperator trx = TransactionalOperator.create(tm);
@@ -126,12 +144,12 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
         final Mono<Void> storeDomainRestrictions = storeDomainRestrictions(organization, false);
         final Mono<Void> storeHrids = storeHrids(organization, false);
 
-        return monoToSingle(insert
-                .then(storeIdentities)
-                .then(storeDomainRestrictions)
-                .then(storeHrids)
-                .as(trx::transactional)
-                .then(maybeToMono(findById(organization.getId()))));
+        return monoToSingle(
+                insert.then(storeIdentities)
+                        .then(storeDomainRestrictions)
+                        .then(storeHrids)
+                        .as(trx::transactional)
+                        .then(maybeToMono(findById(organization.getId()))));
     }
 
     @Override
@@ -146,12 +164,12 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
         final Mono<Void> storeDomainRestrictions = storeDomainRestrictions(organization, true);
         final Mono<Void> storeHrids = storeHrids(organization, true);
 
-        return monoToSingle(update
-                .then(storeIdentities)
-                .then(storeDomainRestrictions)
-                .then(storeHrids)
-                .as(trx::transactional)
-                .then(maybeToMono(findById(organization.getId()))));
+        return monoToSingle(
+                update.then(storeIdentities)
+                        .then(storeDomainRestrictions)
+                        .then(storeHrids)
+                        .as(trx::transactional)
+                        .then(maybeToMono(findById(organization.getId()))));
     }
 
     @Override
@@ -161,13 +179,17 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
         Mono<Void> deleteIdentities = deleteIdentities(organizationId);
         Mono<Void> deleteDomainRestrictions = deleteDomainRestrictions(organizationId);
         Mono<Void> deleteHrids = deleteHrids(organizationId);
-        Mono<Void> delete = template.delete(JdbcOrganization.class).matching(Query.query(where("id").is(organizationId))).all().then();
+        Mono<Void> delete =
+                template.delete(JdbcOrganization.class)
+                        .matching(Query.query(where("id").is(organizationId)))
+                        .all()
+                        .then();
 
-        return monoToCompletable(delete
-                .then(deleteDomainRestrictions)
-                .then(deleteIdentities)
-                .then(deleteHrids)
-                .as(trx::transactional));
+        return monoToCompletable(
+                delete.then(deleteDomainRestrictions)
+                        .then(deleteIdentities)
+                        .then(deleteHrids)
+                        .as(trx::transactional));
     }
 
     private Mono<Void> storeIdentities(Organization organization, boolean deleteFirst) {
@@ -180,18 +202,30 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
 
         final List<String> identities = organization.getIdentities();
         if (identities != null && !identities.isEmpty()) {
-            return delete.thenMany(Flux.fromIterable(identities)
-                    .map(identity -> {
-                        JdbcOrganization.Identity dbIdentity = new JdbcOrganization.Identity();
-                        dbIdentity.setIdentity(identity);
-                        dbIdentity.setOrganizationId(organization.getId());
-                        return dbIdentity;
-                    })
-                    .concatMap(dbIdentity ->  template.getDatabaseClient()
-                            .sql("INSERT INTO organization_identities(organization_id, identity_id) VALUES (:organization_id, :identity_id)")
-                            .bind("organization_id", dbIdentity.getOrganizationId())
-                            .bind("identity_id", dbIdentity.getIdentity())
-                            .fetch().rowsUpdated().then()))
+            return delete.thenMany(
+                            Flux.fromIterable(identities)
+                                    .map(
+                                            identity -> {
+                                                JdbcOrganization.Identity dbIdentity =
+                                                        new JdbcOrganization.Identity();
+                                                dbIdentity.setIdentity(identity);
+                                                dbIdentity.setOrganizationId(organization.getId());
+                                                return dbIdentity;
+                                            })
+                                    .concatMap(
+                                            dbIdentity ->
+                                                    template.getDatabaseClient()
+                                                            .sql(
+                                                                    "INSERT INTO organization_identities(organization_id, identity_id) VALUES (:organization_id, :identity_id)")
+                                                            .bind(
+                                                                    "organization_id",
+                                                                    dbIdentity.getOrganizationId())
+                                                            .bind(
+                                                                    "identity_id",
+                                                                    dbIdentity.getIdentity())
+                                                            .fetch()
+                                                            .rowsUpdated()
+                                                            .then()))
                     .ignoreElements();
         }
 
@@ -209,18 +243,36 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
         final List<String> domainRestrictions = organization.getDomainRestrictions();
         if (domainRestrictions != null && !domainRestrictions.isEmpty()) {
             // concat flows to create domainRestrictions
-            return delete.thenMany(Flux.fromIterable(domainRestrictions)
-                    .map(domainRestriction -> {
-                        JdbcOrganization.DomainRestriction dbDomainRestriction = new JdbcOrganization.DomainRestriction();
-                        dbDomainRestriction.setDomainRestriction(domainRestriction);
-                        dbDomainRestriction.setOrganizationId(organization.getId());
-                        return dbDomainRestriction;
-                    })
-                    .concatMap(dbDomainRestriction -> template.getDatabaseClient()
-                            .sql("INSERT INTO organization_domain_restrictions(organization_id, domain_restriction) VALUES (:organization_id, :domain_restriction)")
-                            .bind("organization_id", dbDomainRestriction.getOrganizationId())
-                            .bind("domain_restriction", dbDomainRestriction.getDomainRestriction())
-                            .fetch().rowsUpdated().then()))
+            return delete.thenMany(
+                            Flux.fromIterable(domainRestrictions)
+                                    .map(
+                                            domainRestriction -> {
+                                                JdbcOrganization.DomainRestriction
+                                                        dbDomainRestriction =
+                                                                new JdbcOrganization
+                                                                        .DomainRestriction();
+                                                dbDomainRestriction.setDomainRestriction(
+                                                        domainRestriction);
+                                                dbDomainRestriction.setOrganizationId(
+                                                        organization.getId());
+                                                return dbDomainRestriction;
+                                            })
+                                    .concatMap(
+                                            dbDomainRestriction ->
+                                                    template.getDatabaseClient()
+                                                            .sql(
+                                                                    "INSERT INTO organization_domain_restrictions(organization_id, domain_restriction) VALUES (:organization_id, :domain_restriction)")
+                                                            .bind(
+                                                                    "organization_id",
+                                                                    dbDomainRestriction
+                                                                            .getOrganizationId())
+                                                            .bind(
+                                                                    "domain_restriction",
+                                                                    dbDomainRestriction
+                                                                            .getDomainRestriction())
+                                                            .fetch()
+                                                            .rowsUpdated()
+                                                            .then()))
                     .ignoreElements();
         }
 
@@ -245,13 +297,18 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
                 hrid.setPos(i);
                 dbHrids.add(hrid);
             }
-            return delete.thenMany(Flux.fromIterable(dbHrids)).
-                    concatMap(hrid -> template.getDatabaseClient()
-                            .sql("INSERT INTO organization_hrids(organization_id, hrid, pos) VALUES (:organization_id, :hrid, :pos)")
-                            .bind("organization_id", hrid.getOrganizationId())
-                            .bind("hrid", hrid.getHrid())
-                            .bind("pos", hrid.getPos())
-                            .fetch().rowsUpdated().then())
+            return delete.thenMany(Flux.fromIterable(dbHrids))
+                    .concatMap(
+                            hrid ->
+                                    template.getDatabaseClient()
+                                            .sql(
+                                                    "INSERT INTO organization_hrids(organization_id, hrid, pos) VALUES (:organization_id, :hrid, :pos)")
+                                            .bind("organization_id", hrid.getOrganizationId())
+                                            .bind("hrid", hrid.getHrid())
+                                            .bind("pos", hrid.getPos())
+                                            .fetch()
+                                            .rowsUpdated()
+                                            .then())
                     .ignoreElements();
         }
 
@@ -259,14 +316,23 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
     }
 
     private Mono<Void> deleteIdentities(String organizationId) {
-        return template.delete(JdbcOrganization.Identity.class).matching(Query.query(where("organization_id").is(organizationId))).all().then();
+        return template.delete(JdbcOrganization.Identity.class)
+                .matching(Query.query(where("organization_id").is(organizationId)))
+                .all()
+                .then();
     }
 
     private Mono<Void> deleteDomainRestrictions(String organizationId) {
-        return template.delete(JdbcOrganization.DomainRestriction.class).matching(Query.query(where("organization_id").is(organizationId))).all().then();
+        return template.delete(JdbcOrganization.DomainRestriction.class)
+                .matching(Query.query(where("organization_id").is(organizationId)))
+                .all()
+                .then();
     }
 
     private Mono<Void> deleteHrids(String organizationId) {
-        return template.delete(JdbcOrganization.Hrid.class).matching(Query.query(where("organization_id").is(organizationId))).all().then();
+        return template.delete(JdbcOrganization.Hrid.class)
+                .matching(Query.query(where("organization_id").is(organizationId)))
+                .all()
+                .then();
     }
 }

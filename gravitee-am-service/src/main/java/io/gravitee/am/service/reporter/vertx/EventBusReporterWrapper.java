@@ -1,24 +1,22 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.reporter.vertx;
 
 import io.gravitee.am.common.analytics.Type;
 import io.gravitee.am.model.Platform;
-import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.ReferenceType;
+import io.gravitee.am.model.common.Page;
 import io.gravitee.am.reporter.api.Reportable;
 import io.gravitee.am.reporter.api.provider.ReportableCriteria;
 import io.gravitee.am.reporter.api.provider.Reporter;
@@ -29,6 +27,7 @@ import io.vertx.core.Handler;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.core.eventbus.Message;
 import io.vertx.reactivex.core.eventbus.MessageConsumer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +55,8 @@ public class EventBusReporterWrapper implements Reporter, Handler<Message<Report
         this(vertx, ReferenceType.PLATFORM, Platform.DEFAULT, reporter);
     }
 
-    private EventBusReporterWrapper(Vertx vertx, ReferenceType referenceType, String referenceId, Reporter reporter) {
+    private EventBusReporterWrapper(
+            Vertx vertx, ReferenceType referenceType, String referenceId, Reporter reporter) {
         this.vertx = vertx;
         this.referenceType = referenceType;
         this.referenceId = referenceId;
@@ -81,19 +81,29 @@ public class EventBusReporterWrapper implements Reporter, Handler<Message<Report
 
         if (reportable.getReferenceType() == ReferenceType.DOMAIN) {
             return referenceType == ReferenceType.DOMAIN
-                    && referenceId.equals(reportable.getReferenceId()) && reporter.canHandle(reportable);
+                    && referenceId.equals(reportable.getReferenceId())
+                    && reporter.canHandle(reportable);
         }
 
         return referenceType == ReferenceType.PLATFORM;
     }
 
     @Override
-    public Single<Page> search(ReferenceType referenceType, String referenceId, ReportableCriteria criteria, int page, int size) {
+    public Single<Page> search(
+            ReferenceType referenceType,
+            String referenceId,
+            ReportableCriteria criteria,
+            int page,
+            int size) {
         return reporter.search(referenceType, referenceId, criteria, page, size);
     }
 
     @Override
-    public Single<Map<Object, Object>> aggregate(ReferenceType referenceType, String referenceId, ReportableCriteria criteria, Type analyticsType) {
+    public Single<Map<Object, Object>> aggregate(
+            ReferenceType referenceType,
+            String referenceId,
+            ReportableCriteria criteria,
+            Type analyticsType) {
         return reporter.aggregate(referenceType, referenceId, criteria, analyticsType);
     }
 
@@ -116,19 +126,23 @@ public class EventBusReporterWrapper implements Reporter, Handler<Message<Report
     @Override
     public Object start() throws Exception {
         // start the delegate reporter
-        vertx.executeBlocking(event -> {
-            try {
-                reporter.start();
-                event.complete(reporter);
-            } catch (Exception ex) {
-                logger.error("Error while starting reporter", ex);
-                event.fail(ex);
-            }
-        }, event -> {
-            if (event.succeeded()) {
-                messageConsumer = vertx.eventBus().consumer(EVENT_BUS_ADDRESS, EventBusReporterWrapper.this);
-            }
-        });
+        vertx.executeBlocking(
+                event -> {
+                    try {
+                        reporter.start();
+                        event.complete(reporter);
+                    } catch (Exception ex) {
+                        logger.error("Error while starting reporter", ex);
+                        event.fail(ex);
+                    }
+                },
+                event -> {
+                    if (event.succeeded()) {
+                        messageConsumer =
+                                vertx.eventBus()
+                                        .consumer(EVENT_BUS_ADDRESS, EventBusReporterWrapper.this);
+                    }
+                });
 
         return reporter;
     }
@@ -144,7 +158,6 @@ public class EventBusReporterWrapper implements Reporter, Handler<Message<Report
     public void unregister() {
         messageConsumer.unregister();
     }
-
 
     public ReferenceType getReferenceType() {
         return referenceType;

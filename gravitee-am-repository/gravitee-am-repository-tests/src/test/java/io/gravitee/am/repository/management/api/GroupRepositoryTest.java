@@ -1,32 +1,31 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
+
+import static org.junit.Assert.*;
 
 import io.gravitee.am.model.Group;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -35,8 +34,7 @@ import static org.junit.Assert.*;
 public class GroupRepositoryTest extends AbstractManagementTest {
 
     public static final String DOMAIN_ID = "DOMAIN_ID1";
-    @Autowired
-    protected GroupRepository repository;
+    @Autowired protected GroupRepository repository;
 
     @Test
     public void shouldCreateGroup() {
@@ -54,16 +52,16 @@ public class GroupRepositoryTest extends AbstractManagementTest {
     private Group buildGroup() {
         Group group = new Group();
         String random = UUID.randomUUID().toString();
-        group.setDescription("Description"+random);
-        group.setName("name"+random);
-        group.setReferenceId("ref"+random);
+        group.setDescription("Description" + random);
+        group.setName("name" + random);
+        group.setReferenceId("ref" + random);
         group.setReferenceType(ReferenceType.DOMAIN);
         group.setCreatedAt(new Date());
         group.setUpdatedAt(new Date());
-        group.setRoles(Arrays.asList("r1"+random, "r2"+random));
+        group.setRoles(Arrays.asList("r1" + random, "r2" + random));
         List<String> members = new ArrayList<>();
-        members.add("m1"+random);
-        members.add("m2"+random);
+        members.add("m1" + random);
+        members.add("m2" + random);
         group.setMembers(members);
         return group;
     }
@@ -98,7 +96,13 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         Group group = buildGroup();
         Group createdGroup = repository.create(group).blockingGet();
 
-        TestObserver<Group> testObserver = repository.findById(createdGroup.getReferenceType(), createdGroup.getReferenceId(), createdGroup.getId()).test();
+        TestObserver<Group> testObserver =
+                repository
+                        .findById(
+                                createdGroup.getReferenceType(),
+                                createdGroup.getReferenceId(),
+                                createdGroup.getId())
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -175,7 +179,14 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(g -> g.size() == 2);
-        testObserver.assertValue(g -> g.stream().map(Group::getId).collect(Collectors.toSet()).containsAll(Arrays.asList(createdGroup1.getId(), createdGroup2.getId())));
+        testObserver.assertValue(
+                g ->
+                        g.stream()
+                                .map(Group::getId)
+                                .collect(Collectors.toSet())
+                                .containsAll(
+                                        Arrays.asList(
+                                                createdGroup1.getId(), createdGroup2.getId())));
 
         testObserver = repository.findByMember(member2).toList().test();
         testObserver.awaitTerminalEvent();
@@ -188,7 +199,8 @@ public class GroupRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldFindAll() {
-        List<Group> emptyList = repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).toList().blockingGet();
+        List<Group> emptyList =
+                repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).toList().blockingGet();
         assertNotNull(emptyList);
         assertTrue(emptyList.isEmpty());
 
@@ -205,20 +217,38 @@ public class GroupRepositoryTest extends AbstractManagementTest {
             repository.create(item).blockingGet();
         }
 
-        List<Group> groupOfDomain = repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).toList().blockingGet();
+        List<Group> groupOfDomain =
+                repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).toList().blockingGet();
         assertNotNull(groupOfDomain);
         assertEquals(loop, groupOfDomain.size());
-        assertEquals(loop, groupOfDomain.stream().filter(g -> g.getReferenceId().equals(DOMAIN_ID) && g.getReferenceType().equals(ReferenceType.DOMAIN)).count());
+        assertEquals(
+                loop,
+                groupOfDomain.stream()
+                        .filter(
+                                g ->
+                                        g.getReferenceId().equals(DOMAIN_ID)
+                                                && g.getReferenceType()
+                                                        .equals(ReferenceType.DOMAIN))
+                        .count());
 
         groupOfDomain = repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).toList().blockingGet();
         assertNotNull(groupOfDomain);
         assertEquals(loop, groupOfDomain.size());
-        assertEquals(loop, groupOfDomain.stream().filter(g -> g.getReferenceId().equals(DOMAIN_ID) && g.getReferenceType().equals(ReferenceType.DOMAIN)).count());
+        assertEquals(
+                loop,
+                groupOfDomain.stream()
+                        .filter(
+                                g ->
+                                        g.getReferenceId().equals(DOMAIN_ID)
+                                                && g.getReferenceType()
+                                                        .equals(ReferenceType.DOMAIN))
+                        .count());
     }
 
     @Test
     public void shouldFindAll_WithPage() {
-        List<Group> emptyList = repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).toList().blockingGet();
+        List<Group> emptyList =
+                repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).toList().blockingGet();
         assertNotNull(emptyList);
         assertTrue(emptyList.isEmpty());
 
@@ -235,13 +265,20 @@ public class GroupRepositoryTest extends AbstractManagementTest {
             repository.create(item).blockingGet();
         }
 
-        Page<Group> groupOfDomain = repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID, 0, 20).blockingGet();
+        Page<Group> groupOfDomain =
+                repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID, 0, 20).blockingGet();
         assertNotNull(groupOfDomain);
         assertEquals(0, groupOfDomain.getCurrentPage());
         assertEquals(loop, groupOfDomain.getTotalCount());
-        assertEquals(loop, groupOfDomain.getData().stream()
-                .filter(g -> g.getReferenceId().equals(DOMAIN_ID)
-                        && g.getReferenceType().equals(ReferenceType.DOMAIN)).count());
+        assertEquals(
+                loop,
+                groupOfDomain.getData().stream()
+                        .filter(
+                                g ->
+                                        g.getReferenceId().equals(DOMAIN_ID)
+                                                && g.getReferenceType()
+                                                        .equals(ReferenceType.DOMAIN))
+                        .count());
 
         final Collection<Group> data = groupOfDomain.getData();
 
@@ -249,9 +286,15 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         assertNotNull(groupOfDomain);
         assertEquals(loop, groupOfDomain.getTotalCount());
         assertEquals(0, groupOfDomain.getCurrentPage());
-        assertEquals(5, groupOfDomain.getData().stream()
-                .filter(g -> g.getReferenceId().equals(DOMAIN_ID)
-                        && g.getReferenceType().equals(ReferenceType.DOMAIN)).count());
+        assertEquals(
+                5,
+                groupOfDomain.getData().stream()
+                        .filter(
+                                g ->
+                                        g.getReferenceId().equals(DOMAIN_ID)
+                                                && g.getReferenceType()
+                                                        .equals(ReferenceType.DOMAIN))
+                        .count());
 
         final Collection<Group> data1 = groupOfDomain.getData();
 
@@ -259,18 +302,24 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         assertNotNull(groupOfDomain);
         assertEquals(loop, groupOfDomain.getTotalCount());
         assertEquals(1, groupOfDomain.getCurrentPage());
-        assertEquals(5, groupOfDomain.getData().stream()
-                .filter(g -> g.getReferenceId().equals(DOMAIN_ID)
-                        && g.getReferenceType().equals(ReferenceType.DOMAIN)).count());
+        assertEquals(
+                5,
+                groupOfDomain.getData().stream()
+                        .filter(
+                                g ->
+                                        g.getReferenceId().equals(DOMAIN_ID)
+                                                && g.getReferenceType()
+                                                        .equals(ReferenceType.DOMAIN))
+                        .count());
 
         final Collection<Group> data2 = groupOfDomain.getData();
         Set<String> pagedData = new HashSet<>();
         pagedData.addAll(data1.stream().map(Group::getId).collect(Collectors.toSet()));
         pagedData.addAll(data2.stream().map(Group::getId).collect(Collectors.toSet()));
         // check that all group are different
-        assertTrue(data.stream().map(Group::getId).collect(Collectors.toSet()).containsAll(pagedData));
+        assertTrue(
+                data.stream().map(Group::getId).collect(Collectors.toSet()).containsAll(pagedData));
     }
-
 
     @Test
     public void shouldFindIdsIn() {
@@ -279,7 +328,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         for (int i = 0; i < loop; ++i) {
             // build 10 group with random domain
             Group createdGroup = repository.create(buildGroup()).blockingGet();
-            if (i %2 == 0) {
+            if (i % 2 == 0) {
                 ids.add(createdGroup.getId());
             }
         }
@@ -288,7 +337,8 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(lg -> lg.size() == ids.size());
-        testObserver.assertValue(lg -> lg.stream().map(Group::getId).collect(Collectors.toList()).containsAll(ids));
+        testObserver.assertValue(
+                lg -> lg.stream().map(Group::getId).collect(Collectors.toList()).containsAll(ids));
     }
 
     @Test
@@ -296,7 +346,11 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         Group group = buildGroup();
         Group createdGroup = repository.create(group).blockingGet();
 
-        TestObserver<Group> testObserver = repository.findByName(group.getReferenceType(), group.getReferenceId(), group.getName()).test();
+        TestObserver<Group> testObserver =
+                repository
+                        .findByName(
+                                group.getReferenceType(), group.getReferenceId(), group.getName())
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -310,7 +364,10 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         Group group = buildGroup();
         repository.create(group).blockingGet();
 
-        TestObserver<Group> testObserver = repository.findByName(group.getReferenceType(), group.getReferenceId(), "unknown").test();
+        TestObserver<Group> testObserver =
+                repository
+                        .findByName(group.getReferenceType(), group.getReferenceId(), "unknown")
+                        .test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();

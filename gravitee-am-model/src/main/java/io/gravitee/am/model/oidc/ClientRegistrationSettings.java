@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.model.oidc;
@@ -23,49 +21,31 @@ import java.util.List;
  */
 public class ClientRegistrationSettings {
 
-    /**
-     * Allow localhost host as redirect_uri
-     */
+    /** Allow localhost host as redirect_uri */
     private boolean allowLocalhostRedirectUri;
 
-    /**
-     * Allow unsecured http scheme into redirect_uri
-     */
+    /** Allow unsecured http scheme into redirect_uri */
     private boolean allowHttpSchemeRedirectUri;
 
-    /**
-     * Allow wildcard redirect uri
-     */
+    /** Allow wildcard redirect uri */
     private boolean allowWildCardRedirectUri;
 
-    /**
-     * Domain Dynamic Client Registration enabled
-     */
+    /** Domain Dynamic Client Registration enabled */
     private boolean isDynamicClientRegistrationEnabled;
 
-    /**
-     * Domain open Dynamic Client Registration enabled
-     */
+    /** Domain open Dynamic Client Registration enabled */
     private boolean isOpenDynamicClientRegistrationEnabled;
 
-    /**
-     * Define some default scopes to add on each client registration request
-     */
+    /** Define some default scopes to add on each client registration request */
     private List<String> defaultScopes;
 
-    /**
-     * Filter scopes on Client Registration through an allowed list of scopes enabled.
-     */
+    /** Filter scopes on Client Registration through an allowed list of scopes enabled. */
     private boolean isAllowedScopesEnabled;
 
-    /**
-     * Define allowed scopes for each client registration request
-     */
+    /** Define allowed scopes for each client registration request */
     private List<String> allowedScopes;
 
-    /**
-     * Enable client to be used as template for dynamic client registration
-     */
+    /** Enable client to be used as template for dynamic client registration */
     private boolean isClientTemplateEnabled;
 
     public boolean isAllowLocalhostRedirectUri() {
@@ -96,7 +76,8 @@ public class ClientRegistrationSettings {
         return isOpenDynamicClientRegistrationEnabled;
     }
 
-    public void setOpenDynamicClientRegistrationEnabled(boolean isOpenDynamicClientRegistrationEnabled) {
+    public void setOpenDynamicClientRegistrationEnabled(
+            boolean isOpenDynamicClientRegistrationEnabled) {
         this.isOpenDynamicClientRegistrationEnabled = isOpenDynamicClientRegistrationEnabled;
     }
 
@@ -109,7 +90,7 @@ public class ClientRegistrationSettings {
     }
 
     public static ClientRegistrationSettings defaultSettings() {
-        //By default all boolean are set to false.
+        // By default all boolean are set to false.
         return new ClientRegistrationSettings();
     }
 

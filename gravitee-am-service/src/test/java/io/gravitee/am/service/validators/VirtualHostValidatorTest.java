@@ -1,19 +1,22 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.validators;
+
+import static org.junit.Assert.*;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.VirtualHost;
@@ -21,16 +24,13 @@ import io.gravitee.am.service.exception.InvalidVirtualHostException;
 import io.gravitee.am.service.validators.path.PathValidatorImpl;
 import io.gravitee.am.service.validators.virtualhost.VirtualHostValidator;
 import io.gravitee.am.service.validators.virtualhost.VirtualHostValidatorImpl;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static org.junit.Assert.*;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -41,7 +41,7 @@ public class VirtualHostValidatorTest {
     private VirtualHostValidator virtualHostValidator;
 
     @Before
-    public void before(){
+    public void before() {
         virtualHostValidator = new VirtualHostValidatorImpl(new PathValidatorImpl());
     }
 
@@ -192,7 +192,8 @@ public class VirtualHostValidatorTest {
 
         VirtualHost vhost = getValidVirtualHost();
 
-        Throwable throwable = virtualHostValidator.validate(vhost, singletonList(vhost.getHost())).blockingGet();
+        Throwable throwable =
+                virtualHostValidator.validate(vhost, singletonList(vhost.getHost())).blockingGet();
 
         assertNull(throwable);
     }
@@ -204,7 +205,8 @@ public class VirtualHostValidatorTest {
         String domainConstraint = vhost.getHost();
         vhost.setHost("level2.level1." + domainConstraint);
 
-        Throwable throwable = virtualHostValidator.validate(vhost, singletonList(domainConstraint)).blockingGet();
+        Throwable throwable =
+                virtualHostValidator.validate(vhost, singletonList(domainConstraint)).blockingGet();
 
         assertNull(throwable);
     }
@@ -216,7 +218,13 @@ public class VirtualHostValidatorTest {
         String domainConstraint = vhost.getHost();
         vhost.setHost("level2.level1." + domainConstraint);
 
-        Throwable throwable = virtualHostValidator.validate(vhost, Arrays.asList("test.gravitee.io", "other.gravitee.io", domainConstraint)).blockingGet();
+        Throwable throwable =
+                virtualHostValidator
+                        .validate(
+                                vhost,
+                                Arrays.asList(
+                                        "test.gravitee.io", "other.gravitee.io", domainConstraint))
+                        .blockingGet();
 
         assertNull(throwable);
     }
@@ -226,7 +234,10 @@ public class VirtualHostValidatorTest {
 
         VirtualHost vhost = getValidVirtualHost();
 
-        Throwable throwable = virtualHostValidator.validate(vhost, Arrays.asList("test.gravitee.io", "other.gravitee.io")).blockingGet();
+        Throwable throwable =
+                virtualHostValidator
+                        .validate(vhost, Arrays.asList("test.gravitee.io", "other.gravitee.io"))
+                        .blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidVirtualHostException);
@@ -250,7 +261,8 @@ public class VirtualHostValidatorTest {
         List<Domain> otherDomains = new ArrayList<>();
         otherDomains.add(otherDomain);
 
-        Throwable throwable = virtualHostValidator.validateDomainVhosts(domain, otherDomains).blockingGet();
+        Throwable throwable =
+                virtualHostValidator.validateDomainVhosts(domain, otherDomains).blockingGet();
 
         assertNull(throwable);
     }
@@ -266,13 +278,16 @@ public class VirtualHostValidatorTest {
 
         List<Domain> otherDomains = new ArrayList<>();
         otherDomains.add(otherDomain);
-        otherDomain.getVhosts().get(0).setPath("/"); // "/" path in vhost mode should not be considered as overlap.
+        otherDomain
+                .getVhosts()
+                .get(0)
+                .setPath("/"); // "/" path in vhost mode should not be considered as overlap.
 
-        Throwable throwable = virtualHostValidator.validateDomainVhosts(domain, otherDomains).blockingGet();
+        Throwable throwable =
+                virtualHostValidator.validateDomainVhosts(domain, otherDomains).blockingGet();
 
         assertNull(throwable);
     }
-
 
     @Test
     public void validateDomainVhosts() {
@@ -293,7 +308,8 @@ public class VirtualHostValidatorTest {
         List<Domain> otherDomains = new ArrayList<>();
         otherDomains.add(otherDomain);
 
-        Throwable throwable = virtualHostValidator.validateDomainVhosts(domain, otherDomains).blockingGet();
+        Throwable throwable =
+                virtualHostValidator.validateDomainVhosts(domain, otherDomains).blockingGet();
 
         assertNull(throwable);
     }
@@ -310,7 +326,8 @@ public class VirtualHostValidatorTest {
         List<Domain> otherDomains = new ArrayList<>();
         otherDomains.add(otherDomain);
 
-        Throwable throwable = virtualHostValidator.validateDomainVhosts(domain, otherDomains).blockingGet();
+        Throwable throwable =
+                virtualHostValidator.validateDomainVhosts(domain, otherDomains).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidVirtualHostException);
@@ -329,7 +346,8 @@ public class VirtualHostValidatorTest {
         List<Domain> otherDomains = new ArrayList<>();
         otherDomains.add(otherDomain);
 
-        Throwable throwable = virtualHostValidator.validateDomainVhosts(domain, otherDomains).blockingGet();
+        Throwable throwable =
+                virtualHostValidator.validateDomainVhosts(domain, otherDomains).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidVirtualHostException);
@@ -349,7 +367,8 @@ public class VirtualHostValidatorTest {
         List<Domain> otherDomains = new ArrayList<>();
         otherDomains.add(otherDomain);
 
-        Throwable throwable = virtualHostValidator.validateDomainVhosts(domain, otherDomains).blockingGet();
+        Throwable throwable =
+                virtualHostValidator.validateDomainVhosts(domain, otherDomains).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidVirtualHostException);
@@ -369,7 +388,8 @@ public class VirtualHostValidatorTest {
         List<Domain> otherDomains = new ArrayList<>();
         otherDomains.add(otherDomain);
 
-        Throwable throwable = virtualHostValidator.validateDomainVhosts(domain, otherDomains).blockingGet();
+        Throwable throwable =
+                virtualHostValidator.validateDomainVhosts(domain, otherDomains).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidVirtualHostException);

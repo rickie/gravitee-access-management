@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.service.impl.application;
@@ -27,7 +25,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A server that hosts resources on a resource owner's behalf and is capable of accepting and responding to requests for protected resources.
+ * A server that hosts resources on a resource owner's behalf and is capable of accepting and
+ * responding to requests for protected resources.
  *
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team
@@ -57,12 +56,17 @@ public class ApplicationResourceServerTemplate extends ApplicationWebTemplate {
         // UMA resource server should at least has the uma_protection scope
         ApplicationOAuthSettings oAuthSettings = application.getSettings().getOauth();
         if (oAuthSettings.getScopeSettings() == null) {
-            oAuthSettings.setScopeSettings(Collections.singletonList(new ApplicationScopeSettings(Scope.UMA.getKey())));
-        } else if (oAuthSettings.getScopeSettings().stream().filter(s -> s.getScope().equals(Scope.UMA.getKey())).findFirst().isEmpty()) {
+            oAuthSettings.setScopeSettings(
+                    Collections.singletonList(new ApplicationScopeSettings(Scope.UMA.getKey())));
+        } else if (oAuthSettings.getScopeSettings().stream()
+                .filter(s -> s.getScope().equals(Scope.UMA.getKey()))
+                .findFirst()
+                .isEmpty()) {
             oAuthSettings.getScopeSettings().add(new ApplicationScopeSettings(Scope.UMA.getKey()));
         }
-        // UMA resource server should at least has the client_credentials grant to request permissions
-        if(oAuthSettings.getGrantTypes() == null) {
+        // UMA resource server should at least has the client_credentials grant to request
+        // permissions
+        if (oAuthSettings.getGrantTypes() == null) {
             oAuthSettings.setGrantTypes(Collections.singletonList(GrantType.CLIENT_CREDENTIALS));
         } else if (!oAuthSettings.getGrantTypes().contains(GrantType.CLIENT_CREDENTIALS)) {
             List<String> grants = new LinkedList<>(oAuthSettings.getGrantTypes());

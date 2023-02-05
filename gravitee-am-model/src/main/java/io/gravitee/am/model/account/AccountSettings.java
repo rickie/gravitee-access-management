@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.model.account;
@@ -27,128 +25,87 @@ import java.util.*;
  */
 public class AccountSettings {
 
-    /**
-     * Account settings configuration inherited ?
-     */
+    /** Account settings configuration inherited ? */
     private boolean inherited = true;
 
-    /**
-     * Enable/Disable authentication brut force attempts detection feature
-     */
+    /** Enable/Disable authentication brut force attempts detection feature */
     private boolean loginAttemptsDetectionEnabled;
 
-    /**
-     * Max login failures after which the account will be blocked
-     */
+    /** Max login failures after which the account will be blocked */
     private Integer maxLoginAttempts;
 
     /**
-     * Amount of time after which the user login attempts will be erased if max attempts has not been reached
+     * Amount of time after which the user login attempts will be erased if max attempts has not
+     * been reached
      */
     private Integer loginAttemptsResetTime;
 
-    /**
-     * Amount of time while the user will be blocked
-     */
+    /** Amount of time while the user will be blocked */
     private Integer accountBlockedDuration;
 
-    /**
-     * Enable/Disable email notification for blocked account
-     */
+    /** Enable/Disable email notification for blocked account */
     private boolean sendRecoverAccountEmail;
 
-    /**
-     * Complete user registration when the user renewed his password
-     */
+    /** Complete user registration when the user renewed his password */
     private boolean completeRegistrationWhenResetPassword;
 
-    /**
-     * Auto login user after registration process
-     */
+    /** Auto login user after registration process */
     private boolean autoLoginAfterRegistration;
 
-    /**
-     * The redirect URI after registration process
-     */
+    /** The redirect URI after registration process */
     private String redirectUriAfterRegistration;
 
-    /**
-     * Add user registration url and user registration access token if this option is enabled
-     */
+    /** Add user registration url and user registration access token if this option is enabled */
     private boolean dynamicUserRegistration;
 
-    /**
-     * Default identity provider used for user registration
-     */
+    /** Default identity provider used for user registration */
     private String defaultIdentityProviderForRegistration;
 
-    /**
-     * Auto login user after reset password process
-     */
+    /** Auto login user after reset password process */
     private boolean autoLoginAfterResetPassword;
 
-    /**
-     * The redirect URI after reset password process
-     */
+    /** The redirect URI after reset password process */
     private String redirectUriAfterResetPassword;
 
-    /**
-     * Delete passwordless devices after reset password process
-     */
+    /** Delete passwordless devices after reset password process */
     private boolean deletePasswordlessDevicesAfterResetPassword;
 
-    /**
-     * true if BotDetection enabled
-     */
+    /** true if BotDetection enabled */
     private boolean useBotDetection = false;
 
-    /**
-     * The bot detection plugin identifier used to protect pages
-     */
+    /** The bot detection plugin identifier used to protect pages */
     private String botDetectionPlugin;
 
-    /**
-     * Used a custom form to generate ForgotPassword page
-     */
+    /** Used a custom form to generate ForgotPassword page */
     private boolean resetPasswordCustomForm;
 
-    /**
-     * Fields used to generate the custom form of ForgotPassword page
-     */
+    /** Fields used to generate the custom form of ForgotPassword page */
     private List<FormField> resetPasswordCustomFormFields;
 
     /**
-     * If true, display the legacy form for "forgot password" page and If multiple user are found, then the customForm will be displayed
+     * If true, display the legacy form for "forgot password" page and If multiple user are found,
+     * then the customForm will be displayed
      */
     private boolean resetPasswordConfirmIdentity;
-    /**
-     * If true, all tokens generated for the user are invalidated after a reset password
-     */
+    /** If true, all tokens generated for the user are invalidated after a reset password */
     private boolean resetPasswordInvalidateTokens;
 
-    /**
-     * Enable/Disable MFA challenge brut force attempts detection feature
-     */
+    /** Enable/Disable MFA challenge brut force attempts detection feature */
     private boolean mfaChallengeAttemptsDetectionEnabled;
 
-    /**
-     * Allowed max MFA challenge attempts
-     */
+    /** Allowed max MFA challenge attempts */
     private Integer mfaChallengeMaxAttempts;
 
     /**
-     * Amount of time after which the user MFA challenge attempts will be erased if max challenge attempts has not been reached
+     * Amount of time after which the user MFA challenge attempts will be erased if max challenge
+     * attempts has not been reached
      */
     private Integer mfaChallengeAttemptsResetTime;
 
-    /**
-     * Enable/Disable alert email due to too many MFA challenge
-     */
+    /** Enable/Disable alert email due to too many MFA challenge */
     private boolean mfaChallengeSendVerifyAlertEmail;
 
-
-    public AccountSettings() {
-    }
+    public AccountSettings() {}
 
     public AccountSettings(AccountSettings other) {
         this.inherited = other.inherited;
@@ -163,7 +120,8 @@ public class AccountSettings {
         this.dynamicUserRegistration = other.dynamicUserRegistration;
         this.autoLoginAfterResetPassword = other.autoLoginAfterResetPassword;
         this.redirectUriAfterResetPassword = other.redirectUriAfterResetPassword;
-        this.deletePasswordlessDevicesAfterResetPassword = other.deletePasswordlessDevicesAfterResetPassword;
+        this.deletePasswordlessDevicesAfterResetPassword =
+                other.deletePasswordlessDevicesAfterResetPassword;
         this.resetPasswordConfirmIdentity = other.resetPasswordConfirmIdentity;
         this.resetPasswordCustomForm = other.resetPasswordCustomForm;
         this.resetPasswordCustomFormFields = other.resetPasswordCustomFormFields;
@@ -229,7 +187,8 @@ public class AccountSettings {
         return completeRegistrationWhenResetPassword;
     }
 
-    public void setCompleteRegistrationWhenResetPassword(boolean completeRegistrationWhenResetPassword) {
+    public void setCompleteRegistrationWhenResetPassword(
+            boolean completeRegistrationWhenResetPassword) {
         this.completeRegistrationWhenResetPassword = completeRegistrationWhenResetPassword;
     }
 
@@ -261,7 +220,8 @@ public class AccountSettings {
         return defaultIdentityProviderForRegistration;
     }
 
-    public void setDefaultIdentityProviderForRegistration(String defaultIdentityProviderForRegistration) {
+    public void setDefaultIdentityProviderForRegistration(
+            String defaultIdentityProviderForRegistration) {
         this.defaultIdentityProviderForRegistration = defaultIdentityProviderForRegistration;
     }
 
@@ -285,8 +245,10 @@ public class AccountSettings {
         return deletePasswordlessDevicesAfterResetPassword;
     }
 
-    public void setDeletePasswordlessDevicesAfterResetPassword(boolean deletePasswordlessDevicesAfterResetPassword) {
-        this.deletePasswordlessDevicesAfterResetPassword = deletePasswordlessDevicesAfterResetPassword;
+    public void setDeletePasswordlessDevicesAfterResetPassword(
+            boolean deletePasswordlessDevicesAfterResetPassword) {
+        this.deletePasswordlessDevicesAfterResetPassword =
+                deletePasswordlessDevicesAfterResetPassword;
     }
 
     public boolean isUseBotDetection() {
@@ -341,7 +303,8 @@ public class AccountSettings {
         return mfaChallengeAttemptsDetectionEnabled;
     }
 
-    public void setMfaChallengeAttemptsDetectionEnabled(boolean mfaChallengeAttemptsDetectionEnabled) {
+    public void setMfaChallengeAttemptsDetectionEnabled(
+            boolean mfaChallengeAttemptsDetectionEnabled) {
         this.mfaChallengeAttemptsDetectionEnabled = mfaChallengeAttemptsDetectionEnabled;
     }
 

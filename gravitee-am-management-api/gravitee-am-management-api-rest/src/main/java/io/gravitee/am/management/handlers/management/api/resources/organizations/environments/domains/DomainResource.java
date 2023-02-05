@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
@@ -30,7 +28,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -38,9 +41,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -49,20 +49,21 @@ import java.util.stream.Collectors;
  */
 public class DomainResource extends AbstractDomainResource {
 
-    @Autowired
-    private EntrypointService entrypointService;
+    @Autowired private EntrypointService entrypointService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(
             nickname = "findDomain",
             value = "Get a security domain",
-            notes = "User must have the DOMAIN[READ] permission on the specified domain, environment or organization. " +
-                    "Domain will be filtered according to permissions (READ on DOMAIN_USER_ACCOUNT, DOMAIN_IDENTITY_PROVIDER, DOMAIN_FORM, DOMAIN_LOGIN_SETTINGS, " +
-                    "DOMAIN_DCR, DOMAIN_SCIM, DOMAIN_SETTINGS)")
+            notes =
+                    "User must have the DOMAIN[READ] permission on the specified domain, environment or organization. "
+                            + "Domain will be filtered according to permissions (READ on DOMAIN_USER_ACCOUNT, DOMAIN_IDENTITY_PROVIDER, DOMAIN_FORM, DOMAIN_LOGIN_SETTINGS, "
+                            + "DOMAIN_DCR, DOMAIN_SCIM, DOMAIN_SETTINGS)")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Domain", response = Domain.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 200, message = "Domain", response = Domain.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void get(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -72,10 +73,22 @@ public class DomainResource extends AbstractDomainResource {
         final User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ)
-                .andThen(domainService.findById(domainId)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domainId)))
-                        .flatMapSingle(domain -> findAllPermissions(authenticatedUser, organizationId, environmentId, domainId)
-                                .map(userPermissions -> filterDomainInfos(domain, userPermissions))))
+                .andThen(
+                        domainService
+                                .findById(domainId)
+                                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domainId)))
+                                .flatMapSingle(
+                                        domain ->
+                                                findAllPermissions(
+                                                                authenticatedUser,
+                                                                organizationId,
+                                                                environmentId,
+                                                                domainId)
+                                                        .map(
+                                                                userPermissions ->
+                                                                        filterDomainInfos(
+                                                                                domain,
+                                                                                userPermissions))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -85,17 +98,20 @@ public class DomainResource extends AbstractDomainResource {
     @ApiOperation(
             nickname = "updateDomain",
             value = "Update the security domain",
-            notes = "User must have the DOMAIN_SETTINGS[UPDATE] permission on the specified domain " +
-                    "or DOMAIN_SETTINGS[UPDATE] permission on the specified environment " +
-                    "or DOMAIN_SETTINGS[UPDATE] permission on the specified organization.")
+            notes =
+                    "User must have the DOMAIN_SETTINGS[UPDATE] permission on the specified domain "
+                            + "or DOMAIN_SETTINGS[UPDATE] permission on the specified environment "
+                            + "or DOMAIN_SETTINGS[UPDATE] permission on the specified organization.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Domain successfully updated", response = Domain.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 200, message = "Domain successfully updated", response = Domain.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void update(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
-            @ApiParam(name = "domain", required = true) @Valid @NotNull final PatchDomain domainToPatch,
+            @ApiParam(name = "domain", required = true) @Valid @NotNull
+                    final PatchDomain domainToPatch,
             @Suspended final AsyncResponse response) {
 
         updateInternal(organizationId, environmentId, domainId, domainToPatch, response);
@@ -107,17 +123,20 @@ public class DomainResource extends AbstractDomainResource {
     @ApiOperation(
             nickname = "patchDomain",
             value = "Patch the security domain",
-            notes = "User must have the DOMAIN_SETTINGS[UPDATE] permission on the specified domain " +
-                    "or DOMAIN_SETTINGS[UPDATE] permission on the specified environment " +
-                    "or DOMAIN_SETTINGS[UPDATE] permission on the specified organization.")
+            notes =
+                    "User must have the DOMAIN_SETTINGS[UPDATE] permission on the specified domain "
+                            + "or DOMAIN_SETTINGS[UPDATE] permission on the specified environment "
+                            + "or DOMAIN_SETTINGS[UPDATE] permission on the specified organization.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Domain successfully patched", response = Domain.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 200, message = "Domain successfully patched", response = Domain.class),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void patch(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
-            @ApiParam(name = "domain", required = true) @Valid @NotNull final PatchDomain domainToPatch,
+            @ApiParam(name = "domain", required = true) @Valid @NotNull
+                    final PatchDomain domainToPatch,
             @Suspended final AsyncResponse response) {
 
         updateInternal(organizationId, environmentId, domainId, domainToPatch, response);
@@ -127,12 +146,14 @@ public class DomainResource extends AbstractDomainResource {
     @ApiOperation(
             nickname = "deleteDomain",
             value = "Delete the security domain",
-            notes = "User must have the DOMAIN[DELETE] permission on the specified domain " +
-                    "or DOMAIN[DELETE] permission on the specified environment " +
-                    "or DOMAIN[DELETE] permission on the specified organization.")
+            notes =
+                    "User must have the DOMAIN[DELETE] permission on the specified domain "
+                            + "or DOMAIN[DELETE] permission on the specified environment "
+                            + "or DOMAIN[DELETE] permission on the specified organization.")
     @ApiResponses({
-            @ApiResponse(code = 204, message = "Domain successfully deleted"),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(code = 204, message = "Domain successfully deleted"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void delete(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -151,12 +172,18 @@ public class DomainResource extends AbstractDomainResource {
     @ApiOperation(
             nickname = "getDomainEntrypoints",
             value = "Get the matching gateway entrypoint of the domain",
-            notes = "User must have the DOMAIN[READ] permission on the specified domain, environment or organization. " +
-                    "Domain will be filtered according to permissions (READ on DOMAIN_USER_ACCOUNT, DOMAIN_IDENTITY_PROVIDER, DOMAIN_FORM, DOMAIN_LOGIN_SETTINGS, " +
-                    "DOMAIN_DCR, DOMAIN_SCIM, DOMAIN_SETTINGS)")
+            notes =
+                    "User must have the DOMAIN[READ] permission on the specified domain, environment or organization. "
+                            + "Domain will be filtered according to permissions (READ on DOMAIN_USER_ACCOUNT, DOMAIN_IDENTITY_PROVIDER, DOMAIN_FORM, DOMAIN_LOGIN_SETTINGS, "
+                            + "DOMAIN_DCR, DOMAIN_SCIM, DOMAIN_SETTINGS)")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Domain entrypoint", response = Entrypoint.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Internal server error")})
+        @ApiResponse(
+                code = 200,
+                message = "Domain entrypoint",
+                response = Entrypoint.class,
+                responseContainer = "List"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     public void getEntrypoints(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
@@ -164,11 +191,20 @@ public class DomainResource extends AbstractDomainResource {
             @Suspended final AsyncResponse response) {
 
         checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ)
-                .andThen(domainService.findById(domainId)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domainId)))
-                        .flatMapSingle(domain -> entrypointService.findAll(organizationId)
-                                .toList()
-                                .map(entrypoints -> filterEntrypoints(entrypoints, domain))))
+                .andThen(
+                        domainService
+                                .findById(domainId)
+                                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domainId)))
+                                .flatMapSingle(
+                                        domain ->
+                                                entrypointService
+                                                        .findAll(organizationId)
+                                                        .toList()
+                                                        .map(
+                                                                entrypoints ->
+                                                                        filterEntrypoints(
+                                                                                entrypoints,
+                                                                                domain))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -287,37 +323,77 @@ public class DomainResource extends AbstractDomainResource {
         return resourceContext.getResource(ThemesResource.class);
     }
 
-    private void updateInternal(String organizationId, String environmentId, String domainId, final PatchDomain patchDomain, final AsyncResponse response) {
+    private void updateInternal(
+            String organizationId,
+            String environmentId,
+            String domainId,
+            final PatchDomain patchDomain,
+            final AsyncResponse response) {
 
         final User authenticatedUser = getAuthenticatedUser();
         Set<Permission> requiredPermissions = patchDomain.getRequiredPermissions();
 
         if (requiredPermissions.isEmpty()) {
-            // If there is no require permission, it means there is nothing to update. This is not a valid request.
-            response.resume(new BadRequestException("You need to specify at least one value to update."));
+            // If there is no require permission, it means there is nothing to update. This is not a
+            // valid request.
+            response.resume(
+                    new BadRequestException("You need to specify at least one value to update."));
         } else {
-            Completable.merge(requiredPermissions.stream()
-                    .map(permission -> checkAnyPermission(organizationId, environmentId, domainId, permission, Acl.UPDATE))
-                    .collect(Collectors.toList()))
-                    .andThen(domainService.patch(domainId, patchDomain, authenticatedUser)
-                            .flatMap(domain -> findAllPermissions(authenticatedUser, organizationId, environmentId, domainId)
-                                    .map(userPermissions -> filterDomainInfos(domain, userPermissions))))
+            Completable.merge(
+                            requiredPermissions.stream()
+                                    .map(
+                                            permission ->
+                                                    checkAnyPermission(
+                                                            organizationId,
+                                                            environmentId,
+                                                            domainId,
+                                                            permission,
+                                                            Acl.UPDATE))
+                                    .collect(Collectors.toList()))
+                    .andThen(
+                            domainService
+                                    .patch(domainId, patchDomain, authenticatedUser)
+                                    .flatMap(
+                                            domain ->
+                                                    findAllPermissions(
+                                                                    authenticatedUser,
+                                                                    organizationId,
+                                                                    environmentId,
+                                                                    domainId)
+                                                            .map(
+                                                                    userPermissions ->
+                                                                            filterDomainInfos(
+                                                                                    domain,
+                                                                                    userPermissions))))
                     .subscribe(response::resume, response::resume);
         }
     }
 
     /**
-     * Filter a list of entrypoints depending on domain tags.
-     * Given a domain with tags [ A, B ], then entrypoint must has either A or B tag defined.
-     * If no entrypoint has been retained, the default entrypoint is returned.
+     * Filter a list of entrypoints depending on domain tags. Given a domain with tags [ A, B ],
+     * then entrypoint must has either A or B tag defined. If no entrypoint has been retained, the
+     * default entrypoint is returned.
      *
      * @param domain the domain.
      * @return a filtered list of entrypoints.
      */
     private List<Entrypoint> filterEntrypoints(List<Entrypoint> entrypoints, Domain domain) {
 
-        List<Entrypoint> filteredEntrypoints = entrypoints.stream().filter(entrypoint -> entrypoint.isDefaultEntrypoint()
-                || (entrypoint.getTags() != null && !entrypoint.getTags().isEmpty() && domain.getTags() != null && entrypoint.getTags().stream().anyMatch(tag -> domain.getTags().contains(tag)))).collect(Collectors.toList());
+        List<Entrypoint> filteredEntrypoints =
+                entrypoints.stream()
+                        .filter(
+                                entrypoint ->
+                                        entrypoint.isDefaultEntrypoint()
+                                                || (entrypoint.getTags() != null
+                                                        && !entrypoint.getTags().isEmpty()
+                                                        && domain.getTags() != null
+                                                        && entrypoint.getTags().stream()
+                                                                .anyMatch(
+                                                                        tag ->
+                                                                                domain.getTags()
+                                                                                        .contains(
+                                                                                                tag))))
+                        .collect(Collectors.toList());
 
         if (filteredEntrypoints.size() > 1) {
             // Remove default entrypoint if another entrypoint has matched.

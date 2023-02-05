@@ -1,26 +1,25 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.repository.management.api;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import io.gravitee.am.model.Environment;
-import io.gravitee.am.model.Form;
-import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
-import io.reactivex.subscribers.TestSubscriber;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,9 +27,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -40,8 +36,7 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
 
     public static final String FIXED_REF_ID = "fixedRefId";
 
-    @Autowired
-    private EnvironmentRepository environmentRepository;
+    @Autowired private EnvironmentRepository environmentRepository;
 
     @Test
     public void testFindById() {
@@ -59,7 +54,8 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
         obs.assertValue(e -> e.getName().equals(environment.getName()));
         obs.assertValue(e -> e.getDescription().equals(environment.getDescription()));
         obs.assertValue(e -> e.getOrganizationId().equals(environment.getOrganizationId()));
-        obs.assertValue(e -> e.getDomainRestrictions().containsAll(environment.getDomainRestrictions()));
+        obs.assertValue(
+                e -> e.getDomainRestrictions().containsAll(environment.getDomainRestrictions()));
         obs.assertValue(e -> e.getHrids().containsAll(environment.getHrids()));
     }
 
@@ -80,7 +76,8 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
         obs.assertComplete();
         obs.assertNoErrors();
         obs.assertValue(e -> e.getName().equals(env.getName()) && e.getId() != null);
-        obs.assertValue(e -> e.getOrganizationId().equals(env.getOrganizationId()) && e.getId() != null);
+        obs.assertValue(
+                e -> e.getOrganizationId().equals(env.getOrganizationId()) && e.getId() != null);
         obs.assertValue(e -> e.getName().equals(env.getName()));
         obs.assertValue(e -> e.getDescription().equals(env.getDescription()));
         obs.assertValue(e -> e.getOrganizationId().equals(env.getOrganizationId()));
@@ -106,8 +103,12 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
 
         obs.assertComplete();
         obs.assertNoErrors();
-        obs.assertValue(e -> e.getName().equals(envUpdated.getName()) && e.getId().equals(envCreated.getId()));
-        obs.assertValue(e -> e.getDomainRestrictions().containsAll(envUpdated.getDomainRestrictions()));
+        obs.assertValue(
+                e ->
+                        e.getName().equals(envUpdated.getName())
+                                && e.getId().equals(envCreated.getId()));
+        obs.assertValue(
+                e -> e.getDomainRestrictions().containsAll(envUpdated.getDomainRestrictions()));
         obs.assertValue(e -> e.getHrids().containsAll(envUpdated.getHrids()));
     }
 
@@ -147,11 +148,13 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
             environmentRepository.create(buildEnv()).blockingGet();
         }
 
-        TestObserver<List<Environment>> testObserver = environmentRepository.findAll(FIXED_REF_ID).toList().test();
+        TestObserver<List<Environment>> testObserver =
+                environmentRepository.findAll(FIXED_REF_ID).toList().test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(l -> l.size() == loop);
-        testObserver.assertValue(l -> l.stream().map(Environment::getId).distinct().count() == loop);
+        testObserver.assertValue(
+                l -> l.stream().map(Environment::getId).distinct().count() == loop);
     }
 
     @Test
@@ -162,11 +165,13 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
             environmentRepository.create(buildEnv()).blockingGet();
         }
 
-        TestObserver<List<Environment>> testObserver = environmentRepository.findAll().toList().test();
+        TestObserver<List<Environment>> testObserver =
+                environmentRepository.findAll().toList().test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(l -> l.size() == loop);
-        testObserver.assertValue(l -> l.stream().map(Environment::getId).distinct().count() == loop);
+        testObserver.assertValue(
+                l -> l.stream().map(Environment::getId).distinct().count() == loop);
     }
 
     private Environment buildEnv() {
