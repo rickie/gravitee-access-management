@@ -48,7 +48,7 @@ public class RevocationServiceTest {
 
     @Test
     public void shouldNotRevoke_WrongRequestedClientId() {
-        final RevocationTokenRequest revocationTokenRequest = new RevocationTokenRequest("token");
+        RevocationTokenRequest revocationTokenRequest = new RevocationTokenRequest("token");
 
         AccessToken accessToken = new AccessToken("token");
         accessToken.setClientId("client-id");
@@ -72,7 +72,7 @@ public class RevocationServiceTest {
 
     @Test
     public void shouldRevoke_evenWithInvalidToken() {
-        final RevocationTokenRequest revocationTokenRequest = new RevocationTokenRequest("token");
+        RevocationTokenRequest revocationTokenRequest = new RevocationTokenRequest("token");
 
         Client client = new Client();
         client.setClientId("client-id");
@@ -94,7 +94,7 @@ public class RevocationServiceTest {
 
     @Test
     public void shouldRevoke_accessToken() {
-        final RevocationTokenRequest revocationTokenRequest = new RevocationTokenRequest("token");
+        RevocationTokenRequest revocationTokenRequest = new RevocationTokenRequest("token");
 
         Client client = new Client();
         client.setClientId("client-id");
@@ -119,7 +119,7 @@ public class RevocationServiceTest {
 
     @Test
     public void shouldRevoke_refreshToken() {
-        final RevocationTokenRequest revocationTokenRequest = new RevocationTokenRequest("token");
+        RevocationTokenRequest revocationTokenRequest = new RevocationTokenRequest("token");
         revocationTokenRequest.setHint(TokenTypeHint.REFRESH_TOKEN);
 
         Client client = new Client();

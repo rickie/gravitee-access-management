@@ -58,7 +58,7 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
     private int contextExpiration;
 
     @Override
-    public Completable clearContext(final String transactionId) {
+    public Completable clearContext(String transactionId) {
         if (transactionId == null) {
             return Completable.complete();
         }
@@ -66,8 +66,7 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
     }
 
     @Override
-    public Maybe<AuthenticationFlowContext> loadContext(
-            final String transactionId, final int expectedVersion) {
+    public Maybe<AuthenticationFlowContext> loadContext(String transactionId, int expectedVersion) {
         return authContextRepository
                 .findLastByTransactionId(transactionId)
                 .switchIfEmpty(
@@ -121,7 +120,7 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
 
     @Override
     public Single<AuthenticationFlowContext> updateContext(AuthenticationFlowContext authContext) {
-        final var now = Instant.now();
+        var now = Instant.now();
         authContext.setVersion(authContext.getVersion() + 1);
         authContext.setCreatedAt(new Date(now.toEpochMilli()));
         authContext.setExpireAt(

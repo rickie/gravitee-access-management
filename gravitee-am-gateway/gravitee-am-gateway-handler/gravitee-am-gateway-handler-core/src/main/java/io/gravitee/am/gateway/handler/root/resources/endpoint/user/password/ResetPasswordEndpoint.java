@@ -71,12 +71,12 @@ public class ResetPasswordEndpoint extends AbstractEndpoint implements Handler<R
         copyValue(request, routingContext, ConstantKeys.TOKEN_PARAM_KEY);
 
         // put parameters in context (backward compatibility)
-        final Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<>();
         params.computeIfAbsent(ConstantKeys.ERROR_PARAM_KEY, val -> error);
         params.computeIfAbsent(ConstantKeys.ERROR_DESCRIPTION_PARAM_KEY, val -> errorDescription);
         routingContext.put(ConstantKeys.PARAM_CONTEXT_KEY, params);
 
-        final Map<String, String> actionParams =
+        Map<String, String> actionParams =
                 (client != null) ? Map.of(Parameters.CLIENT_ID, client.getClientId()) : Map.of();
         routingContext.put(
                 ConstantKeys.ACTION_KEY,

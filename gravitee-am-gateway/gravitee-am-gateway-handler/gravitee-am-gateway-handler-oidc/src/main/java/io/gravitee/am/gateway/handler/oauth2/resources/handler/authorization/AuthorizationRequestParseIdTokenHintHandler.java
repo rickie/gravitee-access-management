@@ -73,9 +73,9 @@ public class AuthorizationRequestParseIdTokenHintHandler implements Handler<Rout
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final String idTokenHint = getOAuthParameter(routingContext, Parameters.ID_TOKEN_HINT);
-        final String prompt = getOAuthParameter(routingContext, Parameters.PROMPT);
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        String idTokenHint = getOAuthParameter(routingContext, Parameters.ID_TOKEN_HINT);
+        String prompt = getOAuthParameter(routingContext, Parameters.PROMPT);
 
         // if no id_token_hint parameter, continue;
         if (idTokenHint == null) {

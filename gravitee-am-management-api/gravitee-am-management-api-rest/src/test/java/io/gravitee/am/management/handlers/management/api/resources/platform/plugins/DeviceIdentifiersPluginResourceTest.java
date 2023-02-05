@@ -45,7 +45,7 @@ public class DeviceIdentifiersPluginResourceTest extends JerseySpringTest {
                 .when(botDetectionPluginService)
                 .findAll();
 
-        final Response response =
+        Response response =
                 target("platform").path("plugins").path("bot-detections").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
     }

@@ -315,7 +315,7 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository
         LOGGER.debug("findByIdentityProvider({})", identityProvider);
 
         // identity is a keyword with mssql
-        final String identity = databaseDialectHelper.toSql(SqlIdentifier.quoted("identity"));
+        String identity = databaseDialectHelper.toSql(SqlIdentifier.quoted("identity"));
         return fluxToFlowable(
                         template.getDatabaseClient()
                                 .sql(
@@ -518,14 +518,14 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository
                             Flux.fromIterable(identities)
                                     .concatMap(
                                             idp -> {
-                                                final String identity =
+                                                String identity =
                                                         databaseDialectHelper.toSql(
                                                                 SqlIdentifier.quoted("identity"));
-                                                final String selectionRule =
+                                                String selectionRule =
                                                         databaseDialectHelper.toSql(
                                                                 SqlIdentifier.quoted(
                                                                         "selection_rule"));
-                                                final String priority =
+                                                String priority =
                                                         databaseDialectHelper.toSql(
                                                                 SqlIdentifier.quoted("priority"));
                                                 String INSERT_STMT =
@@ -538,7 +538,7 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository
                                                                 + priority
                                                                 + ") "
                                                                 + "VALUES (:app, :idpid, :selection_rule, :priority)";
-                                                final DatabaseClient.GenericExecuteSpec sql =
+                                                DatabaseClient.GenericExecuteSpec sql =
                                                         template.getDatabaseClient()
                                                                 .sql(INSERT_STMT)
                                                                 .bind("app", app.getId())
@@ -558,7 +558,7 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository
                                     .reduce(Integer::sum));
         }
 
-        final Set<String> factors = app.getFactors();
+        Set<String> factors = app.getFactors();
         if (factors != null && !factors.isEmpty()) {
             actionFlow =
                     actionFlow.then(
@@ -567,7 +567,7 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository
                                             value -> {
                                                 String INSERT_STMT =
                                                         "INSERT INTO application_factors(application_id, factor) VALUES (:app, :factor)";
-                                                final DatabaseClient.GenericExecuteSpec sql =
+                                                DatabaseClient.GenericExecuteSpec sql =
                                                         template.getDatabaseClient()
                                                                 .sql(INSERT_STMT)
                                                                 .bind("app", app.getId())
@@ -577,7 +577,7 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository
                                     .reduce(Integer::sum));
         }
 
-        final List<String> grants =
+        List<String> grants =
                 Optional.ofNullable(app.getSettings())
                         .map(ApplicationSettings::getOauth)
                         .map(ApplicationOAuthSettings::getGrantTypes)
@@ -590,7 +590,7 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository
                                             value -> {
                                                 String INSERT_STMT =
                                                         "INSERT INTO application_grants(application_id, grant_type) VALUES (:app, :grant)";
-                                                final DatabaseClient.GenericExecuteSpec sql =
+                                                DatabaseClient.GenericExecuteSpec sql =
                                                         template.getDatabaseClient()
                                                                 .sql(INSERT_STMT)
                                                                 .bind("app", app.getId())
@@ -600,7 +600,7 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository
                                     .reduce(Integer::sum));
         }
 
-        final List<ApplicationScopeSettings> scopeSettings =
+        List<ApplicationScopeSettings> scopeSettings =
                 Optional.ofNullable(app.getSettings())
                         .map(ApplicationSettings::getOauth)
                         .map(ApplicationOAuthSettings::getScopeSettings)

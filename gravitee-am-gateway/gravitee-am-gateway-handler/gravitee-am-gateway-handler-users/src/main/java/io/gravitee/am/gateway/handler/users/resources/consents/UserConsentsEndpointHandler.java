@@ -37,8 +37,8 @@ public class UserConsentsEndpointHandler extends AbstractUserConsentEndpointHand
 
     /** Retrieve consents for a user per application basis or for all applications */
     public void list(RoutingContext context) {
-        final String userId = context.request().getParam("userId");
-        final String clientId = context.request().getParam("clientId");
+        String userId = context.request().getParam("userId");
+        String clientId = context.request().getParam("clientId");
 
         Single.just(Optional.ofNullable(clientId))
                 .flatMap(
@@ -62,8 +62,8 @@ public class UserConsentsEndpointHandler extends AbstractUserConsentEndpointHand
 
     /** Revoke consents for a user per application basis or for all applications */
     public void revoke(RoutingContext context) {
-        final String userId = context.request().getParam("userId");
-        final String clientId = context.request().getParam("clientId");
+        String userId = context.request().getParam("userId");
+        String clientId = context.request().getParam("clientId");
 
         Single.just(Optional.ofNullable(clientId))
                 .flatMapCompletable(

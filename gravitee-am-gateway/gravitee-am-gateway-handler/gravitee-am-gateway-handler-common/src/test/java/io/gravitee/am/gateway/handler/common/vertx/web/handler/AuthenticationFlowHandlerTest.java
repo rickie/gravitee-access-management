@@ -282,8 +282,7 @@ public class AuthenticationFlowHandlerTest extends RxWebTestBase {
                             client.setFactors(Collections.singleton("factor-1"));
                             rc.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
                             MFASettings mfaSettings = new MFASettings();
-                            final RememberDeviceSettings rememberDevice =
-                                    new RememberDeviceSettings();
+                            RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
                             rememberDevice.setActive(true);
                             mfaSettings.setRememberDevice(rememberDevice);
                             rc.session().put(DEVICE_ALREADY_EXISTS_KEY, false);
@@ -409,8 +408,7 @@ public class AuthenticationFlowHandlerTest extends RxWebTestBase {
                             rc.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
                             // set user
                             MFASettings mfaSettings = new MFASettings();
-                            final RememberDeviceSettings rememberDevice =
-                                    new RememberDeviceSettings();
+                            RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
                             rememberDevice.setActive(true);
                             mfaSettings.setRememberDevice(rememberDevice);
                             rc.session().put(DEVICE_ALREADY_EXISTS_KEY, true);
@@ -442,8 +440,7 @@ public class AuthenticationFlowHandlerTest extends RxWebTestBase {
                             rc.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
                             // set user
                             MFASettings mfaSettings = new MFASettings();
-                            final RememberDeviceSettings rememberDevice =
-                                    new RememberDeviceSettings();
+                            RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
                             rememberDevice.setActive(true);
                             mfaSettings.setRememberDevice(rememberDevice);
                             rc.session().put(DEVICE_ALREADY_EXISTS_KEY, true);
@@ -487,8 +484,7 @@ public class AuthenticationFlowHandlerTest extends RxWebTestBase {
                             rc.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
                             // set user
                             MFASettings mfaSettings = new MFASettings();
-                            final RememberDeviceSettings rememberDevice =
-                                    new RememberDeviceSettings();
+                            RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
                             rememberDevice.setActive(true);
                             mfaSettings.setRememberDevice(rememberDevice);
                             rc.session().put(DEVICE_ALREADY_EXISTS_KEY, true);
@@ -540,8 +536,7 @@ public class AuthenticationFlowHandlerTest extends RxWebTestBase {
                             MFASettings mfaSettings = new MFASettings();
                             mfaSettings.setStepUpAuthenticationRule(
                                     "{#request.params['scope'][0] == 'write'}");
-                            final RememberDeviceSettings rememberDevice =
-                                    new RememberDeviceSettings();
+                            RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
                             rememberDevice.setActive(true);
                             mfaSettings.setRememberDevice(rememberDevice);
                             rc.session().put(DEVICE_ALREADY_EXISTS_KEY, true);
@@ -585,8 +580,7 @@ public class AuthenticationFlowHandlerTest extends RxWebTestBase {
                             // set user
                             MFASettings mfaSettings = new MFASettings();
                             mfaSettings.setStepUpAuthenticationRule("{true}");
-                            final RememberDeviceSettings rememberDevice =
-                                    new RememberDeviceSettings();
+                            RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
                             rememberDevice.setActive(true);
                             mfaSettings.setRememberDevice(rememberDevice);
                             rc.session().put(DEVICE_ALREADY_EXISTS_KEY, true);
@@ -722,8 +716,7 @@ public class AuthenticationFlowHandlerTest extends RxWebTestBase {
                             client.setFactors(Collections.singleton("factor-1"));
                             rc.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
                             MFASettings mfaSettings = new MFASettings();
-                            final RememberDeviceSettings rememberDevice =
-                                    new RememberDeviceSettings();
+                            RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
                             rememberDevice.setActive(true);
                             mfaSettings.setRememberDevice(rememberDevice);
                             rc.session().put(DEVICE_ALREADY_EXISTS_KEY, true);
@@ -772,8 +765,7 @@ public class AuthenticationFlowHandlerTest extends RxWebTestBase {
                             client.setFactors(Collections.singleton("factor-1"));
                             rc.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
                             MFASettings mfaSettings = new MFASettings();
-                            final RememberDeviceSettings rememberDevice =
-                                    new RememberDeviceSettings();
+                            RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
                             rememberDevice.setActive(true);
                             mfaSettings.setRememberDevice(rememberDevice);
                             rc.session().put(DEVICE_ALREADY_EXISTS_KEY, true);
@@ -812,8 +804,7 @@ public class AuthenticationFlowHandlerTest extends RxWebTestBase {
                             client.setFactors(Collections.singleton("factor-1"));
                             rc.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
                             MFASettings mfaSettings = new MFASettings();
-                            final RememberDeviceSettings rememberDevice =
-                                    new RememberDeviceSettings();
+                            RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
                             rememberDevice.setActive(true);
                             mfaSettings.setRememberDevice(rememberDevice);
                             rc.session().put(DEVICE_ALREADY_EXISTS_KEY, false);
@@ -860,8 +851,7 @@ public class AuthenticationFlowHandlerTest extends RxWebTestBase {
                             MFASettings mfaSettings = new MFASettings();
                             mfaSettings.setAdaptiveAuthenticationRule(
                                     "{#context.attributes['risk_assessment'].devices.assessment.name() == 'SAFE'}");
-                            final RememberDeviceSettings rememberDevice =
-                                    new RememberDeviceSettings();
+                            RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
                             rememberDevice.setActive(true);
                             mfaSettings.setRememberDevice(rememberDevice);
                             rc.session()
@@ -902,8 +892,7 @@ public class AuthenticationFlowHandlerTest extends RxWebTestBase {
                             rc.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
                             client.setRiskAssessment(new RiskAssessmentSettings());
                             MFASettings mfaSettings = new MFASettings();
-                            final RememberDeviceSettings rememberDevice =
-                                    new RememberDeviceSettings();
+                            RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
                             rememberDevice.setActive(true);
                             mfaSettings.setRememberDevice(rememberDevice);
                             rc.session().put(DEVICE_ALREADY_EXISTS_KEY, false);
@@ -1223,7 +1212,7 @@ public class AuthenticationFlowHandlerTest extends RxWebTestBase {
                             Client client = new Client();
                             rc.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
 
-                            final Factor recoveryFactor = new Factor();
+                            Factor recoveryFactor = new Factor();
                             recoveryFactor.setFactorType(FactorType.RECOVERY_CODE);
                             recoveryFactor.setId("factor-2");
                             when(factorManager.getFactor(eq("factor-2")))

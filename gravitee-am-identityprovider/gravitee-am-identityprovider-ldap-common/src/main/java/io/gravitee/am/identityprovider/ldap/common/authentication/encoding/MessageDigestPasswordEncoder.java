@@ -34,7 +34,7 @@ public abstract class MessageDigestPasswordEncoder implements PasswordEncoder {
     @Override
     public byte[] digestCredential(Credential credential) throws LdapException {
         try {
-            final MessageDigest md = MessageDigest.getInstance(algorithm);
+            MessageDigest md = MessageDigest.getInstance(algorithm);
             md.update(credential.getBytes());
             return md.digest();
         } catch (NoSuchAlgorithmException e) {

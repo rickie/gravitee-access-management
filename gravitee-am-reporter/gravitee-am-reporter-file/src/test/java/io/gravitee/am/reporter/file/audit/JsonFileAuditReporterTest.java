@@ -49,7 +49,7 @@ public class JsonFileAuditReporterTest extends FileAuditReporterTest {
     @Override
     protected void checkAuditLogs(List<Audit> reportables, int loop) throws IOException {
         List<String> lines = Files.readAllLines(Paths.get(buildAuditLogsFilename()));
-        final ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
         objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);

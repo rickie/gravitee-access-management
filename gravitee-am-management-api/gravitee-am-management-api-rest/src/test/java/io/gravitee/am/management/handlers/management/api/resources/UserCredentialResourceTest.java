@@ -36,20 +36,20 @@ public class UserCredentialResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetUserCredential() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Credential mockCredential = new Credential();
+        Credential mockCredential = new Credential();
         mockCredential.setId("credential-id");
 
-        final User mockUser = new User();
+        User mockUser = new User();
         mockUser.setId("user-id");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.just(mockCredential)).when(credentialService).findById("credential-id");
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("users")
@@ -64,17 +64,17 @@ public class UserCredentialResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldRemoveUserCredential() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final User mockUser = new User();
+        User mockUser = new User();
         mockUser.setId("user-id");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Completable.complete()).when(credentialService).delete("credential-id");
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("users")

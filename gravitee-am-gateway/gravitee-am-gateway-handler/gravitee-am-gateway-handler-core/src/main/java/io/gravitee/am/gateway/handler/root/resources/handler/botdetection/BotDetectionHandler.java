@@ -69,8 +69,8 @@ public class BotDetectionHandler implements Handler<RoutingContext> {
             return;
         }
 
-        final MultiMap headers = routingContext.request().headers();
-        final MultiMap params = routingContext.request().params();
+        MultiMap headers = routingContext.request().headers();
+        MultiMap params = routingContext.request().params();
         BotDetectionContext context =
                 new BotDetectionContext(accountSettings.getBotDetectionPlugin(), headers, params);
 

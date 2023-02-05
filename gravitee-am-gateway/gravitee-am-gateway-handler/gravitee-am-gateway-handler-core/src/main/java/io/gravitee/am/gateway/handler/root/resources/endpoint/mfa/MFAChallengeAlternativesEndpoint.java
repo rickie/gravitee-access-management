@@ -87,7 +87,7 @@ public class MFAChallengeAlternativesEndpoint extends AbstractEndpoint
             return;
         }
 
-        final User endUser =
+        User endUser =
                 ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
                                 routingContext.user().getDelegate())
                         .getUser();
@@ -102,10 +102,10 @@ public class MFAChallengeAlternativesEndpoint extends AbstractEndpoint
         }
 
         // prepare context
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final List<Factor> factors = getEnabledFactors(client, endUser);
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
-        final String action =
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        List<Factor> factors = getEnabledFactors(client, endUser);
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
+        String action =
                 UriBuilderRequest.resolveProxyRequest(
                         routingContext.request(),
                         routingContext.request().path(),
@@ -133,8 +133,8 @@ public class MFAChallengeAlternativesEndpoint extends AbstractEndpoint
             return;
         }
 
-        final MultiMap params = routingContext.request().formAttributes();
-        final String factorId = params.get("factorId");
+        MultiMap params = routingContext.request().formAttributes();
+        String factorId = params.get("factorId");
 
         if (factorId == null) {
             logger.warn("No factor id in form - did you forget to include factor id value ?");
@@ -149,8 +149,8 @@ public class MFAChallengeAlternativesEndpoint extends AbstractEndpoint
         routingContext.session().put(ConstantKeys.ALTERNATIVE_FACTOR_ID_KEY, factorId);
 
         // redirect to MFA challenge step
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
-        final String returnURL =
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
+        String returnURL =
                 UriBuilderRequest.resolveProxyRequest(
                         routingContext.request(),
                         routingContext.get(CONTEXT_PATH) + "/mfa/challenge",
@@ -164,7 +164,7 @@ public class MFAChallengeAlternativesEndpoint extends AbstractEndpoint
     }
 
     private List<Factor> getEnabledFactors(Client client, io.gravitee.am.model.User endUser) {
-        final Set<String> clientFactorIds = client.getFactors();
+        Set<String> clientFactorIds = client.getFactors();
         return endUser.getFactors().stream()
                 .filter(enrolledFactor -> factorManager.get(enrolledFactor.getFactorId()) != null)
                 .filter(enrolledFactor -> clientFactorIds.contains(enrolledFactor.getFactorId()))

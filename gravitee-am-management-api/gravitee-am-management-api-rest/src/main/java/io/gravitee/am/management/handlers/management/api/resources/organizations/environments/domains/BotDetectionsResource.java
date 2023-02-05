@@ -73,7 +73,7 @@ public class BotDetectionsResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId,
@@ -112,10 +112,10 @@ public class BotDetectionsResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @ApiParam(name = "detection", required = true) @Valid @NotNull
-                    final NewBotDetection newBotDetection,
-            @Suspended final AsyncResponse response) {
+                    NewBotDetection newBotDetection,
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,

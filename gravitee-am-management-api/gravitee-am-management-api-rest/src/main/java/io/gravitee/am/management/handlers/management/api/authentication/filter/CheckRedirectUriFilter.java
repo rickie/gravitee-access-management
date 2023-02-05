@@ -82,7 +82,7 @@ public class CheckRedirectUriFilter extends GenericFilterBean {
         }
 
         // check redirect_uri parameter
-        final String redirectUri = request.getParameter(paramName);
+        String redirectUri = request.getParameter(paramName);
 
         if (redirectUri == null) {
             chain.doFilter(req, resp);

@@ -166,7 +166,7 @@ public class CookieSessionHandler implements Handler<RoutingContext> {
         if (session.isDestroyed()) {
             context.addCookie(Cookie.cookie(cookieName, "").setMaxAge(0));
         } else {
-            final int currentStatusCode = context.response().getStatusCode();
+            int currentStatusCode = context.response().getStatusCode();
             // Regenerate session cookie only if there was no error.
             if (currentStatusCode >= 200 && currentStatusCode < 400) {
                 writeSessionCookie(context, session);
@@ -174,7 +174,7 @@ public class CookieSessionHandler implements Handler<RoutingContext> {
         }
     }
 
-    private void writeSessionCookie(final RoutingContext context, final CookieSession session) {
+    private void writeSessionCookie(RoutingContext context, CookieSession session) {
         io.vertx.ext.auth.User user = context.getDelegate().user();
         if (user instanceof User) {
             session.putUserId(((User) user).getUser().getId());

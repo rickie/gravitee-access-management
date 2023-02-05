@@ -90,7 +90,7 @@ public class JWEEdwardCurveTest {
     @Test
     public void encryptIdToken() {
         try {
-            final OctetKeyPair jwk = new OctetKeyPairGenerator(Curve.X25519).generate();
+            OctetKeyPair jwk = new OctetKeyPairGenerator(Curve.X25519).generate();
             OKPKey key = new OKPKey();
             key.setKid("okpEnc");
             key.setUse("enc");
@@ -126,7 +126,7 @@ public class JWEEdwardCurveTest {
     @Test
     public void encryptUserinfo() {
         try {
-            final OctetKeyPair jwk = new OctetKeyPairGenerator(Curve.X25519).generate();
+            OctetKeyPair jwk = new OctetKeyPairGenerator(Curve.X25519).generate();
             OKPKey key = new OKPKey();
             key.setKid("okpEnc");
             key.setUse("enc");

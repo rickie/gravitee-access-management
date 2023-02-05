@@ -55,25 +55,25 @@ public class ApplicationsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetApps() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Application mockClient = new Application();
+        Application mockClient = new Application();
         mockClient.setId("client-1-id");
         mockClient.setName("client-1-name");
         mockClient.setDescription("a description client 1");
         mockClient.setDomain(domainId);
         mockClient.setUpdatedAt(new Date());
 
-        final Application mockClient2 = new Application();
+        Application mockClient2 = new Application();
         mockClient2.setId("client-2-id");
         mockClient2.setName("client-2-name");
         mockClient2.setDomain(domainId);
         mockClient2.setDescription("a description client 2");
         mockClient2.setUpdatedAt(new Date());
 
-        final Page<Application> applicationPage =
+        Page<Application> applicationPage =
                 new Page(new HashSet<>(Arrays.asList(mockClient, mockClient2)), 0, 2);
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
@@ -81,30 +81,28 @@ public class ApplicationsResourceTest extends JerseySpringTest {
                 .when(applicationService)
                 .findByDomain(domainId, 0, Integer.MAX_VALUE);
 
-        final Response response =
-                target("domains").path(domainId).path("applications").request().get();
+        Response response = target("domains").path(domainId).path("applications").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Map responseEntity = readEntity(response, Map.class);
+        Map responseEntity = readEntity(response, Map.class);
         assertTrue(((List) responseEntity.get("data")).size() == 2);
     }
 
     @Test
     public void shouldGetApplications_technicalManagementException() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
         doReturn(Single.error(new TechnicalManagementException("error occurs")))
                 .when(applicationService)
                 .findByDomain(domainId);
 
-        final Response response =
-                target("domains").path(domainId).path("applications").request().get();
+        Response response = target("domains").path(domainId).path("applications").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
 
     @Test
     public void shouldCreate() throws JsonProcessingException {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         NewApplication newApplication = new NewApplication();
@@ -122,7 +120,7 @@ public class ApplicationsResourceTest extends JerseySpringTest {
                 .when(applicationService)
                 .create(eq(domainId), any(NewApplication.class), any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("applications")

@@ -683,7 +683,7 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        final String tableSuffix =
+        String tableSuffix =
                 (configuration.getTableSuffix() == null || configuration.getTableSuffix().isEmpty())
                         ? ""
                         : "_" + configuration.getTableSuffix();
@@ -710,7 +710,7 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
         if (environment.getProperty(REPORTER_AUTO_PROVISIONING, Boolean.class, true)) {
             // for now simply get the file named <driver>.schema, more complex stuffs will be done
             // if schema updates have to be done in the future
-            final String sqlScript = "database/" + configuration.getDriver() + ".schema";
+            String sqlScript = "database/" + configuration.getDriver() + ".schema";
 
             Function<Connection, Mono<Integer>> resultFunction =
                     connection -> {

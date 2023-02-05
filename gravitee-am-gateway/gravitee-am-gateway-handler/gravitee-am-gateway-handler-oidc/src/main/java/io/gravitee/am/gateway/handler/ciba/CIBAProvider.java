@@ -100,11 +100,11 @@ public class CIBAProvider extends AbstractService<ProtocolProvider> implements P
     }
 
     private void initRouter() {
-        final Router cibaRouter = Router.router(vertx);
+        Router cibaRouter = Router.router(vertx);
 
-        final String certificateHeader =
+        String certificateHeader =
                 environment.getProperty(ConstantKeys.HTTP_SSL_CERTIFICATE_HEADER);
-        final Handler<RoutingContext> clientAuthHandler =
+        Handler<RoutingContext> clientAuthHandler =
                 ClientAuthHandler.create(
                         clientSyncService,
                         clientAssertionService,

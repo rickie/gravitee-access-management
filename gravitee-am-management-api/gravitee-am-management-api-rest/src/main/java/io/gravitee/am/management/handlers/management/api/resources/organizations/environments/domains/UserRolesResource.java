@@ -80,7 +80,7 @@ public class UserRolesResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("user") String user,
             @QueryParam(value = "dynamic") @DefaultValue(value = "false") boolean dynamic,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)
                 .andThen(
@@ -121,9 +121,9 @@ public class UserRolesResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("user") String user,
-            @Valid @NotNull final List<String> roles,
-            @Suspended final AsyncResponse response) {
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+            @Valid @NotNull List<String> roles,
+            @Suspended AsyncResponse response) {
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)

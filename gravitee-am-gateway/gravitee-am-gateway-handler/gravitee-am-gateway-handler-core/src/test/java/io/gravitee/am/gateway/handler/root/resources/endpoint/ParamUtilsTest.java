@@ -21,8 +21,8 @@ public class ParamUtilsTest {
 
     @Test
     public void redirectMatch_url_with_path_success() {
-        final String requestRedirectUri = "https://test.com/department/business";
-        final String registeredRedirectUri = "https://test.com/department/*";
+        String requestRedirectUri = "https://test.com/department/business";
+        String registeredRedirectUri = "https://test.com/department/*";
 
         boolean matched =
                 ParamUtils.redirectMatches(requestRedirectUri, registeredRedirectUri, false);
@@ -31,8 +31,8 @@ public class ParamUtilsTest {
 
     @Test
     public void redirectMatch_url_with_path_fail() {
-        final String requestRedirectUri = "https://test.com/other/business";
-        final String registeredRedirectUri = "https://test.com/department/*";
+        String requestRedirectUri = "https://test.com/other/business";
+        String registeredRedirectUri = "https://test.com/department/*";
 
         boolean matched =
                 ParamUtils.redirectMatches(requestRedirectUri, registeredRedirectUri, false);
@@ -41,19 +41,19 @@ public class ParamUtilsTest {
 
     @Test
     public void redirectMatch_url_without_path_success() {
-        final String requestRedirectUri = "https://test.com?id=10";
-        final String registeredRedirectUri1 = "https://test.com/*";
+        String requestRedirectUri = "https://test.com?id=10";
+        String registeredRedirectUri1 = "https://test.com/*";
 
         assertTrue(ParamUtils.redirectMatches(requestRedirectUri, registeredRedirectUri1, false));
 
-        final String registeredRedirectUri2 = "https://test.com*";
+        String registeredRedirectUri2 = "https://test.com*";
         assertTrue(ParamUtils.redirectMatches(requestRedirectUri, registeredRedirectUri2, false));
     }
 
     @Test
     public void redirectMatch_url_path_with_param_success() {
-        final String requestRedirectUri = "https://test.com/department?id=10";
-        final String registeredRedirectUri = "https://test.com/department*";
+        String requestRedirectUri = "https://test.com/department?id=10";
+        String registeredRedirectUri = "https://test.com/department*";
 
         boolean matched =
                 ParamUtils.redirectMatches(requestRedirectUri, registeredRedirectUri, false);
@@ -62,8 +62,8 @@ public class ParamUtilsTest {
 
     @Test
     public void redirectMatch_url_without_path_fail() {
-        final String requestRedirectUri = "https://test.com?id=10";
-        final String registeredRedirectUri = "https://test.com/department*";
+        String requestRedirectUri = "https://test.com?id=10";
+        String registeredRedirectUri = "https://test.com/department*";
 
         boolean matched =
                 ParamUtils.redirectMatches(requestRedirectUri, registeredRedirectUri, false);
@@ -72,21 +72,21 @@ public class ParamUtilsTest {
 
     @Test
     public void redirectMatch_url_with_param_strict_fail() {
-        final String requestRedirectUri = "https://test.com?id=10";
-        final String registeredRedirectUri = "https://test.com";
+        String requestRedirectUri = "https://test.com?id=10";
+        String registeredRedirectUri = "https://test.com";
 
         assertFalse(ParamUtils.redirectMatches(requestRedirectUri, registeredRedirectUri, true));
 
-        final String registeredRedirectUriWildCard = "https://test.com*";
+        String registeredRedirectUriWildCard = "https://test.com*";
         assertFalse(
                 ParamUtils.redirectMatches(
                         requestRedirectUri, registeredRedirectUriWildCard, true));
 
-        final String requestRedirectUriParam = "https://test.com/people";
+        String requestRedirectUriParam = "https://test.com/people";
         assertFalse(
                 ParamUtils.redirectMatches(requestRedirectUriParam, registeredRedirectUri, true));
 
-        final String requestRedirectUriParamQuery = "https://test.com/people?v=123";
+        String requestRedirectUriParamQuery = "https://test.com/people?v=123";
         assertFalse(
                 ParamUtils.redirectMatches(
                         requestRedirectUriParamQuery, registeredRedirectUri, true));
