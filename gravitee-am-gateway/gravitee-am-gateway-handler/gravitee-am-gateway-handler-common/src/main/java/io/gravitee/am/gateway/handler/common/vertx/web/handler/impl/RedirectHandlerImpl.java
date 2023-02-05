@@ -46,8 +46,8 @@ public class RedirectHandlerImpl implements Handler<RoutingContext> {
     public void handle(RoutingContext context) {
         String redirectUrl = context.get(CONTEXT_PATH) + path;
         try {
-            final HttpServerRequest request = context.request();
-            final MultiMap queryParams = RequestUtils.getCleanedQueryParams(request);
+            HttpServerRequest request = context.request();
+            MultiMap queryParams = RequestUtils.getCleanedQueryParams(request);
 
             if (queryParams.contains(LOGIN_HINT)) {
                 // this conditional block has been added specifically for
@@ -58,7 +58,7 @@ public class RedirectHandlerImpl implements Handler<RoutingContext> {
                 // encode parameter to avoid
                 // double encoding during the redirect...
                 // we restrict to the login_hint to avoid side effect
-                final String login_hint = queryParams.get(LOGIN_HINT);
+                String login_hint = queryParams.get(LOGIN_HINT);
                 if (!UriBuilder.decodeURIComponent(login_hint).equals(login_hint)
                         && login_hint.contains("@")
                         && login_hint.contains("+")) {

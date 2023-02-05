@@ -121,7 +121,7 @@ public class RiskAssessmentHandlerTest {
 
     @Test
     public void must_next_only_client_and_user_with_risk_assessment_enabled() {
-        final RiskAssessmentSettings riskAssessment = new RiskAssessmentSettings();
+        RiskAssessmentSettings riskAssessment = new RiskAssessmentSettings();
         riskAssessment.setEnabled(true);
         client.setRiskAssessment(riskAssessment);
         routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
@@ -136,13 +136,13 @@ public class RiskAssessmentHandlerTest {
 
     @Test
     public void must_next_only_client_and_user_with_risk_assessment_enabled_with_remember_device() {
-        final RiskAssessmentSettings riskAssessment = new RiskAssessmentSettings();
+        RiskAssessmentSettings riskAssessment = new RiskAssessmentSettings();
         riskAssessment.setEnabled(true);
         riskAssessment.setDeviceAssessment(new AssessmentSettings().setEnabled(true));
         client.setRiskAssessment(riskAssessment);
-        final MFASettings mfaSettings = new MFASettings();
+        MFASettings mfaSettings = new MFASettings();
 
-        final RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
+        RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
         rememberDevice.setActive(true);
         mfaSettings.setRememberDevice(rememberDevice);
         client.setMfaSettings(mfaSettings);
@@ -165,7 +165,7 @@ public class RiskAssessmentHandlerTest {
 
     @Test
     public void must_next_only_client_and_user_with_risk_assessment_enabled_with_ip_reputation() {
-        final RiskAssessmentSettings riskAssessment = new RiskAssessmentSettings();
+        RiskAssessmentSettings riskAssessment = new RiskAssessmentSettings();
         riskAssessment.setEnabled(true);
         riskAssessment.setIpReputationAssessment(new AssessmentSettings().setEnabled(true));
         client.setRiskAssessment(riskAssessment);
@@ -184,7 +184,7 @@ public class RiskAssessmentHandlerTest {
 
     @Test
     public void must_next_only_client_and_user_with_risk_assessment_enabled_with_geo_velocity() {
-        final RiskAssessmentSettings riskAssessment = new RiskAssessmentSettings();
+        RiskAssessmentSettings riskAssessment = new RiskAssessmentSettings();
         riskAssessment.setEnabled(true);
         riskAssessment.setGeoVelocityAssessment(new AssessmentSettings().setEnabled(true));
         client.setRiskAssessment(riskAssessment);

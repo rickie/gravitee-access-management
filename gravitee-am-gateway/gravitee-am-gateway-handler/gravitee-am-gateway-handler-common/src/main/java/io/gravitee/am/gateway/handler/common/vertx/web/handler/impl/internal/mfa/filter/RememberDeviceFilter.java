@@ -31,7 +31,7 @@ public class RememberDeviceFilter extends MfaContextHolder implements Supplier<B
     public Boolean get() {
         // If Adaptive MFA is active and KO (rule == false) we bypass this filter
         // Because the device could be known and skip MFA
-        final boolean mfaSkipped = context.isMfaSkipped();
+        boolean mfaSkipped = context.isMfaSkipped();
 
         // We might want to evaluate Adaptive MFA
         if (!mfaSkipped && context.isAmfaActive() && !context.isAmfaRuleTrue()) {
@@ -39,7 +39,7 @@ public class RememberDeviceFilter extends MfaContextHolder implements Supplier<B
         }
 
         // Step up might be active
-        final boolean userStronglyAuth = context.isUserStronglyAuth();
+        boolean userStronglyAuth = context.isUserStronglyAuth();
         if (context.isStepUpActive() && (userStronglyAuth || mfaSkipped)) {
             return false;
         }

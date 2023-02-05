@@ -72,16 +72,15 @@ public class AuthenticationDeviceNotifierImpl
         this.client =
                 this.clientBuilder.createWebClient(
                         vertx,
-                        new URL(
-                                URL_TO_GET_FROM_DOMAIN_SETTINGS)); // TODO configure in domain ciba
-                                                                   // settings or in a plugin, for
-                                                                   // testing get values from
-                                                                   // sysprop
+                        new URL(URL_TO_GET_FROM_DOMAIN_SETTINGS)); // TODO configure in domain ciba
+        // settings or in a plugin, for
+        // testing get values from
+        // sysprop
     }
 
     @Override
     public Single<ADNotificationResponse> notify(ADNotificationRequest request) {
-        final MultiMap formData = MultiMap.caseInsensitiveMultiMap();
+        MultiMap formData = MultiMap.caseInsensitiveMultiMap();
 
         formData.set(TRANSACTION_ID, request.getTransactionId());
         formData.set(STATE, request.getState());
@@ -120,7 +119,7 @@ public class AuthenticationDeviceNotifierImpl
                                 throw new DeviceNotificationException("Device notification fails");
                             }
 
-                            final JsonObject result = response.bodyAsJsonObject();
+                            JsonObject result = response.bodyAsJsonObject();
                             if (!request.getTransactionId().equals(result.getString(TRANSACTION_ID))
                                     || !request.getState().equals(result.getString(STATE))) {
                                 LOGGER.warn(
@@ -131,7 +130,7 @@ public class AuthenticationDeviceNotifierImpl
                                         "Invalid device notification response");
                             }
 
-                            final ADNotificationResponse notificationResponse =
+                            ADNotificationResponse notificationResponse =
                                     new ADNotificationResponse(request.getTransactionId());
                             if (result.containsKey(RESPONSE_ATTR_DATA)) {
                                 notificationResponse.setExtraData(

@@ -53,11 +53,9 @@ public class GoogleReCaptchaV3Provider implements BotDetectionProvider {
                 new WebClientBuilder()
                         .createWebClient(
                                 vertx,
-                                new URL(
-                                        configuration
-                                                .getServiceUrl()))); // TODO use version with
-                                                                     // exclude URL when available
-                                                                     // in master
+                                new URL(configuration.getServiceUrl()))); // TODO use version with
+        // exclude URL when available
+        // in master
         return this;
     }
 
@@ -71,7 +69,7 @@ public class GoogleReCaptchaV3Provider implements BotDetectionProvider {
 
     @Override
     public Single<Boolean> validate(BotDetectionContext context) {
-        final String token =
+        String token =
                 context.getHeader(configuration.getTokenParameterName())
                         .orElse(
                                 context.getParameter(configuration.getTokenParameterName())
@@ -97,7 +95,7 @@ public class GoogleReCaptchaV3Provider implements BotDetectionProvider {
                                 return false;
                             }
 
-                            final JsonObject response = buffer.bodyAsJsonObject();
+                            JsonObject response = buffer.bodyAsJsonObject();
 
                             Boolean success = response.getBoolean("success", false);
                             Double score = response.getDouble("score", 0.0d);

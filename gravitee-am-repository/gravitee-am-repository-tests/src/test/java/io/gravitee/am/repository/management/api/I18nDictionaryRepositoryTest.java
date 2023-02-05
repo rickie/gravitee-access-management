@@ -98,7 +98,7 @@ public class I18nDictionaryRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindAllByReferenceId() {
         String referenceId = randomUUID().toString();
-        final int dictCount = 5;
+        int dictCount = 5;
         for (int i = 0; i < dictCount; i++) {
             //noinspection ResultOfMethodCallIgnored
             repository.create(buildDictionary(referenceId)).blockingGet().getId();

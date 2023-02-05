@@ -60,10 +60,8 @@ public class ScheduledPurgeService extends AbstractService implements Runnable {
     @Override
     protected void doStart() throws Exception {
         if (enabled
-                && "jdbc"
-                        .equalsIgnoreCase(
-                                repositoryType)) { // even if enabled, useless for Mongo
-                                                   // implementation
+                && "jdbc".equalsIgnoreCase(repositoryType)) { // even if enabled, useless for Mongo
+            // implementation
             super.doStart();
             logger.info("Purge service has been initialized with cron [{}]", cronTrigger);
             // Sync must start only when doStart() is invoked, that's the reason why we are not

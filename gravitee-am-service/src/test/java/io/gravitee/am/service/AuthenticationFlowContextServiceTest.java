@@ -117,11 +117,11 @@ public class AuthenticationFlowContextServiceTest {
         ReflectionTestUtils.setField(this.service, "contextExpiration", 300);
         when(this.authFlowContextRepository.create(any()))
                 .thenReturn(Single.just(new AuthenticationFlowContext()));
-        final AuthenticationFlowContext authContext = new AuthenticationFlowContext();
+        AuthenticationFlowContext authContext = new AuthenticationFlowContext();
         authContext.setVersion(1);
-        final Date now = new Date();
+        Date now = new Date();
         authContext.setExpireAt(now);
-        final TestObserver<AuthenticationFlowContext> testObserver =
+        TestObserver<AuthenticationFlowContext> testObserver =
                 service.updateContext(authContext).test();
 
         testObserver.awaitTerminalEvent();

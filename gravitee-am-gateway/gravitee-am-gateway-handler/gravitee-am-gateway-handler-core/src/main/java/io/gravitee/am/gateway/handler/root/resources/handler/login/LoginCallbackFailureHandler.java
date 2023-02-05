@@ -110,9 +110,9 @@ public class LoginCallbackFailureHandler extends LoginAbstractHandler {
 
             // redirect the user to either the login page or the SP redirect uri if hide login
             // option is enabled
-            final Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-            final MultiMap originalParams = context.get(PARAM_CONTEXT_KEY);
-            final LoginSettings loginSettings = LoginSettings.getInstance(domain, client);
+            Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+            MultiMap originalParams = context.get(PARAM_CONTEXT_KEY);
+            LoginSettings loginSettings = LoginSettings.getInstance(domain, client);
 
             var elContext =
                     new SimpleAuthenticationContext(
@@ -172,7 +172,7 @@ public class LoginCallbackFailureHandler extends LoginAbstractHandler {
             MultiMap originalParams, Client client, RoutingContext context, Throwable throwable)
             throws URISyntaxException {
         // Get the SP redirect_uri
-        final String spRedirectUri =
+        String spRedirectUri =
                 (originalParams != null && originalParams.get(Parameters.REDIRECT_URI) != null)
                         ? originalParams.get(Parameters.REDIRECT_URI)
                         : client.getRedirectUris().get(0);
@@ -220,7 +220,7 @@ public class LoginCallbackFailureHandler extends LoginAbstractHandler {
 
     private void redirectToLoginPage(
             MultiMap originalParams, Client client, RoutingContext context, Throwable throwable) {
-        final MultiMap params = MultiMap.caseInsensitiveMultiMap();
+        MultiMap params = MultiMap.caseInsensitiveMultiMap();
         if (originalParams != null) {
             params.setAll(originalParams);
         }
@@ -239,11 +239,11 @@ public class LoginCallbackFailureHandler extends LoginAbstractHandler {
     private String getUri(RoutingContext context, MultiMap params) {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         LoginSettings loginSettings = LoginSettings.getInstance(domain, client);
-        final String replacement =
+        String replacement =
                 loginSettings != null && loginSettings.isIdentifierFirstEnabled()
                         ? "/identifier"
                         : "";
-        final String path = context.request().path().replaceFirst("/callback", replacement);
+        String path = context.request().path().replaceFirst("/callback", replacement);
         return UriBuilderRequest.resolveProxyRequest(context.request(), path, params);
     }
 }

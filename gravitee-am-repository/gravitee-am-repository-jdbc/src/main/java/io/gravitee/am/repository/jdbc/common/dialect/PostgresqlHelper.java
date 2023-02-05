@@ -67,12 +67,12 @@ public class PostgresqlHelper extends AbstractDialectHelper {
     protected ScimUserSearch processJsonFilter(
             StringBuilder queryBuilder, FilterCriteria criteria, ScimUserSearch search) {
         String[] path = convertFieldName(criteria).split("\\.");
-        final String operator = criteria.getOperator().toLowerCase().trim();
-        final String value = criteria.getFilterValue();
-        final String bindValueName =
+        String operator = criteria.getOperator().toLowerCase().trim();
+        String value = criteria.getFilterValue();
+        String bindValueName =
                 (":" + path[0] + path[1].substring(0, 1).toUpperCase() + path[1].substring(1))
                         .replaceAll("_", "");
-        final String bindValueKey = bindValueName.substring(1);
+        String bindValueKey = bindValueName.substring(1);
         switch (operator) {
             case "eq":
                 queryBuilder.append(path[0] + " ->> '" + path[1] + "' = " + bindValueName + " ");

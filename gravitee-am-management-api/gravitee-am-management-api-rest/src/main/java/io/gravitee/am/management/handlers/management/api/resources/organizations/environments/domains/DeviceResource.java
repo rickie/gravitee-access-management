@@ -63,8 +63,8 @@ public class DeviceResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("user") String user,
             @PathParam("device") String device,
-            @Suspended final AsyncResponse response) {
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,

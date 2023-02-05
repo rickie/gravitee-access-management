@@ -46,7 +46,7 @@ public class CertificateNotificationConditionTest {
     @Test
     public void shouldReturnTrue_FirstThresholdReached() {
         NotificationDefinition def = new NotificationDefinition();
-        final Certificate certificate = new Certificate();
+        Certificate certificate = new Certificate();
         certificate.setExpiresAt(
                 new Date(
                         Instant.now()
@@ -63,7 +63,7 @@ public class CertificateNotificationConditionTest {
     @Test
     public void shouldReturnFalse_FirstThresholdNotReached() {
         NotificationDefinition def = new NotificationDefinition();
-        final Certificate certificate = new Certificate();
+        Certificate certificate = new Certificate();
         certificate.setExpiresAt(new Date(Instant.now().plus(11, ChronoUnit.DAYS).toEpochMilli()));
         def.setData(
                 Map.of(

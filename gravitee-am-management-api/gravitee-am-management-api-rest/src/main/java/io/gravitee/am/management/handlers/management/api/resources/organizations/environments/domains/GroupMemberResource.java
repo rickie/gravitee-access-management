@@ -72,9 +72,9 @@ public class GroupMemberResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("group") String group,
             @PathParam("member") String userId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)
@@ -152,8 +152,8 @@ public class GroupMemberResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("group") String group,
             @PathParam("member") String userId,
-            @Suspended final AsyncResponse response) {
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)

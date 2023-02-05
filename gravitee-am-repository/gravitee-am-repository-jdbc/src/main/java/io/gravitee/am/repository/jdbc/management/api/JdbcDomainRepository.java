@@ -257,7 +257,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
     }
 
     private Mono<Integer> persistChildEntities(Mono<Integer> actionFlow, Domain item) {
-        final Set<String> identities = item.getIdentities();
+        Set<String> identities = item.getIdentities();
         if (identities != null && !identities.isEmpty()) {
             actionFlow =
                     actionFlow.then(
@@ -274,7 +274,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
                                     .reduce(Integer::sum));
         }
 
-        final Set<String> tags = item.getTags();
+        Set<String> tags = item.getTags();
         if (tags != null && !tags.isEmpty()) {
             actionFlow =
                     actionFlow.then(
@@ -291,7 +291,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
                                     .reduce(Integer::sum));
         }
 
-        final List<VirtualHost> virtualHosts = item.getVhosts();
+        List<VirtualHost> virtualHosts = item.getVhosts();
         if (virtualHosts != null && !virtualHosts.isEmpty()) {
             actionFlow =
                     actionFlow.then(

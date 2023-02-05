@@ -82,7 +82,7 @@ public class ApplicationMembersResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("application") String application,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId,
@@ -138,11 +138,11 @@ public class ApplicationMembersResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("application") String application,
             @Valid @NotNull NewMembership newMembership,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
-        final Membership membership = convert(newMembership);
+        Membership membership = convert(newMembership);
         membership.setDomain(domain);
         membership.setReferenceId(application);
         membership.setReferenceType(ReferenceType.APPLICATION);
@@ -218,9 +218,9 @@ public class ApplicationMembersResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("application") String application,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,

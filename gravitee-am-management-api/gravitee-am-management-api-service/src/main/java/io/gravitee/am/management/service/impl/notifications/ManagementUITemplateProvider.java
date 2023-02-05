@@ -55,7 +55,7 @@ public class ManagementUITemplateProvider implements InitializingBean {
     public String getNotificationContent(String name, Map<String, Object> parameters)
             throws IOException, TemplateException {
         String templateName = name + TEMPLATE_EXT;
-        final Template template = config.getTemplate(templateName);
+        Template template = config.getTemplate(templateName);
         StringWriter result = new StringWriter();
         template.process(parameters, result);
         return result.toString();

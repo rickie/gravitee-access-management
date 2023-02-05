@@ -38,14 +38,14 @@ public class UserCredentialsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetUserCredentials() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final User mockUser = new User();
+        User mockUser = new User();
         mockUser.setId("user-id");
 
-        final Credential mockCredential = new Credential();
+        Credential mockCredential = new Credential();
         mockCredential.setId("credential-id");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
@@ -53,7 +53,7 @@ public class UserCredentialsResourceTest extends JerseySpringTest {
                 .when(credentialService)
                 .findByUserId(ReferenceType.DOMAIN, domainId, mockUser.getId());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("users")
@@ -67,12 +67,12 @@ public class UserCredentialsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetUserFactors_technicalManagementException() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
         doReturn(Maybe.error(new TechnicalManagementException("error occurs")))
                 .when(domainService)
                 .findById(domainId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("users")

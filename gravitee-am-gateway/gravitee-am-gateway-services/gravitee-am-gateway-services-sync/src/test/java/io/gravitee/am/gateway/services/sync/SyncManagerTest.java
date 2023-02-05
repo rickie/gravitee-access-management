@@ -99,7 +99,7 @@ public class SyncManagerTest {
 
     @Test
     public void init_test_one_domain() {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setReferenceId("env-1");
         domain.setEnabled(true);
@@ -114,11 +114,11 @@ public class SyncManagerTest {
 
     @Test
     public void init_test_two_domains() {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setReferenceId("env-1");
         domain.setEnabled(true);
-        final Domain domain2 = new Domain();
+        Domain domain2 = new Domain();
         domain2.setId("domain-2");
         domain2.setReferenceId("env-2");
         domain2.setEnabled(true);
@@ -133,15 +133,15 @@ public class SyncManagerTest {
 
     @Test
     public void init_test_multiple_domains_oneDisabled() {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setReferenceId("env-1");
         domain.setEnabled(true);
-        final Domain domain2 = new Domain();
+        Domain domain2 = new Domain();
         domain2.setId("domain-2");
         domain2.setReferenceId("env-2");
         domain2.setEnabled(true);
-        final Domain domain3 = new Domain();
+        Domain domain3 = new Domain();
         domain3.setId("domain-3");
         domain3.setReferenceId("env-3");
         domain3.setEnabled(false);
@@ -156,7 +156,7 @@ public class SyncManagerTest {
 
     @Test
     public void test_twiceWithTwoDomains_domainToRemove() throws Exception {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setReferenceId("env-1");
         domain.setEnabled(true);
@@ -180,7 +180,7 @@ public class SyncManagerTest {
 
     @Test
     public void test_twiceWithTwoDomains_domainToUpdate() throws Exception {
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setReferenceId("env-1");
         domain.setEnabled(true);
@@ -193,7 +193,7 @@ public class SyncManagerTest {
         event.setType(Type.DOMAIN);
         event.setPayload(new Payload("domain-1", ReferenceType.DOMAIN, "domain-1", Action.UPDATE));
 
-        final Domain domainToUpdate = new Domain();
+        Domain domainToUpdate = new Domain();
         domainToUpdate.setId("domain-1");
         domainToUpdate.setReferenceId("env-1");
         domainToUpdate.setEnabled(true);
@@ -332,11 +332,11 @@ public class SyncManagerTest {
         env2.setId("env-2");
         env2.setHrids(asList("prod"));
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setReferenceId("env-1");
         domain.setEnabled(true);
-        final Domain domain2 = new Domain();
+        Domain domain2 = new Domain();
         domain2.setId("domain-2");
         domain2.setReferenceId("env-2");
         domain2.setEnabled(true);
@@ -362,11 +362,11 @@ public class SyncManagerTest {
         env2.setId("env-2");
         env2.setHrids(asList("prod"));
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setReferenceId("env-1");
         domain.setEnabled(true);
-        final Domain domain2 = new Domain();
+        Domain domain2 = new Domain();
         domain2.setId("domain-2");
         domain2.setReferenceId("env-2");
         domain2.setEnabled(true);
@@ -395,11 +395,11 @@ public class SyncManagerTest {
         env2.setId("env-2");
         env2.setOrganizationId("org-1");
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setReferenceId("env-1");
         domain.setEnabled(true);
-        final Domain domain2 = new Domain();
+        Domain domain2 = new Domain();
         domain2.setId("domain-2");
         domain2.setReferenceId("env-2");
         domain2.setEnabled(true);
@@ -447,20 +447,20 @@ public class SyncManagerTest {
         env4.setId("env-4");
         env4.setOrganizationId("org-2");
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setReferenceId("env-1");
         domain.setEnabled(true);
-        final Domain domain2 = new Domain();
+        Domain domain2 = new Domain();
         domain2.setId("domain-2");
         domain2.setReferenceId("env-2");
         domain2.setEnabled(true);
 
-        final Domain domain3 = new Domain();
+        Domain domain3 = new Domain();
         domain3.setId("domain-3");
         domain3.setReferenceId("env-3");
         domain3.setEnabled(true);
-        final Domain domain4 = new Domain();
+        Domain domain4 = new Domain();
         domain4.setId("domain-4");
         domain4.setReferenceId("env-4");
         domain4.setEnabled(true);
@@ -514,20 +514,20 @@ public class SyncManagerTest {
         env4.setHrids(asList("dev"));
         env4.setOrganizationId("org-2");
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setReferenceId("env-1");
         domain.setEnabled(true);
-        final Domain domain2 = new Domain();
+        Domain domain2 = new Domain();
         domain2.setId("domain-2");
         domain2.setReferenceId("env-2");
         domain2.setEnabled(true);
 
-        final Domain domain3 = new Domain();
+        Domain domain3 = new Domain();
         domain3.setId("domain-3");
         domain3.setReferenceId("env-3");
         domain3.setEnabled(true);
-        final Domain domain4 = new Domain();
+        Domain domain4 = new Domain();
         domain4.setId("domain-4");
         domain4.setReferenceId("env-4");
         domain4.setEnabled(true);
@@ -578,20 +578,20 @@ public class SyncManagerTest {
         env4.setHrids(asList("dev"));
         env4.setOrganizationId("org-2");
 
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         domain.setId("domain-1");
         domain.setReferenceId("env-1");
         domain.setEnabled(true);
-        final Domain domain2 = new Domain();
+        Domain domain2 = new Domain();
         domain2.setId("domain-2");
         domain2.setReferenceId("env-2");
         domain2.setEnabled(true);
 
-        final Domain domain3 = new Domain();
+        Domain domain3 = new Domain();
         domain3.setId("domain-3");
         domain3.setReferenceId("env-3");
         domain3.setEnabled(true);
-        final Domain domain4 = new Domain();
+        Domain domain4 = new Domain();
         domain4.setId("domain-4");
         domain4.setTags(Collections.singleton("private"));
         domain4.setReferenceId("env-4");
@@ -616,8 +616,7 @@ public class SyncManagerTest {
         verify(securityDomainManager, never()).undeploy(any(String.class));
     }
 
-    private void shouldDeployDomainWithTags(final String tags, final String[] domainTags)
-            throws Exception {
+    private void shouldDeployDomainWithTags(String tags, String[] domainTags) throws Exception {
         when(environment.getProperty(SHARDING_TAGS_SYSTEM_PROPERTY)).thenReturn(tags);
         syncManager.afterPropertiesSet();
 

@@ -118,7 +118,7 @@ public class MongoAuthenticationProvider extends MongoAbstractProvider
                 .toList()
                 .flatMapMaybe(
                         userEvaluations -> {
-                            final var validUsers =
+                            var validUsers =
                                     userEvaluations.stream()
                                             .filter(UserCredentialEvaluation::isPasswordValid)
                                             .collect(Collectors.toList());
@@ -161,7 +161,7 @@ public class MongoAuthenticationProvider extends MongoAbstractProvider
     }
 
     public Maybe<User> loadUserByUsername(String username) {
-        final String encodedUsername = username.toLowerCase();
+        String encodedUsername = username.toLowerCase();
         return findUserByUsername(encodedUsername)
                 .map(document -> createUser(new SimpleAuthenticationContext(), document));
     }

@@ -56,7 +56,7 @@ public class DefaultJWTBuilder implements JWTBuilder {
     private final JWSHeader header;
     private String issuer;
 
-    public DefaultJWTBuilder(final Key key, final String signatureAlgorithm, final String keyId)
+    public DefaultJWTBuilder(Key key, String signatureAlgorithm, String keyId)
             throws InvalidKeyException {
         if (key instanceof PrivateKey) {
             if (key.getAlgorithm().equals("RSA")) {
@@ -89,8 +89,7 @@ public class DefaultJWTBuilder implements JWTBuilder {
                         .build();
     }
 
-    public DefaultJWTBuilder(
-            final Key key, final String signatureAlgorithm, final String keyId, final String issuer)
+    public DefaultJWTBuilder(Key key, String signatureAlgorithm, String keyId, String issuer)
             throws InvalidKeyException {
         this(key, signatureAlgorithm, keyId);
         this.issuer = issuer;
