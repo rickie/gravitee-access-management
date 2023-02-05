@@ -113,7 +113,7 @@ public class JWKServiceTest {
         oct384.setUse("enc");
         oct384.setK(
                 "MBNrGN8nwS7hlOVfqEy6qA98bzyo1BLGxr-kyN1E4UXYWQDkBg4L7AQRwpZdrKKS"); // 384bits (48
-                                                                                     // bytes)
+        // bytes)
 
         OCTKey oct512 = new OCTKey();
         oct512.setKty("oct");

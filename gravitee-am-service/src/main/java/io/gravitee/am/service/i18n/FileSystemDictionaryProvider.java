@@ -42,7 +42,7 @@ public class FileSystemDictionaryProvider implements DictionaryProvider {
     private final Map<String, Properties> propertiesMap;
 
     public FileSystemDictionaryProvider(String i18nDirectory) {
-        final var directory = Paths.get(i18nDirectory).toFile();
+        var directory = Paths.get(i18nDirectory).toFile();
         if (directory.exists() && directory.isDirectory()) {
             this.propertiesMap =
                     Stream.of(directory.listFiles())
@@ -55,11 +55,11 @@ public class FileSystemDictionaryProvider implements DictionaryProvider {
                                             Properties prop = new Properties();
                                             prop.load(input);
 
-                                            final int localIndex = file.getName().indexOf("_");
-                                            final int suffixIndex = file.getName().indexOf(".");
+                                            int localIndex = file.getName().indexOf("_");
+                                            int suffixIndex = file.getName().indexOf(".");
                                             String locale = DEFAULT_LOCALE;
                                             if (localIndex > 0) {
-                                                final String[] s =
+                                                String[] s =
                                                         file.getName()
                                                                 .substring(
                                                                         localIndex + 1, suffixIndex)

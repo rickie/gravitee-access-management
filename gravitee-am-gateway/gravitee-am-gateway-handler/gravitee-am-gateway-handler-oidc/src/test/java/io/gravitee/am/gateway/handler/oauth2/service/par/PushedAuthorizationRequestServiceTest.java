@@ -75,17 +75,17 @@ public class PushedAuthorizationRequestServiceTest {
 
     @Test
     public void shouldNotPersist_ClientIdMismatch() {
-        final Client client = new Client();
+        Client client = new Client();
         client.setClientId("clientid");
 
-        final PushedAuthorizationRequest par = new PushedAuthorizationRequest();
-        final LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+        PushedAuthorizationRequest par = new PushedAuthorizationRequest();
+        LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
         parameters.add("scope", "openid");
         parameters.add("response_type", "code");
         parameters.add("client_id", "otherid");
         par.setParameters(parameters);
 
-        final TestObserver<PushedAuthorizationRequestResponse> observer =
+        TestObserver<PushedAuthorizationRequestResponse> observer =
                 cut.registerParameters(par, client).test();
 
         observer.awaitTerminalEvent();
@@ -95,21 +95,21 @@ public class PushedAuthorizationRequestServiceTest {
 
     @Test
     public void shouldPersist_ParametersWithoutRequest() {
-        final Client client = createClient();
+        Client client = createClient();
 
-        final LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+        LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
         parameters.add("scope", "openid");
         parameters.add("response_type", "code");
         parameters.add("client_id", client.getClientId());
 
-        final PushedAuthorizationRequest par = new PushedAuthorizationRequest();
+        PushedAuthorizationRequest par = new PushedAuthorizationRequest();
         par.setParameters(parameters);
         par.setId("parid");
         par.setClient(client.getId());
 
         when(repository.create(any())).thenReturn(Single.just(par));
 
-        final TestObserver<PushedAuthorizationRequestResponse> observer =
+        TestObserver<PushedAuthorizationRequestResponse> observer =
                 cut.registerParameters(par, client).test();
 
         observer.awaitTerminalEvent();
@@ -127,18 +127,18 @@ public class PushedAuthorizationRequestServiceTest {
 
     @Test
     public void shouldNotPersist_RequestUriPresent() {
-        final Client client = createClient();
+        Client client = createClient();
 
-        final LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+        LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
         parameters.add("request_uri", "urn:toto");
         parameters.add("client_id", client.getClientId());
 
-        final PushedAuthorizationRequest par = new PushedAuthorizationRequest();
+        PushedAuthorizationRequest par = new PushedAuthorizationRequest();
         par.setParameters(parameters);
         par.setId("parid");
         par.setClient(client.getId());
 
-        final TestObserver<PushedAuthorizationRequestResponse> observer =
+        TestObserver<PushedAuthorizationRequestResponse> observer =
                 cut.registerParameters(par, client).test();
 
         observer.awaitTerminalEvent();
@@ -149,13 +149,13 @@ public class PushedAuthorizationRequestServiceTest {
 
     @Test
     public void shouldNotPersist_RequestMalformed() {
-        final Client client = createClient();
+        Client client = createClient();
 
-        final LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+        LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
         parameters.add("request", "invalid json object");
         parameters.add("client_id", client.getClientId());
 
-        final PushedAuthorizationRequest par = new PushedAuthorizationRequest();
+        PushedAuthorizationRequest par = new PushedAuthorizationRequest();
         par.setParameters(parameters);
         par.setId("parid");
         par.setClient(client.getId());
@@ -163,7 +163,7 @@ public class PushedAuthorizationRequestServiceTest {
         when(jweService.decrypt(any(), anyBoolean()))
                 .thenReturn(Single.error(new ParseException("parse error", 1)));
 
-        final TestObserver<PushedAuthorizationRequestResponse> observer =
+        TestObserver<PushedAuthorizationRequestResponse> observer =
                 cut.registerParameters(par, client).test();
 
         observer.awaitTerminalEvent();
@@ -174,24 +174,24 @@ public class PushedAuthorizationRequestServiceTest {
 
     @Test
     public void shouldNotPersist_RequestWithUnexpectedClaims() throws Exception {
-        final Client client = createClient();
+        Client client = createClient();
 
-        final String jwtString =
+        String jwtString =
                 "eyJhbGciOiJQUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiMTIzNDU2Nzg5MCIsImh0dHA6Ly9vcCJdLCJjbGllbnRfaWQiOiJjbGllbnRpZCIsInJlcXVlc3QiOiJkc2Zkc2YifQ.S6EQZgosP7FlIfyiV85bjeWnEW4yGjf8PlAZiYIZkyIgiHzlFIEnisxc_P42dKcFK8azW6xVw7OiOYLoIEo2QhZqvT4YZWgAjlqZoaMzBs68zkQr10xXrMLK8k-6wsQUONy49f7cR5niauuKYMgeVc4k5qLDvc6p1iKfUZu6VVvv-nhNT3GOacgJqwviofI-ZvBGGr0O8kP13nWf5RRElNgNw06Hnza139KwqEsim7kFDzs9TCrXl-3CzYvYtF-VYTsDTLf9ArkJgsxvs1PSULu0Sq9m5_sokJuV3DiF9daj2v3Zmd0ZYRbr1OSKreseW0fxNGmQZyHaVgtEowUv8g";
-        final JWT parse = JWTParser.parse(jwtString);
+        JWT parse = JWTParser.parse(jwtString);
 
-        final LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+        LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
         parameters.add("request", jwtString);
         parameters.add("client_id", client.getClientId());
 
-        final PushedAuthorizationRequest par = new PushedAuthorizationRequest();
+        PushedAuthorizationRequest par = new PushedAuthorizationRequest();
         par.setParameters(parameters);
         par.setId("parid");
         par.setClient(client.getId());
 
         when(jweService.decrypt(any(), anyBoolean())).thenReturn(Single.just(parse));
 
-        final TestObserver<PushedAuthorizationRequestResponse> observer =
+        TestObserver<PushedAuthorizationRequestResponse> observer =
                 cut.registerParameters(par, client).test();
 
         observer.awaitTerminalEvent();
@@ -205,7 +205,7 @@ public class PushedAuthorizationRequestServiceTest {
     }
 
     private Client createClient() {
-        final Client client = new Client();
+        Client client = new Client();
         client.setId("cid");
         client.setClientId("clientid");
         return client;
@@ -213,7 +213,7 @@ public class PushedAuthorizationRequestServiceTest {
 
     @Test
     public void shouldNot_ReadFromURI_InvalidURI() {
-        final TestObserver<JWT> testObserver =
+        TestObserver<JWT> testObserver =
                 cut.readFromURI("invalideuri", createClient(), new OpenIDProviderMetadata()).test();
 
         testObserver.awaitTerminalEvent();
@@ -224,12 +224,12 @@ public class PushedAuthorizationRequestServiceTest {
 
     @Test
     public void shouldReadFromURI_UnknownId() {
-        final String ID = "parid";
-        final String requestUri = PushedAuthorizationRequestService.PAR_URN_PREFIX + ID;
+        String ID = "parid";
+        String requestUri = PushedAuthorizationRequestService.PAR_URN_PREFIX + ID;
 
         when(repository.findById(ID)).thenReturn(Maybe.empty());
 
-        final TestObserver<JWT> testObserver =
+        TestObserver<JWT> testObserver =
                 cut.readFromURI(requestUri, createClient(), new OpenIDProviderMetadata()).test();
 
         testObserver.awaitTerminalEvent();
@@ -240,15 +240,15 @@ public class PushedAuthorizationRequestServiceTest {
 
     @Test
     public void shouldReadFromURI_ExpiredPAR() {
-        final String ID = "parid";
-        final String requestUri = PushedAuthorizationRequestService.PAR_URN_PREFIX + ID;
+        String ID = "parid";
+        String requestUri = PushedAuthorizationRequestService.PAR_URN_PREFIX + ID;
 
         PushedAuthorizationRequest par = new PushedAuthorizationRequest();
         par.setExpireAt(new Date(Instant.now().minusSeconds(10).toEpochMilli()));
 
         when(repository.findById(ID)).thenReturn(Maybe.just(par));
 
-        final TestObserver<JWT> testObserver =
+        TestObserver<JWT> testObserver =
                 cut.readFromURI(requestUri, createClient(), new OpenIDProviderMetadata()).test();
 
         testObserver.awaitTerminalEvent();
@@ -259,8 +259,8 @@ public class PushedAuthorizationRequestServiceTest {
 
     @Test
     public void shouldReadFromURI_MissingRequest_FAPI() {
-        final String ID = "parid";
-        final String requestUri = PushedAuthorizationRequestService.PAR_URN_PREFIX + ID;
+        String ID = "parid";
+        String requestUri = PushedAuthorizationRequestService.PAR_URN_PREFIX + ID;
 
         PushedAuthorizationRequest par = new PushedAuthorizationRequest();
         par.setParameters(new LinkedMultiValueMap<>());
@@ -269,7 +269,7 @@ public class PushedAuthorizationRequestServiceTest {
         when(domain.usePlainFapiProfile()).thenReturn(true);
         when(repository.findById(ID)).thenReturn(Maybe.just(par));
 
-        final TestObserver<JWT> testObserver =
+        TestObserver<JWT> testObserver =
                 cut.readFromURI(requestUri, createClient(), new OpenIDProviderMetadata()).test();
 
         testObserver.awaitTerminalEvent();
@@ -281,20 +281,20 @@ public class PushedAuthorizationRequestServiceTest {
     @Test
     public void shouldReadFromURI_MissingRequestParameter() {
         // in this test, Plain JWT is created using the set of parameters
-        final String ID = "parid";
-        final String requestUri = PushedAuthorizationRequestService.PAR_URN_PREFIX + ID;
+        String ID = "parid";
+        String requestUri = PushedAuthorizationRequestService.PAR_URN_PREFIX + ID;
 
         PushedAuthorizationRequest par = new PushedAuthorizationRequest();
         par.setExpireAt(new Date(Instant.now().plusSeconds(10).toEpochMilli()));
 
-        final LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+        LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
         parameters.add("key1", "value1");
         parameters.add("key2", "value2");
         par.setParameters(parameters);
 
         when(repository.findById(ID)).thenReturn(Maybe.just(par));
 
-        final TestObserver<JWT> testObserver =
+        TestObserver<JWT> testObserver =
                 cut.readFromURI(requestUri, createClient(), new OpenIDProviderMetadata()).test();
 
         testObserver.awaitTerminalEvent();
@@ -310,13 +310,13 @@ public class PushedAuthorizationRequestServiceTest {
     @Test
     public void shouldReadFromURI_RequestParameter() throws Exception {
         // in this test, Plain JWT is created using the set of parameters
-        final String ID = "parid";
-        final String requestUri = PushedAuthorizationRequestService.PAR_URN_PREFIX + ID;
+        String ID = "parid";
+        String requestUri = PushedAuthorizationRequestService.PAR_URN_PREFIX + ID;
 
         PushedAuthorizationRequest par = new PushedAuthorizationRequest();
         par.setExpireAt(new Date(Instant.now().plusSeconds(10).toEpochMilli()));
 
-        final LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+        LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
         parameters.add(Parameters.REQUEST, "some-jwt");
         par.setParameters(parameters);
 
@@ -328,20 +328,20 @@ public class PushedAuthorizationRequestServiceTest {
                         .claim(Claims.scope, "openid")
                         .claim(io.gravitee.am.common.oauth2.Parameters.RESPONSE_TYPE, "code")
                         .build();
-        final SignedJWT signedJwt = mock(SignedJWT.class);
+        SignedJWT signedJwt = mock(SignedJWT.class);
         when(signedJwt.getJWTClaimsSet()).thenReturn(claimsSet);
         when(jweService.decrypt(any(), anyBoolean())).thenReturn(Single.just(signedJwt));
-        final JWSHeader jwsHeaders = new JWSHeader.Builder(JWSAlgorithm.RS256).build();
+        JWSHeader jwsHeaders = new JWSHeader.Builder(JWSAlgorithm.RS256).build();
         when(signedJwt.getHeader()).thenReturn(jwsHeaders);
 
         when(jwkService.getKeys(any(Client.class))).thenReturn(Maybe.just(mock(JWKSet.class)));
         when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(mock(JWK.class)));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
-        final Client client = createClient();
+        Client client = createClient();
         client.setRequestObjectSigningAlg(JWSAlgorithm.RS256.getName());
 
-        final TestObserver<JWT> testObserver =
+        TestObserver<JWT> testObserver =
                 cut.readFromURI(requestUri, client, new OpenIDProviderMetadata()).test();
 
         testObserver.awaitTerminalEvent();

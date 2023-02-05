@@ -57,7 +57,7 @@ public class AlertNotifierResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
             @PathParam("notifierId") String notifierId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST)
@@ -87,9 +87,9 @@ public class AlertNotifierResource extends AbstractResource {
             @PathParam("notifierId") String notifierId,
             @ApiParam(name = "alertNotifier", required = true) @Valid @NotNull
                     PatchAlertNotifier patchAlertNotifier,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = this.getAuthenticatedUser();
+        User authenticatedUser = this.getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.UPDATE)
@@ -119,9 +119,9 @@ public class AlertNotifierResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
             @PathParam("notifierId") String notifierId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = this.getAuthenticatedUser();
+        User authenticatedUser = this.getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST)

@@ -35,7 +35,7 @@ public class AuthenticationDeviceNotifiersPluginResourceTest extends JerseySprin
 
     @Test
     public void shouldList() {
-        final AuthenticationDeviceNotifierPlugin plugin = new AuthenticationDeviceNotifierPlugin();
+        AuthenticationDeviceNotifierPlugin plugin = new AuthenticationDeviceNotifierPlugin();
         plugin.setId("plugin-id");
         plugin.setName("plugin-name");
         plugin.setDescription("desc");
@@ -45,7 +45,7 @@ public class AuthenticationDeviceNotifiersPluginResourceTest extends JerseySprin
                 .when(authDeviceNotifierPluginService)
                 .findAll(Collections.emptyList());
 
-        final Response response =
+        Response response =
                 target("platform").path("plugins").path("auth-device-notifiers").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
     }

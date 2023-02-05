@@ -160,7 +160,7 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         Application appCreated = applicationRepository.create(app).blockingGet();
 
         // fetch app
-        final String next =
+        String next =
                 appCreated.getIdentityProviders().stream()
                         .map(ApplicationIdentityProvider::getIdentity)
                         .iterator()
@@ -252,8 +252,7 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
     }
 
     private static ApplicationIdentityProvider getIdentityProviderSettings() {
-        final ApplicationIdentityProvider applicationIdentityProvider =
-                new ApplicationIdentityProvider();
+        ApplicationIdentityProvider applicationIdentityProvider = new ApplicationIdentityProvider();
         applicationIdentityProvider.setIdentity(UUID.randomUUID().toString());
         applicationIdentityProvider.setSelectionRule(UUID.randomUUID().toString());
         applicationIdentityProvider.setPriority(new Random().nextInt());
@@ -276,7 +275,7 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         scopeSettings.setScopeApproval(42);
         oauth.setScopeSettings(List.of(scopeSettings));
 
-        final AccountSettings account = new AccountSettings();
+        AccountSettings account = new AccountSettings();
         account.setResetPasswordInvalidateTokens(true);
         settings.setAccount(account);
         return settings;
@@ -343,7 +342,7 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testSearch_strict() {
-        final String domain = "domain";
+        String domain = "domain";
         // create app
         Application app = new Application();
         app.setDomain(domain);
@@ -370,7 +369,7 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testSearch_wildcard() {
-        final String domain = "domain";
+        String domain = "domain";
         // create app
         Application app = new Application();
         app.setDomain(domain);

@@ -34,8 +34,8 @@ public class ExtensionGrantPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGet() {
-        final String extensionGrantPluginId = "extensionGrant-plugin-id";
-        final ExtensionGrantPlugin extensionGrantPlugin = new ExtensionGrantPlugin();
+        String extensionGrantPluginId = "extensionGrant-plugin-id";
+        ExtensionGrantPlugin extensionGrantPlugin = new ExtensionGrantPlugin();
         extensionGrantPlugin.setId(extensionGrantPluginId);
         extensionGrantPlugin.setName("extensionGrant-plugin-name");
 
@@ -43,7 +43,7 @@ public class ExtensionGrantPluginResourceTest extends JerseySpringTest {
                 .when(extensionGrantPluginService)
                 .findById(extensionGrantPluginId);
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("extensionGrants")
@@ -55,12 +55,12 @@ public class ExtensionGrantPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGet_technicalManagementException() {
-        final String extensionGrantPluginId = "extensionGrant-plugin-id";
+        String extensionGrantPluginId = "extensionGrant-plugin-id";
         doReturn(Maybe.error(new TechnicalManagementException("Error occurs")))
                 .when(extensionGrantPluginService)
                 .findById(extensionGrantPluginId);
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("extensionGrants")
@@ -72,12 +72,12 @@ public class ExtensionGrantPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema() {
-        final String extensionGrantPluginId = "extensionGrant-plugin-id";
-        final ExtensionGrantPlugin extensionGrantPlugin = new ExtensionGrantPlugin();
+        String extensionGrantPluginId = "extensionGrant-plugin-id";
+        ExtensionGrantPlugin extensionGrantPlugin = new ExtensionGrantPlugin();
         extensionGrantPlugin.setId(extensionGrantPluginId);
         extensionGrantPlugin.setName("extensionGrant-plugin-name");
 
-        final String schema = "extensionGrant-plugin-schema";
+        String schema = "extensionGrant-plugin-schema";
 
         doReturn(Maybe.just(extensionGrantPlugin))
                 .when(extensionGrantPluginService)
@@ -86,7 +86,7 @@ public class ExtensionGrantPluginResourceTest extends JerseySpringTest {
                 .when(extensionGrantPluginService)
                 .getSchema(extensionGrantPluginId);
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("extensionGrants")
@@ -96,18 +96,18 @@ public class ExtensionGrantPluginResourceTest extends JerseySpringTest {
                         .get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final String responseEntity = readEntity(response, String.class);
+        String responseEntity = readEntity(response, String.class);
         assertEquals(schema, responseEntity);
     }
 
     @Test
     public void shouldGetSchema_technicalManagementException() {
-        final String extensionGrantPluginId = "extensionGrant-plugin-id";
+        String extensionGrantPluginId = "extensionGrant-plugin-id";
         doReturn(Maybe.error(new TechnicalManagementException("Error occurs")))
                 .when(extensionGrantPluginService)
                 .findById(extensionGrantPluginId);
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("extensionGrants")

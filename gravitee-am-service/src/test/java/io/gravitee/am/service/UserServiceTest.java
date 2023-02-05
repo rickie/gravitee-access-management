@@ -357,7 +357,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldNotUpdateDisplayName_NoGeneratedDisplayName() {
-        final String DISPLAYNAME = "CustomDisplayName";
+        String DISPLAYNAME = "CustomDisplayName";
         UpdateUser updateUser = Mockito.mock(UpdateUser.class);
         when(updateUser.getFirstName()).thenReturn("Johanna");
         when(updateUser.getLastName()).thenReturn("Doe");
@@ -390,7 +390,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldUpdateDisplayName_CustomValue() {
-        final String DISPLAYNAME = "CustomDisplayName";
+        String DISPLAYNAME = "CustomDisplayName";
         UpdateUser updateUser = Mockito.mock(UpdateUser.class);
         when(updateUser.getFirstName()).thenReturn("Johanna");
         when(updateUser.getLastName()).thenReturn("Doe");

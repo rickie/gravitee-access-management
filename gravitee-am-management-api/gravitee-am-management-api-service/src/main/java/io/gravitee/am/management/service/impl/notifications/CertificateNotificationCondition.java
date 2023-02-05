@@ -42,7 +42,7 @@ public class CertificateNotificationCondition implements NotificationCondition {
 
     @Override
     public boolean test(NotificationDefinition def) {
-        final Date certificateExpirationDate = getCertificateExpirationDate(def);
+        Date certificateExpirationDate = getCertificateExpirationDate(def);
         if (certificateExpirationDate != null) {
             // for the first condition we only check the highest expiry value
             return certificateExpirationDate.getTime()

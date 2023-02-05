@@ -122,7 +122,7 @@ public class ConnectionFactoryProvider {
                 configuration.getProtocol(),
                 configuration.getHost());
 
-        final Tags tags =
+        Tags tags =
                 Tags.of(
                         Tag.of(TAG_SOURCE, "idp-r2dbc"),
                         Tag.of(TAG_DRIVER, configuration.getProtocol()),
@@ -162,14 +162,10 @@ public class ConnectionFactoryProvider {
 
             ConnectionFactoryOptions.Builder builder =
                     ConnectionFactoryOptions.builder()
-                            .option(
-                                    DRIVER,
-                                    "pool") // force connection pool
-                                            // (https://github.com/r2dbc/r2dbc-pool#getting-started)
-                            .option(
-                                    PROTOCOL,
-                                    driver) // set driver as protocol
-                                            // (https://github.com/r2dbc/r2dbc-pool#getting-started)
+                            .option(DRIVER, "pool") // force connection pool
+                            // (https://github.com/r2dbc/r2dbc-pool#getting-started)
+                            .option(PROTOCOL, driver) // set driver as protocol
+                            // (https://github.com/r2dbc/r2dbc-pool#getting-started)
                             .option(HOST, host)
                             .option(USER, user)
                             .option(DATABASE, db)
@@ -219,7 +215,7 @@ public class ConnectionFactoryProvider {
                 builder.option(PORT, Integer.parseInt(port));
             }
 
-            final String validationQuery = environment.getProperty(prefix + "validationQuery");
+            String validationQuery = environment.getProperty(prefix + "validationQuery");
             if (validationQuery != null) {
                 builder.option(PoolingConnectionFactoryProvider.VALIDATION_QUERY, validationQuery)
                         .option(
@@ -242,7 +238,7 @@ public class ConnectionFactoryProvider {
         LOGGER.info("Connection pool created for {} database", prefix);
 
         if (connectionPool instanceof ConnectionPool) {
-            final Tags tags =
+            Tags tags =
                     Tags.of(
                             Tag.of(TAG_SOURCE, "common-pool"),
                             Tag.of(TAG_DRIVER, getJdbcDriver()),

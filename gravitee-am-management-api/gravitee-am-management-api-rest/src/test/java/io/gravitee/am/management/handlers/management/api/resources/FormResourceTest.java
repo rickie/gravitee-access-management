@@ -44,9 +44,9 @@ public class FormResourceTest extends JerseySpringTest {
     @Test
     @Ignore
     public void shouldUpdate() {
-        final String formId = "form-1";
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String formId = "form-1";
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         UpdateForm updateForm = new UpdateForm();
@@ -57,7 +57,7 @@ public class FormResourceTest extends JerseySpringTest {
                 .when(formService)
                 .update(eq(domainId), eq(formId), any(), any(User.class));
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("forms")
@@ -69,30 +69,30 @@ public class FormResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldDelete() {
-        final String formId = "form-1";
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String formId = "form-1";
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         doReturn(Completable.complete()).when(formService).delete(eq(domainId), eq(formId), any());
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("forms").path(formId).request().delete();
         assertEquals(HttpStatusCode.NO_CONTENT_204, response.getStatus());
     }
 
     @Test
     public void shouldDelete_formNotFound() {
-        final String formId = "form-1";
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String formId = "form-1";
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         doReturn(Completable.error(new FormNotFoundException(formId)))
                 .when(formService)
                 .delete(eq(domainId), eq(formId), any());
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("forms").path(formId).request().delete();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }

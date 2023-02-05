@@ -40,7 +40,7 @@ public class ClientSyncServiceImpl implements ClientSyncService {
 
     @Override
     public Maybe<Client> findById(String id) {
-        final Client client = clientManager.get(id);
+        Client client = clientManager.get(id);
         return client != null ? Maybe.just(client) : Maybe.empty();
     }
 
@@ -56,7 +56,7 @@ public class ClientSyncServiceImpl implements ClientSyncService {
 
     @Override
     public Maybe<Client> findByDomainAndClientId(String domain, String clientId) {
-        final Optional<Client> optClient =
+        Optional<Client> optClient =
                 clientManager.entities().stream()
                         .filter(
                                 client ->
@@ -69,7 +69,7 @@ public class ClientSyncServiceImpl implements ClientSyncService {
 
     @Override
     public Maybe<Client> findByDomainAndEntityId(String domain, String entityId) {
-        final Optional<Client> optClient =
+        Optional<Client> optClient =
                 clientManager.entities().stream()
                         .filter(
                                 client ->
@@ -82,7 +82,7 @@ public class ClientSyncServiceImpl implements ClientSyncService {
 
     @Override
     public Single<List<Client>> findTemplates() {
-        final List<Client> templates =
+        List<Client> templates =
                 clientManager.entities().stream()
                         .filter(
                                 client ->

@@ -153,7 +153,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
                 HttpMethod.POST,
                 "/userinfo",
                 req -> {
-                    final String body = "access_token=test-token";
+                    String body = "access_token=test-token";
                     req.putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED);
                     req.putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(body.length()));
                     req.write(Buffer.buffer(body));
@@ -346,7 +346,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
                 HttpMethod.POST,
                 "/userinfo",
                 req -> {
-                    final String body = "access_token=test-token";
+                    String body = "access_token=test-token";
                     req.putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED);
                     req.putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(body.length()));
                     req.write(Buffer.buffer(body));
@@ -406,7 +406,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
                 resp ->
                         resp.bodyHandler(
                                 body -> {
-                                    final Map<String, Object> claims =
+                                    Map<String, Object> claims =
                                             Json.decodeValue(body.toString(), Map.class);
                                     assertNotNull(claims);
                                     assertEquals(2, claims.size());
@@ -442,7 +442,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
                 resp ->
                         resp.bodyHandler(
                                 body -> {
-                                    final Map<String, Object> claims =
+                                    Map<String, Object> claims =
                                             Json.decodeValue(body.toString(), Map.class);
                                     assertNotNull(claims);
                                     assertEquals(15, claims.size());
@@ -477,7 +477,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
                 resp ->
                         resp.bodyHandler(
                                 body -> {
-                                    final Map<String, Object> claims =
+                                    Map<String, Object> claims =
                                             Json.decodeValue(body.toString(), Map.class);
                                     assertNotNull(claims);
                                     assertEquals(3, claims.size());
@@ -514,7 +514,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
                 resp ->
                         resp.bodyHandler(
                                 body -> {
-                                    final Map<String, Object> claims =
+                                    Map<String, Object> claims =
                                             Json.decodeValue(body.toString(), Map.class);
                                     assertNotNull(claims);
                                     assertEquals(4, claims.size());
@@ -553,7 +553,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
                 resp ->
                         resp.bodyHandler(
                                 body -> {
-                                    final Map<String, Object> claims =
+                                    Map<String, Object> claims =
                                             Json.decodeValue(body.toString(), Map.class);
                                     assertNotNull(claims);
                                     assertEquals(1, claims.size());
@@ -599,7 +599,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
                 resp ->
                         resp.bodyHandler(
                                 body -> {
-                                    final Map<String, Object> claims =
+                                    Map<String, Object> claims =
                                             Json.decodeValue(body.toString(), Map.class);
                                     assertNotNull(claims);
                                     assertEquals(2, claims.size());
@@ -640,7 +640,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
                 resp ->
                         resp.bodyHandler(
                                 body -> {
-                                    final Map<String, Object> claims =
+                                    Map<String, Object> claims =
                                             Json.decodeValue(body.toString(), Map.class);
                                     assertNotNull(claims);
                                     assertEquals(1, claims.size());
@@ -677,7 +677,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
                 resp ->
                         resp.bodyHandler(
                                 body -> {
-                                    final Map<String, Object> claims =
+                                    Map<String, Object> claims =
                                             Json.decodeValue(body.toString(), Map.class);
                                     assertNotNull(claims);
                                     assertEquals(2, claims.size());
@@ -727,7 +727,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
                 resp ->
                         resp.bodyHandler(
                                 body -> {
-                                    final Map<String, Object> claims =
+                                    Map<String, Object> claims =
                                             Json.decodeValue(body.toString(), Map.class);
                                     assertNotNull(claims);
                                     assertEquals(3, claims.size());
@@ -783,7 +783,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
                 resp ->
                         resp.bodyHandler(
                                 body -> {
-                                    final Map<String, Object> claims =
+                                    Map<String, Object> claims =
                                             Json.decodeValue(body.toString(), Map.class);
                                     assertNotNull(claims);
                                     assertEquals(23, claims.size());
@@ -834,7 +834,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
                             MediaType.APPLICATION_JSON, resp.getHeader(HttpHeaders.CONTENT_TYPE));
                     resp.bodyHandler(
                             body -> {
-                                final Map<String, Object> claims =
+                                Map<String, Object> claims =
                                         Json.decodeValue(body.toString(), Map.class);
                                 assertNotNull(claims);
                                 assertEquals(5, claims.size());

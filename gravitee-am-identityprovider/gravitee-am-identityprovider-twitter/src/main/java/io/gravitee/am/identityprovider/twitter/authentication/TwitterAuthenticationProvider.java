@@ -122,7 +122,7 @@ public class TwitterAuthenticationProvider
             if (!StringUtils.isEmpty(state)) {
                 // Add state to redirect uri if specified. Note: Twitter is not oidc compliant and
                 // does not allow to specify a 'state' query parameter on its own authorization url.
-                final UriBuilder uriBuilder =
+                UriBuilder uriBuilder =
                         UriBuilder.fromURIString(redirectUri).addParameter(Parameters.STATE, state);
                 redirectUri = uriBuilder.buildString();
             }
@@ -177,7 +177,7 @@ public class TwitterAuthenticationProvider
                                     tokenMemory.put(
                                             token,
                                             tokenSecret); // preserve toke & token secret for the
-                                                          // next steps
+                                    // next steps
 
                                     UriBuilder builder =
                                             UriBuilder.fromHttpUrl(
@@ -201,13 +201,13 @@ public class TwitterAuthenticationProvider
 
     @Override
     protected Maybe<Token> authenticate(Authentication authentication) {
-        final String oauthToken =
+        String oauthToken =
                 authentication
                         .getContext()
                         .request()
                         .parameters()
                         .getFirst(configuration.getCodeParameter());
-        final String tokenVerifier =
+        String tokenVerifier =
                 authentication
                         .getContext()
                         .request()
@@ -338,46 +338,46 @@ public class TwitterAuthenticationProvider
         claims.put(StandardClaims.PREFERRED_USERNAME, jsonObject.getString(TWITTER_SCREEN_NAME));
         claims.put(StandardClaims.SUB, jsonObject.getString(TWITTER_ID));
 
-        final String img = jsonObject.getString(TWITTER_PROFILE_IMG);
+        String img = jsonObject.getString(TWITTER_PROFILE_IMG);
         if (img != null) {
             claims.put(StandardClaims.PICTURE, img);
         }
 
-        final String email = jsonObject.getString(TWITTER_EMAIL);
+        String email = jsonObject.getString(TWITTER_EMAIL);
         if (email != null) {
             claims.put(StandardClaims.EMAIL, email);
         }
 
-        final String zone = jsonObject.getString(TWITTER_TIME_ZONE);
+        String zone = jsonObject.getString(TWITTER_TIME_ZONE);
         if (zone != null) {
             claims.put(StandardClaims.ZONEINFO, zone);
         }
-        final String updateAt = jsonObject.getString(TWITTER_UPDATED_AT);
+        String updateAt = jsonObject.getString(TWITTER_UPDATED_AT);
         if (updateAt != null) {
             claims.put(StandardClaims.UPDATED_AT, updateAt);
         }
-        final String locale = jsonObject.getString(TWITTER_LANG);
+        String locale = jsonObject.getString(TWITTER_LANG);
         if (locale != null) {
             claims.put(StandardClaims.LOCALE, locale);
         }
 
         // custom Twitter claims
-        final String description = jsonObject.getString(DESCRIPTION);
+        String description = jsonObject.getString(DESCRIPTION);
         if (description != null) {
             claims.put(DESCRIPTION, description);
         }
 
-        final String location = jsonObject.getString(LOCATION);
+        String location = jsonObject.getString(LOCATION);
         if (location != null) {
             claims.put(LOCATION, location);
         }
 
-        final String createdAt = jsonObject.getString(CREATED_AT);
+        String createdAt = jsonObject.getString(CREATED_AT);
         if (createdAt != null) {
             claims.put(CREATED_AT, createdAt);
         }
 
-        final String fullName = jsonObject.getString(TWITTER_NAME);
+        String fullName = jsonObject.getString(TWITTER_NAME);
         if (fullName != null) {
             claims.put(FULL_NAME, fullName);
         }

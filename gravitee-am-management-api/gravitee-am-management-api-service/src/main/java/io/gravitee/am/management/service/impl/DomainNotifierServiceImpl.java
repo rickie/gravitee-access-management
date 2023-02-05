@@ -81,9 +81,8 @@ public class DomainNotifierServiceImpl implements DomainNotifierService, Initial
     @Value("${notifiers.ui.enabled:true}")
     private boolean uiNotifierEnabled;
 
-    @Value(
-            "${services.certificate.cronExpression:0 0 5 * * *}") // default: 0 0 5 * * * (every day
-                                                                  // at 5am)
+    @Value("${services.certificate.cronExpression:0 0 5 * * *}") // default: 0 0 5 * * * (every day
+    // at 5am)
     private String certificateCronExpression;
 
     private List<Integer> certificateExpiryThresholds;
@@ -115,7 +114,7 @@ public class DomainNotifierServiceImpl implements DomainNotifierService, Initial
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        final String expiryThresholds =
+        String expiryThresholds =
                 env.getProperty(
                         "services.certificate.expiryThresholds",
                         String.class,
@@ -137,14 +136,14 @@ public class DomainNotifierServiceImpl implements DomainNotifierService, Initial
                                     retrieveDomainOwners(domain)
                                             .flatMap(
                                                     user -> {
-                                                        final Flowable<NotificationDefinition>
+                                                        Flowable<NotificationDefinition>
                                                                 emailNotificationDef =
                                                                         buildEmailNotificationDefinition(
                                                                                         certificate,
                                                                                         domain,
                                                                                         user)
                                                                                 .toFlowable();
-                                                        final Flowable<NotificationDefinition>
+                                                        Flowable<NotificationDefinition>
                                                                 uiNotificationDef =
                                                                         buildUINotificationDefinition(
                                                                                         certificate,
@@ -199,7 +198,7 @@ public class DomainNotifierServiceImpl implements DomainNotifierService, Initial
                                         .map(role -> role.getId())
                                         .flatMap(
                                                 roleId -> {
-                                                    final MembershipCriteria criteria =
+                                                    MembershipCriteria criteria =
                                                             new MembershipCriteria();
                                                     criteria.setRoleId(roleId);
                                                     return membershipService.findByCriteria(
@@ -274,8 +273,7 @@ public class DomainNotifierServiceImpl implements DomainNotifierService, Initial
                                 notifierConfig.setBody(email.getContent());
                                 notifierConfig.setTo(user.getEmail());
 
-                                final NotificationDefinition definition =
-                                        new NotificationDefinition();
+                                NotificationDefinition definition = new NotificationDefinition();
                                 definition.setType(TYPE_EMAIL_NOTIFIER);
                                 definition.setConfiguration(
                                         mapper.writeValueAsString(notifierConfig));
@@ -309,7 +307,7 @@ public class DomainNotifierServiceImpl implements DomainNotifierService, Initial
                 ManagementUINotifierConfiguration value = new ManagementUINotifierConfiguration();
                 value.setTemplate(CERTIFICATE_EXPIRY_TPL);
 
-                final NotificationDefinition definition = new NotificationDefinition();
+                NotificationDefinition definition = new NotificationDefinition();
                 definition.setType(TYPE_UI_NOTIFIER);
                 definition.setConfiguration(mapper.writeValueAsString(value));
                 definition.setResourceId(certificate.getId());

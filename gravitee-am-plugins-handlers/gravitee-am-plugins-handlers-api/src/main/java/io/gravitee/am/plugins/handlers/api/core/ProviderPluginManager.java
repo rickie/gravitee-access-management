@@ -86,7 +86,7 @@ public abstract class ProviderPluginManager<
 
         try {
             T provider = createInstance(providerClass);
-            final Import annImport = providerClass.getAnnotation(Import.class);
+            Import annImport = providerClass.getAnnotation(Import.class);
             Set<Class<?>> configurations =
                     (annImport != null)
                             ? new HashSet<>(Arrays.asList(annImport.value()))
@@ -149,7 +149,7 @@ public abstract class ProviderPluginManager<
             if (nonNull(schemas) && schemas.length == 1) {
                 File schemaDir = schemas[0];
 
-                final File[] listFiles = schemaDir.listFiles();
+                File[] listFiles = schemaDir.listFiles();
                 if (nonNull(listFiles) && listFiles.length > 0) {
                     return new String(Files.readAllBytes(listFiles[0].toPath()));
                 }
@@ -186,12 +186,12 @@ public abstract class ProviderPluginManager<
         return null;
     }
 
-    private String getMimeType(final Path file) {
+    private String getMimeType(Path file) {
         if (file == null || file.getFileName() == null) {
             return null;
         }
 
-        final String fileName = file.getFileName().toString().toLowerCase();
+        String fileName = file.getFileName().toString().toLowerCase();
         if (fileName.endsWith(".svg")) {
             return "image/svg+xml";
         } else if (fileName.endsWith(".png")) {

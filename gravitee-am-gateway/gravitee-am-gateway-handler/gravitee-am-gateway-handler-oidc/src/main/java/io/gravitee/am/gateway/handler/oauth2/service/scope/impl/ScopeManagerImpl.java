@@ -138,7 +138,7 @@ public class ScopeManagerImpl extends AbstractService
     }
 
     private void updateScope(String scopeId, ScopeEvent scopeEvent) {
-        final String eventType = scopeEvent.toString().toLowerCase();
+        String eventType = scopeEvent.toString().toLowerCase();
         logger.info(
                 "Domain {} has received {} scope event for {}",
                 domain.getName(),

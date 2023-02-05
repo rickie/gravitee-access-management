@@ -75,7 +75,7 @@ public class UsersResource extends AbstractUsersResource {
             @QueryParam("filter") String filter,
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue(MAX_USERS_SIZE_PER_PAGE_STRING) int size,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
@@ -135,10 +135,10 @@ public class UsersResource extends AbstractUsersResource {
     })
     public void create(
             @PathParam("organizationId") String organizationId,
-            @ApiParam(name = "user", required = true) @Valid @NotNull final NewUser newUser,
-            @Suspended final AsyncResponse response) {
+            @ApiParam(name = "user", required = true) @Valid @NotNull NewUser newUser,
+            @Suspended AsyncResponse response) {
 
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

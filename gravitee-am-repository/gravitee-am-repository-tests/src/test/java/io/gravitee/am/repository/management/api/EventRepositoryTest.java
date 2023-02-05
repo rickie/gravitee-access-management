@@ -39,8 +39,8 @@ public class EventRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testFindByTimeFrame() throws TechnicalException {
-        final long from = 1571214259000l;
-        final long to = 1571214281000l;
+        long from = 1571214259000l;
+        long to = 1571214281000l;
         // create event
         Event event = new Event();
         event.setType(Type.DOMAIN);
@@ -83,7 +83,7 @@ public class EventRepositoryTest extends AbstractManagementTest {
         event.setPayload(
                 new Payload(
                         payload)); // duplicate the payload to avoid inner transformation that make
-                                   // test failing
+        // test failing
 
         Event eventCreated = eventRepository.create(event).blockingGet();
 

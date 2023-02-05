@@ -120,7 +120,7 @@ public class FactorManagerImpl extends AbstractService
     }
 
     private void updateFactor(String factorId, FactorEvent factorEvent) {
-        final String eventType = factorEvent.toString().toLowerCase();
+        String eventType = factorEvent.toString().toLowerCase();
         logger.info(
                 "Domain {} has received {} factor event for {}",
                 domain.getName(),
@@ -172,7 +172,7 @@ public class FactorManagerImpl extends AbstractService
      *     date
      */
     private boolean needDeployment(Factor factor) {
-        final Factor deployedFactor = this.factors.get(factor.getId());
+        Factor deployedFactor = this.factors.get(factor.getId());
         return (deployedFactor == null
                 || deployedFactor.getUpdatedAt().before(factor.getUpdatedAt()));
     }

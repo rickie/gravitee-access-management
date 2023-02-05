@@ -96,7 +96,7 @@ public class LinkedinAuthenticationProvider
     @Override
     protected Maybe<Token> authenticate(Authentication authentication) {
         // prepare body request parameters
-        final String authorizationCode =
+        String authorizationCode =
                 authentication
                         .getContext()
                         .request()
@@ -209,7 +209,7 @@ public class LinkedinAuthenticationProvider
                                             httpClientResponse.statusMessage());
                                     return Optional
                                             .empty(); // do not reject the authentication due to
-                                                      // missing emailAddress
+                                    // missing emailAddress
                                 }
                             });
         } else {
