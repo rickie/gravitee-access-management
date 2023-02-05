@@ -48,26 +48,26 @@ public class ScopesResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetScopes() {
-        final String domainId = "domain-1";
-        final Scope mockScope = new Scope();
+        String domainId = "domain-1";
+        Scope mockScope = new Scope();
         mockScope.setId("scope-1-id");
         mockScope.setKey("scope-1-id");
         mockScope.setName("scope-1-name");
         mockScope.setDomain(domainId);
 
-        final Scope mockScope2 = new Scope();
+        Scope mockScope2 = new Scope();
         mockScope2.setId("scope-2-id");
         mockScope2.setKey("scope-2-id");
         mockScope2.setName("scope-2-name");
         mockScope2.setDomain(domainId);
 
-        final Set<Scope> scopes = new HashSet<>(Arrays.asList(mockScope, mockScope2));
+        Set<Scope> scopes = new HashSet<>(Arrays.asList(mockScope, mockScope2));
 
         doReturn(Single.just(new Page<>(scopes, 0, 2)))
                 .when(scopeService)
                 .findByDomain(domainId, 0, 50);
 
-        final Response response = target("domains").path(domainId).path("scopes").request().get();
+        Response response = target("domains").path(domainId).path("scopes").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         String body = response.readEntity(String.class);
         JsonArray data = new JsonObject(body).getJsonArray("data");
@@ -76,19 +76,19 @@ public class ScopesResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetScopes_technicalManagementException() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
         doReturn(Single.error(new TechnicalManagementException("error occurs")))
                 .when(scopeService)
                 .findByDomain(domainId, 0, 50);
 
-        final Response response = target("domains").path(domainId).path("scopes").request().get();
+        Response response = target("domains").path(domainId).path("scopes").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
 
     @Test
     public void shouldCreate() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         NewScope newScope = new NewScope();
@@ -106,7 +106,7 @@ public class ScopesResourceTest extends JerseySpringTest {
                 .when(scopeService)
                 .create(eq(domainId), any(NewScope.class), any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("scopes")

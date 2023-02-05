@@ -313,7 +313,7 @@ public class RxWebTestBase extends RxVertxTestBase {
                                 asyncResp -> {
                                     assertTrue(asyncResp.succeeded());
 
-                                    final HttpClientResponse response = asyncResp.result();
+                                    HttpClientResponse response = asyncResp.result();
                                     assertEquals(statusCode, response.statusCode());
                                     assertEquals(statusMessage, response.statusMessage());
                                     if (responseAction != null) {

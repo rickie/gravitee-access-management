@@ -135,7 +135,7 @@ public class DeviceIdentifierManagerImpl extends AbstractService
     }
 
     private void updateDeviceIdentifier(String deviceIdentifierId, DeviceIdentifierEvent event) {
-        final String eventType = event.toString().toLowerCase();
+        String eventType = event.toString().toLowerCase();
         LOGGER.info(
                 "Domain {} has received {} Device identifier event for {}",
                 domain.getName(),
@@ -221,8 +221,7 @@ public class DeviceIdentifierManagerImpl extends AbstractService
      *     to date
      */
     private boolean needDeployment(DeviceIdentifier deviceIdentifier) {
-        final DeviceIdentifier deployedPlugin =
-                this.deviceIdentifiers.get(deviceIdentifier.getId());
+        DeviceIdentifier deployedPlugin = this.deviceIdentifiers.get(deviceIdentifier.getId());
         return (deployedPlugin == null
                 || deployedPlugin.getUpdatedAt().before(deviceIdentifier.getUpdatedAt()));
     }

@@ -46,7 +46,7 @@ public class EntrypointResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetEntrypoint() {
 
-        final Entrypoint mockEntrypoint = new Entrypoint();
+        Entrypoint mockEntrypoint = new Entrypoint();
         mockEntrypoint.setId(ENTRYPOINT_ID);
         mockEntrypoint.setOrganizationId(ORGANIZATION_ID);
         mockEntrypoint.setName("name");
@@ -60,7 +60,7 @@ public class EntrypointResourceTest extends JerseySpringTest {
                 .when(entrypointService)
                 .findById(ENTRYPOINT_ID, ORGANIZATION_ID);
 
-        final Response response =
+        Response response =
                 target("organizations")
                         .path(ORGANIZATION_ID)
                         .path("entrypoints")
@@ -69,7 +69,7 @@ public class EntrypointResourceTest extends JerseySpringTest {
                         .get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Entrypoint entrypoint = readEntity(response, Entrypoint.class);
+        Entrypoint entrypoint = readEntity(response, Entrypoint.class);
         assertEquals(mockEntrypoint.getId(), entrypoint.getId());
         assertEquals(mockEntrypoint.getOrganizationId(), entrypoint.getOrganizationId());
         assertEquals(mockEntrypoint.getName(), entrypoint.getName());
@@ -87,7 +87,7 @@ public class EntrypointResourceTest extends JerseySpringTest {
                 .when(entrypointService)
                 .findById(ENTRYPOINT_ID, ORGANIZATION_ID);
 
-        final Response response =
+        Response response =
                 target("organizations")
                         .path(ORGANIZATION_ID)
                         .path("entrypoints")
@@ -106,7 +106,7 @@ public class EntrypointResourceTest extends JerseySpringTest {
         updateEntrypoint.setUrl("https://auth.company.com");
         updateEntrypoint.setTags(Collections.emptyList());
 
-        final Entrypoint mockEntrypoint = new Entrypoint();
+        Entrypoint mockEntrypoint = new Entrypoint();
         mockEntrypoint.setId(ENTRYPOINT_ID);
         mockEntrypoint.setOrganizationId(ORGANIZATION_ID);
         mockEntrypoint.setName("name");
@@ -119,7 +119,7 @@ public class EntrypointResourceTest extends JerseySpringTest {
                         any(UpdateEntrypoint.class),
                         any(User.class));
 
-        final Response response =
+        Response response =
                 put(
                         target("organizations")
                                 .path(ORGANIZATION_ID)
@@ -129,7 +129,7 @@ public class EntrypointResourceTest extends JerseySpringTest {
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Entrypoint entrypoint = readEntity(response, Entrypoint.class);
+        Entrypoint entrypoint = readEntity(response, Entrypoint.class);
         assertEquals(mockEntrypoint.getId(), entrypoint.getId());
         assertEquals(mockEntrypoint.getOrganizationId(), entrypoint.getOrganizationId());
         assertEquals(mockEntrypoint.getName(), entrypoint.getName());
@@ -151,7 +151,7 @@ public class EntrypointResourceTest extends JerseySpringTest {
                         any(UpdateEntrypoint.class),
                         any(User.class));
 
-        final Response response =
+        Response response =
                 put(
                         target("organizations")
                                 .path(ORGANIZATION_ID)

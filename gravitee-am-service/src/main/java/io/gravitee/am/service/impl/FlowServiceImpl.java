@@ -475,8 +475,8 @@ public class FlowServiceImpl implements FlowService {
 
         computeFlowOrders(flows);
 
-        final long ids = flows.stream().filter(flow -> flow.getId() != null).count();
-        final long deduplicateIds =
+        long ids = flows.stream().filter(flow -> flow.getId() != null).count();
+        long deduplicateIds =
                 flows.stream().filter(flow -> flow.getId() != null).distinct().count();
 
         if (ids != deduplicateIds) {
@@ -488,7 +488,7 @@ public class FlowServiceImpl implements FlowService {
                 .toList()
                 .flatMap(
                         existingFlows -> {
-                            final Map<String, Flow> mapOfExistingFlows =
+                            Map<String, Flow> mapOfExistingFlows =
                                     existingFlows.stream()
                                             .filter(
                                                     f ->
@@ -521,7 +521,7 @@ public class FlowServiceImpl implements FlowService {
                                     });
 
                             // preserve the list of flow id to identify flow that must be deleted
-                            final List<String> flowIdsToDelete =
+                            List<String> flowIdsToDelete =
                                     new ArrayList<>(mapOfExistingFlows.keySet());
 
                             return Observable.fromIterable(flows)

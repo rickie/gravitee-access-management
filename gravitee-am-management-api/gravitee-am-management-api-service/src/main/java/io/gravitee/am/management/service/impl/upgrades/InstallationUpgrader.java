@@ -40,7 +40,7 @@ public class InstallationUpgrader implements Upgrader, Ordered {
 
     @Override
     public boolean upgrade() {
-        final Installation installation = installationService.getOrInitialize().blockingGet();
+        Installation installation = installationService.getOrInitialize().blockingGet();
         logger.info("Current installation id is [{}]", installation.getId());
         return true;
     }

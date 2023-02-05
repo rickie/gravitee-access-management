@@ -136,9 +136,9 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testFindAllByReference() {
-        final int loop = 10;
+        int loop = 10;
         for (int i = 0; i < loop; i++) {
-            final Environment environment = buildEnv();
+            Environment environment = buildEnv();
             environment.setOrganizationId(FIXED_REF_ID);
             environmentRepository.create(environment).blockingGet();
         }
@@ -159,7 +159,7 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testFindAll() {
-        final int loop = 10;
+        int loop = 10;
         for (int i = 0; i < loop; i++) {
             // random ref id
             environmentRepository.create(buildEnv()).blockingGet();

@@ -69,7 +69,7 @@ public class OrganizationUserServiceImpl extends AbstractUserService
     public Completable setRoles(
             io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
 
-        final Maybe<Role> defaultRoleObs =
+        Maybe<Role> defaultRoleObs =
                 roleService.findDefaultRole(
                         user.getReferenceId(), DefaultRole.ORGANIZATION_USER, ORGANIZATION);
         Maybe<Role> roleObs = defaultRoleObs;

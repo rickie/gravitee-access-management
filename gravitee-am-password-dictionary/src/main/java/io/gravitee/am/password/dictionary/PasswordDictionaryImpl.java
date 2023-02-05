@@ -98,7 +98,7 @@ public class PasswordDictionaryImpl implements PasswordDictionary, Runnable {
     public void run() {
         try {
             WatchService watcherService = FileSystems.getDefault().newWatchService();
-            final File file = new File(filename);
+            File file = new File(filename);
             Path path = file.toPath();
             Path directory = path.getParent();
             directory.register(watcherService, new Kind[] {ENTRY_MODIFY}, HIGH);

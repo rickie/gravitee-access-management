@@ -806,11 +806,11 @@ public class DynamicClientRegistrationRequest {
 
     private void updateScopeSettings(Client client) {
         if (this.getScope() != null) {
-            final List<ApplicationScopeSettings> currentClientScopeSettings =
+            List<ApplicationScopeSettings> currentClientScopeSettings =
                     client.getScopeSettings() == null
                             ? new ArrayList<ApplicationScopeSettings>()
                             : client.getScopeSettings();
-            final Optional<List<ApplicationScopeSettings>> scopeSettingsToUpdate =
+            Optional<List<ApplicationScopeSettings>> scopeSettingsToUpdate =
                     this.getScope()
                             .map(
                                     scopes -> {

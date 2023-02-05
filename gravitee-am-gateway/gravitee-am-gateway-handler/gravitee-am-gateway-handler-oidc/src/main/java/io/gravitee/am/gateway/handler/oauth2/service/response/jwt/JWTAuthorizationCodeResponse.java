@@ -27,7 +27,7 @@ import io.gravitee.am.gateway.handler.oauth2.service.response.AuthorizationCodeR
 public class JWTAuthorizationCodeResponse
         extends JWTAuthorizationResponse<AuthorizationCodeResponse> {
 
-    public JWTAuthorizationCodeResponse(final AuthorizationCodeResponse response) {
+    public JWTAuthorizationCodeResponse(AuthorizationCodeResponse response) {
         super(response);
     }
 

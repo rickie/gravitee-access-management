@@ -159,9 +159,9 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
     @Override
     public Completable loadIdentityProviders() {
         if (this.listener != null) {
-            final IdentityProvider graviteeIdp = buildOrganizationUserIdentityProvider();
+            IdentityProvider graviteeIdp = buildOrganizationUserIdentityProvider();
 
-            final List<IdentityProvider> providers = loadProvidersFromConfig();
+            List<IdentityProvider> providers = loadProvidersFromConfig();
             // add the Gravitee provider to allow addition of OrganizationUser through the console
             providers.add(graviteeIdp);
             providers.forEach(listener::registerAuthenticationProvider);
@@ -284,9 +284,9 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
                 mongoPort = environment.getProperty("management.mongodb.port", "27017");
             }
 
-            final String username = environment.getProperty("management.mongodb.username");
-            final String password = environment.getProperty("management.mongodb.password");
-            final String mongoDBName = getMongoDatabaseName(environment);
+            String username = environment.getProperty("management.mongodb.username");
+            String password = environment.getProperty("management.mongodb.password");
+            String mongoDBName = getMongoDatabaseName(environment);
 
             String defaultMongoUri = "mongodb://";
             if (!StringUtils.isEmpty(username) && !StringUtils.isEmpty(password)) {

@@ -43,8 +43,7 @@ public class XSSHandlerFactory implements FactoryBean<XSSHandler> {
     public XSSHandler getObject() {
         if (isNull(INSTANCE)) {
             var action = environment.getProperty(HTTP_XSS_ACTION, String.class, "1; mode=block");
-            final boolean notEnabled =
-                    !environment.getProperty(HTTP_XSS_ENABLED, Boolean.class, true);
+            boolean notEnabled = !environment.getProperty(HTTP_XSS_ENABLED, Boolean.class, true);
             if (isNullOrEmpty(action) || notEnabled) {
                 INSTANCE = new NoXSSHandler();
             } else {
