@@ -409,23 +409,23 @@ public class ApplicationServiceTest {
     public void shouldCreate_withSystemCertificate() {
         NewApplication newClient = prepareCreateApp();
 
-        final LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
 
-        final Certificate firstDefaultCert = new Certificate();
+        Certificate firstDefaultCert = new Certificate();
         firstDefaultCert.setId("first-cert");
         firstDefaultCert.setSystem(true);
         firstDefaultCert.setName("Default");
         firstDefaultCert.setCreatedAt(
                 new Date(now.plusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli()));
 
-        final Certificate lastestDefaultCert = new Certificate();
+        Certificate lastestDefaultCert = new Certificate();
         lastestDefaultCert.setId("latest-cert");
         lastestDefaultCert.setSystem(true);
         lastestDefaultCert.setName("Default 123456");
         lastestDefaultCert.setCreatedAt(
                 new Date(now.plusDays(2).toInstant(ZoneOffset.UTC).toEpochMilli()));
 
-        final Certificate customCert = new Certificate();
+        Certificate customCert = new Certificate();
         customCert.setId("custom-cert");
         customCert.setSystem(false);
         customCert.setName("Custom");
@@ -460,23 +460,23 @@ public class ApplicationServiceTest {
     public void shouldCreate_withLegacyCertificate() {
         NewApplication newClient = prepareCreateApp();
 
-        final LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
 
-        final Certificate firstDefaultCert = new Certificate();
+        Certificate firstDefaultCert = new Certificate();
         firstDefaultCert.setId("first-cert");
         firstDefaultCert.setSystem(false);
         firstDefaultCert.setName("Default");
         firstDefaultCert.setExpiresAt(
                 new Date(now.plusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli()));
 
-        final Certificate lastestDefaultCert = new Certificate();
+        Certificate lastestDefaultCert = new Certificate();
         lastestDefaultCert.setId("latest-cert");
         lastestDefaultCert.setSystem(false);
         lastestDefaultCert.setName("Default 123456");
         lastestDefaultCert.setExpiresAt(
                 new Date(now.plusDays(2).toInstant(ZoneOffset.UTC).toEpochMilli()));
 
-        final Certificate customCert = new Certificate();
+        Certificate customCert = new Certificate();
         customCert.setId("custom-cert");
         customCert.setSystem(false);
         customCert.setName("Custom");
@@ -511,16 +511,16 @@ public class ApplicationServiceTest {
     public void shouldCreate_withFirstCertificate() {
         NewApplication newClient = prepareCreateApp();
 
-        final LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
 
-        final Certificate firstDefaultCert = new Certificate();
+        Certificate firstDefaultCert = new Certificate();
         firstDefaultCert.setId("first-cert");
         firstDefaultCert.setSystem(false);
         firstDefaultCert.setName("Custom name for default");
         firstDefaultCert.setExpiresAt(
                 new Date(now.plusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli()));
 
-        final Certificate customCert = new Certificate();
+        Certificate customCert = new Certificate();
         customCert.setId("custom-cert");
         customCert.setSystem(false);
         customCert.setName("Custom");
@@ -1009,8 +1009,8 @@ public class ApplicationServiceTest {
                 Optional.of(Arrays.asList("https://callback")));
         patchApplicationSettings.setOauth(Optional.of(patchApplicationOAuthSettings));
         patchApplicationSettings.setPasswordSettings(Optional.empty());
-        final AccountSettings accountSettings = new AccountSettings();
-        final FormField formField = new FormField();
+        AccountSettings accountSettings = new AccountSettings();
+        FormField formField = new FormField();
         formField.setKey("username");
         accountSettings.setResetPasswordCustomFormFields(Arrays.asList(formField));
         accountSettings.setResetPasswordCustomForm(true);
@@ -1061,8 +1061,8 @@ public class ApplicationServiceTest {
                 Optional.of(Arrays.asList("https://callback")));
         patchApplicationSettings.setOauth(Optional.of(patchApplicationOAuthSettings));
         patchApplicationSettings.setPasswordSettings(Optional.empty());
-        final AccountSettings accountSettings = new AccountSettings();
-        final FormField formField = new FormField();
+        AccountSettings accountSettings = new AccountSettings();
+        FormField formField = new FormField();
         formField.setKey("unknown");
         accountSettings.setResetPasswordCustomFormFields(Arrays.asList(formField));
         accountSettings.setResetPasswordCustomForm(true);

@@ -25,7 +25,7 @@ public class IntrospectionRequest {
 
     private TokenTypeHint hint;
 
-    public IntrospectionRequest(final String token) {
+    public IntrospectionRequest(String token) {
         this.token = token;
     }
 

@@ -25,7 +25,7 @@ public class EvaluableRequest {
 
     private final Request request;
 
-    public EvaluableRequest(final Request request) {
+    public EvaluableRequest(Request request) {
         this.request = request;
     }
 

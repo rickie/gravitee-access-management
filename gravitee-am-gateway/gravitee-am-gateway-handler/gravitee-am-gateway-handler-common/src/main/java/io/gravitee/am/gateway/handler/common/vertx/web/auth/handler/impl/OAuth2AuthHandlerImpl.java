@@ -70,7 +70,7 @@ public class OAuth2AuthHandlerImpl implements OAuth2AuthHandler {
                         return;
                     }
 
-                    final String jwtToken = parseHandler.result();
+                    String jwtToken = parseHandler.result();
 
                     // set raw token to the current context
                     if (extractRawToken) {
@@ -102,7 +102,7 @@ public class OAuth2AuthHandlerImpl implements OAuth2AuthHandler {
 
                                 // check if current subject can access its own resources
                                 if (selfResource) {
-                                    final String resourceId =
+                                    String resourceId =
                                             context.request().getParam(resourceParameter);
                                     if (resourceId != null && resourceId.equals(token.getSub())) {
                                         if (resourceRequiredScope == null
@@ -187,9 +187,8 @@ public class OAuth2AuthHandlerImpl implements OAuth2AuthHandler {
     }
 
     private void parseAuthorization(RoutingContext context, Handler<AsyncResult<String>> handler) {
-        final HttpServerRequest request = context.request();
-        final String authorization =
-                request.headers().get(io.vertx.core.http.HttpHeaders.AUTHORIZATION);
+        HttpServerRequest request = context.request();
+        String authorization = request.headers().get(io.vertx.core.http.HttpHeaders.AUTHORIZATION);
         String authToken = null;
         try {
             if (authorization != null) {

@@ -172,7 +172,7 @@ public class OrganizationUserServiceImpl
                                                     // relational databases
                                                     // - in case of error, trace the event otherwise
                                                     // continue the creation process
-                                                    final User userToPersist =
+                                                    User userToPersist =
                                                             transform(
                                                                     newUser,
                                                                     ReferenceType.ORGANIZATION,
@@ -333,7 +333,7 @@ public class OrganizationUserServiceImpl
                 .findById(referenceType, referenceId, id)
                 .flatMap(
                         user -> {
-                            final Date now = new Date();
+                            Date now = new Date();
                             user.setLastLogoutAt(now);
                             user.setUpdatedAt(now);
                             return getUserService().update(user);

@@ -64,8 +64,8 @@ public class ApplicationMemberResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("application") String application,
             @PathParam("member") String membershipId,
-            @Suspended final AsyncResponse response) {
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,

@@ -37,10 +37,10 @@ public class AuthorizationRequestTransactionHandler implements Handler<RoutingCo
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final Session session = routingContext.session();
+        Session session = routingContext.session();
 
         if (session.get(ConstantKeys.TRANSACTION_ID_KEY) == null) {
-            final String tid = routingContext.request().headers().get(transactionIdHeaderName);
+            String tid = routingContext.request().headers().get(transactionIdHeaderName);
             if (tid != null) {
                 session.put(ConstantKeys.TRANSACTION_ID_KEY, tid);
             }

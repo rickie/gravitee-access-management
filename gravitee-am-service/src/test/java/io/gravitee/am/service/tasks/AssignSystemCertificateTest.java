@@ -59,9 +59,9 @@ public class AssignSystemCertificateTest {
     public void shouldNoProcessTask_MissingFromDB() {
         when(taskManager.isActiveTask(anyString())).thenReturn(Single.just(false));
 
-        final var task =
+        var task =
                 new AssignSystemCertificate(applicationService, certificateRepository, taskManager);
-        final var definition = new AssignSystemCertificateDefinition();
+        var definition = new AssignSystemCertificateDefinition();
         definition.setUnit(TimeUnit.SECONDS);
         definition.setDelay(10);
         definition.setDeprecatedCertificate(UUID.randomUUID().toString());
@@ -84,11 +84,11 @@ public class AssignSystemCertificateTest {
                 .thenReturn(Single.error(new Exception()));
         when(certificateRepository.findById(anyString())).thenReturn(Maybe.just(new Certificate()));
 
-        final var task =
+        var task =
                 new AssignSystemCertificate(applicationService, certificateRepository, taskManager);
-        final var scheduler = mock(TaskScheduler.class);
+        var scheduler = mock(TaskScheduler.class);
         task.registerScheduler(scheduler);
-        final var definition = new AssignSystemCertificateDefinition();
+        var definition = new AssignSystemCertificateDefinition();
         definition.setUnit(TimeUnit.SECONDS);
         definition.setDelay(10);
         definition.setDeprecatedCertificate(UUID.randomUUID().toString());
@@ -106,11 +106,11 @@ public class AssignSystemCertificateTest {
 
     @Test
     public void shouldProcessTask() {
-        final var task =
+        var task =
                 new AssignSystemCertificate(applicationService, certificateRepository, taskManager);
-        final var scheduler = mock(TaskScheduler.class);
+        var scheduler = mock(TaskScheduler.class);
         task.registerScheduler(scheduler);
-        final var definition = new AssignSystemCertificateDefinition();
+        var definition = new AssignSystemCertificateDefinition();
         definition.setUnit(TimeUnit.SECONDS);
         definition.setDelay(10);
         definition.setDeprecatedCertificate(UUID.randomUUID().toString());
@@ -156,11 +156,11 @@ public class AssignSystemCertificateTest {
 
     @Test
     public void shouldNotProcessTask_UnknownCertificate() {
-        final var task =
+        var task =
                 new AssignSystemCertificate(applicationService, certificateRepository, taskManager);
-        final var scheduler = mock(TaskScheduler.class);
+        var scheduler = mock(TaskScheduler.class);
         task.registerScheduler(scheduler);
-        final var definition = new AssignSystemCertificateDefinition();
+        var definition = new AssignSystemCertificateDefinition();
         definition.setUnit(TimeUnit.SECONDS);
         definition.setDelay(10);
         definition.setDeprecatedCertificate(UUID.randomUUID().toString());

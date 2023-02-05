@@ -91,7 +91,7 @@ public class OAuth2GenericAuthenticationProviderTest {
                                         dummyRequest.setParameters(
                                                 Collections.singletonMap(
                                                         "code", Arrays.asList("test-code")));
-                                        final HashMap<String, Object> attributes = new HashMap<>();
+                                        HashMap<String, Object> attributes = new HashMap<>();
                                         attributes.put("redirect_uri", "http://redirect_uri");
                                         return new DummyAuthenticationContext(
                                                 attributes, dummyRequest);
@@ -135,7 +135,7 @@ public class OAuth2GenericAuthenticationProviderTest {
                                         dummyRequest.setParameters(
                                                 Collections.singletonMap(
                                                         "code", Arrays.asList("wrong-code")));
-                                        final HashMap<String, Object> attributes = new HashMap<>();
+                                        HashMap<String, Object> attributes = new HashMap<>();
                                         attributes.put("redirect_uri", "http://redirect_uri");
                                         return new DummyAuthenticationContext(
                                                 attributes, dummyRequest);
@@ -181,7 +181,7 @@ public class OAuth2GenericAuthenticationProviderTest {
                                         dummyRequest.setParameters(
                                                 Collections.singletonMap(
                                                         "code", Arrays.asList("test-code")));
-                                        final HashMap<String, Object> attributes = new HashMap<>();
+                                        HashMap<String, Object> attributes = new HashMap<>();
                                         attributes.put("redirect_uri", "http://redirect_uri");
                                         return new DummyAuthenticationContext(
                                                 attributes, dummyRequest);
@@ -233,7 +233,7 @@ public class OAuth2GenericAuthenticationProviderTest {
                                         dummyRequest.setParameters(
                                                 Collections.singletonMap(
                                                         "code", Arrays.asList("test-code")));
-                                        final HashMap<String, Object> attributes = new HashMap<>();
+                                        HashMap<String, Object> attributes = new HashMap<>();
                                         attributes.put("redirect_uri", "http://redirect_uri");
                                         return new DummyAuthenticationContext(
                                                 attributes, dummyRequest);

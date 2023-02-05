@@ -56,9 +56,9 @@ public class EventConverter extends DozerConverter<Event, JdbcEvent> {
             result = new Event();
             result.setId(jdbcEvent.getId());
             result.setType(jdbcEvent.getType() == null ? null : Type.valueOf(jdbcEvent.getType()));
-            final HashMap payload = JSONMapper.toBean(jdbcEvent.getPayload(), HashMap.class);
+            HashMap payload = JSONMapper.toBean(jdbcEvent.getPayload(), HashMap.class);
             if (payload != null) {
-                final String action = (String) payload.get("action");
+                String action = (String) payload.get("action");
                 payload.put("action", action == null ? null : Action.valueOf(action));
                 result.setPayload(new Payload(payload));
             }

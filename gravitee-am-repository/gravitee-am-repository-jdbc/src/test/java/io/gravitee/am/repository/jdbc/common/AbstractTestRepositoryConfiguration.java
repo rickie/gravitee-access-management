@@ -61,7 +61,7 @@ public abstract class AbstractTestRepositoryConfiguration extends AbstractReposi
             throws SQLException {
         Boolean enabled = env.getProperty("liquibase.enabled", Boolean.class, true);
         if (enabled) {
-            final String jdbcUrl = container.getJdbcUrl();
+            String jdbcUrl = container.getJdbcUrl();
 
             try (Connection connection =
                     DriverManager.getConnection(
@@ -80,7 +80,7 @@ public abstract class AbstractTestRepositoryConfiguration extends AbstractReposi
         System.setProperty("liquibase.databaseChangeLogLockTableName", "databasechangeloglock");
 
         try {
-            final Liquibase liquibase =
+            Liquibase liquibase =
                     new Liquibase(
                             "liquibase-test/master.yml",
                             new ClassLoaderResourceAccessor(this.getClass().getClassLoader()),

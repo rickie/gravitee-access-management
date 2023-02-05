@@ -73,7 +73,7 @@ public class AuthorizationRequestParseParametersHandler extends AbstractAuthoriz
 
     @Override
     public void handle(RoutingContext context) {
-        final Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
         // proceed prompt parameter
         parsePromptParameter(context);
@@ -143,7 +143,7 @@ public class AuthorizationRequestParseParametersHandler extends AbstractAuthoriz
             throw new InvalidRequestException("Missing parameter: code_challenge");
         }
 
-        final boolean pkceRequiredByFapi =
+        boolean pkceRequiredByFapi =
                 this.domain.usePlainFapiProfile()
                         && Optional.ofNullable((Boolean) context.get(REQUEST_OBJECT_FROM_URI))
                                 .orElse(Boolean.FALSE);
@@ -341,10 +341,10 @@ public class AuthorizationRequestParseParametersHandler extends AbstractAuthoriz
     private void parseRedirectUriParameter(RoutingContext context, Client client) {
         String requestedRedirectUri =
                 getOAuthParameter(context, io.gravitee.am.common.oauth2.Parameters.REDIRECT_URI);
-        final List<String> registeredClientRedirectUris = client.getRedirectUris();
-        final boolean hasRegisteredClientRedirectUris =
+        List<String> registeredClientRedirectUris = client.getRedirectUris();
+        boolean hasRegisteredClientRedirectUris =
                 registeredClientRedirectUris != null && !registeredClientRedirectUris.isEmpty();
-        final boolean hasRequestedRedirectUri =
+        boolean hasRequestedRedirectUri =
                 requestedRedirectUri != null && !requestedRedirectUri.isEmpty();
 
         // if no requested redirect_uri and no registered client redirect_uris

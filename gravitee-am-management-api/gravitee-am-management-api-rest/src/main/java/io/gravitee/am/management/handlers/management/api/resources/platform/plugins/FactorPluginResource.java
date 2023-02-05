@@ -47,7 +47,7 @@ public class FactorPluginResource {
     @ApiOperation(
             value = "Get a factor plugin",
             notes = "There is no particular permission needed. User must be authenticated.")
-    public void get(@PathParam("factor") String factorId, @Suspended final AsyncResponse response) {
+    public void get(@PathParam("factor") String factorId, @Suspended AsyncResponse response) {
         factorPluginService
                 .findById(factorId)
                 .switchIfEmpty(Maybe.error(new AuthenticatorPluginNotFoundException(factorId)))
@@ -61,8 +61,7 @@ public class FactorPluginResource {
     @ApiOperation(
             value = "Get a factor plugin's schema",
             notes = "There is no particular permission needed. User must be authenticated.")
-    public void getSchema(
-            @PathParam("factor") String factorId, @Suspended final AsyncResponse response) {
+    public void getSchema(@PathParam("factor") String factorId, @Suspended AsyncResponse response) {
         factorPluginService
                 .getSchema(factorId)
                 .map(policyPluginSchema -> Response.ok(policyPluginSchema).build())

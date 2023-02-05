@@ -124,9 +124,9 @@ public class RequestObjectServiceImpl implements RequestObjectService {
                                         });
             } else {
 
-                final var domainRequestUris =
+                var domainRequestUris =
                         domain.getOidc() != null ? domain.getOidc().getRequestUris() : null;
-                final var registeredRequestUris =
+                var registeredRequestUris =
                         isEmpty(client.getRequestUris())
                                 ? domainRequestUris
                                 : client.getRequestUris();
