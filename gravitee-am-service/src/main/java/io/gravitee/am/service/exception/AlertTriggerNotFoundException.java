@@ -13,7 +13,6 @@
  */
 package io.gravitee.am.service.exception;
 
-
 /**
  * @author Florent CHAMFROY (forent.chamfroy at graviteesource.com)
  * @author GraviteeSource Team

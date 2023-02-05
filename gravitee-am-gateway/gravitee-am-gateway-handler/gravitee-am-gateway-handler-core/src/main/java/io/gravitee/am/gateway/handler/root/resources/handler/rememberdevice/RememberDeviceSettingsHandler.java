@@ -57,7 +57,7 @@ public class RememberDeviceSettingsHandler implements Handler<RoutingContext> {
     }
 
     private void handleGetRememberDevice(RoutingContext routingContext) {
-        final Client client =
+        Client client =
                 ofNullable(routingContext.<Client>get(CLIENT_CONTEXT_KEY)).orElse(new Client());
         var rememberDeviceSettings = getRememberDeviceSettings(client);
         routingContext.put(REMEMBER_DEVICE_IS_ACTIVE, rememberDeviceSettings.isActive());
@@ -66,8 +66,8 @@ public class RememberDeviceSettingsHandler implements Handler<RoutingContext> {
                 TRUE.equals(routingContext.session().get(DEVICE_ALREADY_EXISTS_KEY)));
         if (rememberDeviceSettings.isActive()
                 && FALSE.equals(routingContext.session().get(DEVICE_ALREADY_EXISTS_KEY))) {
-            final Long expirationTimeSeconds = rememberDeviceSettings.getExpirationTimeSeconds();
-            final Long consentTime =
+            Long expirationTimeSeconds = rememberDeviceSettings.getExpirationTimeSeconds();
+            Long consentTime =
                     isNull(expirationTimeSeconds)
                             ? DEFAULT_REMEMBER_DEVICE_CONSENT_TIME
                             : expirationTimeSeconds;

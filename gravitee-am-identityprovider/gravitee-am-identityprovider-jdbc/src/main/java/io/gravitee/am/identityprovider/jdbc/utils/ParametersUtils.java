@@ -13,7 +13,6 @@
  */
 package io.gravitee.am.identityprovider.jdbc.utils;
 
-
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
  * @author GraviteeSource Team

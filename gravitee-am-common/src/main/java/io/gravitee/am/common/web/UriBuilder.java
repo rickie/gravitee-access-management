@@ -263,7 +263,7 @@ public class UriBuilder {
     }
 
     public String buildString() {
-        final StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         if (this.scheme != null) {
             sb.append(this.scheme).append(':');
         }
@@ -290,7 +290,7 @@ public class UriBuilder {
     }
 
     public String buildRootUrl() {
-        final StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         if (this.scheme != null) {
             sb.append(this.scheme).append(':');
         }

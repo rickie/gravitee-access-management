@@ -62,7 +62,7 @@ public class DiscoveryProvider extends AbstractService<ProtocolProvider>
     }
 
     private void startDiscovery() {
-        final Router discoveryRouter = Router.router(vertx);
+        Router discoveryRouter = Router.router(vertx);
 
         // UMA Provider configuration information endpoint
         Handler<RoutingContext> providerConfigurationEndpoint = new ProviderConfigurationEndpoint();

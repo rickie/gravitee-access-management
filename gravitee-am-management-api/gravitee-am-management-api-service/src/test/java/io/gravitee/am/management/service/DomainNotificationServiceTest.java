@@ -130,11 +130,11 @@ public class DomainNotificationServiceTest {
 
         when(environmentService.findById(domain.getReferenceId())).thenReturn(Single.just(env));
 
-        final Role role = new Role();
+        Role role = new Role();
         role.setId("role#1");
         when(roleService.findSystemRole(SystemRole.DOMAIN_PRIMARY_OWNER, ReferenceType.DOMAIN))
                 .thenReturn(Maybe.just(role));
-        final Role role2 = new Role();
+        Role role2 = new Role();
         role2.setId("role#2");
         when(roleService.findDefaultRole(
                         ORGANIZATION_ID, DefaultRole.DOMAIN_OWNER, ReferenceType.DOMAIN))
@@ -150,13 +150,13 @@ public class DomainNotificationServiceTest {
 
     @Test
     public void shouldNotifyUser_EmailOnly() throws Exception {
-        final Membership member = new Membership();
+        Membership member = new Membership();
         member.setMemberType(MemberType.USER);
         member.setMemberId("userid");
         when(membershipService.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any()))
                 .thenReturn(Flowable.just(member), Flowable.empty());
 
-        final User user = new User();
+        User user = new User();
         user.setEmail("user@acme.fr");
         when(userService.findById(
                         ReferenceType.ORGANIZATION, env.getOrganizationId(), member.getMemberId()))
@@ -177,13 +177,13 @@ public class DomainNotificationServiceTest {
     public void shouldNotifyUser_EmailAndUI() throws Exception {
         ReflectionTestUtils.setField(cut, "uiNotifierEnabled", true);
 
-        final Membership member = new Membership();
+        Membership member = new Membership();
         member.setMemberType(MemberType.USER);
         member.setMemberId("userid");
         when(membershipService.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any()))
                 .thenReturn(Flowable.just(member), Flowable.empty());
 
-        final User user = new User();
+        User user = new User();
         user.setEmail("user@acme.fr");
         when(userService.findById(
                         ReferenceType.ORGANIZATION, env.getOrganizationId(), member.getMemberId()))
@@ -205,23 +205,23 @@ public class DomainNotificationServiceTest {
 
     @Test
     public void shouldNotifyUserFromGroup() throws Exception {
-        final Membership member = new Membership();
+        Membership member = new Membership();
         member.setMemberType(MemberType.GROUP);
         member.setMemberId("groupId");
         when(membershipService.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any()))
                 .thenReturn(Flowable.just(member), Flowable.empty());
 
-        final List<User> tenUsers =
+        List<User> tenUsers =
                 IntStream.range(0, 10)
                         .mapToObj(
                                 x -> {
-                                    final User user = new User();
+                                    User user = new User();
                                     user.setId("" + x);
                                     user.setEmail(x + "@acme.fr");
                                     return user;
                                 })
                         .collect(Collectors.toList());
-        final User singleUser = new User();
+        User singleUser = new User();
         singleUser.setId("single");
         singleUser.setEmail("single@acme.fr");
 

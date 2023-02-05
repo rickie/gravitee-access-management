@@ -41,7 +41,7 @@ public class ThymeleafDataHelper {
 
     public static Map<String, Object> generateData(
             RoutingContext context, Domain domain, Client client) {
-        final Map<String, Object> data = new HashMap<>(context.data());
+        Map<String, Object> data = new HashMap<>(context.data());
         if (domain != null) {
             data.put(DOMAIN_CONTEXT_KEY, new DomainProperties(domain));
         }
@@ -58,7 +58,7 @@ public class ThymeleafDataHelper {
                 new EvaluableRequest(
                         new VertxHttpServerRequest(context.request().getDelegate(), true));
         data.putIfAbsent(REQUEST_CONTEXT_KEY, evaluableRequest);
-        final Map<String, Object> parameters =
+        Map<String, Object> parameters =
                 Optional.ofNullable((Map<String, Object>) data.get(PARAM_CONTEXT_KEY))
                         .orElse(new HashMap<>());
         for (var entry : evaluableRequest.getParams().toSingleValueMap().entrySet()) {
@@ -73,7 +73,7 @@ public class ThymeleafDataHelper {
         Object user =
                 context.get(
                         USER_CONTEXT_KEY); // context may contain User or UserProperties according
-                                           // to the execution path
+        // to the execution path
         Optional<UserProperties> mayHaveUser = Optional.empty();
         User authUser;
         if (user instanceof User) {

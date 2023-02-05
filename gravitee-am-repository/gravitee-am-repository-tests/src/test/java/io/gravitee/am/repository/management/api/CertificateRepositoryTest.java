@@ -150,9 +150,9 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
         Certificate certificate = buildCertificate();
         Certificate certificateCreated = certificateRepository.create(certificate).blockingGet();
 
-        final Date exp = new Date(Instant.now().plus(5, ChronoUnit.DAYS).toEpochMilli());
+        Date exp = new Date(Instant.now().plus(5, ChronoUnit.DAYS).toEpochMilli());
 
-        final TestObserver<Void> testObserver =
+        TestObserver<Void> testObserver =
                 certificateRepository.updateExpirationDate(certificateCreated.getId(), exp).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();

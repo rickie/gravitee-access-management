@@ -37,7 +37,7 @@ public class AlertTriggerFactoryTest {
     @Test
     public void createTooManyLoginFailuresTrigger() {
 
-        final AlertTrigger alertTrigger = new AlertTrigger();
+        AlertTrigger alertTrigger = new AlertTrigger();
 
         alertTrigger.setId("alertTrigger#1");
         alertTrigger.setEnabled(true);
@@ -45,14 +45,14 @@ public class AlertTriggerFactoryTest {
         alertTrigger.setReferenceType(ReferenceType.DOMAIN);
         alertTrigger.setReferenceId("domain#1");
 
-        final AlertNotifier alertNotifier = new AlertNotifier();
+        AlertNotifier alertNotifier = new AlertNotifier();
         alertNotifier.setId("alertNotifier#1");
         alertNotifier.setName("test");
         alertNotifier.setConfiguration("{}");
         alertNotifier.setType("webhook");
 
-        final MockEnvironment environment = new MockEnvironment();
-        final List<Trigger> triggers =
+        MockEnvironment environment = new MockEnvironment();
+        List<Trigger> triggers =
                 AlertTriggerFactory.create(
                         alertTrigger, Collections.singletonList(alertNotifier), environment);
 
@@ -68,7 +68,7 @@ public class AlertTriggerFactoryTest {
     @Test
     public void createRiskAssessmentAlert() {
 
-        final AlertTrigger alertTrigger = new AlertTrigger();
+        AlertTrigger alertTrigger = new AlertTrigger();
 
         alertTrigger.setId("alertTrigger#1");
         alertTrigger.setEnabled(true);
@@ -76,14 +76,14 @@ public class AlertTriggerFactoryTest {
         alertTrigger.setReferenceType(ReferenceType.DOMAIN);
         alertTrigger.setReferenceId("domain#1");
 
-        final AlertNotifier alertNotifier = new AlertNotifier();
+        AlertNotifier alertNotifier = new AlertNotifier();
         alertNotifier.setId("alertNotifier#1");
         alertNotifier.setName("test");
         alertNotifier.setConfiguration("{}");
         alertNotifier.setType("webhook");
 
-        final MockEnvironment environment = new MockEnvironment();
-        final List<Trigger> triggers =
+        MockEnvironment environment = new MockEnvironment();
+        List<Trigger> triggers =
                 AlertTriggerFactory.create(
                         alertTrigger, Collections.singletonList(alertNotifier), environment);
 

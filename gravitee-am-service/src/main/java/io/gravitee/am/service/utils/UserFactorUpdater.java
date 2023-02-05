@@ -79,7 +79,7 @@ public class UserFactorUpdater {
                                                 && !StringUtils.isEmpty(updatedRemaining.get(0))) {
                                             factor.getChannel().setTarget(updatedRemaining.get(0));
                                         } // If there are more than one result, do not update the
-                                          // factor
+                                        // factor
                                     }
                                 }
                             });

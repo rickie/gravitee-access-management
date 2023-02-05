@@ -83,7 +83,7 @@ public class FormManagerImpl
     }
 
     private void updateForm(String formId, FormEvent formEvent) {
-        final String eventType = formEvent.toString().toLowerCase();
+        String eventType = formEvent.toString().toLowerCase();
         logger.info("Received {} form event for {}", eventType, formId);
         formService
                 .findById(formId)
@@ -124,7 +124,7 @@ public class FormManagerImpl
      * @return true if the Form has never been deployed or if the deployed version is not up to date
      */
     private boolean needDeployment(Form form) {
-        final Form deployedForm = this.forms.get(form.getId());
+        Form deployedForm = this.forms.get(form.getId());
         return (deployedForm == null || deployedForm.getUpdatedAt().before(form.getUpdatedAt()));
     }
 }

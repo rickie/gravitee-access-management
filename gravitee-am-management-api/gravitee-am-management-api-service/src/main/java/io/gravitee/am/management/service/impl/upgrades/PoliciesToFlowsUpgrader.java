@@ -70,8 +70,7 @@ public class PoliciesToFlowsUpgrader implements Upgrader, Ordered {
                                         .groupBy(Policy::getDomain)
                                         .flatMapCompletable(
                                                 policiesPerDomain -> {
-                                                    final String domain =
-                                                            policiesPerDomain.getKey();
+                                                    String domain = policiesPerDomain.getKey();
                                                     return policiesPerDomain
                                                             .toList()
                                                             .flatMapCompletable(
@@ -153,9 +152,8 @@ public class PoliciesToFlowsUpgrader implements Upgrader, Ordered {
     }
 
     private Step createStep(Policy policy) {
-        final PolicyPlugin policyPlugin =
-                policyPluginService.findById(policy.getType()).blockingGet();
-        final Step step = new Step();
+        PolicyPlugin policyPlugin = policyPluginService.findById(policy.getType()).blockingGet();
+        Step step = new Step();
         step.setName(policyPlugin != null ? policyPlugin.getName() : policy.getType());
         step.setEnabled(policy.isEnabled());
         step.setDescription(policy.getName());

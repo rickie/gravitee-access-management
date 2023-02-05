@@ -19,5 +19,5 @@ package io.gravitee.am.service.tasks;
  */
 public enum TaskType {
     SIMPLE; // simple scheduled task persisted to be evaluated when service is restarting before the
-            // task execution
+    // task execution
 }

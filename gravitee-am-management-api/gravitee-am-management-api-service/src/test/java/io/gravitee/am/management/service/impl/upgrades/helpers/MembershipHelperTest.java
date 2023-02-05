@@ -56,7 +56,7 @@ public class MembershipHelperTest {
         User user = new User();
         user.setId("user-id");
 
-        final Role primaryOwnerRole = new Role();
+        Role primaryOwnerRole = new Role();
         primaryOwnerRole.setId("role-id");
 
         when(membershipService.findByCriteria(
@@ -79,7 +79,7 @@ public class MembershipHelperTest {
         User user = new User();
         user.setId("user-id");
 
-        final Role adminRole = new Role();
+        Role adminRole = new Role();
         adminRole.setId("role-id");
 
         when(membershipService.findByCriteria(
@@ -97,11 +97,11 @@ public class MembershipHelperTest {
     @Test
     public void shouldSetPlatformAdminToOrganizationPrimaryOwner() {
 
-        final Role organizationPrimaryOwner = new Role();
+        Role organizationPrimaryOwner = new Role();
         organizationPrimaryOwner.setId("organization-primary-owner");
 
-        final Membership membership = new Membership();
-        final String userId = "user-id";
+        Membership membership = new Membership();
+        String userId = "user-id";
 
         membership.setMemberId(userId);
         membership.setMemberType(MemberType.USER);
@@ -124,11 +124,11 @@ public class MembershipHelperTest {
     @Test
     public void shouldNotSetPlatformAdminNoOrganizationPrimaryOwner() {
 
-        final Role organizationPrimaryOwner = new Role();
+        Role organizationPrimaryOwner = new Role();
         organizationPrimaryOwner.setId("organization-primary-owner");
 
-        final Membership membership = new Membership();
-        final String userId = "user-id";
+        Membership membership = new Membership();
+        String userId = "user-id";
 
         membership.setMemberId(userId);
         membership.setMemberType(MemberType.USER);

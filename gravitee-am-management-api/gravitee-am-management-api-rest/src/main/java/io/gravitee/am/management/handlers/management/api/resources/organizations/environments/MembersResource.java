@@ -60,8 +60,8 @@ public class MembersResource extends AbstractResource {
     public void permissions(
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(organizationId, environmentId, Permission.ENVIRONMENT, Acl.READ)
                 .andThen(

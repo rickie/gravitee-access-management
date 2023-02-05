@@ -485,7 +485,7 @@ public class PermissionServiceTest {
                 Permission.of(
                         DOMAIN, READ,
                         CREATE)); // The permission create is set on organization but expected on a
-                                  // domain.
+        // domain.
 
         Domain domain = new Domain();
         domain.setReferenceType(ReferenceType.ENVIRONMENT);
@@ -548,7 +548,7 @@ public class PermissionServiceTest {
         role.setAssignableType(
                 ReferenceType
                         .ORGANIZATION); // The role is assignable to organization only by affected
-                                        // to an application.
+        // to an application.
         role.setPermissionAcls(Permission.of(APPLICATION, READ));
 
         when(groupService.findByMember(user.getId())).thenReturn(Flowable.empty());
@@ -616,7 +616,7 @@ public class PermissionServiceTest {
                 Permission.of(
                         ORGANIZATION,
                         CREATE)); // CREATE permission come from role associated to group of the
-                                  // user.
+        // user.
 
         Group group = new Group();
         group.setId(GROUP_ID);
@@ -686,7 +686,7 @@ public class PermissionServiceTest {
                 Permission.of(
                         ORGANIZATION,
                         CREATE)); // CREATE permission come from role associated to group of the
-                                  // user.
+        // user.
 
         Group group = new Group();
         group.setId(GROUP_ID);

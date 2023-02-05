@@ -45,17 +45,17 @@ public class IdentityProvidersResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetIdentityProviders() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final IdentityProvider mockIdentityProvider = new IdentityProvider();
+        IdentityProvider mockIdentityProvider = new IdentityProvider();
         mockIdentityProvider.setId("identityProvider-1-id");
         mockIdentityProvider.setName("identityProvider-1-name");
         mockIdentityProvider.setReferenceType(ReferenceType.DOMAIN);
         mockIdentityProvider.setReferenceId(domainId);
 
-        final IdentityProvider mockIdentityProvider2 = new IdentityProvider();
+        IdentityProvider mockIdentityProvider2 = new IdentityProvider();
         mockIdentityProvider2.setId("identityProvider-2-id");
         mockIdentityProvider2.setName("identityProvider-2-name");
         mockIdentityProvider2.setReferenceType(ReferenceType.DOMAIN);
@@ -66,30 +66,28 @@ public class IdentityProvidersResourceTest extends JerseySpringTest {
                 .when(identityProviderService)
                 .findByDomain(domainId);
 
-        final Response response =
-                target("domains").path(domainId).path("identities").request().get();
+        Response response = target("domains").path(domainId).path("identities").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final List<IdentityProvider> responseEntity = readEntity(response, List.class);
+        List<IdentityProvider> responseEntity = readEntity(response, List.class);
         assertTrue(responseEntity.size() == 2);
     }
 
     @Test
     public void shouldGetIdentityProviders_technicalManagementException() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
         doReturn(Flowable.error(new TechnicalManagementException("error occurs")))
                 .when(identityProviderService)
                 .findByDomain(domainId);
 
-        final Response response =
-                target("domains").path(domainId).path("identities").request().get();
+        Response response = target("domains").path(domainId).path("identities").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
 
     @Test
     public void shouldCreate() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         NewIdentityProvider newIdentityProvider = new NewIdentityProvider();
@@ -108,7 +106,7 @@ public class IdentityProvidersResourceTest extends JerseySpringTest {
                 .when(identityProviderService)
                 .create(eq(domainId), any(), any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("identities")

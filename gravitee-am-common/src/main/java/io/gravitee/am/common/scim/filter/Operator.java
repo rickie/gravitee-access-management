@@ -99,7 +99,7 @@ public enum Operator {
 
     private final String value;
 
-    Operator(final String value) {
+    Operator(String value) {
         this.value = value;
     }
 

@@ -77,7 +77,7 @@ public class MfaFilterContext {
     }
 
     public boolean isAmfaActive() {
-        final String amfaRule = getAmfaRule();
+        String amfaRule = getAmfaRule();
         return !isNullOrEmpty(amfaRule) && !amfaRule.isBlank();
     }
 
@@ -102,7 +102,7 @@ public class MfaFilterContext {
     }
 
     public boolean isStepUpActive() {
-        final String stepUpRule = getStepUpRule();
+        String stepUpRule = getStepUpRule();
         return !isNullOrEmpty(stepUpRule) && !stepUpRule.isBlank();
     }
 
@@ -111,8 +111,8 @@ public class MfaFilterContext {
     }
 
     private boolean isEnrollSkipped() {
-        final EnrollmentSettings enrollmentSettings = MfaUtils.getEnrollmentSettings(client);
-        final Boolean forceEnrollment =
+        EnrollmentSettings enrollmentSettings = MfaUtils.getEnrollmentSettings(client);
+        Boolean forceEnrollment =
                 Optional.ofNullable(enrollmentSettings.getForceEnrollment()).orElse(false);
         if (FALSE.equals(forceEnrollment) && nonNull(endUser.getMfaEnrollmentSkippedAt())) {
             Date now = new Date();
@@ -150,8 +150,8 @@ public class MfaFilterContext {
     }
 
     public Map<String, Object> getEvaluableContext() {
-        final Map<String, Object> data = getEvaluableAttributes(routingContext);
-        final Object loginAttempt = this.getLoginAttempt();
+        Map<String, Object> data = getEvaluableAttributes(routingContext);
+        Object loginAttempt = this.getLoginAttempt();
         data.put(LOGIN_ATTEMPT_KEY, isNull(loginAttempt) ? 0 : loginAttempt);
         return Map.of(
                 "request",

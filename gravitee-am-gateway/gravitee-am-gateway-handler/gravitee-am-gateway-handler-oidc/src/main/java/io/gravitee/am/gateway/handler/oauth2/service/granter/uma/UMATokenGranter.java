@@ -406,7 +406,7 @@ public class UMATokenGranter extends AbstractTokenGranter {
                                                         .collect(
                                                                 Collectors
                                                                         .toList()) // Keep distinct
-                                                                                   // values
+                                                // values
                                                 );
                                         return requestedPermission;
                                     }))

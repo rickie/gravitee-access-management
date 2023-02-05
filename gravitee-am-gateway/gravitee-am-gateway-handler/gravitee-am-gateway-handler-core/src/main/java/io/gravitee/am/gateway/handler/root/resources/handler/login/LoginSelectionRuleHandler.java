@@ -44,7 +44,7 @@ public class LoginSelectionRuleHandler extends LoginAbstractHandler {
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
         List<IdentityProvider> socialProviders = routingContext.get(SOCIAL_PROVIDER_CONTEXT_KEY);
         if ((socialProviders != null && !socialProviders.isEmpty())

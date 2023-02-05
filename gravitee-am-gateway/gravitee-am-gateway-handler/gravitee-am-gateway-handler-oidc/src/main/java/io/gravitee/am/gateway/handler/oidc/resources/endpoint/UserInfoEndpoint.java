@@ -142,7 +142,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
                                                         jweService.encryptUserinfo(
                                                                 userinfo,
                                                                 client)); // Encrypt if needed, else
-                                                                          // return JWT
+                                // return JWT
                             }
                         })
                 .subscribe(
@@ -162,9 +162,9 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
      * @return user claims
      */
     private Map<String, Object> processClaims(User user, JWT accessToken) {
-        final Map<String, Object> additionalInfos =
+        Map<String, Object> additionalInfos =
                 ofNullable(user.getAdditionalInformation()).orElse(Map.of());
-        final Map<String, Object> fullProfileClaims = new HashMap<>(additionalInfos);
+        Map<String, Object> fullProfileClaims = new HashMap<>(additionalInfos);
 
         // to be sure that this sub value coming from the IDP will not override the one provided by
         // AM
@@ -180,8 +180,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
         // processing claims list
         // 1. process the request using scope values
         if (accessToken.getScope() != null) {
-            final Set<String> scopes =
-                    new HashSet<>(Arrays.asList(accessToken.getScope().split("\\s+")));
+            Set<String> scopes = new HashSet<>(Arrays.asList(accessToken.getScope().split("\\s+")));
             requestForSpecificClaims =
                     processScopesRequest(scopes, userClaims, requestedClaims, fullProfileClaims);
         }
@@ -222,7 +221,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
             Set<String> scopes,
             Map<String, Object> userClaims,
             Map<String, Object> requestedClaims,
-            final Map<String, Object> fullProfileClaims) {
+            Map<String, Object> fullProfileClaims) {
         // if full_profile requested, continue
         // if legacy mode is enabled, also return all if only openid scope is provided
         if (scopes.contains(Scope.FULL_PROFILE.getKey())
@@ -234,7 +233,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
         }
 
         // get requested scopes claims
-        final List<String> scopesClaimKeys =
+        List<String> scopesClaimKeys =
                 scopes.stream()
                         .map(String::toUpperCase)
                         .filter(
@@ -272,7 +271,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
      */
     private boolean processClaimsRequest(
             String claimsValue,
-            final Map<String, Object> fullProfileClaims,
+            Map<String, Object> fullProfileClaims,
             Map<String, Object> requestedClaims) {
         try {
             ClaimsRequest claimsRequest = Json.decodeValue(claimsValue, ClaimsRequest.class);

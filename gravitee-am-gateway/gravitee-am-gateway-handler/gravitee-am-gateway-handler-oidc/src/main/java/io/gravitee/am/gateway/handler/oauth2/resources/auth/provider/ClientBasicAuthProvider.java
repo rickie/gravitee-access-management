@@ -62,7 +62,7 @@ public class ClientBasicAuthProvider implements ClientAuthProvider {
     @Override
     public void handle(
             Client client, RoutingContext context, Handler<AsyncResult<Client>> handler) {
-        final String authorization = getBasicAuthorization(context.request());
+        String authorization = getBasicAuthorization(context.request());
         if (authorization == null) {
             handler.handle(
                     Future.failedFuture(
@@ -120,7 +120,7 @@ public class ClientBasicAuthProvider implements ClientAuthProvider {
     }
 
     private String getBasicAuthorization(HttpServerRequest request) {
-        final String authorization = request.headers().get(HttpHeaders.AUTHORIZATION);
+        String authorization = request.headers().get(HttpHeaders.AUTHORIZATION);
         if (authorization == null) {
             return null;
         }

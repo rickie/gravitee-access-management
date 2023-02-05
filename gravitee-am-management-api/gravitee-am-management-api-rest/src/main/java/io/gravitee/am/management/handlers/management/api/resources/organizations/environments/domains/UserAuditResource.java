@@ -66,17 +66,17 @@ public class UserAuditResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("user") String user,
             @PathParam("audit") String audit,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)
                 .andThen(auditService.findById(domain, audit))
                 .flatMap(
                         auditPayload -> {
-                            final String actorId =
+                            String actorId =
                                     auditPayload.getActor() != null
                                             ? auditPayload.getActor().getId()
                                             : null;
-                            final String targetId =
+                            String targetId =
                                     auditPayload.getTarget() != null
                                             ? auditPayload.getTarget().getId()
                                             : null;
