@@ -436,6 +436,24 @@
         </pluginManagement>
         <plugins>
             <plugin>
+                <groupId>com.spotify.fmt</groupId>
+                <artifactId>fmt-maven-plugin</artifactId>
+                <version>2.19</version>
+                <configuration>
+                    <forkMode>never</forkMode>
+                    <failOnError>false</failOnError>
+                    <style>aosp</style>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>check-source-format</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
                 <version>2.11</version>
@@ -446,6 +464,7 @@
                         <email>http://gravitee.io</email>
                     </properties>
                     <excludes>
+                        <exclude>**/*.java</exclude>
                         <exclude>LICENSE.txt</exclude>
                         <exclude>Jenkinsfile</exclude>
                         <exclude>**/README</exclude>
