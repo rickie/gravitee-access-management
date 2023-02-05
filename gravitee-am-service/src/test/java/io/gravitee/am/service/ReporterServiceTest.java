@@ -50,7 +50,7 @@ public class ReporterServiceTest {
 
     @Test
     public void shouldAccept_ReportFileName() {
-        final var reporter = new NewReporter();
+        var reporter = new NewReporter();
         reporter.setEnabled(true);
         reporter.setName("Test");
         reporter.setType(ReporterServiceImpl.REPORTER_AM_FILE);
@@ -60,7 +60,7 @@ public class ReporterServiceTest {
         when(reporterRepository.create(any())).thenReturn(Single.just(new Reporter()));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        final TestObserver<Reporter> observer = reporterService.create("domain", reporter).test();
+        TestObserver<Reporter> observer = reporterService.create("domain", reporter).test();
         observer.awaitTerminalEvent();
         observer.assertNoErrors();
 
@@ -69,13 +69,13 @@ public class ReporterServiceTest {
 
     @Test
     public void shouldReject_ReportFileName() {
-        final var reporter = new NewReporter();
+        var reporter = new NewReporter();
         reporter.setEnabled(true);
         reporter.setName("Test");
         reporter.setType(ReporterServiceImpl.REPORTER_AM_FILE);
         reporter.setConfiguration("{\"filename\":\"../9f4bdf97-5481-4420-8bdf-9754818420f3\"}");
 
-        final TestObserver<Reporter> observer = reporterService.create("domain", reporter).test();
+        TestObserver<Reporter> observer = reporterService.create("domain", reporter).test();
         observer.awaitTerminalEvent();
         observer.assertError(
                 ex ->

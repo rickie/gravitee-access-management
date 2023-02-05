@@ -184,7 +184,7 @@ public class ResourceManagerImpl extends AbstractService
      *     date
      */
     private boolean needDeployment(ServiceResource resource) {
-        final ServiceResource deployedResource = this.resources.get(resource.getId());
+        ServiceResource deployedResource = this.resources.get(resource.getId());
         return (deployedResource == null
                 || deployedResource.getUpdatedAt().before(resource.getUpdatedAt()));
     }

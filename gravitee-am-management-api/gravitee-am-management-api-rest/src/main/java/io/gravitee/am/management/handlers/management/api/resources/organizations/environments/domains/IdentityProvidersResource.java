@@ -79,7 +79,7 @@ public class IdentityProvidersResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @QueryParam("userProvider") boolean userProvider,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId,
@@ -138,9 +138,9 @@ public class IdentityProvidersResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @ApiParam(name = "identity", required = true) @Valid @NotNull
-                    final NewIdentityProvider newIdentityProvider,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+                    NewIdentityProvider newIdentityProvider,
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,

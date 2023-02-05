@@ -45,7 +45,7 @@ public class JWTOAuth2Exception extends OAuth2Exception {
     /** Expiration of the JWT. */
     private long exp;
 
-    public JWTOAuth2Exception(final OAuth2Exception exception, final String state) {
+    public JWTOAuth2Exception(OAuth2Exception exception, String state) {
         this.exception = exception;
         this.state = state;
     }
@@ -92,10 +92,7 @@ public class JWTOAuth2Exception extends OAuth2Exception {
     }
 
     public String buildRedirectUri(
-            final String redirectUri,
-            final String responseType,
-            final String responseMode,
-            final String jwt)
+            String redirectUri, String responseType, String responseMode, String jwt)
             throws URISyntaxException {
         UriBuilder uriBuilder = UriBuilder.fromURIString(redirectUri);
 

@@ -25,7 +25,7 @@ public class EvaluableAuthenticationRequest {
 
     private final Request request;
 
-    public EvaluableAuthenticationRequest(final Request request) {
+    public EvaluableAuthenticationRequest(Request request) {
         this.request = request;
     }
 

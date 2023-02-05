@@ -61,7 +61,7 @@ public class LoginAttemptHandler implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final Client client =
+        Client client =
                 ofNullable(routingContext.<Client>get(CLIENT_CONTEXT_KEY)).orElse(new Client());
         String adaptiveRule = getAdaptiveRule(client);
         var username = routingContext.request().getParam(USERNAME_PARAM_KEY);

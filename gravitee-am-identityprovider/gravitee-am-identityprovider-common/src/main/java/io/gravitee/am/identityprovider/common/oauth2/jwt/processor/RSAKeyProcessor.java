@@ -36,7 +36,7 @@ public class RSAKeyProcessor<C extends SecurityContext> extends AbstractKeyProce
         return new JWSVerificationKeySelector<C>(
                 JWSAlgorithm.parse(signature.getValue()), jwkSource) {
             @Override
-            protected JWKMatcher createJWKMatcher(final JWSHeader jwsHeader) {
+            protected JWKMatcher createJWKMatcher(JWSHeader jwsHeader) {
 
                 if (!getExpectedJWSAlgorithm().equals(jwsHeader.getAlgorithm())) {
                     // Unexpected JWS alg

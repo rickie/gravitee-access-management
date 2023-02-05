@@ -49,8 +49,7 @@ public class CertificatePluginResource {
             value = "Get an certificate plugin",
             notes = "There is no particular permission needed. User must be authenticated.")
     public void get(
-            @PathParam("certificate") String certificateId,
-            @Suspended final AsyncResponse response) {
+            @PathParam("certificate") String certificateId, @Suspended AsyncResponse response) {
 
         certificatePluginService
                 .findById(certificateId)
@@ -66,8 +65,7 @@ public class CertificatePluginResource {
             value = "Get an certificate's schema",
             notes = "There is no particular permission needed. User must be authenticated.")
     public void getSchema(
-            @PathParam("certificate") String certificateId,
-            @Suspended final AsyncResponse response) {
+            @PathParam("certificate") String certificateId, @Suspended AsyncResponse response) {
 
         // Check that the certificate exists
         certificatePluginService

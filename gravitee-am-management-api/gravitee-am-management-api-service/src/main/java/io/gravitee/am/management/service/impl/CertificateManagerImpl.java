@@ -182,7 +182,7 @@ public class CertificateManagerImpl extends AbstractService<CertificateManager>
                 certificateProviders.put(certificate.getId(), certificateProvider);
                 // expiration date is extracted from the Certificate by the provider
                 // we update the certificate definition only if the expiration date has changed
-                final Optional<Date> expirationDate = certificateProvider.getExpirationDate();
+                Optional<Date> expirationDate = certificateProvider.getExpirationDate();
                 expirationDate.ifPresent(
                         expiresAt -> {
                             // set the value into the object to be sure that the info will be

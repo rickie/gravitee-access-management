@@ -282,7 +282,7 @@ public class MembershipServiceImpl implements MembershipService {
                                         .switchIfEmpty(
                                                 Single.defer(
                                                         () -> {
-                                                            final Date now = new Date();
+                                                            Date now = new Date();
                                                             Membership membership =
                                                                     new Membership();
                                                             membership.setRoleId(role.getId());
@@ -425,7 +425,7 @@ public class MembershipServiceImpl implements MembershipService {
                                                         ReferenceType.DOMAIN)
                                                 .flatMapSingle(
                                                         role -> {
-                                                            final Membership domainMembership =
+                                                            Membership domainMembership =
                                                                     new Membership();
                                                             domainMembership.setMemberId(
                                                                     newMembership.getMemberId());
@@ -467,7 +467,7 @@ public class MembershipServiceImpl implements MembershipService {
                                                         ReferenceType.ENVIRONMENT)
                                                 .flatMapSingle(
                                                         role -> {
-                                                            final Membership environmentMembership =
+                                                            Membership environmentMembership =
                                                                     new Membership();
                                                             environmentMembership.setMemberId(
                                                                     newMembership.getMemberId());

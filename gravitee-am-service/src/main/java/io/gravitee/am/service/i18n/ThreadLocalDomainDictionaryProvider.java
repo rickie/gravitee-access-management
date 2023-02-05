@@ -35,7 +35,7 @@ public class ThreadLocalDomainDictionaryProvider implements DynamicDictionaryPro
 
     @Override
     public Properties getDictionaryFor(Locale locale) {
-        final Map<String, Properties> map = this.propertiesMap.get();
+        Map<String, Properties> map = this.propertiesMap.get();
         if (locale != null && map != null) {
             return ofNullable(map.get(locale.toString()))
                     .or(() -> ofNullable(map.get(locale.getLanguage())))
@@ -46,13 +46,13 @@ public class ThreadLocalDomainDictionaryProvider implements DynamicDictionaryPro
 
     @Override
     public boolean hasDictionaryFor(Locale locale) {
-        final Map<String, Properties> map = this.propertiesMap.get();
+        Map<String, Properties> map = this.propertiesMap.get();
         return map != null
                 && (map.containsKey(locale.toString()) || map.containsKey(locale.getLanguage()));
     }
 
     public void loadDictionary(I18nDictionary i18nDictionary) {
-        final String locale = i18nDictionary.getLocale();
+        String locale = i18nDictionary.getLocale();
         Properties properties = new Properties();
         properties.putAll(i18nDictionary.getEntries());
         propertiesMap.set(Map.of(locale, properties));

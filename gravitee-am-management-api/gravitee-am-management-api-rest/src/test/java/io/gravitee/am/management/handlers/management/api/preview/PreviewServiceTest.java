@@ -91,11 +91,11 @@ public class PreviewServiceTest {
                 .thenReturn(Maybe.empty());
         when(i18nDictionaryService.findAll(any(), any())).thenReturn(Flowable.empty());
 
-        final PreviewRequest previewRequest = new PreviewRequest();
+        PreviewRequest previewRequest = new PreviewRequest();
         previewRequest.setContent(
                 "<html lang=\"en\" xmlns:th=\"http://www.thymeleaf.org\"><head><style th:if=\"${theme.css}\" th:text=\"${theme.css}\"></style></head><body><span th:text=\"${client.name}\"></span></body></html>");
         previewRequest.setTemplate(Template.LOGIN.template());
-        final TestObserver<PreviewResponse> observer =
+        TestObserver<PreviewResponse> observer =
                 previewService.previewDomainForm(DOMAIN_ID, previewRequest, Locale.ENGLISH).test();
 
         observer.awaitTerminalEvent();
@@ -112,7 +112,7 @@ public class PreviewServiceTest {
     @Test
     public void shouldRenderDomainForm_theme() {
         when(domainService.findById(DOMAIN_ID)).thenReturn(Maybe.just(new Domain()));
-        final Theme theme = new Theme();
+        Theme theme = new Theme();
         theme.setPrimaryTextColorHex("#FFFFFF");
         theme.setPrimaryButtonColorHex("#FFFFFF");
         theme.setSecondaryTextColorHex("#FFFFFF");
@@ -121,11 +121,11 @@ public class PreviewServiceTest {
                 .thenReturn(Maybe.just(theme));
         when(i18nDictionaryService.findAll(any(), any())).thenReturn(Flowable.empty());
 
-        final PreviewRequest previewRequest = new PreviewRequest();
+        PreviewRequest previewRequest = new PreviewRequest();
         previewRequest.setContent(
                 "<html lang=\"en\" xmlns:th=\"http://www.thymeleaf.org\"><head><style th:if=\"${theme.css}\" th:text=\"${theme.css}\"></style></head><body><span th:text=\"${client.name}\"></span></body></html>");
         previewRequest.setTemplate(Template.LOGIN.template());
-        final TestObserver<PreviewResponse> observer =
+        TestObserver<PreviewResponse> observer =
                 previewService.previewDomainForm(DOMAIN_ID, previewRequest, Locale.ENGLISH).test();
 
         observer.awaitTerminalEvent();
@@ -142,12 +142,12 @@ public class PreviewServiceTest {
     @Test
     public void shouldRenderDomainForm_overrideTheme() {
         when(domainService.findById(DOMAIN_ID)).thenReturn(Maybe.just(new Domain()));
-        final Theme theme = new Theme();
+        Theme theme = new Theme();
         theme.setPrimaryTextColorHex("#FFFFFF");
         theme.setPrimaryButtonColorHex("#FFFFFF");
         theme.setSecondaryTextColorHex("#FFFFFF");
         theme.setSecondaryButtonColorHex("#FFFFFF");
-        final Theme overrideTheme = new Theme();
+        Theme overrideTheme = new Theme();
         overrideTheme.setPrimaryTextColorHex("#FF0000");
         overrideTheme.setPrimaryButtonColorHex("#FF0000");
         overrideTheme.setSecondaryTextColorHex("#FF0000");
@@ -157,12 +157,12 @@ public class PreviewServiceTest {
                 .thenReturn(Maybe.just(theme));
         when(i18nDictionaryService.findAll(any(), any())).thenReturn(Flowable.empty());
 
-        final PreviewRequest previewRequest = new PreviewRequest();
+        PreviewRequest previewRequest = new PreviewRequest();
         previewRequest.setContent(
                 "<html lang=\"en\" xmlns:th=\"http://www.thymeleaf.org\"><head><style th:if=\"${theme.css}\" th:text=\"${theme.css}\"></style></head><body><span th:text=\"${client.name}\"></span></body></html>");
         previewRequest.setTemplate(Template.LOGIN.template());
         previewRequest.setTheme(overrideTheme);
-        final TestObserver<PreviewResponse> observer =
+        TestObserver<PreviewResponse> observer =
                 previewService.previewDomainForm(DOMAIN_ID, previewRequest, Locale.ENGLISH).test();
 
         observer.awaitTerminalEvent();
@@ -183,11 +183,11 @@ public class PreviewServiceTest {
                 .thenReturn(Maybe.empty());
         when(i18nDictionaryService.findAll(any(), any())).thenReturn(Flowable.empty());
 
-        final PreviewRequest previewRequest = new PreviewRequest();
+        PreviewRequest previewRequest = new PreviewRequest();
         previewRequest.setContent(
                 "<html lang=\"en\" xmlns:th=\"http://www.thymeleaf.org\"><body><span th:text=\"${client.unknown}\"></span></body></html>");
         previewRequest.setTemplate(Template.LOGIN.template());
-        final TestObserver<PreviewResponse> observer =
+        TestObserver<PreviewResponse> observer =
                 previewService.previewDomainForm(DOMAIN_ID, previewRequest, Locale.ENGLISH).test();
 
         observer.awaitTerminalEvent();
@@ -197,25 +197,25 @@ public class PreviewServiceTest {
     @Test
     public void shouldRenderDefaultDomainForm() {
         when(domainService.findById(DOMAIN_ID)).thenReturn(Maybe.just(new Domain()));
-        final Theme theme = new Theme();
+        Theme theme = new Theme();
         theme.setPrimaryTextColorHex("#FFFFFF");
         theme.setPrimaryButtonColorHex("#FFFFFF");
         theme.setSecondaryTextColorHex("#FFFFFF");
         theme.setSecondaryButtonColorHex("#FFFFFF");
         when(themeService.findByReference(ReferenceType.DOMAIN, DOMAIN_ID))
                 .thenReturn(Maybe.just(theme));
-        final Form defaultForm = new Form();
+        Form defaultForm = new Form();
         defaultForm.setContent(
                 "<html lang=\"en\" xmlns:th=\"http://www.thymeleaf.org\"><head><style th:if=\"${theme.css}\" th:text=\"${theme.css}\"></style></head><body><span th:text=\"${client.name}\"></span><span>default</span></body></html>");
         when(formService.getDefaultByDomainAndTemplate(DOMAIN_ID, Template.LOGIN.template()))
                 .thenReturn(Single.just(defaultForm));
         when(i18nDictionaryService.findAll(any(), any())).thenReturn(Flowable.empty());
 
-        final PreviewRequest previewRequest = new PreviewRequest();
+        PreviewRequest previewRequest = new PreviewRequest();
         previewRequest.setContent(
                 null); // content is null, can happen when the custom form is disabled at UI level
         previewRequest.setTemplate(Template.LOGIN.template());
-        final TestObserver<PreviewResponse> observer =
+        TestObserver<PreviewResponse> observer =
                 previewService.previewDomainForm(DOMAIN_ID, previewRequest, Locale.ENGLISH).test();
 
         observer.awaitTerminalEvent();

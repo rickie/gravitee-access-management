@@ -73,12 +73,12 @@ public class AlertNotifierServiceTest {
 
     @Test
     public void getById() {
-        final AlertNotifier alertNotifier = new AlertNotifier();
+        AlertNotifier alertNotifier = new AlertNotifier();
         alertNotifier.setReferenceType(ReferenceType.DOMAIN);
         alertNotifier.setReferenceId(DOMAIN_ID);
         when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID))
                 .thenReturn(Maybe.just(alertNotifier));
-        final TestObserver<AlertNotifier> obs =
+        TestObserver<AlertNotifier> obs =
                 cut.getById(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID).test();
 
         obs.awaitTerminalEvent();
@@ -88,7 +88,7 @@ public class AlertNotifierServiceTest {
     @Test
     public void getByIdNotFound() {
         when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(Maybe.empty());
-        final TestObserver<AlertNotifier> obs =
+        TestObserver<AlertNotifier> obs =
                 cut.getById(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID).test();
 
         obs.awaitTerminalEvent();
@@ -97,12 +97,11 @@ public class AlertNotifierServiceTest {
 
     @Test
     public void findByDomainCriteria() {
-        final AlertNotifier alertNotifier = new AlertNotifier();
-        final AlertNotifierCriteria criteria = new AlertNotifierCriteria();
+        AlertNotifier alertNotifier = new AlertNotifier();
+        AlertNotifierCriteria criteria = new AlertNotifierCriteria();
         when(alertNotifierRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria))
                 .thenReturn(Flowable.just(alertNotifier));
-        final TestSubscriber<AlertNotifier> obs =
-                cut.findByDomainAndCriteria(DOMAIN_ID, criteria).test();
+        TestSubscriber<AlertNotifier> obs = cut.findByDomainAndCriteria(DOMAIN_ID, criteria).test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -111,11 +110,11 @@ public class AlertNotifierServiceTest {
 
     @Test
     public void findByReferenceAndCriteria() {
-        final AlertNotifier alertNotifier = new AlertNotifier();
-        final AlertNotifierCriteria criteria = new AlertNotifierCriteria();
+        AlertNotifier alertNotifier = new AlertNotifier();
+        AlertNotifierCriteria criteria = new AlertNotifierCriteria();
         when(alertNotifierRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria))
                 .thenReturn(Flowable.just(alertNotifier));
-        final TestSubscriber<AlertNotifier> obs =
+        TestSubscriber<AlertNotifier> obs =
                 cut.findByReferenceAndCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria).test();
 
         obs.awaitTerminalEvent();
@@ -125,9 +124,9 @@ public class AlertNotifierServiceTest {
 
     @Test
     public void create() {
-        final AlertNotifierCriteria criteria = new AlertNotifierCriteria();
+        AlertNotifierCriteria criteria = new AlertNotifierCriteria();
 
-        final NewAlertNotifier newAlertNotifier = new NewAlertNotifier();
+        NewAlertNotifier newAlertNotifier = new NewAlertNotifier();
         newAlertNotifier.setEnabled(true);
         newAlertNotifier.setName(NAME);
         newAlertNotifier.setConfiguration(CONFIGURATION);
@@ -137,7 +136,7 @@ public class AlertNotifierServiceTest {
                 .thenAnswer(i -> Single.just(i.getArgument(0)));
         when(eventService.create(any(Event.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
 
-        final TestObserver<AlertNotifier> obs =
+        TestObserver<AlertNotifier> obs =
                 cut.create(
                                 ReferenceType.DOMAIN,
                                 DOMAIN_ID,
@@ -167,13 +166,13 @@ public class AlertNotifierServiceTest {
     @Test
     public void update() {
 
-        final PatchAlertNotifier patchAlertNotifier = new PatchAlertNotifier();
+        PatchAlertNotifier patchAlertNotifier = new PatchAlertNotifier();
         patchAlertNotifier.setEnabled(Optional.of(true));
         patchAlertNotifier.setName(Optional.of(NAME));
         patchAlertNotifier.setConfiguration(Optional.of(CONFIGURATION));
 
-        final Date createdAt = new Date();
-        final AlertNotifier alertNotifierToUpdate = new AlertNotifier();
+        Date createdAt = new Date();
+        AlertNotifier alertNotifierToUpdate = new AlertNotifier();
         alertNotifierToUpdate.setId(ALERT_NOTIFIER_ID);
         alertNotifierToUpdate.setType(TYPE);
         alertNotifierToUpdate.setReferenceType(ReferenceType.DOMAIN);
@@ -186,7 +185,7 @@ public class AlertNotifierServiceTest {
                 .thenAnswer(i -> Single.just(i.getArgument(0)));
         when(eventService.create(any(Event.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
 
-        final TestObserver<AlertNotifier> obs =
+        TestObserver<AlertNotifier> obs =
                 cut.update(
                                 ReferenceType.DOMAIN,
                                 DOMAIN_ID,
@@ -217,14 +216,14 @@ public class AlertNotifierServiceTest {
     @Test
     public void updateNotFound() {
 
-        final PatchAlertNotifier patchAlertNotifier = new PatchAlertNotifier();
+        PatchAlertNotifier patchAlertNotifier = new PatchAlertNotifier();
         patchAlertNotifier.setEnabled(Optional.of(true));
         patchAlertNotifier.setName(Optional.of(NAME));
         patchAlertNotifier.setConfiguration(Optional.of(CONFIGURATION));
 
         when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(Maybe.empty());
 
-        final TestObserver<AlertNotifier> obs =
+        TestObserver<AlertNotifier> obs =
                 cut.update(
                                 ReferenceType.DOMAIN,
                                 DOMAIN_ID,

@@ -49,8 +49,7 @@ public class PoliciesPluginResource {
     @ApiOperation(
             value = "List policy plugins",
             notes = "There is no particular permission needed. User must be authenticated.")
-    public void list(
-            @Suspended final AsyncResponse response, @QueryParam("expand") List<String> expand) {
+    public void list(@Suspended AsyncResponse response, @QueryParam("expand") List<String> expand) {
 
         policyPluginService
                 .findAll(expand)

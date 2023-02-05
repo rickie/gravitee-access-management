@@ -70,7 +70,7 @@ public class IdentityProvidersResource extends AbstractResource {
     public void list(
             @PathParam("organizationId") String organizationId,
             @QueryParam("userProvider") boolean userProvider,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -117,10 +117,10 @@ public class IdentityProvidersResource extends AbstractResource {
     public void create(
             @PathParam("organizationId") String organizationId,
             @ApiParam(name = "identity", required = true) @Valid @NotNull
-                    final NewIdentityProvider newIdentityProvider,
-            @Suspended final AsyncResponse response) {
+                    NewIdentityProvider newIdentityProvider,
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

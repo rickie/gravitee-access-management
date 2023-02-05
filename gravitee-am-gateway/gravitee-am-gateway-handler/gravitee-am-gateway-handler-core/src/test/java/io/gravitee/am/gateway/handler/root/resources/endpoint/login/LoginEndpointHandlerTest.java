@@ -105,7 +105,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
                 new ClientRequestParseHandler(clientSyncService);
         clientRequestParseHandler.setRequired(true);
 
-        final LoginSettings loginSettings = new LoginSettings();
+        LoginSettings loginSettings = new LoginSettings();
 
         appClient = new Client();
         appClient.setClientId(UUID.randomUUID().toString());
@@ -163,7 +163,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
         router.route(HttpMethod.GET, "/login")
                 .handler(
                         routingContext -> {
-                            final IdentityProvider idp = new IdentityProvider();
+                            IdentityProvider idp = new IdentityProvider();
                             idp.setId("provider-id");
                             routingContext.put(SOCIAL_PROVIDER_CONTEXT_KEY, List.of(idp));
                             routingContext.put(
@@ -192,14 +192,14 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
         appIdp.setSelectionRule("true");
         appIdp.setIdentity("provider-id");
 
-        final TreeSet treeSet = new TreeSet();
+        TreeSet treeSet = new TreeSet();
         treeSet.add(appIdp);
         appClient.setIdentityProviders(treeSet);
 
         router.route(HttpMethod.GET, "/login")
                 .handler(
                         routingContext -> {
-                            final IdentityProvider idp = new IdentityProvider();
+                            IdentityProvider idp = new IdentityProvider();
                             idp.setId("provider-id");
                             routingContext.put(SOCIAL_PROVIDER_CONTEXT_KEY, List.of(idp));
                             routingContext.put(
@@ -237,7 +237,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
         router.route(HttpMethod.GET, "/login")
                 .handler(
                         routingContext -> {
-                            final IdentityProvider idp = new IdentityProvider();
+                            IdentityProvider idp = new IdentityProvider();
                             idp.setId("provider-id");
                             routingContext.put(SOCIAL_PROVIDER_CONTEXT_KEY, List.of(idp));
                             routingContext.put(
@@ -265,9 +265,9 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
         router.route(HttpMethod.GET, "/login")
                 .handler(
                         routingContext -> {
-                            final IdentityProvider idp1 = new IdentityProvider();
+                            IdentityProvider idp1 = new IdentityProvider();
                             idp1.setId("provider-id-1");
-                            final IdentityProvider idp2 = new IdentityProvider();
+                            IdentityProvider idp2 = new IdentityProvider();
                             idp2.setId("provider-id-2");
                             routingContext.put(SOCIAL_PROVIDER_CONTEXT_KEY, List.of(idp1, idp2));
                             routingContext.next();
@@ -357,7 +357,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
                                     assertEquals(routingContext.get(DOMAIN_CONTEXT_KEY), domain);
                                     assertNotNull(routingContext.get(PARAM_CONTEXT_KEY));
 
-                                    final MultiMap queryParams =
+                                    MultiMap queryParams =
                                             RequestUtils.getCleanedQueryParams(
                                                     routingContext.request());
                                     var queryParamsNoUsername = MultiMap.caseInsensitiveMultiMap();
@@ -447,8 +447,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
                 assertEquals(routingContext.get(DOMAIN_CONTEXT_KEY), domain);
                 assertNotNull(routingContext.get(PARAM_CONTEXT_KEY));
 
-                final MultiMap queryParams =
-                        RequestUtils.getCleanedQueryParams(routingContext.request());
+                MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
                 var queryParamsNoUsername = MultiMap.caseInsensitiveMultiMap();
                 queryParamsNoUsername.addAll(queryParams);
                 queryParamsNoUsername.remove(USERNAME_PARAM_KEY);

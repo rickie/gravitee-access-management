@@ -91,9 +91,9 @@ public class ApplicationResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("application") String application,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,
@@ -158,7 +158,7 @@ public class ApplicationResource extends AbstractResource {
             @PathParam("application") String application,
             @ApiParam(name = "application", required = true) @Valid @NotNull
                     PatchApplication patchApplication,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         updateInternal(
                 organizationId, environmentId, domain, application, patchApplication, response);
@@ -189,7 +189,7 @@ public class ApplicationResource extends AbstractResource {
             @PathParam("application") String application,
             @ApiParam(name = "application", required = true) @Valid @NotNull
                     PatchApplication patchApplication,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         updateInternal(
                 organizationId, environmentId, domain, application, patchApplication, response);
@@ -221,8 +221,8 @@ public class ApplicationResource extends AbstractResource {
             @PathParam("application") String application,
             @ApiParam(name = "type", required = true) @Valid @NotNull
                     PatchApplicationType patchApplicationType,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,
@@ -258,8 +258,8 @@ public class ApplicationResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("application") String application,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,
@@ -295,8 +295,8 @@ public class ApplicationResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("application") String application,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,
@@ -352,9 +352,9 @@ public class ApplicationResource extends AbstractResource {
             String domain,
             String application,
             PatchApplication patchApplication,
-            final AsyncResponse response) {
+            AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
         Set<Permission> requiredPermissions = patchApplication.getRequiredPermissions();
 
         if (requiredPermissions.isEmpty()) {

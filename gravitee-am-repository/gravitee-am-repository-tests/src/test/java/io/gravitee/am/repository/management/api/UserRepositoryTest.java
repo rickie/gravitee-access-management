@@ -416,8 +416,8 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testDeleteByRef() throws TechnicalException {
-        final String DOMAIN_1 = "domain1";
-        final String DOMAIN_2 = "domain2";
+        String DOMAIN_1 = "domain1";
+        String DOMAIN_2 = "domain2";
 
         // create user
         User user = buildUser();
@@ -435,7 +435,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
         user.setReferenceType(ReferenceType.DOMAIN);
         userRepository.create(user).blockingGet();
 
-        final long usersDomain1 =
+        long usersDomain1 =
                 userRepository.findAll(ReferenceType.DOMAIN, DOMAIN_1).count().blockingGet();
         Assert.assertEquals("Domain1 should have 2 users", 2, usersDomain1);
         long usersDomain2 =
@@ -448,8 +448,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
         testObserver1.awaitTerminalEvent();
 
         // fetch user
-        final TestSubscriber<User> find =
-                userRepository.findAll(ReferenceType.DOMAIN, DOMAIN_1).test();
+        TestSubscriber<User> find = userRepository.findAll(ReferenceType.DOMAIN, DOMAIN_1).test();
         find.awaitTerminalEvent();
         find.assertNoValues();
 
@@ -509,7 +508,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testSearch_byUsername_paged() {
-        final String domain = "domain";
+        String domain = "domain";
         // create user
         User user1 = new User();
         user1.setReferenceType(ReferenceType.DOMAIN);
@@ -563,7 +562,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testScimSearch_byDate_paged() {
-        final String domain = "domain";
+        String domain = "domain";
         // create user
         Date now = new Date();
         User user1 = new User();
@@ -625,7 +624,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testScimSearch_byUsername_paged() {
-        final String domain = "domain";
+        String domain = "domain";
         // create user
         User user1 = new User();
         user1.setReferenceType(ReferenceType.DOMAIN);
@@ -671,7 +670,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testScimSearch_byUsername_NotPaged() {
-        final String domain = "domain";
+        String domain = "domain";
         // create user
         User user1 = new User();
         user1.setReferenceType(ReferenceType.DOMAIN);
@@ -697,7 +696,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
         criteria.setFilterValue("testUsername");
         criteria.setOperator("sw");
         criteria.setQuoteFilterValue(true);
-        final TestSubscriber<User> testObserverP0 =
+        TestSubscriber<User> testObserverP0 =
                 userRepository.search(ReferenceType.DOMAIN, domain, criteria).test();
         testObserverP0.awaitTerminalEvent();
 
@@ -708,7 +707,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testScimSearch_byGivenName_SW_paged() {
-        final String domain = "domain";
+        String domain = "domain";
         // create user
         User user1 = new User();
         user1.setReferenceType(ReferenceType.DOMAIN);
@@ -756,7 +755,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testScimSearch_byGivenName_EQ_paged() {
-        final String domain = "domain";
+        String domain = "domain";
         // create user
         User user1 = new User();
         user1.setReferenceType(ReferenceType.DOMAIN);
@@ -794,7 +793,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testScimSearch_byCustomField_EQ_paged() {
-        final String domain = "domain";
+        String domain = "domain";
         // create user
         User user1 = new User();
         user1.setReferenceType(ReferenceType.DOMAIN);
@@ -834,7 +833,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testScimSearch_byCustomField_PR_paged() {
-        final String domain = "domain";
+        String domain = "domain";
         // create user
         User user1 = new User();
         user1.setReferenceType(ReferenceType.DOMAIN);
@@ -871,7 +870,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testScimSearch_byGivenName_PR_paged() {
-        final String domain = "domain";
+        String domain = "domain";
         // create user
         User user1 = new User();
         user1.setReferenceType(ReferenceType.DOMAIN);
@@ -908,7 +907,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testScimSearch_byGivenName_NE_paged() {
-        final String domain = "domain";
+        String domain = "domain";
         // create user
         User user1 = new User();
         user1.setReferenceType(ReferenceType.DOMAIN);
@@ -947,7 +946,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testFindByDomainAndEmail() throws TechnicalException {
-        final String domain = "domain";
+        String domain = "domain";
         // create user
         User user = new User();
         user.setReferenceType(ReferenceType.DOMAIN);
@@ -973,7 +972,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testFindByDomainAndEmailWithStandardClaim() throws TechnicalException {
-        final String domain = "domain";
+        String domain = "domain";
         // create user
         User user = new User();
         user.setReferenceType(ReferenceType.DOMAIN);
@@ -1000,7 +999,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
     }
 
     private void testSearch_strict(String query) {
-        final String domain = "domain";
+        String domain = "domain";
         // create user
         User user = new User();
         user.setReferenceType(ReferenceType.DOMAIN);
@@ -1036,7 +1035,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
     }
 
     private void testSearch_wildcard(String query) {
-        final String domain = "domain";
+        String domain = "domain";
         // create user
         User user = new User();
         user.setReferenceType(ReferenceType.DOMAIN);
@@ -1070,7 +1069,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testStat_UserRegistration() throws TechnicalException {
-        final String domain = "domain";
+        String domain = "domain";
         // create user
         User user = new User();
         user.setReferenceType(ReferenceType.DOMAIN);
@@ -1108,7 +1107,7 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testStat_StatusRepartition() throws TechnicalException {
-        final String domain = "domain_status";
+        String domain = "domain_status";
         // enabled used
         User user = new User();
         user.setReferenceType(ReferenceType.DOMAIN);
@@ -1168,10 +1167,10 @@ public class UserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testStat_StatusRepartition_byClient() throws TechnicalException {
-        final String domain = "domain_status";
-        final String clientId1 = UUID.randomUUID().toString();
+        String domain = "domain_status";
+        String clientId1 = UUID.randomUUID().toString();
         ;
-        final String clientId2 = UUID.randomUUID().toString();
+        String clientId2 = UUID.randomUUID().toString();
         ;
 
         // enabled used

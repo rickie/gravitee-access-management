@@ -655,37 +655,37 @@ public class CertificateServiceImpl implements CertificateService {
                             @Override
                             public String apply(CertificateSchema certificateSchema)
                                     throws Exception {
-                                final int keySize =
+                                int keySize =
                                         environment.getProperty(
                                                 "domains.certificates.default.keysize",
                                                 int.class,
                                                 DEFAULT_CERT_KEYSIZE);
-                                final int validity =
+                                int validity =
                                         environment.getProperty(
                                                 "domains.certificates.default.validity",
                                                 int.class,
                                                 DEFAULT_CERT_VALIDITY_IN_DAYS);
-                                final String name =
+                                String name =
                                         environment.getProperty(
                                                 "domains.certificates.default.name",
                                                 String.class,
                                                 DEFAULT_CERT_CN_NAME);
-                                final String sigAlgName =
+                                String sigAlgName =
                                         environment.getProperty(
                                                 "domains.certificates.default.algorithm",
                                                 String.class,
                                                 DEFAULT_CERT_ALGO);
-                                final String alias =
+                                String alias =
                                         environment.getProperty(
                                                 "domains.certificates.default.alias",
                                                 String.class,
                                                 DEFAULT_CERT_ALIAS);
-                                final String keyPass =
+                                String keyPass =
                                         environment.getProperty(
                                                 "domains.certificates.default.keypass",
                                                 String.class,
                                                 DEFAULT_CERT_PWD);
-                                final String storePass =
+                                String storePass =
                                         environment.getProperty(
                                                 "domains.certificates.default.storepass",
                                                 String.class,
@@ -750,9 +750,9 @@ public class CertificateServiceImpl implements CertificateService {
                 .flatMapSingle(
                         optCert -> {
                             if (optCert.isPresent()) {
-                                final Certificate deprecatedCert = optCert.get();
+                                Certificate deprecatedCert = optCert.get();
 
-                                final var now = LocalDateTime.now();
+                                var now = LocalDateTime.now();
                                 // Define the default certificate
                                 // Create a default PKCS12 certificate:
                                 // io.gravitee.am.certificate.pkcs12.PKCS12Configuration
@@ -768,12 +768,12 @@ public class CertificateServiceImpl implements CertificateService {
                                 return create(domain, rotatedCertificate, true)
                                         .map(
                                                 newCertificate -> {
-                                                    final var task =
+                                                    var task =
                                                             new AssignSystemCertificate(
                                                                     applicationService,
                                                                     certificateRepository,
                                                                     taskManager);
-                                                    final var definition =
+                                                    var definition =
                                                             new AssignSystemCertificateDefinition(
                                                                     domain,
                                                                     newCertificate.getId(),
@@ -815,32 +815,32 @@ public class CertificateServiceImpl implements CertificateService {
     private String generateCertificateConfiguration(
             String domain, String previousConfig, LocalDateTime now) throws Exception {
 
-        final var suffix = DateTimeFormatter.ofPattern("-yyyyMMddHHmmss").format(now);
-        final String alias =
+        var suffix = DateTimeFormatter.ofPattern("-yyyyMMddHHmmss").format(now);
+        String alias =
                 environment.getProperty(
                                 "domains.certificates.default.alias",
                                 String.class,
                                 DEFAULT_CERT_ALIAS)
                         + suffix;
 
-        final int keySize =
+        int keySize =
                 environment.getProperty(
                         "domains.certificates.default.keysize", int.class, DEFAULT_CERT_KEYSIZE);
-        final int validity =
+        int validity =
                 environment.getProperty(
                         "domains.certificates.default.validity",
                         int.class,
                         DEFAULT_CERT_VALIDITY_IN_DAYS);
-        final String name =
+        String name =
                 environment.getProperty(
                         "domains.certificates.default.name", String.class, DEFAULT_CERT_CN_NAME);
-        final String sigAlgName =
+        String sigAlgName =
                 environment.getProperty(
                         "domains.certificates.default.algorithm", String.class, DEFAULT_CERT_ALGO);
-        final String keyPass =
+        String keyPass =
                 environment.getProperty(
                         "domains.certificates.default.keypass", String.class, DEFAULT_CERT_PWD);
-        final String storePass =
+        String storePass =
                 environment.getProperty(
                         "domains.certificates.default.storepass", String.class, DEFAULT_CERT_PWD);
 

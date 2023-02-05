@@ -37,7 +37,7 @@ public class AccountWebAuthnCredentialsEndpointHandler {
      * @param routingContext the routingContext holding the current user
      */
     public void listEnrolledWebAuthnCredentials(RoutingContext routingContext) {
-        final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+        User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
         accountService
                 .getWebAuthnCredentials(user)
                 .subscribe(
@@ -53,7 +53,7 @@ public class AccountWebAuthnCredentialsEndpointHandler {
      * @param routingContext the routingContext holding the current user
      */
     public void getEnrolledWebAuthnCredential(RoutingContext routingContext) {
-        final String credentialId = routingContext.request().getParam("credentialId");
+        String credentialId = routingContext.request().getParam("credentialId");
 
         accountService
                 .getWebAuthnCredential(credentialId)
@@ -70,8 +70,8 @@ public class AccountWebAuthnCredentialsEndpointHandler {
      * @param routingContext the routingContext holding the current user
      */
     public void removeEnrolledWebAuthnCredential(RoutingContext routingContext) {
-        final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        final String credentialId = routingContext.request().getParam("credentialId");
+        User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+        String credentialId = routingContext.request().getParam("credentialId");
 
         accountService
                 .removeWebAuthnCredential(user.getId(), credentialId, new DefaultUser(user))

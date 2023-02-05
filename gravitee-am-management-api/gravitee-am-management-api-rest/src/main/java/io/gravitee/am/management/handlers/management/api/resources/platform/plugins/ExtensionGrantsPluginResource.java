@@ -47,7 +47,7 @@ public class ExtensionGrantsPluginResource {
     @ApiOperation(
             value = "List extension grant plugins",
             notes = "There is no particular permission needed. User must be authenticated.")
-    public void list(@Suspended final AsyncResponse response) {
+    public void list(@Suspended AsyncResponse response) {
         extensionGrantPluginService
                 .findAll()
                 .map(

@@ -63,10 +63,10 @@ public class AccountServiceTest {
 
     @Test
     public void shouldRemoveWebAuthnCredentials_nominalCase() {
-        final String userId = "user-id";
-        final String credentialId = "credential-id";
-        final User principal = new DefaultUser();
-        final Credential credential = mock(Credential.class);
+        String userId = "user-id";
+        String credentialId = "credential-id";
+        User principal = new DefaultUser();
+        Credential credential = mock(Credential.class);
         when(credential.getId()).thenReturn(credentialId);
         when(credential.getUserId()).thenReturn("user-id");
 
@@ -86,9 +86,9 @@ public class AccountServiceTest {
 
     @Test
     public void shouldRemoveWebAuthnCredentials_notFound() {
-        final String userId = "user-id";
-        final String credentialId = "credential-id";
-        final User principal = new DefaultUser();
+        String userId = "user-id";
+        String credentialId = "credential-id";
+        User principal = new DefaultUser();
 
         when(credentialService.findById(credentialId)).thenReturn(Maybe.empty());
 
@@ -105,10 +105,10 @@ public class AccountServiceTest {
 
     @Test
     public void shouldRemoveWebAuthnCredentials_notTheSameUser() {
-        final String userId = "user-id";
-        final String credentialId = "credential-id";
-        final User principal = new DefaultUser();
-        final Credential credential = mock(Credential.class);
+        String userId = "user-id";
+        String credentialId = "credential-id";
+        User principal = new DefaultUser();
+        Credential credential = mock(Credential.class);
         when(credential.getUserId()).thenReturn("unknown-user-id");
 
         when(credentialService.findById(credentialId)).thenReturn(Maybe.just(credential));
@@ -126,8 +126,8 @@ public class AccountServiceTest {
 
     @Test
     public void shouldUpdateUser() {
-        final String userId = "user-id";
-        final io.gravitee.am.model.User userUpdate = new io.gravitee.am.model.User();
+        String userId = "user-id";
+        io.gravitee.am.model.User userUpdate = new io.gravitee.am.model.User();
         userUpdate.setSource("source");
         userUpdate.setId(userId);
         userUpdate.setExternalId("ext-" + userId);
@@ -146,7 +146,7 @@ public class AccountServiceTest {
         userUpdate.setProfile("https://picturestore.org/my/profile");
         userUpdate.setWebsite("https://crazyhost/user-id");
 
-        final UserProvider userProvider = mock(UserProvider.class);
+        UserProvider userProvider = mock(UserProvider.class);
 
         when(userValidator.validate(userUpdate)).thenReturn(Completable.complete());
         when(identityProviderManager.getUserProvider(userUpdate.getSource()))

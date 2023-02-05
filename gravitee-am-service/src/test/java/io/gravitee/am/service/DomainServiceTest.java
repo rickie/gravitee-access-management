@@ -435,7 +435,7 @@ public class DomainServiceTest {
         domain.setReferenceId(ENVIRONMENT_ID);
         domain.setName("my-domain");
         domain.setPath("/test");
-        final AccountSettings accountSettings = new AccountSettings();
+        AccountSettings accountSettings = new AccountSettings();
         accountSettings.setResetPasswordCustomForm(false);
         domain.setAccountSettings(accountSettings);
         when(patchDomain.patch(any())).thenReturn(domain);
@@ -477,8 +477,8 @@ public class DomainServiceTest {
         domain.setReferenceId(ENVIRONMENT_ID);
         domain.setName("my-domain");
         domain.setPath("/test");
-        final AccountSettings accountSettings = new AccountSettings();
-        final FormField formField = new FormField();
+        AccountSettings accountSettings = new AccountSettings();
+        FormField formField = new FormField();
         formField.setKey("username");
         accountSettings.setResetPasswordCustomFormFields(Arrays.asList(formField));
         accountSettings.setResetPasswordCustomForm(true);
@@ -522,8 +522,8 @@ public class DomainServiceTest {
         domain.setReferenceId(ENVIRONMENT_ID);
         domain.setName("my-domain");
         domain.setPath("/test");
-        final AccountSettings accountSettings = new AccountSettings();
-        final FormField formField = new FormField();
+        AccountSettings accountSettings = new AccountSettings();
+        FormField formField = new FormField();
         formField.setKey("unknown");
         accountSettings.setResetPasswordCustomFormFields(Arrays.asList(formField));
         accountSettings.setResetPasswordCustomForm(true);
@@ -605,17 +605,17 @@ public class DomainServiceTest {
         mockApplications.add(mockApp1);
         mockApplications.add(mockApp2);
 
-        final AlertTrigger alertTrigger = new AlertTrigger();
+        AlertTrigger alertTrigger = new AlertTrigger();
         alertTrigger.setId(ALERT_TRIGGER_ID);
         alertTrigger.setReferenceType(DOMAIN);
         alertTrigger.setReferenceId(DOMAIN_ID);
 
-        final AlertNotifier alertNotifier = new AlertNotifier();
+        AlertNotifier alertNotifier = new AlertNotifier();
         alertNotifier.setId(ALERT_NOTIFIER_ID);
         alertNotifier.setReferenceType(DOMAIN);
         alertNotifier.setReferenceId(DOMAIN_ID);
 
-        final AuthenticationDeviceNotifier authDeviceNotifier = new AuthenticationDeviceNotifier();
+        AuthenticationDeviceNotifier authDeviceNotifier = new AuthenticationDeviceNotifier();
         authDeviceNotifier.setId(AUTH_DEVICE_ID);
 
         when(domainRepository.findById(DOMAIN_ID)).thenReturn(Maybe.just(domain));
@@ -882,12 +882,12 @@ public class DomainServiceTest {
     @Test
     public void shouldFindByCriteria() {
 
-        final DomainCriteria criteria = new DomainCriteria();
-        final Domain domain = new Domain();
+        DomainCriteria criteria = new DomainCriteria();
+        Domain domain = new Domain();
 
         when(domainRepository.findAllByCriteria(eq(criteria))).thenReturn(Flowable.just(domain));
 
-        final TestSubscriber<Domain> obs = domainService.findAllByCriteria(criteria).test();
+        TestSubscriber<Domain> obs = domainService.findAllByCriteria(criteria).test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();

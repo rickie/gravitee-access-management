@@ -203,7 +203,7 @@ public abstract class AbstractCertificateProvider implements CertificateProvider
     }
 
     private Stream<JWK> convert(com.nimbusds.jose.jwk.JWK nimbusJwk, boolean includePrivate) {
-        final Set<String> useFor =
+        Set<String> useFor =
                 getUse() == null || getUse().isEmpty()
                         ? Set.of(KeyUse.SIGNATURE.getValue())
                         : getUse();
