@@ -94,7 +94,7 @@ public class ApplicationScopeSettingsUpgrader extends SystemTaskUpgrader {
                         app -> {
                             logger.debug("Process application '{}'", app.getId());
                             if (app.getSettings() != null && app.getSettings().getOauth() != null) {
-                                final ApplicationOAuthSettings oauthSettings =
+                                ApplicationOAuthSettings oauthSettings =
                                         app.getSettings().getOauth();
                                 List<ApplicationScopeSettings> scopeSettings = new ArrayList<>();
                                 if (oauthSettings.getScopes() != null

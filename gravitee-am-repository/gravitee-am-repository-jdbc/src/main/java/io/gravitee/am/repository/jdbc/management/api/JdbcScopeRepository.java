@@ -291,7 +291,7 @@ public class JdbcScopeRepository extends AbstractJdbcRepository
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        final List<String> scopeClaims = item.getClaims();
+        List<String> scopeClaims = item.getClaims();
         if (scopeClaims != null && !scopeClaims.isEmpty()) {
             action =
                     action.then(
@@ -351,7 +351,7 @@ public class JdbcScopeRepository extends AbstractJdbcRepository
 
         Mono<Integer> action = update.fetch().rowsUpdated();
 
-        final List<String> scopeClaims = item.getClaims();
+        List<String> scopeClaims = item.getClaims();
         if (scopeClaims != null && !scopeClaims.isEmpty()) {
             action =
                     action.then(

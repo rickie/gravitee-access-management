@@ -49,7 +49,7 @@ public class IntrospectionServiceTest {
 
     @Test
     public void shouldSearchForAUser() {
-        final String token = "token";
+        String token = "token";
         AccessToken accessToken = new AccessToken(token);
         accessToken.setSubject("user");
         accessToken.setClientId("client-id");
@@ -68,7 +68,7 @@ public class IntrospectionServiceTest {
 
     @Test
     public void shouldNotSearchForAUser_clientCredentials() {
-        final String token = "token";
+        String token = "token";
         AccessToken accessToken = new AccessToken(token);
         accessToken.setSubject("client-id");
         accessToken.setClientId("client-id");
@@ -86,7 +86,7 @@ public class IntrospectionServiceTest {
 
     @Test
     public void shouldReturnCustomClaims() {
-        final String token = "token";
+        String token = "token";
         AccessToken accessToken = new AccessToken(token);
         accessToken.setSubject("client-id");
         accessToken.setClientId("client-id");
@@ -108,7 +108,7 @@ public class IntrospectionServiceTest {
 
     @Test
     public void shouldNotReturnAudClaim() {
-        final String token = "token";
+        String token = "token";
         AccessToken accessToken = new AccessToken(token);
         accessToken.setSubject("client-id");
         accessToken.setClientId("client-id");

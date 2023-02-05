@@ -59,15 +59,15 @@ public class GatewayNodeMetadataResolver implements NodeMetadataResolver {
     @Autowired private Environment configuration;
 
     public Map<String, Object> resolve() {
-        final HashMap<String, Object> metadata = new HashMap<>();
+        HashMap<String, Object> metadata = new HashMap<>();
 
-        final String installationId = getInstallationId();
-        final List<io.gravitee.am.model.Environment> environments = loadEnvironments();
-        final Set<String> organizationIds =
+        String installationId = getInstallationId();
+        List<io.gravitee.am.model.Environment> environments = loadEnvironments();
+        Set<String> organizationIds =
                 environments.stream()
                         .map(io.gravitee.am.model.Environment::getOrganizationId)
                         .collect(Collectors.toSet());
-        final Set<String> environmentIds =
+        Set<String> environmentIds =
                 environments.stream()
                         .map(io.gravitee.am.model.Environment::getId)
                         .collect(Collectors.toSet());
@@ -82,7 +82,7 @@ public class GatewayNodeMetadataResolver implements NodeMetadataResolver {
     private String getInstallationId() {
         String installationId = null;
         try {
-            final var installation = installationRepository.find().blockingGet();
+            var installation = installationRepository.find().blockingGet();
             if (installation != null) {
                 installationId = installation.getId();
             } else {
@@ -101,7 +101,7 @@ public class GatewayNodeMetadataResolver implements NodeMetadataResolver {
         List<io.gravitee.am.model.Environment> environments = new ArrayList<>();
 
         if (organizationHrids.isPresent()) {
-            final List<Organization> foundOrgs =
+            List<Organization> foundOrgs =
                     organizationRepository
                             .findByHrids(organizationHrids.get())
                             .toList()

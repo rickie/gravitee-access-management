@@ -136,7 +136,7 @@ public class BotDetectionManagerImpl extends AbstractService
 
     @Override
     public Single<Boolean> validate(BotDetectionContext context) {
-        final BotDetectionProvider botDetectionProvider = this.providers.get(context.getPluginId());
+        BotDetectionProvider botDetectionProvider = this.providers.get(context.getPluginId());
         if (botDetectionProvider != null) {
             return botDetectionProvider.validate(context);
         } else {
@@ -159,7 +159,7 @@ public class BotDetectionManagerImpl extends AbstractService
             if (accountSettings.getBotDetectionPlugin() == null) {
                 LOGGER.warn("Bot Detection enabled but plugin reference isn't defined in settings");
             } else {
-                final BotDetection botDetection =
+                BotDetection botDetection =
                         this.botDetections.get(accountSettings.getBotDetectionPlugin());
                 variables.put(TEMPLATE_KEY_BOT_DETECTION_PLUGIN, botDetection.getType());
                 try {
@@ -179,7 +179,7 @@ public class BotDetectionManagerImpl extends AbstractService
     }
 
     private void updateBotDetection(String pluginId, BotDetectionEvent event) {
-        final String eventType = event.toString().toLowerCase();
+        String eventType = event.toString().toLowerCase();
         LOGGER.info(
                 "Domain {} has received {} bot detection event for {}",
                 domain.getName(),
@@ -202,7 +202,7 @@ public class BotDetectionManagerImpl extends AbstractService
                 "Domain {} has received event, remove bot detection {}",
                 domain.getName(),
                 pluginId);
-        final BotDetectionProvider previousProvider = providers.remove(pluginId);
+        BotDetectionProvider previousProvider = providers.remove(pluginId);
         botDetections.remove(pluginId);
         stopBotDetectionProvider(previousProvider);
     }
@@ -215,7 +215,7 @@ public class BotDetectionManagerImpl extends AbstractService
                                 detection.getType(), detection.getConfiguration());
                 BotDetectionProvider botDetectionProvider =
                         botDetectionPluginManager.create(providerConfig);
-                final BotDetectionProvider previousProvider =
+                BotDetectionProvider previousProvider =
                         this.providers.put(detection.getId(), botDetectionProvider);
                 stopBotDetectionProvider(previousProvider);
                 this.botDetections.put(detection.getId(), detection);
@@ -254,7 +254,7 @@ public class BotDetectionManagerImpl extends AbstractService
      *     to date
      */
     private boolean needDeployment(BotDetection botDetection) {
-        final BotDetection deployedPlugin = this.botDetections.get(botDetection.getId());
+        BotDetection deployedPlugin = this.botDetections.get(botDetection.getId());
         return (deployedPlugin == null
                 || deployedPlugin.getUpdatedAt().before(botDetection.getUpdatedAt()));
     }

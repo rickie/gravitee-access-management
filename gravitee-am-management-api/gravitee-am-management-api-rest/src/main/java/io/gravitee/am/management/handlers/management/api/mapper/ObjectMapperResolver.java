@@ -55,9 +55,9 @@ public class ObjectMapperResolver implements ContextResolver<ObjectMapper> {
                     @Override
                     public JsonDeserializer<Enum> modifyEnumDeserializer(
                             DeserializationConfig config,
-                            final JavaType type,
+                            JavaType type,
                             BeanDescription beanDesc,
-                            final JsonDeserializer<?> deserializer) {
+                            JsonDeserializer<?> deserializer) {
                         return new JsonDeserializer<Enum>() {
                             @Override
                             public Enum deserialize(JsonParser jp, DeserializationContext ctxt)

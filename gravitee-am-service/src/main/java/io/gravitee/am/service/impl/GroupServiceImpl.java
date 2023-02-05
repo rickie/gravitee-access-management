@@ -231,8 +231,8 @@ public class GroupServiceImpl implements GroupService {
                                         group.getMembers().stream()
                                                 .sorted()
                                                 .collect(Collectors.toList());
-                                final int startOffset = page * size;
-                                final int endOffset = (page + 1) * size;
+                                int startOffset = page * size;
+                                int endOffset = (page + 1) * size;
                                 List<String> pagedMemberIds =
                                         sortedMembers.subList(
                                                 Math.min(sortedMembers.size(), startOffset),

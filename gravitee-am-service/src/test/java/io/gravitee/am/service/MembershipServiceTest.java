@@ -670,8 +670,8 @@ public class MembershipServiceTest {
     @Test
     public void shouldSetPlatformAdmin() {
 
-        final String userId = "userId";
-        final Role platformAdminRole = new Role();
+        String userId = "userId";
+        Role platformAdminRole = new Role();
         platformAdminRole.setId("platform-admin");
         when(roleService.findSystemRole(SystemRole.PLATFORM_ADMIN, ReferenceType.PLATFORM))
                 .thenReturn(Maybe.just(platformAdminRole));
@@ -687,7 +687,7 @@ public class MembershipServiceTest {
                 .thenAnswer((i -> Single.just(i.getArgument(0))));
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
 
-        final TestObserver<Membership> obs = membershipService.setPlatformAdmin(userId).test();
+        TestObserver<Membership> obs = membershipService.setPlatformAdmin(userId).test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -704,11 +704,11 @@ public class MembershipServiceTest {
     @Test
     public void shouldNotSetPlatformAdmin_roleNotFound() {
 
-        final String userId = "userId";
+        String userId = "userId";
         when(roleService.findSystemRole(SystemRole.PLATFORM_ADMIN, ReferenceType.PLATFORM))
                 .thenReturn(Maybe.empty());
 
-        final TestObserver<Membership> obs = membershipService.setPlatformAdmin(userId).test();
+        TestObserver<Membership> obs = membershipService.setPlatformAdmin(userId).test();
 
         obs.awaitTerminalEvent();
         obs.assertError(RoleNotFoundException.class);
@@ -717,9 +717,9 @@ public class MembershipServiceTest {
     @Test
     public void shouldNotSetPlatformAdmin_alreadySet() {
 
-        final String userId = "userId";
-        final Membership alreadyExisting = new Membership();
-        final Role platformAdminRole = new Role();
+        String userId = "userId";
+        Membership alreadyExisting = new Membership();
+        Role platformAdminRole = new Role();
         platformAdminRole.setId("platform-admin");
         when(roleService.findSystemRole(SystemRole.PLATFORM_ADMIN, ReferenceType.PLATFORM))
                 .thenReturn(Maybe.just(platformAdminRole));
@@ -732,7 +732,7 @@ public class MembershipServiceTest {
                                                 && criteria.getUserId().get().equals(userId))))
                 .thenReturn(Flowable.just(alreadyExisting));
 
-        final TestObserver<Membership> obs = membershipService.setPlatformAdmin(userId).test();
+        TestObserver<Membership> obs = membershipService.setPlatformAdmin(userId).test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();

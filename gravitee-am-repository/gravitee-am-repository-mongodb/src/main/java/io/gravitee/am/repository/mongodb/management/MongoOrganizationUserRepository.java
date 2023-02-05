@@ -56,7 +56,7 @@ public class MongoOrganizationUserRepository extends AbstractUserRepository<Orga
         if (user == null) {
             return null;
         }
-        final OrganizationUserMongo userMongo = new OrganizationUserMongo();
+        OrganizationUserMongo userMongo = new OrganizationUserMongo();
         // organization user may have to store password if it belongs to the gravitee idp.
         if (IDP_GRAVITEE.equals(user.getSource())) {
             userMongo.setPassword(user.getPassword());

@@ -57,7 +57,7 @@ public class ForgotPasswordParameters {
     }
 
     public FilterCriteria buildCriteria() {
-        final ArrayList<FilterCriteria> filterComponents = new ArrayList<>();
+        ArrayList<FilterCriteria> filterComponents = new ArrayList<>();
         if (!StringUtils.isEmpty(email)) {
             filterComponents.add(buildCriteria("emails.value", email));
         }
@@ -77,7 +77,7 @@ public class ForgotPasswordParameters {
     }
 
     private FilterCriteria buildCriteria(String scimField, String value) {
-        final FilterCriteria criteria = new FilterCriteria();
+        FilterCriteria criteria = new FilterCriteria();
         criteria.setFilterName(scimField);
         criteria.setFilterValue(value);
         criteria.setOperator("eq");

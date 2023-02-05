@@ -46,8 +46,8 @@ public abstract class SystemTaskUpgrader implements Upgrader, Ordered {
 
     @Override
     public boolean upgrade() {
-        final String instanceOperationId = UUID.randomUUID().toString();
-        final String taskId = getTaskId();
+        String instanceOperationId = UUID.randomUUID().toString();
+        String taskId = getTaskId();
         boolean upgraded =
                 systemTaskRepository
                         .findById(taskId)
@@ -95,7 +95,7 @@ public abstract class SystemTaskUpgrader implements Upgrader, Ordered {
     protected abstract IllegalStateException getIllegalStateException();
 
     protected Single<SystemTask> createSystemTask(String operationId) {
-        final String taskId = getTaskId();
+        String taskId = getTaskId();
         SystemTask systemTask = new SystemTask();
         systemTask.setId(taskId);
         systemTask.setType(SystemTaskTypes.UPGRADER.name());

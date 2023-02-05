@@ -107,10 +107,10 @@ public class EnrichAuthFlowPolicyTest {
 
     @Test
     public void shouldStoreData() throws Exception {
-        final CountDownLatch lock = new CountDownLatch(1);
+        CountDownLatch lock = new CountDownLatch(1);
         this.policyChain = spy(new CountDownPolicyChain(lock));
 
-        final int expectedVersion = 2;
+        int expectedVersion = 2;
         mockGraviteeContext(
                 expectedVersion - 1,
                 Maps.<String, Object>builder().put("entry1", "value1").build());
@@ -145,7 +145,7 @@ public class EnrichAuthFlowPolicyTest {
 
     @Test
     public void shouldIgnoreContext_NoGraviteeContext() throws Exception {
-        final CountDownLatch lock = new CountDownLatch(1);
+        CountDownLatch lock = new CountDownLatch(1);
         this.policyChain = spy(new CountDownPolicyChain(lock));
 
         when(configuration.getProperties())
@@ -166,7 +166,7 @@ public class EnrichAuthFlowPolicyTest {
 
     @Test
     public void shouldIgnoreContext_NoConfigProperties() throws Exception {
-        final CountDownLatch lock = new CountDownLatch(1);
+        CountDownLatch lock = new CountDownLatch(1);
         this.policyChain = spy(new CountDownPolicyChain(lock));
 
         EnrichAuthFlowPolicy enrichAuthFlowPolicy = buildPolicy();

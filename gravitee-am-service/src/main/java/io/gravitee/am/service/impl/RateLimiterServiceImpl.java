@@ -73,7 +73,7 @@ public class RateLimiterServiceImpl implements RateLimiterService {
             return Single.just(false);
         }
 
-        final RateLimitCriteria criteria = buildCriteria(userId, factorId, client);
+        RateLimitCriteria criteria = buildCriteria(userId, factorId, client);
         return getRateLimit(criteria, domainId)
                 .flatMap(
                         rateLimit -> {
@@ -102,12 +102,12 @@ public class RateLimiterServiceImpl implements RateLimiterService {
                 .flatMapSingle(
                         optionalRateLimit -> {
                             if (optionalRateLimit.isPresent()) {
-                                final RateLimit rateLimit = optionalRateLimit.get();
+                                RateLimit rateLimit = optionalRateLimit.get();
                                 calculateAndSetTokenLeft(rateLimit, timeUnit, timePeriod, limit);
                                 rateLimit.setUpdatedAt(new Date());
                                 return rateLimitRepository.update(rateLimit);
                             } else {
-                                final RateLimit rateLimit = new RateLimit();
+                                RateLimit rateLimit = new RateLimit();
                                 rateLimit.setUserId(criteria.userId());
                                 rateLimit.setFactorId(criteria.factorId());
                                 rateLimit.setClient(criteria.client());

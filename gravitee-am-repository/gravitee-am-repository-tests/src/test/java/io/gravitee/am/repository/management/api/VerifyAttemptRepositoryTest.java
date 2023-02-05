@@ -179,7 +179,7 @@ public class VerifyAttemptRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldDeleteByUser() {
-        final String userId = "1234-xyz";
+        String userId = "1234-xyz";
         VerifyAttempt verifyAttempt1 = createVerifyAttempt();
         verifyAttempt1.setUserId(userId);
         VerifyAttempt createdVerifyAttempt1 = repository.create(verifyAttempt1).blockingGet();
@@ -219,7 +219,7 @@ public class VerifyAttemptRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldDeleteByDomain() {
-        final String domainId = "1234-xyz";
+        String domainId = "1234-xyz";
         VerifyAttempt verifyAttempt1 = createVerifyAttempt();
         verifyAttempt1.setReferenceId(domainId);
         VerifyAttempt createdVerifyAttempt1 = repository.create(verifyAttempt1).blockingGet();
@@ -271,13 +271,13 @@ public class VerifyAttemptRepositoryTest extends AbstractManagementTest {
 
     private VerifyAttempt createVerifyAttempt() {
         VerifyAttempt verifyAttempt = new VerifyAttempt();
-        final String random = UUID.randomUUID().toString();
+        String random = UUID.randomUUID().toString();
         verifyAttempt.setClient("client-id" + random);
         verifyAttempt.setUserId("user-id" + random);
         verifyAttempt.setFactorId("factor-id" + random);
         verifyAttempt.setAllowRequest(true);
         verifyAttempt.setAttempts(2);
-        final Date date = new Date();
+        Date date = new Date();
         verifyAttempt.setCreatedAt(date);
         verifyAttempt.setUpdatedAt(date);
         verifyAttempt.setReferenceId("domain-id" + random);

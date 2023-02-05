@@ -63,7 +63,7 @@ public class CSRFHandlerImpl implements CSRFHandler {
     private String origin;
     private boolean httpOnly;
 
-    public CSRFHandlerImpl(Vertx vertx, final String secret) {
+    public CSRFHandlerImpl(Vertx vertx, String secret) {
         this.RAND = VertxContextPRNG.current(vertx);
         try {
             mac = Mac.getInstance("HmacSHA256");
@@ -119,7 +119,7 @@ public class CSRFHandlerImpl implements CSRFHandler {
         byte[] salt = new byte[32];
         RAND.nextBytes(salt);
 
-        final String plainJwt = BASE64.encodeToString(salt) + "." + System.currentTimeMillis();
+        String plainJwt = BASE64.encodeToString(salt) + "." + System.currentTimeMillis();
         byte[] saltPlusToken = plainJwt.getBytes(StandardCharsets.US_ASCII);
         synchronized (mac) {
             saltPlusToken = mac.doFinal(saltPlusToken);
@@ -159,14 +159,14 @@ public class CSRFHandlerImpl implements CSRFHandler {
     }
 
     protected void redirect(RoutingContext ctx) {
-        final int statusCode = 302;
+        int statusCode = 302;
 
-        final HttpServerRequest httpServerRequest = new HttpServerRequest(ctx.request());
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(httpServerRequest);
+        HttpServerRequest httpServerRequest = new HttpServerRequest(ctx.request());
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(httpServerRequest);
         queryParams.set("error", "session_expired");
         queryParams.set("error_description", "Your session expired, please try again.");
 
-        final String uri =
+        String uri =
                 UriBuilderRequest.resolveProxyRequest(
                         httpServerRequest, ctx.request().path(), queryParams, true);
 
@@ -189,7 +189,7 @@ public class CSRFHandlerImpl implements CSRFHandler {
 
         switch (method.name()) {
             case "GET":
-                final String token = generateToken();
+                String token = generateToken();
                 // put the token in the context for users who prefer to render the token directly on
                 // the HTML
                 ctx.put(headerName, token);
@@ -201,8 +201,8 @@ public class CSRFHandlerImpl implements CSRFHandler {
             case "PUT":
             case "DELETE":
             case "PATCH":
-                final String header = ctx.request().getHeader(headerName);
-                final Cookie cookie = ctx.getCookie(cookieName);
+                String header = ctx.request().getHeader(headerName);
+                Cookie cookie = ctx.getCookie(cookieName);
                 if (validateToken(
                         header == null ? ctx.request().getFormAttribute(headerName) : header,
                         cookie)) {

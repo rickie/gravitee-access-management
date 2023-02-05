@@ -40,11 +40,11 @@ public class UserRoleResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldRevokeUserRole() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final User mockUser = new User();
+        User mockUser = new User();
         mockUser.setId("user-id-1");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
@@ -57,7 +57,7 @@ public class UserRoleResourceTest extends JerseySpringTest {
                         eq(Collections.singletonList("role-1")),
                         any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("users")

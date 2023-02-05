@@ -59,13 +59,13 @@ public class EmailSender {
 
     public void send(Email email) {
         try {
-            final MimeMessageHelper mailMessage =
+            MimeMessageHelper mailMessage =
                     new MimeMessageHelper(
                             mailSender.createMimeMessage(), true, StandardCharsets.UTF_8.name());
-            final String subject = email.getSubject();
-            final String content = email.getContent();
-            final String from = email.getFrom();
-            final String[] to = email.getTo();
+            String subject = email.getSubject();
+            String content = email.getContent();
+            String from = email.getFrom();
+            String[] to = email.getTo();
 
             String fromName = email.getFromName();
             if (fromName == null || fromName.isEmpty()) {
@@ -77,50 +77,50 @@ public class EmailSender {
             mailMessage.setTo(to);
             mailMessage.setSubject(subject);
 
-            final String html = addResourcesInMessage(mailMessage, content);
+            String html = addResourcesInMessage(mailMessage, content);
             LOGGER.debug(
                     "Sending an email to: {}\nSubject: {}\nMessage: {}",
                     email.getTo(),
                     email.getSubject(),
                     html);
             mailSender.send(mailMessage.getMimeMessage());
-        } catch (final Exception ex) {
+        } catch (Exception ex) {
             LOGGER.error("Error while creating email", ex);
             throw new TechnicalManagementException("Error while creating email", ex);
         }
     }
 
-    private String addResourcesInMessage(final MimeMessageHelper mailMessage, final String htmlText)
+    private String addResourcesInMessage(MimeMessageHelper mailMessage, String htmlText)
             throws Exception {
-        final Document document = Jsoup.parse(htmlText);
+        Document document = Jsoup.parse(htmlText);
 
-        final List<String> resources = new ArrayList<>();
+        List<String> resources = new ArrayList<>();
 
-        final Elements imageElements = document.getElementsByTag("img");
+        Elements imageElements = document.getElementsByTag("img");
         resources.addAll(
                 imageElements.stream()
                         .filter(imageElement -> imageElement.hasAttr("src"))
                         .filter(imageElement -> !imageElement.attr("src").startsWith("http"))
                         .map(
                                 imageElement -> {
-                                    final String src = imageElement.attr("src");
+                                    String src = imageElement.attr("src");
                                     imageElement.attr("src", "cid:" + src);
                                     return src;
                                 })
                         .collect(Collectors.toList()));
 
-        final String html = document.html();
+        String html = document.html();
         mailMessage.setText(html, true);
 
-        for (final String res : resources) {
+        for (String res : resources) {
             if (res.startsWith("data:image/")) {
-                final String value = res.replaceFirst("^data:image/[^;]*;base64,?", "");
+                String value = res.replaceFirst("^data:image/[^;]*;base64,?", "");
                 byte[] bytes = Base64.getDecoder().decode(value.getBytes("UTF-8"));
                 mailMessage.addInline(res, new ByteArrayResource(bytes), extractMimeType(res));
             } else {
                 File file = new File(templatesPath, res);
                 if (file.getCanonicalPath().startsWith(templatesPath)) {
-                    final FileSystemResource templateResource = new FileSystemResource(file);
+                    FileSystemResource templateResource = new FileSystemResource(file);
                     mailMessage.addInline(res, templateResource, getContentTypeByFileName(res));
                 } else {
                     LOGGER.warn("Resource path invalid : {}", file.getPath());
@@ -131,7 +131,7 @@ public class EmailSender {
         return html;
     }
 
-    private String getContentTypeByFileName(final String fileName) {
+    private String getContentTypeByFileName(String fileName) {
         if (fileName == null) {
             return "";
         } else if (fileName.endsWith(".png")) {
@@ -146,9 +146,9 @@ public class EmailSender {
      * @param encoded Base64 string
      * @return MIME type string
      */
-    private static String extractMimeType(final String encoded) {
-        final Pattern mime = Pattern.compile("^data:([a-zA-Z0-9]+/[a-zA-Z0-9]+).*,.*");
-        final Matcher matcher = mime.matcher(encoded);
+    private static String extractMimeType(String encoded) {
+        Pattern mime = Pattern.compile("^data:([a-zA-Z0-9]+/[a-zA-Z0-9]+).*,.*");
+        Matcher matcher = mime.matcher(encoded);
         if (!matcher.find()) return "";
         return matcher.group(1).toLowerCase();
     }

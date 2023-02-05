@@ -152,7 +152,7 @@ public class IdentityProviderManagerTest {
                 .thenReturn(Single.just(Optional.of(mock(UserProvider.class))));
         cut.loadIdentityProviders().blockingGet();
 
-        final TestObserver<UserProvider> observer =
+        TestObserver<UserProvider> observer =
                 this.cut.getUserProvider(IdentityProviderManagerImpl.IDP_GRAVITEE).test();
 
         observer.awaitTerminalEvent();

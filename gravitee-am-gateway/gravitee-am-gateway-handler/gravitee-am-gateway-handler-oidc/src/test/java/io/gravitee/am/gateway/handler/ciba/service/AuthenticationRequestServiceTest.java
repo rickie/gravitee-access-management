@@ -77,7 +77,7 @@ public class AuthenticationRequestServiceTest {
 
     @Before
     public void init() {
-        final OIDCSettings oidc = new OIDCSettings();
+        OIDCSettings oidc = new OIDCSettings();
         this.cibaSettings = new CIBASettings();
         oidc.setCibaSettings(this.cibaSettings);
         this.domain.setOidc(oidc);
@@ -87,7 +87,7 @@ public class AuthenticationRequestServiceTest {
     public void shouldNotRetrieve_UnknownId() {
         when(requestRepository.findById(anyString())).thenReturn(Maybe.empty());
 
-        final TestObserver<CibaAuthRequest> observer = service.retrieve(domain, "unknown").test();
+        TestObserver<CibaAuthRequest> observer = service.retrieve(domain, "unknown").test();
         observer.awaitTerminalEvent();
         observer.assertError(AuthenticationRequestNotFoundException.class);
     }
@@ -101,7 +101,7 @@ public class AuthenticationRequestServiceTest {
 
         when(requestRepository.findById(anyString())).thenReturn(Maybe.just(request));
 
-        final TestObserver<CibaAuthRequest> observer = service.retrieve(domain, "reqid").test();
+        TestObserver<CibaAuthRequest> observer = service.retrieve(domain, "reqid").test();
 
         observer.awaitTerminalEvent();
         observer.assertError(SlowDownException.class);
@@ -117,7 +117,7 @@ public class AuthenticationRequestServiceTest {
         when(requestRepository.findById(anyString())).thenReturn(Maybe.just(request));
         when(requestRepository.update(any())).thenReturn(Single.just(request));
 
-        final TestObserver<CibaAuthRequest> observer = service.retrieve(domain, "reqid").test();
+        TestObserver<CibaAuthRequest> observer = service.retrieve(domain, "reqid").test();
 
         observer.awaitTerminalEvent();
         observer.assertError(AuthorizationPendingException.class);
@@ -134,7 +134,7 @@ public class AuthenticationRequestServiceTest {
         when(requestRepository.findById(anyString())).thenReturn(Maybe.just(request));
         when(requestRepository.delete(any())).thenReturn(Completable.complete());
 
-        final TestObserver<CibaAuthRequest> observer = service.retrieve(domain, "reqid").test();
+        TestObserver<CibaAuthRequest> observer = service.retrieve(domain, "reqid").test();
 
         observer.awaitTerminalEvent();
         observer.assertError(AccessDeniedException.class);
@@ -149,7 +149,7 @@ public class AuthenticationRequestServiceTest {
         when(requestRepository.findById(anyString())).thenReturn(Maybe.just(request));
         when(requestRepository.delete(any())).thenReturn(Completable.complete());
 
-        final TestObserver<CibaAuthRequest> observer = service.retrieve(domain, "reqid").test();
+        TestObserver<CibaAuthRequest> observer = service.retrieve(domain, "reqid").test();
 
         observer.awaitTerminalEvent();
         observer.assertValueCount(1);
@@ -159,7 +159,7 @@ public class AuthenticationRequestServiceTest {
     public void shouldNotUpdate() {
         CibaAuthRequest request = mock(CibaAuthRequest.class);
         when(requestRepository.findById(any())).thenReturn(Maybe.empty());
-        final TestObserver<CibaAuthRequest> observer =
+        TestObserver<CibaAuthRequest> observer =
                 service.updateAuthDeviceInformation(request).test();
 
         observer.awaitTerminalEvent();
@@ -174,7 +174,7 @@ public class AuthenticationRequestServiceTest {
         when(requestRepository.findById(any())).thenReturn(Maybe.just(request));
         when(requestRepository.update(any())).thenReturn(Single.just(request));
 
-        final TestObserver<CibaAuthRequest> observer =
+        TestObserver<CibaAuthRequest> observer =
                 service.updateAuthDeviceInformation(request).test();
 
         observer.awaitTerminalEvent();
@@ -187,10 +187,10 @@ public class AuthenticationRequestServiceTest {
 
     @Test
     public void shouldUpdateAuthReqStatus() {
-        final String STATE = "state";
-        final String EXTERNAL_ID = "externalId";
-        final String AUTH_REQ_ID = "auth_red_id";
-        final boolean requestValidated = new Random().nextBoolean();
+        String STATE = "state";
+        String EXTERNAL_ID = "externalId";
+        String AUTH_REQ_ID = "auth_red_id";
+        boolean requestValidated = new Random().nextBoolean();
 
         AuthenticationDeviceNotifierProvider provider =
                 mock(AuthenticationDeviceNotifierProvider.class);
@@ -201,29 +201,29 @@ public class AuthenticationRequestServiceTest {
                                 Optional.of(
                                         new ADUserResponse(EXTERNAL_ID, STATE, requestValidated))));
 
-        final JWT stateJwt = new JWT();
+        JWT stateJwt = new JWT();
         stateJwt.setJti(EXTERNAL_ID);
         when(this.jwtService.decode(STATE)).thenReturn(Single.just(stateJwt));
         when(this.clientService.findByClientId(any())).thenReturn(Maybe.just(new Client()));
         when(this.jwtService.decodeAndVerify(anyString(), any(Client.class)))
                 .thenReturn(Single.just(stateJwt));
 
-        final CibaAuthRequest cibaRequest = new CibaAuthRequest();
+        CibaAuthRequest cibaRequest = new CibaAuthRequest();
         cibaRequest.setId(AUTH_REQ_ID);
         when(this.requestRepository.findByExternalId(EXTERNAL_ID))
                 .thenReturn(Maybe.just(cibaRequest));
 
-        final String status =
+        String status =
                 requestValidated
                         ? AuthenticationRequestStatus.SUCCESS.name()
                         : AuthenticationRequestStatus.REJECTED.name();
         when(this.requestRepository.updateStatus(AUTH_REQ_ID, status))
                 .thenReturn(Single.just(cibaRequest));
 
-        final ADCallbackContext context =
+        ADCallbackContext context =
                 new ADCallbackContext(
                         MultiMap.caseInsensitiveMultiMap(), MultiMap.caseInsensitiveMultiMap());
-        final TestObserver<Void> observer = this.service.validateUserResponse(context).test();
+        TestObserver<Void> observer = this.service.validateUserResponse(context).test();
         observer.awaitTerminalEvent();
         observer.assertNoErrors();
 
@@ -237,10 +237,10 @@ public class AuthenticationRequestServiceTest {
         when(notifierManager.getAuthDeviceNotifierProviders()).thenReturn(List.of(provider));
         when(provider.extractUserResponse(any())).thenReturn(Single.just(Optional.empty()));
 
-        final ADCallbackContext context =
+        ADCallbackContext context =
                 new ADCallbackContext(
                         MultiMap.caseInsensitiveMultiMap(), MultiMap.caseInsensitiveMultiMap());
-        final TestObserver<Void> observer = this.service.validateUserResponse(context).test();
+        TestObserver<Void> observer = this.service.validateUserResponse(context).test();
 
         observer.awaitTerminalEvent();
         observer.assertError(NoSuchElementException.class);
@@ -251,9 +251,9 @@ public class AuthenticationRequestServiceTest {
 
     @Test
     public void shouldNotUpdateStatus_UnknownClient() {
-        final String STATE = "state";
-        final String EXTERNAL_ID = "externalId";
-        final boolean requestValidated = new Random().nextBoolean();
+        String STATE = "state";
+        String EXTERNAL_ID = "externalId";
+        boolean requestValidated = new Random().nextBoolean();
 
         AuthenticationDeviceNotifierProvider provider =
                 mock(AuthenticationDeviceNotifierProvider.class);
@@ -264,15 +264,15 @@ public class AuthenticationRequestServiceTest {
                                 Optional.of(
                                         new ADUserResponse(EXTERNAL_ID, STATE, requestValidated))));
 
-        final JWT stateJwt = new JWT();
+        JWT stateJwt = new JWT();
         stateJwt.setJti(EXTERNAL_ID);
         when(this.jwtService.decode(STATE)).thenReturn(Single.just(stateJwt));
         when(this.clientService.findByClientId(any())).thenReturn(Maybe.empty());
 
-        final ADCallbackContext context =
+        ADCallbackContext context =
                 new ADCallbackContext(
                         MultiMap.caseInsensitiveMultiMap(), MultiMap.caseInsensitiveMultiMap());
-        final TestObserver<Void> observer = this.service.validateUserResponse(context).test();
+        TestObserver<Void> observer = this.service.validateUserResponse(context).test();
         observer.awaitTerminalEvent();
         observer.assertError(InvalidRequestException.class);
 
@@ -281,9 +281,9 @@ public class AuthenticationRequestServiceTest {
 
     @Test
     public void shouldNotUpdateStatus_InvalidSignature() {
-        final String STATE = "state";
-        final String EXTERNAL_ID = "externalId";
-        final boolean requestValidated = new Random().nextBoolean();
+        String STATE = "state";
+        String EXTERNAL_ID = "externalId";
+        boolean requestValidated = new Random().nextBoolean();
 
         AuthenticationDeviceNotifierProvider provider =
                 mock(AuthenticationDeviceNotifierProvider.class);
@@ -294,17 +294,17 @@ public class AuthenticationRequestServiceTest {
                                 Optional.of(
                                         new ADUserResponse(EXTERNAL_ID, STATE, requestValidated))));
 
-        final JWT stateJwt = new JWT();
+        JWT stateJwt = new JWT();
         stateJwt.setJti(EXTERNAL_ID);
         when(this.jwtService.decode(STATE)).thenReturn(Single.just(stateJwt));
         when(this.clientService.findByClientId(any())).thenReturn(Maybe.just(new Client()));
         when(this.jwtService.decodeAndVerify(anyString(), any(Client.class)))
                 .thenReturn(Single.error(new InvalidTokenException()));
 
-        final ADCallbackContext context =
+        ADCallbackContext context =
                 new ADCallbackContext(
                         MultiMap.caseInsensitiveMultiMap(), MultiMap.caseInsensitiveMultiMap());
-        final TestObserver<Void> observer = this.service.validateUserResponse(context).test();
+        TestObserver<Void> observer = this.service.validateUserResponse(context).test();
         observer.awaitTerminalEvent();
         observer.assertError(InvalidRequestException.class);
 
@@ -314,9 +314,9 @@ public class AuthenticationRequestServiceTest {
 
     @Test
     public void shouldNotUpdateStatus_StateMismatch() {
-        final String STATE = "state";
-        final String EXTERNAL_ID = "externalId";
-        final boolean requestValidated = new Random().nextBoolean();
+        String STATE = "state";
+        String EXTERNAL_ID = "externalId";
+        boolean requestValidated = new Random().nextBoolean();
 
         AuthenticationDeviceNotifierProvider provider =
                 mock(AuthenticationDeviceNotifierProvider.class);
@@ -327,17 +327,17 @@ public class AuthenticationRequestServiceTest {
                                 Optional.of(
                                         new ADUserResponse("unknown", STATE, requestValidated))));
 
-        final JWT stateJwt = new JWT();
+        JWT stateJwt = new JWT();
         stateJwt.setJti(EXTERNAL_ID);
         when(this.jwtService.decode(STATE)).thenReturn(Single.just(stateJwt));
         when(this.clientService.findByClientId(any())).thenReturn(Maybe.just(new Client()));
         when(this.jwtService.decodeAndVerify(anyString(), any(Client.class)))
                 .thenReturn(Single.just(stateJwt));
 
-        final ADCallbackContext context =
+        ADCallbackContext context =
                 new ADCallbackContext(
                         MultiMap.caseInsensitiveMultiMap(), MultiMap.caseInsensitiveMultiMap());
-        final TestObserver<Void> observer = this.service.validateUserResponse(context).test();
+        TestObserver<Void> observer = this.service.validateUserResponse(context).test();
         observer.awaitTerminalEvent();
         observer.assertError(InvalidRequestException.class);
 
@@ -347,10 +347,10 @@ public class AuthenticationRequestServiceTest {
 
     @Test
     public void shouldNotUpdateStatus_UnknownRequestId() {
-        final String STATE = "state";
-        final String EXTERNAL_ID = "externalId";
-        final String AUTH_REQ_ID = "auth_red_id";
-        final boolean requestValidated = new Random().nextBoolean();
+        String STATE = "state";
+        String EXTERNAL_ID = "externalId";
+        String AUTH_REQ_ID = "auth_red_id";
+        boolean requestValidated = new Random().nextBoolean();
 
         AuthenticationDeviceNotifierProvider provider =
                 mock(AuthenticationDeviceNotifierProvider.class);
@@ -361,21 +361,21 @@ public class AuthenticationRequestServiceTest {
                                 Optional.of(
                                         new ADUserResponse(EXTERNAL_ID, STATE, requestValidated))));
 
-        final JWT stateJwt = new JWT();
+        JWT stateJwt = new JWT();
         stateJwt.setJti(EXTERNAL_ID);
         when(this.jwtService.decode(STATE)).thenReturn(Single.just(stateJwt));
         when(this.clientService.findByClientId(any())).thenReturn(Maybe.just(new Client()));
         when(this.jwtService.decodeAndVerify(anyString(), any(Client.class)))
                 .thenReturn(Single.just(stateJwt));
 
-        final CibaAuthRequest cibaRequest = new CibaAuthRequest();
+        CibaAuthRequest cibaRequest = new CibaAuthRequest();
         cibaRequest.setId(AUTH_REQ_ID);
         when(this.requestRepository.findByExternalId(EXTERNAL_ID)).thenReturn(Maybe.empty());
 
-        final ADCallbackContext context =
+        ADCallbackContext context =
                 new ADCallbackContext(
                         MultiMap.caseInsensitiveMultiMap(), MultiMap.caseInsensitiveMultiMap());
-        final TestObserver<Void> observer = this.service.validateUserResponse(context).test();
+        TestObserver<Void> observer = this.service.validateUserResponse(context).test();
         observer.awaitTerminalEvent();
         observer.assertError(InvalidRequestException.class);
 

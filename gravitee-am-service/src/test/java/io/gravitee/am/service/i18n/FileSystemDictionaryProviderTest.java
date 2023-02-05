@@ -44,7 +44,7 @@ public class FileSystemDictionaryProviderTest {
 
     private DictionaryProvider directoryProvider;
 
-    public FileSystemDictionaryProviderTest(final String dir) {
+    public FileSystemDictionaryProviderTest(String dir) {
         this.directory = dir;
     }
 

@@ -55,7 +55,7 @@ public class GraviteeMessageResolver extends AbstractMessageResolver {
 
     protected String innerResolveMessage(Locale locale, String key) {
         // first we look into the domain custom messages
-        final String domainMessage =
+        String domainMessage =
                 this.domainBasedDictionaryProvider.getDictionaryFor(locale).getProperty(key);
 
         if (!ObjectUtils.isEmpty(domainMessage)) {

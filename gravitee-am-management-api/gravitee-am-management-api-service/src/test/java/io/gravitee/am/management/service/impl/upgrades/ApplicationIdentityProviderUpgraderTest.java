@@ -51,7 +51,7 @@ public class ApplicationIdentityProviderUpgraderTest {
 
     @Test
     public void shouldIgnore_IfTaskCompleted() {
-        final SystemTask task = new SystemTask();
+        SystemTask task = new SystemTask();
         task.setStatus(SystemTaskStatus.SUCCESS.name());
         when(systemTaskRepository.findById(any())).thenReturn(Maybe.just(task));
 
@@ -65,7 +65,7 @@ public class ApplicationIdentityProviderUpgraderTest {
     @Test
     public void shouldMigrate() {
         when(systemTaskRepository.findById(anyString())).thenReturn(Maybe.empty());
-        final SystemTask task = new SystemTask();
+        SystemTask task = new SystemTask();
         task.setStatus(SystemTaskStatus.INITIALIZED.name());
         when(systemTaskRepository.create(any())).thenReturn(Single.just(task));
 
@@ -93,23 +93,23 @@ public class ApplicationIdentityProviderUpgraderTest {
         when(identityProviderRepository.findAll(eq(ReferenceType.DOMAIN), eq(domain2)))
                 .thenReturn(Flowable.just(idp4));
 
-        final Application appNoIdentities = new Application();
+        Application appNoIdentities = new Application();
         appNoIdentities.setDomain(domain1);
         appNoIdentities.setName("appNoIdentities");
 
-        final Application appWithIdentityNoWhitelist = new Application();
+        Application appWithIdentityNoWhitelist = new Application();
         appWithIdentityNoWhitelist.setDomain(domain1);
         appWithIdentityNoWhitelist.setName("appWithIdentityNoWhitelist");
         appWithIdentityNoWhitelist.setIdentityProviders(
                 getApplicationIdentityProviders(idp1.getId(), idp2.getId()));
 
-        final Application appWithIdentityWithWhitelist = new Application();
+        Application appWithIdentityWithWhitelist = new Application();
         appWithIdentityWithWhitelist.setDomain(domain1);
         appWithIdentityWithWhitelist.setName("appWithIdentityWithWhitelist");
         appWithIdentityWithWhitelist.setIdentityProviders(
                 getApplicationIdentityProviders(idp3.getId()));
 
-        final Application appOtherDomain = new Application();
+        Application appOtherDomain = new Application();
         appOtherDomain.setDomain(domain2);
         appOtherDomain.setName("appOtherDomain");
         appOtherDomain.setIdentityProviders(getApplicationIdentityProviders(idp4.getId()));

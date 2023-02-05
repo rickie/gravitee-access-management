@@ -90,7 +90,7 @@ public class AuthorizationEndpoint implements Handler<RoutingContext> {
                                 authenticatedUser.getDelegate())
                         .getUser();
 
-        final String uriIdentifier = context.get(ConstantKeys.REQUEST_URI_ID_KEY);
+        String uriIdentifier = context.get(ConstantKeys.REQUEST_URI_ID_KEY);
         parService
                 .deleteRequestUri(uriIdentifier)
                 .onErrorResumeNext(
@@ -122,7 +122,7 @@ public class AuthorizationEndpoint implements Handler<RoutingContext> {
         try {
             // if response mode is not set to form_post, the user is redirected to the client
             // callback endpoint
-            final String redirectUri = response.buildRedirectUri();
+            String redirectUri = response.buildRedirectUri();
             if (!ResponseMode.FORM_POST.equals(request.getResponseMode())) {
                 context.response()
                         .putHeader(HttpHeaders.LOCATION, redirectUri)
@@ -135,7 +135,7 @@ public class AuthorizationEndpoint implements Handler<RoutingContext> {
             // that are auto-submitted in the User Agent,
             // and thus are transmitted via the HTTP POST method to the Client.
             // Prepare context to render post form.
-            final MultiMap queryParams = RequestUtils.getCleanedQueryParams(redirectUri);
+            MultiMap queryParams = RequestUtils.getCleanedQueryParams(redirectUri);
             context.put(ACTION_KEY, request.getRedirectUri());
             context.put(FORM_PARAMETERS, queryParams.remove(ACTION_KEY));
 

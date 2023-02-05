@@ -64,7 +64,7 @@ public final class AlertTriggerFactory {
     }
 
     private static Notification convert(AlertNotifier alertNotifier) {
-        final Notification notification = new Notification();
+        Notification notification = new Notification();
         notification.setType(alertNotifier.getType());
         notification.setConfiguration(alertNotifier.getConfiguration());
         return notification;

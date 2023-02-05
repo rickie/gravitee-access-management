@@ -122,8 +122,8 @@ public class EmailServiceImpl implements EmailService {
     private void sendEmail(Email email, User user) {
         if (enabled) {
             try {
-                final var locale = preferredLanguage(user, Locale.ENGLISH);
-                final var emailToSend = processEmailTemplate(email, locale);
+                var locale = preferredLanguage(user, Locale.ENGLISH);
+                var emailToSend = processEmailTemplate(email, locale);
                 emailService.send(emailToSend);
                 auditService.report(
                         AuditBuilder.builder(EmailAuditBuilder.class)
@@ -131,7 +131,7 @@ public class EmailServiceImpl implements EmailService {
                                 .client(ADMIN_CLIENT)
                                 .email(email)
                                 .user(user));
-            } catch (final Exception ex) {
+            } catch (Exception ex) {
                 auditService.report(
                         AuditBuilder.builder(EmailAuditBuilder.class)
                                 .domain(user.getReferenceId())
@@ -161,8 +161,7 @@ public class EmailServiceImpl implements EmailService {
                 .map(
                         emailTemplate -> {
                             // prepare email
-                            final var email =
-                                    prepareEmail(domain, client, template, emailTemplate, user);
+                            var email = prepareEmail(domain, client, template, emailTemplate, user);
 
                             if (email.getParams() != null) {
                                 email.getParams().putAll(params);
@@ -178,15 +177,15 @@ public class EmailServiceImpl implements EmailService {
 
     private Email processEmailTemplate(Email email, Locale locale)
             throws IOException, TemplateException {
-        final Template template = freemarkerConfiguration.getTemplate(email.getTemplate());
-        final Template plainTextTemplate =
+        Template template = freemarkerConfiguration.getTemplate(email.getTemplate());
+        Template plainTextTemplate =
                 new Template(
                         "subject", new StringReader(email.getSubject()), freemarkerConfiguration);
         // compute email subject
-        final String subject = processTemplate(plainTextTemplate, email.getParams(), locale);
+        String subject = processTemplate(plainTextTemplate, email.getParams(), locale);
         // compute email content
-        final String content = processTemplate(template, email.getParams(), locale);
-        final Email emailToSend = new Email(email);
+        String content = processTemplate(template, email.getParams(), locale);
+        Email emailToSend = new Email(email);
         emailToSend.setSubject(subject);
         emailToSend.setContent(content);
         return emailToSend;
@@ -249,7 +248,7 @@ public class EmailServiceImpl implements EmailService {
             Integer expiresAfter,
             String redirectUri) {
         // generate a JWT to store user's information and for security purpose
-        final Map<String, Object> claims = new HashMap<>();
+        Map<String, Object> claims = new HashMap<>();
         Instant now = Instant.now();
         claims.put(Claims.iat, now.getEpochSecond());
         claims.put(Claims.exp, now.plusSeconds(expiresAfter).getEpochSecond());
