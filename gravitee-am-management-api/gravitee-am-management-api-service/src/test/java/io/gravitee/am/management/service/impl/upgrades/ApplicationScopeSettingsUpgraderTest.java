@@ -55,7 +55,7 @@ public class ApplicationScopeSettingsUpgraderTest {
 
     @Test
     public void shouldIgnore_IfTaskCompleted() {
-        final SystemTask task = new SystemTask();
+        SystemTask task = new SystemTask();
         task.setStatus(SystemTaskStatus.SUCCESS.name());
         when(systemTaskRepository.findById(any())).thenReturn(Maybe.just(task));
 
@@ -68,31 +68,31 @@ public class ApplicationScopeSettingsUpgraderTest {
     @Test
     public void shouldUpgrade() {
         when(systemTaskRepository.findById(anyString())).thenReturn(Maybe.empty());
-        final SystemTask task = new SystemTask();
+        SystemTask task = new SystemTask();
         task.setStatus(SystemTaskStatus.INITIALIZED.name());
         when(systemTaskRepository.create(any())).thenReturn(Single.just(task));
 
-        final Application appNoSettings = new Application();
+        Application appNoSettings = new Application();
         appNoSettings.setSettings(null);
 
-        final Application appNoOauthSetings = new Application();
+        Application appNoOauthSetings = new Application();
         appNoOauthSetings.setSettings(new ApplicationSettings());
 
-        final Application appNoScopes = new Application();
-        final ApplicationSettings settings = new ApplicationSettings();
+        Application appNoScopes = new Application();
+        ApplicationSettings settings = new ApplicationSettings();
         settings.setOauth(new ApplicationOAuthSettings());
         appNoScopes.setSettings(settings);
 
-        final Application appScopes = new Application();
-        final ApplicationSettings settingsWithScopes = new ApplicationSettings();
-        final ApplicationOAuthSettings oauth = new ApplicationOAuthSettings();
+        Application appScopes = new Application();
+        ApplicationSettings settingsWithScopes = new ApplicationSettings();
+        ApplicationOAuthSettings oauth = new ApplicationOAuthSettings();
         oauth.setScopes(Arrays.asList(SCOPE_OPENID, SCOPE_PROFILE));
         settingsWithScopes.setOauth(oauth);
         appScopes.setSettings(settingsWithScopes);
 
-        final Application appScopesWithOptions = new Application();
-        final ApplicationSettings settingsWithScopesWithOptions = new ApplicationSettings();
-        final ApplicationOAuthSettings oauthWithOptions = new ApplicationOAuthSettings();
+        Application appScopesWithOptions = new Application();
+        ApplicationSettings settingsWithScopesWithOptions = new ApplicationSettings();
+        ApplicationOAuthSettings oauthWithOptions = new ApplicationOAuthSettings();
         oauthWithOptions.setScopes(Arrays.asList(SCOPE_OPENID, SCOPE_PROFILE));
         oauthWithOptions.setDefaultScopes(Arrays.asList(SCOPE_OPENID));
         oauthWithOptions.setScopeApprovals(
@@ -145,7 +145,7 @@ public class ApplicationScopeSettingsUpgraderTest {
                 .update(
                         argThat(
                                 app -> {
-                                    final boolean withScopeSettings =
+                                    boolean withScopeSettings =
                                             app.getSettings() != null
                                                     && app.getSettings().getOauth() != null
                                                     && app.getSettings()
@@ -176,7 +176,7 @@ public class ApplicationScopeSettingsUpgraderTest {
                 .update(
                         argThat(
                                 app -> {
-                                    final boolean withScopeSettings =
+                                    boolean withScopeSettings =
                                             app.getSettings() != null
                                                     && app.getSettings().getOauth() != null
                                                     && app.getSettings()

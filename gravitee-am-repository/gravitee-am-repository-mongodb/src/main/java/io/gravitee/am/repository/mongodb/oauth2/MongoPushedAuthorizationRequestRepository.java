@@ -72,7 +72,7 @@ public class MongoPushedAuthorizationRequestRepository extends AbstractOAuth2Mon
 
     @Override
     public Single<PushedAuthorizationRequest> create(PushedAuthorizationRequest item) {
-        final PushedAuthorizationRequestMongo par = convert(item);
+        PushedAuthorizationRequestMongo par = convert(item);
         par.setId(item.getId() == null ? RandomString.generate() : item.getId());
         return Single.fromPublisher(parCollection.insertOne(par))
                 .flatMap(

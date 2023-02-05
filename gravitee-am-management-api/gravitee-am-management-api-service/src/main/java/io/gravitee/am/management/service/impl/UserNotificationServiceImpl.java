@@ -60,9 +60,9 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     public CompletableFuture<Void> send(Notification notification, Map<String, Object> param) {
         var future = new CompletableFuture<Void>();
 
-        final UserProperties audience =
+        UserProperties audience =
                 (UserProperties) param.get(NotificationDefinitionUtils.NOTIFIER_DATA_USER);
-        final DomainProperties domain =
+        DomainProperties domain =
                 (DomainProperties) param.get(NotificationDefinitionUtils.NOTIFIER_DATA_DOMAIN);
         if (audience == null || domain == null) {
 
@@ -82,8 +82,8 @@ public class UserNotificationServiceImpl implements UserNotificationService {
                         uiTemplateProvider.getNotificationContent(
                                 notifierConfiguration.getTemplate(), param);
 
-                final Date now = new Date();
-                final UserNotification userNotif = new UserNotification();
+                Date now = new Date();
+                UserNotification userNotif = new UserNotification();
                 userNotif.setMessage(content);
                 userNotif.setCreatedAt(now);
                 userNotif.setUpdatedAt(now);
@@ -104,8 +104,8 @@ public class UserNotificationServiceImpl implements UserNotificationService {
                                     logger.debug("Notification stored: {}", createdNotif);
                                     future.complete(
                                             null); // CompletableStage use the Void type. So it
-                                                   // requires null to be mapped properly in the
-                                                   // NotificationTrigger
+                                    // requires null to be mapped properly in the
+                                    // NotificationTrigger
                                 },
                                 future::completeExceptionally);
 

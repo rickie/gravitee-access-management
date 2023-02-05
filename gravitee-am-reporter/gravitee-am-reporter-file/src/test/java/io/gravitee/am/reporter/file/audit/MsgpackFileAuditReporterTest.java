@@ -71,7 +71,7 @@ public class MsgpackFileAuditReporterTest extends FileAuditReporterTest {
             }
         }
 
-        final ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
+        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
         mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);

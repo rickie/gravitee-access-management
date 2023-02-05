@@ -74,7 +74,7 @@ public class ScopeResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("scope") String scopeId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.READ)
                 .andThen(
@@ -114,9 +114,9 @@ public class ScopeResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("scope") String scope,
             @ApiParam(name = "scope", required = true) @Valid @NotNull PatchScope patchScope,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.UPDATE)
@@ -154,8 +154,8 @@ public class ScopeResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("scope") String scope,
             @ApiParam(name = "scope", required = true) @Valid @NotNull UpdateScope updateScope,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.UPDATE)
@@ -190,8 +190,8 @@ public class ScopeResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("scope") String scope,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.DELETE)

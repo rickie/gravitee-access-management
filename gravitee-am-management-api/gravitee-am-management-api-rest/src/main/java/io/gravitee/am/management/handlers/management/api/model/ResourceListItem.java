@@ -13,7 +13,6 @@
  */
 package io.gravitee.am.management.handlers.management.api.model;
 
-
 import java.util.List;
 import java.util.Map;
 

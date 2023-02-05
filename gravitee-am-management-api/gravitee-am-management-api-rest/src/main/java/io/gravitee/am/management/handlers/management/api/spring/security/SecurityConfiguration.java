@@ -242,7 +242,7 @@ public class SecurityConfiguration {
 
         private void csp(HttpSecurity security) throws Exception {
             if (environment.getProperty(HTTP_CSP_ENABLED, Boolean.class, true)) {
-                final List<String> directives = getDirectives();
+                List<String> directives = getDirectives();
                 if (directives.isEmpty()) {
                     directives.add(DEFAULT_DEFAULT_SRC_CSP_DIRECTIVE);
                     directives.add(DEFAULT_FRAME_ANCESTOR_CSP_DIRECTIVE);
@@ -260,7 +260,7 @@ public class SecurityConfiguration {
         }
 
         private List<String> getDirectives() {
-            final List<String> directives = new ArrayList<>();
+            List<String> directives = new ArrayList<>();
             String value = null;
             int i = 0;
             do {
@@ -396,7 +396,7 @@ public class SecurityConfiguration {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        final CorsConfiguration config = new CorsConfiguration();
+        CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOriginPatterns(getPropertiesAsList("http.cors.allow-origin", "*"));
         config.setAllowedHeaders(
@@ -412,7 +412,7 @@ public class SecurityConfiguration {
                         "http.cors.exposed-headers", "ETag, " + DEFAULT_CSRF_HEADER_NAME));
         config.setMaxAge(environment.getProperty("http.cors.max-age", Long.class, 1728000L));
 
-        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 
         return source;
@@ -428,7 +428,7 @@ public class SecurityConfiguration {
         return new CustomRequestRejectedHandler();
     }
 
-    private List<String> getPropertiesAsList(final String propertyKey, final String defaultValue) {
+    private List<String> getPropertiesAsList(String propertyKey, String defaultValue) {
         String property = environment.getProperty(propertyKey);
         if (property == null) {
             property = defaultValue;

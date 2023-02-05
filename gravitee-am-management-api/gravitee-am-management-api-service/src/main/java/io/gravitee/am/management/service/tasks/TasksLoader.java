@@ -67,13 +67,13 @@ public class TasksLoader extends AbstractService<TasksLoader>
                                         .equals(systemTask.getKind()))
                 .map(
                         systemTask -> {
-                            final var assignSystemCert =
+                            var assignSystemCert =
                                     new AssignSystemCertificate(
                                             systemTask.getId(),
                                             this.applicationService,
                                             this.certificateRepository,
                                             this.taskManager);
-                            final var taskConfiguration =
+                            var taskConfiguration =
                                     mapper.readValue(
                                             systemTask.getConfiguration(),
                                             AssignSystemCertificateDefinition.class);

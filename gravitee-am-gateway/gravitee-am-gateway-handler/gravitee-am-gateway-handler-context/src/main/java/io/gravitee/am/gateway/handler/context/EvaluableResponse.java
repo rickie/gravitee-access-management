@@ -24,7 +24,7 @@ public class EvaluableResponse {
 
     private final Response response;
 
-    EvaluableResponse(final Response response) {
+    EvaluableResponse(Response response) {
         this.response = response;
     }
 

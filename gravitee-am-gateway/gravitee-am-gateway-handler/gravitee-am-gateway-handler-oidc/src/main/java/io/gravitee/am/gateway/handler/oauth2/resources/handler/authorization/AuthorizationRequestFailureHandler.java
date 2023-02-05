@@ -83,10 +83,10 @@ public class AuthorizationRequestFailureHandler implements Handler<RoutingContex
     private final int codeValidityInSec;
 
     public AuthorizationRequestFailureHandler(
-            final OpenIDDiscoveryService openIDDiscoveryService,
-            final JWTService jwtService,
-            final JWEService jweService,
-            final Environment environment) {
+            OpenIDDiscoveryService openIDDiscoveryService,
+            JWTService jwtService,
+            JWEService jweService,
+            Environment environment) {
         this.openIDDiscoveryService = openIDDiscoveryService;
         this.jwtService = jwtService;
         this.jweService = jweService;
@@ -182,7 +182,7 @@ public class AuthorizationRequestFailureHandler implements Handler<RoutingContex
             String defaultErrorURL,
             RoutingContext context,
             Handler<AsyncResult<String>> handler) {
-        final String clientId = authorizationRequest.getClientId();
+        String clientId = authorizationRequest.getClientId();
 
         // no client available or missing redirect_uri, go to default error page
         if (clientId == null || client == null || authorizationRequest.getRedirectUri() == null) {

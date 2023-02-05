@@ -38,8 +38,8 @@ public class AccountConsentEndpointHandler {
      * @param routingContext the routingContext holding the current user
      */
     public void listConsent(RoutingContext routingContext) {
-        final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         accountService
                 .getConsentList(user, client)
                 .subscribe(
@@ -55,7 +55,7 @@ public class AccountConsentEndpointHandler {
      * @param routingContext the routingContext holding the current user
      */
     public void getConsent(RoutingContext routingContext) {
-        final String consentId = routingContext.request().getParam("consentId");
+        String consentId = routingContext.request().getParam("consentId");
 
         accountService
                 .getConsent(consentId)
@@ -72,8 +72,8 @@ public class AccountConsentEndpointHandler {
      * @param routingContext the routingContext holding the current user
      */
     public void removeConsent(RoutingContext routingContext) {
-        final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        final String consentId = routingContext.request().getParam("consentId");
+        User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+        String consentId = routingContext.request().getParam("consentId");
 
         accountService
                 .removeConsent(user.getId(), consentId, new DefaultUser(user))

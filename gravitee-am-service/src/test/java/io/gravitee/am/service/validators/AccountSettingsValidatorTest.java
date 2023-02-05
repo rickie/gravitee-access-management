@@ -41,21 +41,21 @@ public class AccountSettingsValidatorTest {
 
     @Test
     public void validSettings_notResetPassword() {
-        final AccountSettings element = new AccountSettings();
+        AccountSettings element = new AccountSettings();
         element.setResetPasswordCustomForm(false);
         assertTrue(accountSettingsValidator.validate(element));
     }
 
     @Test
     public void validSettings_hasNoneOfTheFields() {
-        final AccountSettings element = new AccountSettings();
+        AccountSettings element = new AccountSettings();
         element.setResetPasswordCustomForm(true);
         assertTrue(accountSettingsValidator.validate(element));
     }
 
     @Test
     public void validSettings_hasNoneOfTheFields_2() {
-        final AccountSettings element = new AccountSettings();
+        AccountSettings element = new AccountSettings();
         element.setResetPasswordCustomForm(true);
         element.setResetPasswordCustomFormFields(List.of());
         assertTrue(accountSettingsValidator.validate(element));
@@ -63,9 +63,9 @@ public class AccountSettingsValidatorTest {
 
     @Test
     public void validSettings_containsEmail() {
-        final AccountSettings element = new AccountSettings();
+        AccountSettings element = new AccountSettings();
         element.setResetPasswordCustomForm(true);
-        final FormField email = new FormField();
+        FormField email = new FormField();
         email.setKey("email");
         element.setResetPasswordCustomFormFields(List.of(email));
         assertTrue(accountSettingsValidator.validate(element));
@@ -73,9 +73,9 @@ public class AccountSettingsValidatorTest {
 
     @Test
     public void validSettings_containsUsername() {
-        final AccountSettings element = new AccountSettings();
+        AccountSettings element = new AccountSettings();
         element.setResetPasswordCustomForm(true);
-        final FormField username = new FormField();
+        FormField username = new FormField();
         username.setKey("username");
         element.setResetPasswordCustomFormFields(List.of(username));
         assertTrue(accountSettingsValidator.validate(element));
@@ -83,11 +83,11 @@ public class AccountSettingsValidatorTest {
 
     @Test
     public void validSettings_containsEmailAndUsername() {
-        final AccountSettings element = new AccountSettings();
+        AccountSettings element = new AccountSettings();
         element.setResetPasswordCustomForm(true);
-        final FormField email = new FormField();
+        FormField email = new FormField();
         email.setKey("email");
-        final FormField username = new FormField();
+        FormField username = new FormField();
         username.setKey("username");
         element.setResetPasswordCustomFormFields(List.of(email, username));
         assertTrue(accountSettingsValidator.validate(element));
@@ -95,13 +95,13 @@ public class AccountSettingsValidatorTest {
 
     @Test
     public void invalidSettings_containsEmailAndPasswordAndSomethingElse() {
-        final AccountSettings element = new AccountSettings();
+        AccountSettings element = new AccountSettings();
         element.setResetPasswordCustomForm(true);
-        final FormField email = new FormField();
+        FormField email = new FormField();
         email.setKey("email");
-        final FormField username = new FormField();
+        FormField username = new FormField();
         username.setKey("username");
-        final FormField wrongField = new FormField();
+        FormField wrongField = new FormField();
         wrongField.setKey("wrongField");
         element.setResetPasswordCustomFormFields(List.of(email, wrongField, username));
         assertFalse(accountSettingsValidator.validate(element));
@@ -109,9 +109,9 @@ public class AccountSettingsValidatorTest {
 
     @Test
     public void invalidSettings_wrongFields() {
-        final AccountSettings element = new AccountSettings();
+        AccountSettings element = new AccountSettings();
         element.setResetPasswordCustomForm(true);
-        final FormField wrongField = new FormField();
+        FormField wrongField = new FormField();
         wrongField.setKey("wrongField");
         element.setResetPasswordCustomFormFields(List.of(wrongField, wrongField));
         assertFalse(accountSettingsValidator.validate(element));

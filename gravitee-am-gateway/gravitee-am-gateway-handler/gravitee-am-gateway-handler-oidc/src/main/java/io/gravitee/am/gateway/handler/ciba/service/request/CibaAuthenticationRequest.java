@@ -109,7 +109,7 @@ public class CibaAuthenticationRequest extends OAuth2Request {
     }
 
     public static CibaAuthenticationRequest createFrom(RoutingContext context) {
-        final HttpServerRequest request = context.request();
+        HttpServerRequest request = context.request();
 
         CibaAuthenticationRequest cibaRequest = new CibaAuthenticationRequest();
 
@@ -133,7 +133,7 @@ public class CibaAuthenticationRequest extends OAuth2Request {
                 request.localAddress() != null ? request.localAddress().host() : null);
         cibaRequest.setHost(request.host());
 
-        final Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         cibaRequest.setClientId(client.getClientId());
 
         cibaRequest.setScopes(
@@ -152,7 +152,7 @@ public class CibaAuthenticationRequest extends OAuth2Request {
                                 context, io.gravitee.am.common.oidc.Parameters.ACR_VALUES)));
         cibaRequest.setBindingMessage(getOAuthParameter(context, Parameters.BINDING_MESSAGE));
         cibaRequest.setUserCode(getOAuthParameter(context, Parameters.USER_CODE));
-        final String reqExpiry = getOAuthParameter(context, Parameters.REQUESTED_EXPIRY);
+        String reqExpiry = getOAuthParameter(context, Parameters.REQUESTED_EXPIRY);
         if (reqExpiry != null) {
             cibaRequest.setRequestedExpiry(Integer.parseInt(reqExpiry));
         }

@@ -31,7 +31,7 @@ import java.util.Optional;
 public class PatchPasswordSettingsTest {
     @Test(expected = InvalidParameterException.class)
     public void shouldRejectNegativeLength() {
-        final var settings = new PatchPasswordSettings();
+        var settings = new PatchPasswordSettings();
         settings.setMinLength(Optional.of(-1));
 
         settings.patch(new PasswordSettings());
@@ -39,7 +39,7 @@ public class PatchPasswordSettingsTest {
 
     @Test(expected = InvalidParameterException.class)
     public void shouldRejectZeroMinLength() {
-        final var settings = new PatchPasswordSettings();
+        var settings = new PatchPasswordSettings();
         settings.setMinLength(Optional.of(0));
 
         settings.patch(new PasswordSettings());
@@ -47,7 +47,7 @@ public class PatchPasswordSettingsTest {
 
     @Test(expected = InvalidParameterException.class)
     public void shouldRejectZeroMaxLength() {
-        final var settings = new PatchPasswordSettings();
+        var settings = new PatchPasswordSettings();
         settings.setMaxLength(Optional.of(0));
 
         settings.patch(new PasswordSettings());
@@ -55,7 +55,7 @@ public class PatchPasswordSettingsTest {
 
     @Test(expected = InvalidParameterException.class)
     public void shouldRejectMaxMinMismatch() {
-        final var settings = new PatchPasswordSettings();
+        var settings = new PatchPasswordSettings();
         settings.setMaxLength(Optional.of(8));
         settings.setMinLength(Optional.of(10));
 
@@ -64,10 +64,10 @@ public class PatchPasswordSettingsTest {
 
     @Test
     public void shouldUpdate() {
-        final var settings = new PatchPasswordSettings();
+        var settings = new PatchPasswordSettings();
         settings.setMinLength(Optional.of(8));
         settings.setMaxLength(Optional.of(10));
-        final var updatedSettings = settings.patch(new PasswordSettings());
+        var updatedSettings = settings.patch(new PasswordSettings());
 
         Assert.assertEquals(Integer.valueOf(8), updatedSettings.getMinLength());
         Assert.assertEquals(Integer.valueOf(10), updatedSettings.getMaxLength());

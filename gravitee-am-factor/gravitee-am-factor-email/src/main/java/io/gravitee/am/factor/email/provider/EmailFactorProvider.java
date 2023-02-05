@@ -64,14 +64,14 @@ public class EmailFactorProvider implements FactorProvider {
 
     @Override
     public Completable verify(FactorContext context) {
-        final String code = context.getData(FactorContext.KEY_CODE, String.class);
-        final EnrolledFactor enrolledFactor =
+        String code = context.getData(FactorContext.KEY_CODE, String.class);
+        EnrolledFactor enrolledFactor =
                 context.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class);
 
         return Completable.create(
                 emitter -> {
                     try {
-                        final String otpCode = generateOTP(enrolledFactor);
+                        String otpCode = generateOTP(enrolledFactor);
                         if (!code.equals(otpCode)) {
                             emitter.onError(new InvalidCodeException("Invalid 2FA Code"));
                         }
@@ -132,7 +132,7 @@ public class EmailFactorProvider implements FactorProvider {
 
     @Override
     public Completable sendChallenge(FactorContext context) {
-        final EnrolledFactor enrolledFactor =
+        EnrolledFactor enrolledFactor =
                 context.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class);
         ResourceManager component = context.getComponent(ResourceManager.class);
         ResourceProvider provider =
@@ -179,8 +179,8 @@ public class EmailFactorProvider implements FactorProvider {
             Map<String, Object> params = context.getTemplateValues();
             params.put(FactorContext.KEY_CODE, generateOTP(enrolledFactor));
 
-            final String recipient = enrolledFactor.getChannel().getTarget();
-            final Locale preferredLanguage = preferredLanguage(context.getUser(), Locale.ENGLISH);
+            String recipient = enrolledFactor.getChannel().getTarget();
+            Locale preferredLanguage = preferredLanguage(context.getUser(), Locale.ENGLISH);
             EmailService.EmailWrapper emailWrapper =
                     emailService.createEmail(
                             Template.MFA_CHALLENGE,

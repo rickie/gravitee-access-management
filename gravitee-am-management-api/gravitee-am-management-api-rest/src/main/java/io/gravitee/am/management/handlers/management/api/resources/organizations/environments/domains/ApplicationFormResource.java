@@ -71,9 +71,9 @@ public class ApplicationFormResource extends AbstractResource {
             @PathParam("application") String application,
             @PathParam("form") String form,
             @ApiParam(name = "form", required = true) @Valid @NotNull UpdateForm updateForm,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,
@@ -118,9 +118,9 @@ public class ApplicationFormResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("application") String application,
             @PathParam("form") String form,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,
