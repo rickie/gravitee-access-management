@@ -191,7 +191,7 @@ public class JdbcResourceRepository extends AbstractJdbcRepository implements Re
         TransactionalOperator trx = TransactionalOperator.create(tm);
         Mono<Integer> insertResult = template.insert(toJdbcEntity(item)).map(__ -> 1);
 
-        final List<String> resourceScopes = item.getResourceScopes();
+        List<String> resourceScopes = item.getResourceScopes();
         if (resourceScopes != null && !resourceScopes.isEmpty()) {
             insertResult =
                     insertResult.then(
@@ -216,7 +216,7 @@ public class JdbcResourceRepository extends AbstractJdbcRepository implements Re
 
         Mono<Integer> updateResource = template.update(toJdbcEntity(item)).map(__ -> 1);
 
-        final List<String> resourceScopes = item.getResourceScopes();
+        List<String> resourceScopes = item.getResourceScopes();
         if (resourceScopes != null && !resourceScopes.isEmpty()) {
             updateResource =
                     updateResource.then(

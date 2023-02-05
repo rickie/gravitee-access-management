@@ -49,8 +49,7 @@ public class AuthenticationDeviceNotifiersPluginResource {
     @ApiOperation(
             value = "List authentication device notifier plugins",
             notes = "There is no particular permission needed. User must be authenticated.")
-    public void list(
-            @QueryParam("expand") List<String> expand, @Suspended final AsyncResponse response) {
+    public void list(@QueryParam("expand") List<String> expand, @Suspended AsyncResponse response) {
 
         pluginService
                 .findAll(expand)

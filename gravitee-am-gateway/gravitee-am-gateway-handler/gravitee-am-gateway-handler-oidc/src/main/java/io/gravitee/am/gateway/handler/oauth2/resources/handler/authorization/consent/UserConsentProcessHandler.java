@@ -55,12 +55,11 @@ public class UserConsentProcessHandler implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final HttpServerRequest request = routingContext.request();
-        final Session session = routingContext.session();
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final io.gravitee.am.model.User user =
-                ((User) routingContext.user().getDelegate()).getUser();
-        final AuthorizationRequest authorizationRequest =
+        HttpServerRequest request = routingContext.request();
+        Session session = routingContext.session();
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        io.gravitee.am.model.User user = ((User) routingContext.user().getDelegate()).getUser();
+        AuthorizationRequest authorizationRequest =
                 routingContext.get(ConstantKeys.AUTHORIZATION_REQUEST_CONTEXT_KEY);
 
         // get user consent
@@ -73,7 +72,7 @@ public class UserConsentProcessHandler implements Handler<RoutingContext> {
                                         Map.Entry::getKey,
                                         scopeEntry -> params.get(USER_OAUTH_APPROVAL)));
 
-        final Set<String> requestedConsent =
+        Set<String> requestedConsent =
                 userConsent.keySet().stream()
                         .map(requestedScope -> requestedScope.replace(SCOPE_PREFIX, ""))
                         .collect(Collectors.toSet());

@@ -718,7 +718,7 @@ public class DynamicClientRegistrationResponse {
         if (client.getScopeSettings() == null) {
             return null;
         }
-        final String scope =
+        String scope =
                 client.getScopeSettings().stream()
                         .map(ApplicationScopeSettings::getScope)
                         .collect(joining(SCOPE_DELIMITER));

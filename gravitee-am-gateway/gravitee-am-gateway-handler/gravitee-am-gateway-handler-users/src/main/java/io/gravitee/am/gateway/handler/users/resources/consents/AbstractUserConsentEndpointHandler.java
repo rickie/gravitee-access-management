@@ -116,7 +116,7 @@ public class AbstractUserConsentEndpointHandler {
     }
 
     private User defaultPrincipal(RoutingContext context, JWT token) {
-        final String username = token.getSub() != null ? token.getSub() : "unknown-user";
+        String username = token.getSub() != null ? token.getSub() : "unknown-user";
         User principal = new DefaultUser(username);
         ((DefaultUser) principal).setId(username);
         Map<String, Object> additionalInformation = new HashMap<>();

@@ -71,13 +71,13 @@ public class UserConsentServiceImpl implements UserConsentService {
     public Single<List<ScopeApproval>> saveConsent(
             Client client, List<ScopeApproval> approvals, User principal) {
         // compute expiry date for each approval
-        final Map<String, ApplicationScopeSettings> scopeApprovals =
+        Map<String, ApplicationScopeSettings> scopeApprovals =
                 client.getScopeSettings().stream()
                         .filter(s -> s.getScopeApproval() != null)
                         .collect(
                                 Collectors.toMap(
                                         ApplicationScopeSettings::getScope, Function.identity()));
-        final List<String> parameterizedScopes =
+        List<String> parameterizedScopes =
                 client.getScopeSettings().stream()
                         .map(ApplicationScopeSettings::getScope)
                         .filter(scopeManager::isParameterizedScope)
@@ -119,7 +119,7 @@ public class UserConsentServiceImpl implements UserConsentService {
             Map<String, ApplicationScopeSettings> scopeApprovals,
             String scope,
             List<String> parameterizedScopes) {
-        final boolean isParameterizedScope = isParameterizedScope(parameterizedScopes, scope);
+        boolean isParameterizedScope = isParameterizedScope(parameterizedScopes, scope);
         Calendar expiresAt = Calendar.getInstance();
 
         // if client has approval settings, apply them
@@ -132,7 +132,7 @@ public class UserConsentServiceImpl implements UserConsentService {
 
             // test parameterized scope
             if (isParameterizedScope) {
-                final String parameterizedScope = getScopeBase(scope);
+                String parameterizedScope = getScopeBase(scope);
                 if (scopeApprovals.containsKey(parameterizedScope)
                         && scopeManager.isParameterizedScope(parameterizedScope)) {
                     expiresAt.add(

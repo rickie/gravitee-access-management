@@ -64,7 +64,7 @@ public class RoleRepositoryTest extends AbstractManagementTest {
     public void testFindByNamesAndAssignable() throws TechnicalException {
         // create role
         Role role = new Role();
-        final String NAME_1 = "testName";
+        String NAME_1 = "testName";
         role.setName(NAME_1);
         role.setReferenceType(ReferenceType.PLATFORM);
         role.setReferenceId(Platform.DEFAULT);
@@ -72,7 +72,7 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         roleRepository.create(role).blockingGet();
 
         Role role2 = new Role();
-        final String NAME_2 = "testName2";
+        String NAME_2 = "testName2";
         role2.setName(NAME_2);
         role2.setReferenceType(ReferenceType.PLATFORM);
         role2.setReferenceId(Platform.DEFAULT);
@@ -80,7 +80,7 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         roleRepository.create(role2).blockingGet();
 
         Role role3 = new Role();
-        final String NAME_3 = "testName3";
+        String NAME_3 = "testName3";
         role3.setName(NAME_3);
         role3.setReferenceType(ReferenceType.PLATFORM);
         role3.setReferenceId(Platform.DEFAULT);
@@ -88,7 +88,7 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         roleRepository.create(role3).blockingGet();
 
         Role role4 = new Role();
-        final String NAME_4 = "testName4";
+        String NAME_4 = "testName4";
         role4.setName(NAME_4);
         role4.setReferenceType(ReferenceType.PLATFORM);
         role4.setReferenceId(Platform.DEFAULT);

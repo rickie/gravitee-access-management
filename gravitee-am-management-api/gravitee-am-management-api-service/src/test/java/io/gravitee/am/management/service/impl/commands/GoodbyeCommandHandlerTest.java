@@ -62,7 +62,7 @@ public class GoodbyeCommandHandlerTest extends TestCase {
     @Test
     public void handle() {
         GoodbyeCommand command = new GoodbyeCommand();
-        final Installation installation = new Installation();
+        Installation installation = new Installation();
         when(installationService.addAdditionalInformation(any(Map.class)))
                 .thenReturn(Single.just(installation));
 
@@ -74,7 +74,7 @@ public class GoodbyeCommandHandlerTest extends TestCase {
                         reply.getCommandId().equals(command.getId())
                                 && reply.getCommandStatus().equals(CommandStatus.SUCCEEDED));
 
-        final ArgumentCaptor<Map<String, String>> expectedAdditionalInfos =
+        ArgumentCaptor<Map<String, String>> expectedAdditionalInfos =
                 ArgumentCaptor.forClass(Map.class);
         verify(installationService, times(1))
                 .addAdditionalInformation(expectedAdditionalInfos.capture());

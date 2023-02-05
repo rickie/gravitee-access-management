@@ -65,7 +65,7 @@ public class AccountProvider extends AbstractService<ProtocolProvider> implement
 
         if (isSelfServiceAccountEnabled()) {
             // Create the account router
-            final Router accountRouter = Router.router(vertx);
+            Router accountRouter = Router.router(vertx);
 
             // CORS handler
             accountRouter.route().handler(corsHandler);
@@ -77,7 +77,7 @@ public class AccountProvider extends AbstractService<ProtocolProvider> implement
             accountRouter.route().handler(oAuth2AuthHandler);
 
             // Account profile routes
-            final AccountEndpointHandler accountHandler =
+            AccountEndpointHandler accountHandler =
                     new AccountEndpointHandler(accountService, domain);
             accountRouter
                     .get(AccountRoutes.PROFILE.getRoute())

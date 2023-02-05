@@ -116,10 +116,10 @@ public abstract class AbstractEndpoint {
             RoutingContext routingContext, UserActivityService userActivityService) {
         routingContext.put(USER_ACTIVITY_ENABLED, userActivityService.canSaveUserActivity());
         if (userActivityService.canSaveUserActivity()) {
-            final long time = Math.abs(userActivityService.getRetentionTime());
-            final String retentionUnit =
+            long time = Math.abs(userActivityService.getRetentionTime());
+            String retentionUnit =
                     userActivityService.getRetentionUnit().name().toLowerCase(Locale.ROOT);
-            final String retentionTime =
+            String retentionTime =
                     time
                             + " "
                             + (time > 1
@@ -130,7 +130,7 @@ public abstract class AbstractEndpoint {
     }
 
     protected void addUserActivityConsentTemplateVariables(RoutingContext routingContext) {
-        final Session session = routingContext.session();
+        Session session = routingContext.session();
         if (session != null) {
             routingContext.put(
                     USER_CONSENT_IP_LOCATION, TRUE.equals(session.get(USER_CONSENT_IP_LOCATION)));

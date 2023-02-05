@@ -26,11 +26,11 @@ public class HttpIdentityProviderResponse {
     private final String content;
     private final HttpHeaders headers;
 
-    public HttpIdentityProviderResponse(final HttpResponse response) {
+    public HttpIdentityProviderResponse(HttpResponse response) {
         this(response, null);
     }
 
-    public HttpIdentityProviderResponse(final HttpResponse response, final String content) {
+    public HttpIdentityProviderResponse(HttpResponse response, String content) {
         this.response = response;
         this.content = content;
         this.headers = new HttpHeaders(response.headers().size());

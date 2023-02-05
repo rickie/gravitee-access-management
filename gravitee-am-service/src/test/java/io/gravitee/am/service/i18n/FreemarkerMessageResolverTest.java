@@ -39,14 +39,14 @@ public class FreemarkerMessageResolverTest {
 
     @Test
     public void shouldTranslateMessage() throws Exception {
-        final var message = this.cut.exec(List.of("key.multi.lines"));
+        var message = this.cut.exec(List.of("key.multi.lines"));
         Assert.assertNotNull(message);
         Assert.assertTrue(message instanceof String && ((String) message).contains("lines"));
     }
 
     @Test
     public void shouldTranslateMessage_WithParam() throws Exception {
-        final var message = this.cut.exec(List.of("key.param", "myparam"));
+        var message = this.cut.exec(List.of("key.param", "myparam"));
         Assert.assertNotNull(message);
         Assert.assertTrue(
                 message instanceof String && ((String) message).equals("value-en myparam"));
@@ -54,7 +54,7 @@ public class FreemarkerMessageResolverTest {
 
     @Test
     public void shouldNoTranslateUnkownMessage() throws Exception {
-        final var message = this.cut.exec(List.of("key.unknown"));
+        var message = this.cut.exec(List.of("key.unknown"));
         Assert.assertNotNull(message);
         Assert.assertTrue(message instanceof String && ((String) message).equals("key.unknown"));
     }

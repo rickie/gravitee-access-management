@@ -98,8 +98,8 @@ public class SyncManager implements InitializingBean {
         // search for events and compute them
         logger.debug("Events synchronization");
 
-        final long from = (lastRefreshAt - lastDelay) - timeframeBeforeDelay;
-        final long to = nextLastRefreshAt + timeframeAfterDelay;
+        long from = (lastRefreshAt - lastDelay) - timeframeBeforeDelay;
+        long to = nextLastRefreshAt + timeframeAfterDelay;
         Single<List<Event>> eventsProcessing = eventService.findByTimeFrame(from, to);
         if (eventsTimeOut > 0) {
             eventsProcessing = eventsProcessing.timeout(eventsTimeOut, TimeUnit.MILLISECONDS);

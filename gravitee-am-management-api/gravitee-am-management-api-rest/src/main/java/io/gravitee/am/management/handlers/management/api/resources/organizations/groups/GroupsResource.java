@@ -83,7 +83,7 @@ public class GroupsResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue(MAX_GROUPS_SIZE_PER_PAGE_STRING) int size,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -121,9 +121,9 @@ public class GroupsResource extends AbstractResource {
     })
     public void create(
             @PathParam("organizationId") String organizationId,
-            @ApiParam(name = "group", required = true) @Valid @NotNull final NewGroup newGroup,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @ApiParam(name = "group", required = true) @Valid @NotNull NewGroup newGroup,
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

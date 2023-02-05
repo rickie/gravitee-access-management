@@ -58,8 +58,7 @@ public class SettingsResource extends AbstractResource {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     public void get(
-            @PathParam("organizationId") String organizationId,
-            @Suspended final AsyncResponse response) {
+            @PathParam("organizationId") String organizationId, @Suspended AsyncResponse response) {
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -87,9 +86,9 @@ public class SettingsResource extends AbstractResource {
     public void patch(
             @PathParam("organizationId") String organizationId,
             @ApiParam(name = "domain", required = true) @Valid @NotNull
-                    final PatchOrganization patchOrganization,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+                    PatchOrganization patchOrganization,
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

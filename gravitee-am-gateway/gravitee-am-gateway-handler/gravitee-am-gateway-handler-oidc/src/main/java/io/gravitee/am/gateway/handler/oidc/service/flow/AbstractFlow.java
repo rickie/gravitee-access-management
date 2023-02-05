@@ -43,7 +43,7 @@ public abstract class AbstractFlow implements Flow {
     private JWEService jweService;
     private int codeValidityInSec;
 
-    public AbstractFlow(final List<String> responseTypes) {
+    public AbstractFlow(List<String> responseTypes) {
         Objects.requireNonNull(responseTypes);
         this.responseTypes = responseTypes;
     }
@@ -111,7 +111,7 @@ public abstract class AbstractFlow implements Flow {
         this.openIDDiscoveryService = applicationContext.getBean(OpenIDDiscoveryService.class);
         this.jwtService = applicationContext.getBean(JWTService.class);
         this.jweService = applicationContext.getBean(JWEService.class);
-        final Environment environment = applicationContext.getEnvironment();
+        Environment environment = applicationContext.getEnvironment();
         this.codeValidityInSec =
                 environment.getProperty("authorization.code.validity", Integer.class, 60000) / 1000;
     }

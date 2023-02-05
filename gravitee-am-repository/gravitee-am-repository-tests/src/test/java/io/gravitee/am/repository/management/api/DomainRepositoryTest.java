@@ -97,10 +97,10 @@ public class DomainRepositoryTest extends AbstractManagementTest {
 
         domain.setAccountSettings(new AccountSettings());
         domain.setLoginSettings(new LoginSettings());
-        final OIDCSettings oidc = new OIDCSettings();
-        final CIBASettings cibaSettings = new CIBASettings();
+        OIDCSettings oidc = new OIDCSettings();
+        CIBASettings cibaSettings = new CIBASettings();
         cibaSettings.setEnabled(true);
-        final CIBASettingNotifier notifier = new CIBASettingNotifier();
+        CIBASettingNotifier notifier = new CIBASettingNotifier();
         notifier.setId(UUID.randomUUID().toString());
         cibaSettings.setDeviceNotifiers(Arrays.asList(notifier));
         oidc.setCibaSettings(cibaSettings);
@@ -322,7 +322,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
         testObserver1.assertNoValues();
 
         domainCreated.setAlertEnabled(true);
-        final Domain domainUpdated = domainRepository.update(domainCreated).blockingGet();
+        Domain domainUpdated = domainRepository.update(domainCreated).blockingGet();
         testObserver1 = domainRepository.findAllByCriteria(criteria).test();
         testObserver1.awaitTerminalEvent();
         testObserver1.assertComplete();

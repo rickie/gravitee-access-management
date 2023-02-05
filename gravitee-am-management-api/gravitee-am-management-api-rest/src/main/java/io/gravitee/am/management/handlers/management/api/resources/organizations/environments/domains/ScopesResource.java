@@ -84,7 +84,7 @@ public class ScopesResource extends AbstractResource {
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue(MAX_SCOPES_SIZE_PER_PAGE_STRING) int size,
             @QueryParam("q") String query,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.LIST)
                 .andThen(
@@ -126,10 +126,10 @@ public class ScopesResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
-            @ApiParam(name = "scope", required = true) @Valid @NotNull final NewScope newScope,
-            @Suspended final AsyncResponse response) {
+            @ApiParam(name = "scope", required = true) @Valid @NotNull NewScope newScope,
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.CREATE)

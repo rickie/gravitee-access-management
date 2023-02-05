@@ -61,7 +61,7 @@ public class SystemRoleResource extends AbstractResource {
                 response = Role.class),
         @ApiResponse(code = 500, message = "Internal server error")
     })
-    public void get(@PathParam("role") String role, @Suspended final AsyncResponse response) {
+    public void get(@PathParam("role") String role, @Suspended AsyncResponse response) {
 
         // No permission needed to read system role.
         roleService

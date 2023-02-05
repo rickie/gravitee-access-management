@@ -24,11 +24,9 @@ import io.reactivex.Single;
  */
 public interface AuthenticationFlowContextService {
 
-    Maybe<AuthenticationFlowContext> loadContext(
-            final String transactionId, final int expectedVersion);
+    Maybe<AuthenticationFlowContext> loadContext(String transactionId, int expectedVersion);
 
-    Maybe<AuthenticationFlowContext> removeContext(
-            final String transactionId, final int expectedVersion);
+    Maybe<AuthenticationFlowContext> removeContext(String transactionId, int expectedVersion);
 
     /**
      * Update the AuthFlowContext in the database. This method will manage the increment of the
@@ -37,7 +35,7 @@ public interface AuthenticationFlowContextService {
      * @param context
      * @return
      */
-    Single<AuthenticationFlowContext> updateContext(final AuthenticationFlowContext context);
+    Single<AuthenticationFlowContext> updateContext(AuthenticationFlowContext context);
 
-    Completable clearContext(final String transactionId);
+    Completable clearContext(String transactionId);
 }

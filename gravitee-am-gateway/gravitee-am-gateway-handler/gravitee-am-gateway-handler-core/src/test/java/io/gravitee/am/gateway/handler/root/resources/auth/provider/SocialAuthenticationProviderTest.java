@@ -96,7 +96,7 @@ public class SocialAuthenticationProviderTest {
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.get("providerId")).thenReturn("idp");
         when(routingContext.request()).thenReturn(httpServerRequest);
-        final io.vertx.core.http.HttpServerRequest delegateRequest =
+        io.vertx.core.http.HttpServerRequest delegateRequest =
                 mock(io.vertx.core.http.HttpServerRequest.class);
         when(httpServerRequest.getDelegate()).thenReturn(delegateRequest);
         when(delegateRequest.method()).thenReturn(HttpMethod.POST);
@@ -143,7 +143,7 @@ public class SocialAuthenticationProviderTest {
         when(routingContext.get("providerId")).thenReturn("idp");
         when(routingContext.request()).thenReturn(httpServerRequest);
         when(routingContext.data()).thenReturn(Map.of("id_token", "some_id_token"));
-        final io.vertx.core.http.HttpServerRequest delegateRequest =
+        io.vertx.core.http.HttpServerRequest delegateRequest =
                 mock(io.vertx.core.http.HttpServerRequest.class);
         when(httpServerRequest.getDelegate()).thenReturn(delegateRequest);
         when(delegateRequest.method()).thenReturn(HttpMethod.POST);
@@ -193,7 +193,7 @@ public class SocialAuthenticationProviderTest {
                         Map.of(
                                 "access_token", "some_access_token",
                                 "id_token", "some_id_token"));
-        final io.vertx.core.http.HttpServerRequest delegateRequest =
+        io.vertx.core.http.HttpServerRequest delegateRequest =
                 mock(io.vertx.core.http.HttpServerRequest.class);
         when(httpServerRequest.getDelegate()).thenReturn(delegateRequest);
         when(delegateRequest.method()).thenReturn(HttpMethod.POST);
@@ -240,7 +240,7 @@ public class SocialAuthenticationProviderTest {
         when(routingContext.get("providerId")).thenReturn("idp");
         when(routingContext.request()).thenReturn(httpServerRequest);
         when(routingContext.data()).thenReturn(Map.of("id_token", "some_id_token"));
-        final io.vertx.core.http.HttpServerRequest delegateRequest =
+        io.vertx.core.http.HttpServerRequest delegateRequest =
                 mock(io.vertx.core.http.HttpServerRequest.class);
         when(httpServerRequest.getDelegate()).thenReturn(delegateRequest);
         when(delegateRequest.method()).thenReturn(HttpMethod.POST);
@@ -275,7 +275,7 @@ public class SocialAuthenticationProviderTest {
         when(routingContext.get("client")).thenReturn(client);
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.request()).thenReturn(httpServerRequest);
-        final io.vertx.core.http.HttpServerRequest delegateRequest =
+        io.vertx.core.http.HttpServerRequest delegateRequest =
                 mock(io.vertx.core.http.HttpServerRequest.class);
         when(httpServerRequest.getDelegate()).thenReturn(delegateRequest);
         when(delegateRequest.method()).thenReturn(HttpMethod.POST);
@@ -311,7 +311,7 @@ public class SocialAuthenticationProviderTest {
         when(routingContext.get("client")).thenReturn(client);
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.request()).thenReturn(httpServerRequest);
-        final io.vertx.core.http.HttpServerRequest delegateRequest =
+        io.vertx.core.http.HttpServerRequest delegateRequest =
                 mock(io.vertx.core.http.HttpServerRequest.class);
         when(httpServerRequest.getDelegate()).thenReturn(delegateRequest);
         when(delegateRequest.method()).thenReturn(HttpMethod.POST);
@@ -357,7 +357,7 @@ public class SocialAuthenticationProviderTest {
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.get("providerId")).thenReturn("idp");
         when(routingContext.request()).thenReturn(httpServerRequest);
-        final io.vertx.core.http.HttpServerRequest delegateRequest =
+        io.vertx.core.http.HttpServerRequest delegateRequest =
                 mock(io.vertx.core.http.HttpServerRequest.class);
         when(httpServerRequest.getDelegate()).thenReturn(delegateRequest);
         when(delegateRequest.method()).thenReturn(HttpMethod.POST);
@@ -402,7 +402,7 @@ public class SocialAuthenticationProviderTest {
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.get("providerId")).thenReturn("idp");
         when(routingContext.request()).thenReturn(httpServerRequest);
-        final io.vertx.core.http.HttpServerRequest delegateRequest =
+        io.vertx.core.http.HttpServerRequest delegateRequest =
                 mock(io.vertx.core.http.HttpServerRequest.class);
         when(httpServerRequest.getDelegate()).thenReturn(delegateRequest);
         when(delegateRequest.method()).thenReturn(HttpMethod.POST);
@@ -448,7 +448,7 @@ public class SocialAuthenticationProviderTest {
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.get("providerId")).thenReturn("idp");
         when(routingContext.request()).thenReturn(httpServerRequest);
-        final io.vertx.core.http.HttpServerRequest delegateRequest =
+        io.vertx.core.http.HttpServerRequest delegateRequest =
                 mock(io.vertx.core.http.HttpServerRequest.class);
         when(httpServerRequest.getDelegate()).thenReturn(delegateRequest);
         when(delegateRequest.method()).thenReturn(HttpMethod.POST);
@@ -493,7 +493,7 @@ public class SocialAuthenticationProviderTest {
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.get("providerId")).thenReturn("idp");
         when(routingContext.request()).thenReturn(httpServerRequest);
-        final io.vertx.core.http.HttpServerRequest delegateRequest =
+        io.vertx.core.http.HttpServerRequest delegateRequest =
                 mock(io.vertx.core.http.HttpServerRequest.class);
         when(httpServerRequest.getDelegate()).thenReturn(delegateRequest);
         when(delegateRequest.method()).thenReturn(HttpMethod.POST);
@@ -540,7 +540,7 @@ public class SocialAuthenticationProviderTest {
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.get("providerId")).thenReturn("idp");
         when(routingContext.request()).thenReturn(httpServerRequest);
-        final io.vertx.core.http.HttpServerRequest delegateRequest =
+        io.vertx.core.http.HttpServerRequest delegateRequest =
                 mock(io.vertx.core.http.HttpServerRequest.class);
         when(httpServerRequest.getDelegate()).thenReturn(delegateRequest);
         when(delegateRequest.method()).thenReturn(HttpMethod.POST);
@@ -586,7 +586,7 @@ public class SocialAuthenticationProviderTest {
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.get("providerId")).thenReturn("idp");
         when(routingContext.request()).thenReturn(httpServerRequest);
-        final io.vertx.core.http.HttpServerRequest delegateRequest =
+        io.vertx.core.http.HttpServerRequest delegateRequest =
                 mock(io.vertx.core.http.HttpServerRequest.class);
         when(httpServerRequest.getDelegate()).thenReturn(delegateRequest);
         when(delegateRequest.method()).thenReturn(HttpMethod.POST);

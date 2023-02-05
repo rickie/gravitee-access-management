@@ -471,7 +471,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
      *     date
      */
     private boolean needDeployment(io.gravitee.am.model.Reporter reporter) {
-        final io.gravitee.am.model.Reporter deployedReporter = this.reporters.get(reporter.getId());
+        io.gravitee.am.model.Reporter deployedReporter = this.reporters.get(reporter.getId());
         return (deployedReporter == null
                 || deployedReporter.getUpdatedAt().before(reporter.getUpdatedAt()));
     }

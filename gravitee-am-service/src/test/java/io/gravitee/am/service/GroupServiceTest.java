@@ -433,7 +433,7 @@ public class GroupServiceTest {
                 .thenReturn(Maybe.just(group));
         when(userService.findByIdIn(any())).thenReturn(Flowable.just(new User()));
 
-        final TestObserver<Page<User>> observer =
+        TestObserver<Page<User>> observer =
                 groupService.findMembers(ReferenceType.DOMAIN, DOMAIN, "group-id", 0, 0).test();
         observer.awaitTerminalEvent();
 
@@ -443,7 +443,7 @@ public class GroupServiceTest {
 
     @Test
     public void shouldFindMembersFromDomainUsers_Paginate() {
-        final var userIds =
+        var userIds =
                 IntStream.range(0, 52).mapToObj(i -> "user-" + i).collect(Collectors.toList());
         var group = mock(Group.class);
         when(group.getReferenceType()).thenReturn(ReferenceType.DOMAIN);
@@ -457,7 +457,7 @@ public class GroupServiceTest {
                                 userIds.stream()
                                         .map(
                                                 userId -> {
-                                                    final var user = new User();
+                                                    var user = new User();
                                                     user.setId(userId);
                                                     return user;
                                                 })
@@ -494,7 +494,7 @@ public class GroupServiceTest {
                 .thenReturn(Maybe.just(group));
         when(organizationUserService.findByIdIn(any())).thenReturn(Flowable.just(new User()));
 
-        final TestObserver<Page<User>> observer =
+        TestObserver<Page<User>> observer =
                 groupService.findMembers(ReferenceType.DOMAIN, DOMAIN, "group-id", 0, 0).test();
         observer.awaitTerminalEvent();
 

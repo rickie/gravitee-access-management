@@ -93,7 +93,7 @@ public class DefaultOrganizationUpgraderTest {
         User adminUser = new User();
         adminUser.setId("admin-id");
 
-        final Organization organization = new Organization();
+        Organization organization = new Organization();
         when(organizationService.createDefault()).thenReturn(Maybe.just(organization));
         when(identityProviderService.create(
                         eq(ReferenceType.ORGANIZATION),
@@ -187,7 +187,7 @@ public class DefaultOrganizationUpgraderTest {
                 Collections.singletonMap(
                         "role1", new String[] {"username=test"})); // RoleMapper already set.
 
-        final Role adminRole = new Role();
+        Role adminRole = new Role();
         adminRole.setId("role-id");
 
         Organization defaultOrganization = new Organization();

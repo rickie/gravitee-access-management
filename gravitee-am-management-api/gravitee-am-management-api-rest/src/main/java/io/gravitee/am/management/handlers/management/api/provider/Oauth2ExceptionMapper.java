@@ -27,7 +27,7 @@ import javax.ws.rs.ext.Provider;
 public class Oauth2ExceptionMapper extends AbstractExceptionMapper<OAuth2Exception> {
 
     @Override
-    public Response toResponse(final OAuth2Exception oauthException) {
+    public Response toResponse(OAuth2Exception oauthException) {
         return Response.status(oauthException.getHttpStatusCode())
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .entity(convert(oauthException))

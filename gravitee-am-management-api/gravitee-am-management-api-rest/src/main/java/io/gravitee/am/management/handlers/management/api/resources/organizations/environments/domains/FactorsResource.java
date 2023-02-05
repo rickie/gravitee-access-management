@@ -74,7 +74,7 @@ public class FactorsResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.LIST)
@@ -106,10 +106,10 @@ public class FactorsResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
-            @ApiParam(name = "factor", required = true) @Valid @NotNull final NewFactor newFactor,
-            @Suspended final AsyncResponse response) {
+            @ApiParam(name = "factor", required = true) @Valid @NotNull NewFactor newFactor,
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.CREATE)
