@@ -89,7 +89,7 @@ public class JWSServiceImpl implements JWSService {
             }
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(
-                    "Signature is using and unknown/not managed algorithm");
+                    "Signature is using and unknown/not managed algorithm", e);
         }
     }
 
