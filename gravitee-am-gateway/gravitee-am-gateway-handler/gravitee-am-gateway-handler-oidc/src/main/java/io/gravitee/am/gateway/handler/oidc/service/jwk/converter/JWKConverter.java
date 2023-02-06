@@ -96,7 +96,7 @@ public class JWKConverter {
                                 : null);
             }
         } catch (ParseException e) {
-            throw new ServerErrorException("Malformed rsa key encryption");
+            throw new ServerErrorException("Malformed rsa key encryption", e);
         }
     }
 
@@ -154,7 +154,7 @@ public class JWKConverter {
                         null);
             }
         } catch (ParseException e) {
-            throw new ServerErrorException("Malformed Elliptic Curve key encryption");
+            throw new ServerErrorException("Malformed Elliptic Curve key encryption", e);
         }
     }
 
@@ -209,7 +209,7 @@ public class JWKConverter {
                         null);
             }
         } catch (ParseException e) {
-            throw new ServerErrorException("Malformed Octet Key Pair encryption");
+            throw new ServerErrorException("Malformed Octet Key Pair encryption", e);
         }
     }
 
@@ -238,7 +238,7 @@ public class JWKConverter {
                             : null,
                     null);
         } catch (ParseException e) {
-            throw new ServerErrorException("Malformed Octet Key Pair encryption");
+            throw new ServerErrorException("Malformed Octet Key Pair encryption", e);
         }
     }
 

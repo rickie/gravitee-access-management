@@ -129,7 +129,7 @@ public final class SCIMFilterParser {
                             "Unrecognized attribute operator '%s' at position %d. "
                                     + "Expected: eq,co,sw,pr,gt,ge,lt,le",
                             operator, markPos);
-            throw new IllegalArgumentException(msg);
+            throw new IllegalArgumentException(msg, ex);
         }
         Object filterValue;
         if (!attributeOperator.equals(Operator.PRESENCE)) {

@@ -90,7 +90,7 @@ public class CockpitAuthenticationFilter extends GenericFilterBean {
             try {
                 this.jwtParser = new DefaultJWTParser(this.getPublicKey());
             } catch (Exception e) {
-                throw new RuntimeException("Unable to load cockpit JWT public key");
+                throw new RuntimeException("Unable to load cockpit JWT public key", e);
             }
         }
     }
