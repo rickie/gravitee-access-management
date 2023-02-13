@@ -65,7 +65,7 @@ public class SCIMProvider extends AbstractService<ProtocolProvider> implements P
 
         if (isSCIMEnabled()) {
             // Create the SCIM router
-            final Router scimRouter = Router.router(vertx);
+            Router scimRouter = Router.router(vertx);
 
             // CORS handler
             scimRouter.route().handler(corsHandler);

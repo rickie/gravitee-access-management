@@ -97,7 +97,7 @@ public class MongoUserProvider extends MongoAbstractProvider implements UserProv
     @Override
     public Maybe<User> findByUsername(String username) {
         // lowercase username since case-sensitivity feature
-        final String encodedUsername = username.toLowerCase();
+        String encodedUsername = username.toLowerCase();
 
         String rawQuery =
                 this.configuration.getFindUserByUsernameQuery().replaceAll("\\?", encodedUsername);
@@ -111,7 +111,7 @@ public class MongoUserProvider extends MongoAbstractProvider implements UserProv
     @Override
     public Single<User> create(User user) {
         // lowercase username to avoid duplicate account
-        final String username = user.getUsername().toLowerCase();
+        String username = user.getUsername().toLowerCase();
 
         return findByUsername(username)
                 .isEmpty()

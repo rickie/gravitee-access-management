@@ -43,7 +43,7 @@ public class UriBuilderRequest {
 
     private static final String X_FORWARDED_PREFIX = "X-Forwarded-Prefix";
 
-    public static String resolveProxyRequest(final RoutingContext context) {
+    public static String resolveProxyRequest(RoutingContext context) {
 
         return resolveProxyRequest(context.request(), context.get(CONTEXT_PATH));
     }
@@ -57,13 +57,11 @@ public class UriBuilderRequest {
      * @return request uri representation
      */
     public static String resolveProxyRequest(
-            final HttpServerRequest request,
-            final String path,
-            final Map<String, String> parameters) {
+            HttpServerRequest request, String path, Map<String, String> parameters) {
         return resolveProxyRequest(request, path, parameters, false);
     }
 
-    public static String resolveProxyRequest(final HttpServerRequest request, final String path) {
+    public static String resolveProxyRequest(HttpServerRequest request, String path) {
         return resolveProxyRequest(request, path, (MultiMap) null, false);
     }
 
@@ -77,12 +75,12 @@ public class UriBuilderRequest {
      * @return request uri representation
      */
     public static String resolveProxyRequest(
-            final HttpServerRequest request,
-            final String path,
-            final Map<String, String> parameters,
+            HttpServerRequest request,
+            String path,
+            Map<String, String> parameters,
             boolean encoded) {
 
-        final MultiMap queryParameters;
+        MultiMap queryParameters;
 
         if (parameters != null) {
             queryParameters = MultiMap.caseInsensitiveMultiMap();
@@ -101,23 +99,17 @@ public class UriBuilderRequest {
     }
 
     public static String resolveProxyRequest(
-            final HttpServerRequest request, final String path, final MultiMap parameters) {
+            HttpServerRequest request, String path, MultiMap parameters) {
         return resolveProxyRequest(request, path, parameters, false);
     }
 
     public static String resolveProxyRequest(
-            final HttpServerRequest request,
-            final String path,
-            final MultiMap parameters,
-            boolean encoded) {
+            HttpServerRequest request, String path, MultiMap parameters, boolean encoded) {
         return resolve(request, path, parameters, encoded);
     }
 
     private static String resolve(
-            final HttpServerRequest request,
-            final String path,
-            final MultiMap parameters,
-            boolean encoded) {
+            HttpServerRequest request, String path, MultiMap parameters, boolean encoded) {
         UriBuilder builder = UriBuilder.newInstance();
 
         // scheme

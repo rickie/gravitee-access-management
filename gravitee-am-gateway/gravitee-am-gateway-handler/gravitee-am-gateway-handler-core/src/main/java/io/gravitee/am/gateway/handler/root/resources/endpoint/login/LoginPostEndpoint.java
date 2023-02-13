@@ -31,9 +31,9 @@ public class LoginPostEndpoint extends AbstractEndpoint implements Handler<Routi
 
     @Override
     public void handle(RoutingContext context) {
-        final Session session = context.session();
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(context.request());
-        final String redirectUri = getReturnUrl(context, queryParams);
+        Session session = context.session();
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(context.request());
+        String redirectUri = getReturnUrl(context, queryParams);
 
         // save that the user has just been signed in
         session.put(ConstantKeys.USER_LOGIN_COMPLETED_KEY, true);

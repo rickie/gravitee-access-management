@@ -59,7 +59,7 @@ public class AuthenticationAuditBuilder extends AuditBuilder<AuthenticationAudit
     }
 
     private String getDisplayName(User user) {
-        final String displayName =
+        String displayName =
                 // display name
                 user.getDisplayName() != null
                         ? user.getDisplayName()

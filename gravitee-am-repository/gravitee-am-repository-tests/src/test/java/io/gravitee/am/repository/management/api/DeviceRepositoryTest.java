@@ -149,7 +149,7 @@ public class DeviceRepositoryTest extends AbstractManagementTest {
     public void testNotFindByDomainAndClientAndUserAndDeviceIdentifierAndDeviceId_unknown_client() {
         Device device = buildDevice();
         Device deviceCreated = repository.create(device).blockingGet();
-        final TestObserver<Device> test =
+        TestObserver<Device> test =
                 repository
                         .findByDomainAndClientAndUserAndDeviceIdentifierAndDeviceId(
                                 deviceCreated.getReferenceId(),
@@ -166,7 +166,7 @@ public class DeviceRepositoryTest extends AbstractManagementTest {
         Device device = buildDevice(new Date(System.currentTimeMillis() - 10000));
         Device deviceCreated = repository.create(device).blockingGet();
 
-        final TestObserver<Device> test =
+        TestObserver<Device> test =
                 repository
                         .findByDomainAndClientAndUserAndDeviceIdentifierAndDeviceId(
                                 deviceCreated.getReferenceId(),

@@ -74,7 +74,7 @@ public class ServiceResourcesResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.LIST)
@@ -110,10 +110,10 @@ public class ServiceResourcesResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @ApiParam(name = "resource", required = true) @Valid @NotNull
-                    final NewServiceResource newResource,
-            @Suspended final AsyncResponse response) {
+                    NewServiceResource newResource,
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,

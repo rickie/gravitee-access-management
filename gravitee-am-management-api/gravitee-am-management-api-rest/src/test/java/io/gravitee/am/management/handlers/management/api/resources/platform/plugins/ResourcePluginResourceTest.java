@@ -34,7 +34,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetPlugin() {
-        final ResourcePlugin resourcePlugin = new ResourcePlugin();
+        ResourcePlugin resourcePlugin = new ResourcePlugin();
         resourcePlugin.setId("res-plugin-id");
         resourcePlugin.setName("res-plugin-name");
         resourcePlugin.setDescription("res-desc");
@@ -42,7 +42,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
 
         doReturn(Maybe.just(resourcePlugin)).when(resourcePluginService).findById("res-plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("resources")
@@ -54,7 +54,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetPlugin_NotFound() {
-        final ResourcePlugin resourcePlugin = new ResourcePlugin();
+        ResourcePlugin resourcePlugin = new ResourcePlugin();
         resourcePlugin.setId("res-plugin-id");
         resourcePlugin.setName("res-plugin-name");
         resourcePlugin.setDescription("res-desc");
@@ -62,7 +62,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
 
         doReturn(Maybe.empty()).when(resourcePluginService).findById("res-plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("resources")
@@ -78,7 +78,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
                 .when(resourcePluginService)
                 .findById("res-plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("resources")
@@ -91,7 +91,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema() {
-        final ResourcePlugin resourcePlugin = new ResourcePlugin();
+        ResourcePlugin resourcePlugin = new ResourcePlugin();
         resourcePlugin.setId("res-plugin-id");
         resourcePlugin.setName("res-plugin-name");
         resourcePlugin.setDescription("res-desc");
@@ -100,7 +100,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(resourcePlugin)).when(resourcePluginService).findById("res-plugin-id");
         doReturn(Maybe.just("{}")).when(resourcePluginService).getSchema("res-plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("resources")
@@ -114,7 +114,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema_PluginNotFound() {
-        final ResourcePlugin resourcePlugin = new ResourcePlugin();
+        ResourcePlugin resourcePlugin = new ResourcePlugin();
         resourcePlugin.setId("res-plugin-id");
         resourcePlugin.setName("res-plugin-name");
         resourcePlugin.setDescription("res-desc");
@@ -122,7 +122,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
 
         doReturn(Maybe.empty()).when(resourcePluginService).findById("res-plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("resources")
@@ -136,7 +136,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema_SchemaNotFound() {
-        final ResourcePlugin resourcePlugin = new ResourcePlugin();
+        ResourcePlugin resourcePlugin = new ResourcePlugin();
         resourcePlugin.setId("res-plugin-id");
         resourcePlugin.setName("res-plugin-name");
         resourcePlugin.setDescription("res-desc");
@@ -145,7 +145,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(resourcePlugin)).when(resourcePluginService).findById("res-plugin-id");
         doReturn(Maybe.empty()).when(resourcePluginService).getSchema("res-plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("resources")
@@ -159,7 +159,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema_TechnicalException() {
-        final ResourcePlugin resourcePlugin = new ResourcePlugin();
+        ResourcePlugin resourcePlugin = new ResourcePlugin();
         resourcePlugin.setId("res-plugin-id");
         resourcePlugin.setName("res-plugin-name");
         resourcePlugin.setDescription("res-desc");
@@ -170,7 +170,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
                 .when(resourcePluginService)
                 .getSchema("res-plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("resources")

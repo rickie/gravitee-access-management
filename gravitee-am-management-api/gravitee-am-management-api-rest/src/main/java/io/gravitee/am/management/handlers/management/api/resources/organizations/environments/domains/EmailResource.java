@@ -67,9 +67,9 @@ public class EmailResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("email") String email,
             @ApiParam(name = "email", required = true) @Valid @NotNull UpdateEmail updateEmail,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,
@@ -107,9 +107,9 @@ public class EmailResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("email") String email,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,

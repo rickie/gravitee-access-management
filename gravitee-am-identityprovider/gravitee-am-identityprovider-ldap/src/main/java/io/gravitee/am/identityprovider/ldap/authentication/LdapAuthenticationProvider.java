@@ -114,7 +114,7 @@ public class LdapAuthenticationProvider extends AbstractService<AuthenticationPr
                 searchConnectionPool.initialize();
             }
         } catch (IllegalStateException e) {
-            final int nextDelay = retryDelayInSec < 60 ? retryDelayInSec * 2 : retryDelayInSec;
+            int nextDelay = retryDelayInSec < 60 ? retryDelayInSec * 2 : retryDelayInSec;
             this.executorService.schedule(
                     () -> initConnectionPools(nextDelay), retryDelayInSec, TimeUnit.SECONDS);
         }
@@ -257,8 +257,8 @@ public class LdapAuthenticationProvider extends AbstractService<AuthenticationPr
      * @param username the username
      * @return Search filter with parameters applied.
      */
-    private SearchFilter createSearchFilter(final SearchExecutor executor, final String username) {
-        final SearchFilter filter = new SearchFilter();
+    private SearchFilter createSearchFilter(SearchExecutor executor, String username) {
+        SearchFilter filter = new SearchFilter();
         filter.setFilter(executor.getSearchFilter().getFilter());
         filter.setParameter(0, username);
 

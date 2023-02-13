@@ -13,8 +13,6 @@
  */
 package io.gravitee.am.service;
 
-
-
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 

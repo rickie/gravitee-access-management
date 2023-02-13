@@ -47,7 +47,7 @@ public class ThemeValidatorImpl implements ThemeValidator {
         Completable result = Completable.complete();
         if (!Strings.isNullOrEmpty(url)) {
             try {
-                final URL resource = new URL(url);
+                URL resource = new URL(url);
                 if (!(resource.getProtocol().equals("http")
                         || resource.getProtocol().equals("https"))) {
                     result = Completable.error(new ThemeInvalidException(theme.getId(), attr));

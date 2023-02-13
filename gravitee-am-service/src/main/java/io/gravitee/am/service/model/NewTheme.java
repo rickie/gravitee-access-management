@@ -13,9 +13,6 @@
  */
 package io.gravitee.am.service.model;
 
-
-
-
 /**
  * @@author Eric LELEU (eric.leleu at graviteesource.com)
  *

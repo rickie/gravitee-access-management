@@ -25,7 +25,7 @@ public enum Type {
 
     private final String extension;
 
-    Type(final String extension) {
+    Type(String extension) {
         this.extension = extension;
     }
 

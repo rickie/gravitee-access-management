@@ -47,8 +47,7 @@ public class ResourcePluginResource {
     @ApiOperation(
             value = "Get a resource plugin",
             notes = "There is no particular permission needed. User must be authenticated.")
-    public void get(
-            @PathParam("resource") String resourceId, @Suspended final AsyncResponse response) {
+    public void get(@PathParam("resource") String resourceId, @Suspended AsyncResponse response) {
 
         resourcePluginService
                 .findById(resourceId)
@@ -64,7 +63,7 @@ public class ResourcePluginResource {
             value = "Get a resource plugin's schema",
             notes = "There is no particular permission needed. User must be authenticated.")
     public void getSchema(
-            @PathParam("resource") String resourceId, @Suspended final AsyncResponse response) {
+            @PathParam("resource") String resourceId, @Suspended AsyncResponse response) {
 
         resourcePluginService
                 .findById(resourceId)

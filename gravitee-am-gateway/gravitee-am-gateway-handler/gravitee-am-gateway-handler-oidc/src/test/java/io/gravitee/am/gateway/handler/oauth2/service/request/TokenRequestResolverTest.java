@@ -55,7 +55,7 @@ public class TokenRequestResolverTest {
 
     @Test
     public void shouldNotResolveTokenRequest_unknownScope() {
-        final String scope = "read";
+        String scope = "read";
         TokenRequest tokenRequest = new TokenRequest();
         tokenRequest.setScopes(Collections.singleton(scope));
         Client client = new Client();
@@ -68,8 +68,8 @@ public class TokenRequestResolverTest {
 
     @Test
     public void shouldResolveTokenRequest_withUser_permissionsRequestedAll() {
-        final String scope = "read";
-        final List<String> userScopes = Arrays.asList("user1", "user2", "user3");
+        String scope = "read";
+        List<String> userScopes = Arrays.asList("user1", "user2", "user3");
 
         TokenRequest tokenRequest = new TokenRequest();
         List<String> reqScopes = new ArrayList<>();
@@ -105,8 +105,8 @@ public class TokenRequestResolverTest {
 
     @Test
     public void shouldResolveTokenRequest_withUser_permissionsRequestedAny() {
-        final String scope = "read";
-        final List<String> userScopes = Arrays.asList("user1", "user2", "user3");
+        String scope = "read";
+        List<String> userScopes = Arrays.asList("user1", "user2", "user3");
 
         TokenRequest tokenRequest = new TokenRequest();
         List<String> reqScopes = new ArrayList<>();
@@ -142,8 +142,8 @@ public class TokenRequestResolverTest {
 
     @Test
     public void shouldResolveTokenRequest_withUser_permissionsRequestedAny_legacy() {
-        final String scope = "read";
-        final List<String> userScopes = Arrays.asList("user1", "user2", "user3");
+        String scope = "read";
+        List<String> userScopes = Arrays.asList("user1", "user2", "user3");
 
         TokenRequest tokenRequest = new TokenRequest();
         List<String> reqScopes = new ArrayList<>();
@@ -180,8 +180,8 @@ public class TokenRequestResolverTest {
 
     @Test
     public void shouldResolveTokenRequest_withUser_permissionsRequestedNone() {
-        final String scope = "read";
-        final List<String> userScopes = Arrays.asList("user1", "user2", "user3");
+        String scope = "read";
+        List<String> userScopes = Arrays.asList("user1", "user2", "user3");
 
         TokenRequest tokenRequest = new TokenRequest();
         List<String> reqScopes = new ArrayList<>();
@@ -218,8 +218,8 @@ public class TokenRequestResolverTest {
 
     @Test
     public void shouldResolveTokenRequest_withUser_permissionsRequestedNone_legacyMode() {
-        final String scope = "read";
-        final List<String> userScopes = Arrays.asList("user1", "user2", "user3");
+        String scope = "read";
+        List<String> userScopes = Arrays.asList("user1", "user2", "user3");
 
         TokenRequest tokenRequest = new TokenRequest();
         List<String> reqScopes = new ArrayList<>();
@@ -257,8 +257,8 @@ public class TokenRequestResolverTest {
 
     @Test
     public void shouldResolveTokenRequest_openIdScope() {
-        final String scope = "openid";
-        final List<String> userScopes = Arrays.asList("user1", "user2", "user3");
+        String scope = "openid";
+        List<String> userScopes = Arrays.asList("user1", "user2", "user3");
 
         TokenRequest tokenRequest = new TokenRequest();
         List<String> reqScopes = new ArrayList<>();
@@ -307,7 +307,7 @@ public class TokenRequestResolverTest {
 
     @Test
     public void shouldNotResolveTokenRequest_invalidScope() {
-        final String scope = "read";
+        String scope = "read";
         TokenRequest tokenRequest = new TokenRequest();
         tokenRequest.setScopes(Collections.singleton(scope));
         Client client = new Client();
@@ -323,7 +323,7 @@ public class TokenRequestResolverTest {
 
     @Test
     public void shouldNotResolveTokenRequest_invalidScope_withUser() {
-        final String scope = "read";
+        String scope = "read";
         TokenRequest tokenRequest = new TokenRequest();
         tokenRequest.setScopes(Collections.singleton(scope));
         Client client = new Client();
@@ -344,7 +344,7 @@ public class TokenRequestResolverTest {
 
     @Test
     public void shouldResolveAuthorizationRequest_noRequestedScope_clientDefaultScopes() {
-        final String scope = "read";
+        String scope = "read";
         TokenRequest authorizationRequest = new TokenRequest();
 
         Client client = new Client();
@@ -362,7 +362,7 @@ public class TokenRequestResolverTest {
 
     @Test
     public void shouldResolveAuthorizationRequest_noRequestedScope_userDefaultScopes() {
-        final String scope = "read";
+        String scope = "read";
         TokenRequest authorizationRequest = new TokenRequest();
 
         Client client = new Client();

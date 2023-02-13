@@ -92,14 +92,14 @@ public class EmailServiceTest {
 
     @Test
     public void sendEmail_i18n_fr() throws Exception {
-        final var registrationTpl = Template.REGISTRATION_CONFIRMATION;
-        final var email = new Email();
+        var registrationTpl = Template.REGISTRATION_CONFIRMATION;
+        var email = new Email();
         email.setFrom("no-reply@gravitee.io");
         email.setSubject("${msg('registration.confirmation.email.subject')}");
         email.setTemplate(registrationTpl.template());
         when(emailManager.getEmail(any(), any(), any(), anyInt())).thenReturn(Maybe.just(email));
 
-        final User user = new User();
+        User user = new User();
         user.setFirstName("John");
         user.setLastName("Doe");
         user.setPreferredLanguage("fr");
@@ -117,14 +117,14 @@ public class EmailServiceTest {
 
     @Test
     public void sendEmail_i18n_en() throws Exception {
-        final var registrationTpl = Template.REGISTRATION_CONFIRMATION;
-        final var email = new Email();
+        var registrationTpl = Template.REGISTRATION_CONFIRMATION;
+        var email = new Email();
         email.setFrom("no-reply@gravitee.io");
         email.setSubject("${msg('registration.confirmation.email.subject')}");
         email.setTemplate(registrationTpl.template());
         when(emailManager.getEmail(any(), any(), any(), anyInt())).thenReturn(Maybe.just(email));
 
-        final User user = new User();
+        User user = new User();
         user.setFirstName("John");
         user.setLastName("Doe");
         user.setPreferredLanguage("en");

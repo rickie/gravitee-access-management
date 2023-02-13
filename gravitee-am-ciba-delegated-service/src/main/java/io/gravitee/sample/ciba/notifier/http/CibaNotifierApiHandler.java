@@ -45,8 +45,8 @@ public class CibaNotifierApiHandler implements Handler<RoutingContext> {
     @Override
     public void handle(RoutingContext routingContext) {
         try {
-            final HttpServerRequest httpRequest = routingContext.request();
-            final String auth = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
+            HttpServerRequest httpRequest = routingContext.request();
+            String auth = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
             if (auth != null && auth.startsWith(BEARER) && !StringUtil.isNullOrEmpty(authBearer)) {
                 // control the token
                 if (!authBearer.equals(auth.substring(BEARER.length()))) {

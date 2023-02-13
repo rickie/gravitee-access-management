@@ -65,8 +65,7 @@ public class EnvironmentsResource extends AbstractResource {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     public void list(
-            @PathParam("organizationId") String organizationId,
-            @Suspended final AsyncResponse response) {
+            @PathParam("organizationId") String organizationId, @Suspended AsyncResponse response) {
 
         User authenticatedUser = getAuthenticatedUser();
 

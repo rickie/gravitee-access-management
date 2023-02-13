@@ -81,9 +81,9 @@ public class AssignSystemCertificate extends AbstractTask<AssignSystemCertificat
 
     @Override
     public void run() {
-        final var domainId = this.configuration.getDomainId();
-        final var renewedCertificate = this.configuration.getRenewedCertificate();
-        final var deprecatedCertificate = this.configuration.getDeprecatedCertificate();
+        var domainId = this.configuration.getDomainId();
+        var renewedCertificate = this.configuration.getRenewedCertificate();
+        var deprecatedCertificate = this.configuration.getDeprecatedCertificate();
         this.logger.debug(
                 "Start assign system certificate for domain {}. (deprecated certificate: {} / new certificate: {})",
                 domainId,

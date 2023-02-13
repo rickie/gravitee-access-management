@@ -174,27 +174,25 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
 
     private void renderMFAPage(RoutingContext routingContext) {
         try {
-            final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+            Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
             if (routingContext.user() == null) {
                 logger.warn("User must be authenticated to request MFA challenge.");
                 routingContext.fail(401);
                 return;
             }
-            final io.gravitee.am.model.User endUser =
+            io.gravitee.am.model.User endUser =
                     ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
                                     routingContext.user().getDelegate())
                             .getUser();
-            final Factor factor = getFactor(routingContext, client, endUser);
-            final String error = routingContext.request().getParam(ConstantKeys.ERROR_PARAM_KEY);
-            final String rateLimitError =
-                    routingContext.request().getParam(RATE_LIMIT_ERROR_PARAM_KEY);
-            final String verifyAttemptsError =
+            Factor factor = getFactor(routingContext, client, endUser);
+            String error = routingContext.request().getParam(ConstantKeys.ERROR_PARAM_KEY);
+            String rateLimitError = routingContext.request().getParam(RATE_LIMIT_ERROR_PARAM_KEY);
+            String verifyAttemptsError =
                     routingContext.request().getParam(VERIFY_ATTEMPT_ERROR_PARAM_KEY);
 
             // prepare context
-            final MultiMap queryParams =
-                    RequestUtils.getCleanedQueryParams(routingContext.request());
-            final String action =
+            MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
+            String action =
                     UriBuilderRequest.resolveProxyRequest(
                             routingContext.request(),
                             routingContext.request().path(),
@@ -203,7 +201,7 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
             routingContext.put(ConstantKeys.FACTOR_KEY, factor);
 
             if (factor.is(FIDO2)) {
-                final String webAuthnLoginPath =
+                String webAuthnLoginPath =
                         UriBuilderRequest.resolveProxyRequest(
                                 routingContext.request(),
                                 routingContext.get(CONTEXT_PATH) + "/webauthn/login",
@@ -234,7 +232,7 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
                                 true));
             }
 
-            final FactorProvider factorProvider = factorManager.get(factor.getId());
+            FactorProvider factorProvider = factorManager.get(factor.getId());
             // send challenge
             sendChallenge(
                     factorProvider,
@@ -264,21 +262,21 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
     }
 
     private void verifyCode(RoutingContext routingContext) {
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         if (routingContext.user() == null) {
             logger.warn("User must be authenticated to submit MFA challenge.");
             routingContext.fail(401);
             return;
         }
 
-        final io.gravitee.am.model.User endUser =
+        io.gravitee.am.model.User endUser =
                 ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
                                 routingContext.user().getDelegate())
                         .getUser();
-        final Factor factor = getFactor(routingContext, client, endUser);
+        Factor factor = getFactor(routingContext, client, endUser);
         MultiMap params = routingContext.request().formAttributes();
-        final String code = params.get("code");
-        final String factorId = params.get("factorId");
+        String code = params.get("code");
+        String factorId = params.get("factorId");
         if (code == null) {
             logger.warn("No code in form - did you forget to include code value ?");
             routingContext.fail(400);
@@ -312,7 +310,7 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
                     ConstantKeys.PASSWORDLESS_ORIGIN, getOrigin(domain.getWebAuthnSettings()));
         }
 
-        final FactorContext factorCtx = new FactorContext(applicationContext, factorData);
+        FactorContext factorCtx = new FactorContext(applicationContext, factorData);
 
         verifyAttemptService
                 .checkVerifyAttempt(endUser, factorId, client, domain)
@@ -365,16 +363,16 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
             }
 
             if (factor.is(FIDO2)) {
-                final String userId = endUser.getId();
-                final JsonObject webauthnResp = new JsonObject(code);
-                final String credentialId = webauthnResp.getString("id");
+                String userId = endUser.getId();
+                JsonObject webauthnResp = new JsonObject(code);
+                String credentialId = webauthnResp.getString("id");
                 updateCredential(
                         routingContext.request(),
                         credentialId,
                         userId,
                         ch -> {
                             if (ch.failed()) {
-                                final String username =
+                                String username =
                                         routingContext
                                                 .session()
                                                 .get(PASSWORDLESS_CHALLENGE_USERNAME_KEY);
@@ -392,7 +390,7 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
                                 cleanSession(routingContext);
                                 redirectToAuthorize(routingContext, client);
                             } else {
-                                final String fidoFactorId =
+                                String fidoFactorId =
                                         routingContext.session().get(ENROLLED_FACTOR_ID_KEY);
                                 factorService
                                         .enrollFactor(
@@ -444,8 +442,8 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
     }
 
     private void redirectToAuthorize(RoutingContext routingContext, Client client) {
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
-        final String returnURL = getReturnUrl(routingContext, queryParams);
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
+        String returnURL = getReturnUrl(routingContext, queryParams);
         // Register device if the device is active
         var rememberDeviceSettings = getRememberDeviceSettings(client);
         boolean rememberDeviceConsent =
@@ -487,7 +485,7 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
                             }
                         },
                         error -> {
-                            final EnrolledFactor enrolledFactor =
+                            EnrolledFactor enrolledFactor =
                                     (EnrolledFactor)
                                             factorContext
                                                     .getData()
@@ -542,7 +540,7 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
                 getEnrolledFactor(routingContext, factorProvider, factor, endUser);
         Map<String, Object> factorData = new HashMap<>();
         factorData.putAll(getEvaluableAttributes(routingContext));
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         factorData.put(FactorContext.KEY_CLIENT, client);
         factorData.put(KEY_USER, endUser);
         factorData.put(
@@ -593,7 +591,7 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
         // factor can be either in session (if user come from mfa/enroll or
         // mfa/challenge/alternatives page)
         // or from the user enrolled factor list
-        final String savedFactorId =
+        String savedFactorId =
                 routingContext.session().get(ConstantKeys.ENROLLED_FACTOR_ID_KEY) != null
                         ? routingContext.session().get(ConstantKeys.ENROLLED_FACTOR_ID_KEY)
                         : routingContext.session().get(ConstantKeys.ALTERNATIVE_FACTOR_ID_KEY);
@@ -634,8 +632,7 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
             User endUser) {
         // enrolled factor can be either in session (if user come from mfa/enroll page)
         // or from the user enrolled factor list
-        final String savedFactorId =
-                routingContext.session().get(ConstantKeys.ENROLLED_FACTOR_ID_KEY);
+        String savedFactorId = routingContext.session().get(ConstantKeys.ENROLLED_FACTOR_ID_KEY);
         if (factor.getId().equals(savedFactorId)) {
             EnrolledFactor enrolledFactor = new EnrolledFactor();
             enrolledFactor.setFactorId(factor.getId());
@@ -760,8 +757,8 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
     }
 
     private void handleException(RoutingContext context, String errorKey, String errorValue) {
-        final HttpServerRequest req = context.request();
-        final HttpServerResponse resp = context.response();
+        HttpServerRequest req = context.request();
+        HttpServerResponse resp = context.response();
 
         // redirect to mfa challenge page with error message
         QueryStringDecoder queryStringDecoder = new QueryStringDecoder(req.uri());
@@ -843,7 +840,7 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
             String credentialId,
             String userId,
             Handler<AsyncResult<Void>> handler) {
-        final Credential credential = new Credential();
+        Credential credential = new Credential();
         credential.setUserId(userId);
         credential.setUserAgent(RequestUtils.userAgent(request));
         credential.setIpAddress(RequestUtils.remoteAddress(request));
@@ -884,7 +881,7 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
     }
 
     private EnrolledFactor createEnrolledFactor(String factorId, String credentialId) {
-        final EnrolledFactor enrolledFactor = new EnrolledFactor();
+        EnrolledFactor enrolledFactor = new EnrolledFactor();
         enrolledFactor.setFactorId(factorId);
         enrolledFactor.setStatus(ACTIVATED);
         enrolledFactor.setCreatedAt(new Date());
@@ -900,8 +897,8 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
         } else if (client.getFactors() == null || client.getFactors().size() <= 1) {
             return false;
         } else {
-            final Set<String> clientFactorIds = client.getFactors();
-            final List<EnrolledFactor> activeEnrolledFactors =
+            Set<String> clientFactorIds = client.getFactors();
+            List<EnrolledFactor> activeEnrolledFactors =
                     endUser.getFactors().stream()
                             .filter(
                                     enrolledFactor ->

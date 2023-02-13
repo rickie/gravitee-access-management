@@ -152,7 +152,7 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
             return Single.error(new UserInvalidException("Field [password] is required"));
         }
 
-        final var rawPassword = newUser.getPassword();
+        var rawPassword = newUser.getPassword();
         // set user idp source
         if (newUser.getSource() == null) {
             newUser.setSource(DEFAULT_IDP_PREFIX + domain.getId());
@@ -218,7 +218,7 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
                                                                             newUser.setDomain(
                                                                                     domain.getId());
                                                                         }
-                                                                        final User transform =
+                                                                        User transform =
                                                                                 transform(newUser);
                                                                         String password =
                                                                                 newUser
@@ -522,7 +522,7 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
                                                                     "Field [password] is invalid",
                                                                     "invalid_password_value"));
                                                 }
-                                                final Client client =
+                                                Client client =
                                                         optClient
                                                                 .map(Application::toClient)
                                                                 .orElse(new Client());
@@ -624,8 +624,11 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
                                                                                                     .update(
                                                                                                             user);
                                                                                         }) // after
-                                                                                           // audit,
-                                                                                           // invalidate tokens whatever is the domain or app settings
+                                                                                // audit,
+                                                                                // invalidate tokens
+                                                                                // whatever is the
+                                                                                // domain or app
+                                                                                // settings
                                                                                 // as it is an admin
                                                                                 // action here, we
                                                                                 // want to force the
@@ -1056,7 +1059,7 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
 
     private String getUserRegistrationToken(User user, Integer expiresAfter) {
         // generate a JWT to store user's information and for security purpose
-        final Map<String, Object> claims = new HashMap<>();
+        Map<String, Object> claims = new HashMap<>();
         Instant now = Instant.now();
         claims.put(Claims.iat, now.getEpochSecond());
         claims.put(

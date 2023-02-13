@@ -44,16 +44,16 @@ public class ExtensionGrantsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetExtensionGrants() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final ExtensionGrant mockExtensionGrant = new ExtensionGrant();
+        ExtensionGrant mockExtensionGrant = new ExtensionGrant();
         mockExtensionGrant.setId("extensionGrant-1-id");
         mockExtensionGrant.setName("extensionGrant-1-name");
         mockExtensionGrant.setDomain(domainId);
 
-        final ExtensionGrant mockExtensionGrant2 = new ExtensionGrant();
+        ExtensionGrant mockExtensionGrant2 = new ExtensionGrant();
         mockExtensionGrant2.setId("extensionGrant-2-id");
         mockExtensionGrant2.setName("extensionGrant-2-name");
         mockExtensionGrant2.setDomain(domainId);
@@ -63,30 +63,30 @@ public class ExtensionGrantsResourceTest extends JerseySpringTest {
                 .when(extensionGrantService)
                 .findByDomain(domainId);
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("extensionGrants").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final List<ExtensionGrant> responseEntity = readEntity(response, List.class);
+        List<ExtensionGrant> responseEntity = readEntity(response, List.class);
         assertTrue(responseEntity.size() == 2);
     }
 
     @Test
     public void shouldGetExtensionGrants_technicalManagementException() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
         doReturn(Flowable.error(new TechnicalManagementException("error occurs")))
                 .when(extensionGrantService)
                 .findByDomain(domainId);
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("extensionGrants").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
 
     @Test
     public void shouldCreate() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         NewExtensionGrant newExtensionGrant = new NewExtensionGrant();
@@ -104,7 +104,7 @@ public class ExtensionGrantsResourceTest extends JerseySpringTest {
                 .when(extensionGrantService)
                 .create(eq(domainId), any(), any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("extensionGrants")
