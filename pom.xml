@@ -595,10 +595,15 @@
     </build>
 
     <profiles>
+
+
+
+
         <profile>
             <id>patch</id>
             <properties>
-                <error-prone.patch-args>-XepPatchChecks:${error-prone.patch-checks} -XepPatchLocation:IN_PLACE</error-prone.patch-args>
+                <error-prone.patch-args>-XepPatchChecks:${error-prone.patch-checks}
+                                        -XepPatchLocation:IN_PLACE</error-prone.patch-args>
 
                 <!-- One can override this value to specify which checks should be patched. -->
                 <error-prone.patch-checks />
