@@ -80,7 +80,7 @@ public class I18nDictionaryResource extends AbstractDomainResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("dictionary") String dictionary,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
         checkAnyPermission(organizationId, environmentId, domain, DOMAIN_I18N_DICTIONARY, READ)
                 .andThen(
                         service.findById(DOMAIN, domain, dictionary)
@@ -111,7 +111,7 @@ public class I18nDictionaryResource extends AbstractDomainResource {
             @PathParam("domain") String domain,
             @PathParam("dictionary") String dictionary,
             @Valid @NotNull UpdateI18nDictionary updatedDictionary,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
         User principal = getAuthenticatedUser();
         checkAnyPermission(organizationId, environmentId, domain, DOMAIN_I18N_DICTIONARY, UPDATE)
                 .andThen(
@@ -146,7 +146,7 @@ public class I18nDictionaryResource extends AbstractDomainResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("dictionary") String dictionary,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
         User principal = getAuthenticatedUser();
         checkAnyPermission(organizationId, environmentId, domain, DOMAIN_I18N_DICTIONARY, DELETE)
                 .andThen(
@@ -186,7 +186,7 @@ public class I18nDictionaryResource extends AbstractDomainResource {
             @PathParam("domain") String domain,
             @PathParam("dictionary") String dictionary,
             @Valid @NotNull SortedMap<String, String> entries,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
         User principal = getAuthenticatedUser();
         checkAnyPermission(organizationId, environmentId, domain, DOMAIN_I18N_DICTIONARY, UPDATE)
                 .andThen(

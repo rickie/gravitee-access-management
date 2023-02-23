@@ -49,8 +49,8 @@ public class ServiceProviderMetadataEndpoint implements Handler<RoutingContext> 
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final String providerId = routingContext.request().getParam("providerId");
-        final String basePath =
+        String providerId = routingContext.request().getParam("providerId");
+        String basePath =
                 UriBuilderRequest.resolveProxyRequest(
                         routingContext.request(), routingContext.get(CONTEXT_PATH));
 

@@ -67,7 +67,7 @@ public class WebAuthnCookieService implements InitializingBean {
     }
 
     public Single<String> generateRememberDeviceCookieValue(User user) {
-        final JWT jwt = new JWT();
+        JWT jwt = new JWT();
         jwt.setIat(System.currentTimeMillis() / 1000);
         jwt.put(USER_ID, user.getId());
         // do we need to store more data ??

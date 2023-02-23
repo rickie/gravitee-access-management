@@ -58,7 +58,7 @@ public class EmailRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldNotFindById() {
-        final TestObserver<Email> testObserver = repository.findById("unknownId").test();
+        TestObserver<Email> testObserver = repository.findById("unknownId").test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoValues();
     }
@@ -160,7 +160,7 @@ public class EmailRepositoryTest extends AbstractManagementTest {
         testSubscriber.assertNoErrors();
         testSubscriber.assertNoValues();
 
-        final int loop = 10;
+        int loop = 10;
         List<Email> emails =
                 IntStream.range(0, loop).mapToObj(__ -> buildEmail()).collect(Collectors.toList());
         emails.forEach(
@@ -189,12 +189,12 @@ public class EmailRepositoryTest extends AbstractManagementTest {
         testSubscriber.assertNoErrors();
         testSubscriber.assertNoValues();
 
-        final int loop = 10;
+        int loop = 10;
         List<Email> emails =
                 IntStream.range(0, loop)
                         .mapToObj(
                                 __ -> {
-                                    final Email email = buildEmail();
+                                    Email email = buildEmail();
                                     email.setReferenceId(FIXED_REF_ID);
                                     return email;
                                 })
@@ -229,12 +229,12 @@ public class EmailRepositoryTest extends AbstractManagementTest {
         testSubscriber.assertNoErrors();
         testSubscriber.assertNoValues();
 
-        final int loop = 10;
+        int loop = 10;
         List<Email> emails =
                 IntStream.range(0, loop)
                         .mapToObj(
                                 __ -> {
-                                    final Email email = buildEmail();
+                                    Email email = buildEmail();
                                     email.setReferenceId(FIXED_REF_ID);
                                     email.setClient(FIXED_CLI_ID);
                                     return email;
@@ -252,7 +252,7 @@ public class EmailRepositoryTest extends AbstractManagementTest {
                                 .blockingGet());
 
         for (int i = 0; i < loop; i++) {
-            final Email email = buildEmail();
+            Email email = buildEmail();
             email.setReferenceId(FIXED_REF_ID);
             repository.create(email).blockingGet();
         }
@@ -276,14 +276,14 @@ public class EmailRepositoryTest extends AbstractManagementTest {
         testSubscriber.assertNoErrors();
         testSubscriber.assertNoValues();
 
-        final int loop = 10;
+        int loop = 10;
         for (int i = 0; i < loop; i++) {
-            final Email email = buildEmail();
+            Email email = buildEmail();
             email.setReferenceId(FIXED_REF_ID);
             repository.create(email).blockingGet();
         }
 
-        final Email email = buildEmail();
+        Email email = buildEmail();
         email.setReferenceId(FIXED_REF_ID);
         email.setTemplate("MyTemplateId");
         email.setClient(null);
@@ -305,15 +305,15 @@ public class EmailRepositoryTest extends AbstractManagementTest {
         testSubscriber.assertNoErrors();
         testSubscriber.assertNoValues();
 
-        final int loop = 10;
+        int loop = 10;
         for (int i = 0; i < loop; i++) {
-            final Email email = buildEmail();
+            Email email = buildEmail();
             email.setReferenceId(FIXED_REF_ID);
             email.setClient(FIXED_CLI_ID);
             repository.create(email).blockingGet();
         }
 
-        final Email email = buildEmail();
+        Email email = buildEmail();
         email.setReferenceId(FIXED_REF_ID);
         email.setClient(FIXED_CLI_ID);
         email.setTemplate("MyTemplateId");

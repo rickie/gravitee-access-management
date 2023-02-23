@@ -105,12 +105,12 @@ public class RequestObjectServiceTest {
         Client client = new Client();
         String request = "https://somewhere";
 
-        final OIDCSettings oidcDomainSettings = new OIDCSettings();
+        OIDCSettings oidcDomainSettings = new OIDCSettings();
         oidcDomainSettings.setRequestUris(null);
         when(domain.getOidc()).thenReturn(oidcDomainSettings);
 
-        final HttpRequest httpRequest = mock(HttpRequest.class);
-        final HttpResponse httpResponse = mock(HttpResponse.class);
+        HttpRequest httpRequest = mock(HttpRequest.class);
+        HttpResponse httpResponse = mock(HttpResponse.class);
         when(httpResponse.bodyAsString()).thenReturn("request_uri_payload");
         when(httpRequest.rxSend()).thenReturn(Single.just(httpResponse));
         when(webClient.getAbs(any())).thenReturn(httpRequest);
@@ -138,7 +138,7 @@ public class RequestObjectServiceTest {
         Client client = new Client();
         String request = "https://somewhere";
 
-        final OIDCSettings oidcDomainSettings = new OIDCSettings();
+        OIDCSettings oidcDomainSettings = new OIDCSettings();
         oidcDomainSettings.setRequestUris(List.of("https://authorizedUrls"));
         when(domain.getOidc()).thenReturn(oidcDomainSettings);
 
@@ -157,7 +157,7 @@ public class RequestObjectServiceTest {
         client.setRequestUris(List.of("http://authUris"));
         String request = "https://somewhere";
 
-        final OIDCSettings oidcDomainSettings = new OIDCSettings();
+        OIDCSettings oidcDomainSettings = new OIDCSettings();
         oidcDomainSettings.setRequestUris(List.of("https://somewhere"));
         when(domain.getOidc()).thenReturn(oidcDomainSettings);
 
@@ -175,12 +175,12 @@ public class RequestObjectServiceTest {
         Client client = new Client();
         String request = "https://somewhere/uri?param=value";
 
-        final OIDCSettings oidcDomainSettings = new OIDCSettings();
+        OIDCSettings oidcDomainSettings = new OIDCSettings();
         oidcDomainSettings.setRequestUris(List.of("https://somewhere"));
         when(domain.getOidc()).thenReturn(oidcDomainSettings);
 
-        final HttpRequest httpRequest = mock(HttpRequest.class);
-        final HttpResponse httpResponse = mock(HttpResponse.class);
+        HttpRequest httpRequest = mock(HttpRequest.class);
+        HttpResponse httpResponse = mock(HttpResponse.class);
         when(httpResponse.bodyAsString()).thenReturn("request_uri_payload");
         when(httpRequest.rxSend()).thenReturn(Single.just(httpResponse));
         when(webClient.getAbs(any())).thenReturn(httpRequest);

@@ -44,10 +44,9 @@ public class LoginHideFormHandler implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final List<IdentityProvider> socialProviders =
-                routingContext.get(SOCIAL_PROVIDER_CONTEXT_KEY);
-        final LoginSettings loginSettings = LoginSettings.getInstance(domain, client);
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        List<IdentityProvider> socialProviders = routingContext.get(SOCIAL_PROVIDER_CONTEXT_KEY);
+        LoginSettings loginSettings = LoginSettings.getInstance(domain, client);
         var optionalSettings = ofNullable(loginSettings).filter(Objects::nonNull);
         boolean isHideForm = optionalSettings.map(LoginSettings::isHideForm).orElse(false);
 

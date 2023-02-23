@@ -107,7 +107,7 @@ public class LoginCallbackFailureHandlerTest extends RxWebTestBase {
                                             Stream.of("idp1", "idp2", "idp3")
                                                     .map(
                                                             idp -> {
-                                                                final ApplicationIdentityProvider
+                                                                ApplicationIdentityProvider
                                                                         applicationIdentityProvider =
                                                                                 new ApplicationIdentityProvider();
                                                                 applicationIdentityProvider
@@ -151,7 +151,7 @@ public class LoginCallbackFailureHandlerTest extends RxWebTestBase {
                                             Stream.of("idp1")
                                                     .map(
                                                             idp -> {
-                                                                final ApplicationIdentityProvider
+                                                                ApplicationIdentityProvider
                                                                         applicationIdentityProvider =
                                                                                 new ApplicationIdentityProvider();
                                                                 applicationIdentityProvider
@@ -166,7 +166,7 @@ public class LoginCallbackFailureHandlerTest extends RxWebTestBase {
                             routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
 
                             // original parameters
-                            final MultiMap originalParams = MultiMap.caseInsensitiveMultiMap();
+                            MultiMap originalParams = MultiMap.caseInsensitiveMultiMap();
                             originalParams.set(Parameters.REDIRECT_URI, "https://sp-app/callback");
                             originalParams.set(Parameters.RESPONSE_TYPE, ResponseType.CODE);
                             originalParams.set(Parameters.STATE, "12345");
@@ -207,7 +207,7 @@ public class LoginCallbackFailureHandlerTest extends RxWebTestBase {
                                             Stream.of("idp1")
                                                     .map(
                                                             idp -> {
-                                                                final ApplicationIdentityProvider
+                                                                ApplicationIdentityProvider
                                                                         applicationIdentityProvider =
                                                                                 new ApplicationIdentityProvider();
                                                                 applicationIdentityProvider
@@ -224,7 +224,7 @@ public class LoginCallbackFailureHandlerTest extends RxWebTestBase {
                             routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
 
                             // original parameters
-                            final MultiMap originalParams = MultiMap.caseInsensitiveMultiMap();
+                            MultiMap originalParams = MultiMap.caseInsensitiveMultiMap();
                             originalParams.set(Parameters.REDIRECT_URI, "https://sp-app/callback");
                             originalParams.set(Parameters.RESPONSE_TYPE, ResponseType.CODE);
                             originalParams.set(Parameters.STATE, "12345");
@@ -265,7 +265,7 @@ public class LoginCallbackFailureHandlerTest extends RxWebTestBase {
                                             Stream.of("idp1")
                                                     .map(
                                                             idp -> {
-                                                                final ApplicationIdentityProvider
+                                                                ApplicationIdentityProvider
                                                                         applicationIdentityProvider =
                                                                                 new ApplicationIdentityProvider();
                                                                 applicationIdentityProvider
@@ -280,7 +280,7 @@ public class LoginCallbackFailureHandlerTest extends RxWebTestBase {
                             routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
 
                             // original parameters
-                            final MultiMap originalParams = MultiMap.caseInsensitiveMultiMap();
+                            MultiMap originalParams = MultiMap.caseInsensitiveMultiMap();
                             originalParams.set(Parameters.REDIRECT_URI, "https://sp-app/callback");
                             originalParams.set(Parameters.RESPONSE_TYPE, ResponseType.TOKEN);
                             originalParams.set(Parameters.STATE, "12345");
@@ -321,7 +321,7 @@ public class LoginCallbackFailureHandlerTest extends RxWebTestBase {
                                             Stream.of("idp1")
                                                     .map(
                                                             idp -> {
-                                                                final ApplicationIdentityProvider
+                                                                ApplicationIdentityProvider
                                                                         applicationIdentityProvider =
                                                                                 new ApplicationIdentityProvider();
                                                                 applicationIdentityProvider
@@ -338,7 +338,7 @@ public class LoginCallbackFailureHandlerTest extends RxWebTestBase {
                             routingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
 
                             // original parameters
-                            final MultiMap originalParams = MultiMap.caseInsensitiveMultiMap();
+                            MultiMap originalParams = MultiMap.caseInsensitiveMultiMap();
                             originalParams.set(Parameters.REDIRECT_URI, "https://sp-app/callback");
                             originalParams.set(Parameters.RESPONSE_TYPE, ResponseType.TOKEN);
                             originalParams.set(Parameters.STATE, "12345");

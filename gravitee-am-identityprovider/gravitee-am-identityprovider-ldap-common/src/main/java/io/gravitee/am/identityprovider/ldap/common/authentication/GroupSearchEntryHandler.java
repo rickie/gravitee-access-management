@@ -53,7 +53,7 @@ public class GroupSearchEntryHandler implements SearchEntryHandler {
         try {
             Set<LdapEntry> allGroups = new HashSet<>();
             // search groups where the user is directly referenced as a member
-            final Collection<LdapEntry> directGroups = groupSearch(conn, entry.getDn());
+            Collection<LdapEntry> directGroups = groupSearch(conn, entry.getDn());
             if (recursiveSearch) {
                 // for each group look for ancestor in order to retrieve all group hierarchy
                 recursiveGroupsSearch(conn, directGroups, allGroups);
@@ -61,7 +61,7 @@ public class GroupSearchEntryHandler implements SearchEntryHandler {
                 allGroups.addAll(directGroups);
             }
 
-            final String[] groupName =
+            String[] groupName =
                     allGroups.stream()
                             .map(
                                     groupEntry ->
@@ -94,7 +94,7 @@ public class GroupSearchEntryHandler implements SearchEntryHandler {
                 accGroups.add(grp);
                 processedGroupDNs.add(grp.getDn());
                 // look for group ancestors
-                final Collection<LdapEntry> foundGroups = groupSearch(conn, grp.getDn());
+                Collection<LdapEntry> foundGroups = groupSearch(conn, grp.getDn());
                 if (!foundGroups.isEmpty()) {
                     ancestors.addAll(foundGroups);
                 }
@@ -107,17 +107,17 @@ public class GroupSearchEntryHandler implements SearchEntryHandler {
     }
 
     private Collection<LdapEntry> groupSearch(Connection conn, String dn) throws LdapException {
-        final SearchFilter filter = new SearchFilter();
+        SearchFilter filter = new SearchFilter();
         filter.setFilter(searchFilter);
         filter.setParameter(0, dn);
 
-        final SearchRequest searchRequest = new SearchRequest();
+        SearchRequest searchRequest = new SearchRequest();
         searchRequest.setBaseDn(baseDn);
         searchRequest.setReturnAttributes(returnAttributes);
         searchRequest.setSearchScope(searchScope);
         searchRequest.setSearchFilter(filter);
 
-        final SearchOperation searchOperation = new SearchOperation(conn);
+        SearchOperation searchOperation = new SearchOperation(conn);
         SearchResult searchResult = searchOperation.execute(searchRequest).getResult();
 
         return searchResult.getEntries();

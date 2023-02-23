@@ -60,13 +60,13 @@ public class ForgotPasswordEndpoint extends AbstractEndpoint implements Handler<
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final HttpServerRequest request = routingContext.request();
-        final String error = request.getParam(ConstantKeys.ERROR_PARAM_KEY);
-        final String errorDescription = request.getParam(ConstantKeys.ERROR_DESCRIPTION_PARAM_KEY);
-        final String success = request.getParam(ConstantKeys.SUCCESS_PARAM_KEY);
-        final String warning = request.getParam(ConstantKeys.WARNING_PARAM_KEY);
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final String clientId = request.getParam(Parameters.CLIENT_ID);
+        HttpServerRequest request = routingContext.request();
+        String error = request.getParam(ConstantKeys.ERROR_PARAM_KEY);
+        String errorDescription = request.getParam(ConstantKeys.ERROR_DESCRIPTION_PARAM_KEY);
+        String success = request.getParam(ConstantKeys.SUCCESS_PARAM_KEY);
+        String warning = request.getParam(ConstantKeys.WARNING_PARAM_KEY);
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        String clientId = request.getParam(Parameters.CLIENT_ID);
 
         // add query params to context
         routingContext.put(ConstantKeys.ERROR_PARAM_KEY, error);
@@ -81,7 +81,7 @@ public class ForgotPasswordEndpoint extends AbstractEndpoint implements Handler<
         params.computeIfAbsent(ConstantKeys.ERROR_DESCRIPTION_PARAM_KEY, val -> errorDescription);
         routingContext.put(ConstantKeys.PARAM_CONTEXT_KEY, params);
 
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
         routingContext.put(
                 ConstantKeys.ACTION_KEY,
                 UriBuilderRequest.resolveProxyRequest(
@@ -119,7 +119,7 @@ public class ForgotPasswordEndpoint extends AbstractEndpoint implements Handler<
                     Arrays.asList(FormField.getEmailField()));
         }
 
-        final Map<String, Object> data = generateData(routingContext, domain, client);
+        Map<String, Object> data = generateData(routingContext, domain, client);
         data.putAll(botDetectionManager.getTemplateVariables(domain, client));
 
         this.renderPage(

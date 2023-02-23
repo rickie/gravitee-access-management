@@ -71,20 +71,20 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
             setTargetUrlParameter(LOGOUT_URL_PARAMETER);
         }
 
-        final Cookie[] cookies = request.getCookies();
-        final Optional<Cookie> authCookie =
+        Cookie[] cookies = request.getCookies();
+        Optional<Cookie> authCookie =
                 Stream.of(cookies).filter(c -> authCookieName.equals(c.getName())).findFirst();
         authCookie.ifPresent(
                 cookie -> {
                     try {
-                        final String jwtStr = cookie.getValue().substring("Bearer ".length());
-                        final JWT jwt = jwtParser.parse(jwtStr);
+                        String jwtStr = cookie.getValue().substring("Bearer ".length());
+                        JWT jwt = jwtParser.parse(jwtStr);
                         WebAuthenticationDetails details = new WebAuthenticationDetails(request);
 
                         // read user profile to obtain same information as login step.
                         // if the read fails, trace only with information available into the cookie
-                        final String orgId = (String) jwt.get("org");
-                        final String userId = jwt.getSub();
+                        String orgId = (String) jwt.get("org");
+                        String userId = jwt.getSub();
                         userService
                                 .findById(ReferenceType.ORGANIZATION, orgId, userId)
                                 .flatMap(

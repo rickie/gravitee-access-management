@@ -89,7 +89,7 @@ public class EnrichProfilePolicyTest {
 
     @Test
     public void shouldIgnoreError() throws Exception {
-        final CountDownLatch lock = new CountDownLatch(1);
+        CountDownLatch lock = new CountDownLatch(1);
         this.policyChain = spy(new CountDownPolicyChain(lock));
 
         new EnrichProfilePolicy(configuration) {
@@ -108,7 +108,7 @@ public class EnrichProfilePolicyTest {
     public void shouldFailOnError() throws Exception {
         when(configuration.isExitOnError()).thenReturn(true);
 
-        final CountDownLatch lock = new CountDownLatch(1);
+        CountDownLatch lock = new CountDownLatch(1);
         this.policyChain = spy(new CountDownPolicyChain(lock));
 
         new EnrichProfilePolicy(configuration) {
@@ -131,7 +131,7 @@ public class EnrichProfilePolicyTest {
     public void shouldFailOnError_InRxFlow() throws Exception {
         when(configuration.isExitOnError()).thenReturn(true);
 
-        final CountDownLatch lock = new CountDownLatch(1);
+        CountDownLatch lock = new CountDownLatch(1);
         this.policyChain = spy(new CountDownPolicyChain(lock));
 
         User user = mock(User.class);
@@ -158,7 +158,7 @@ public class EnrichProfilePolicyTest {
 
     @Test
     public void shouldIgnoreUserUpdate_NoProperties() throws Exception {
-        final CountDownLatch lock = new CountDownLatch(1);
+        CountDownLatch lock = new CountDownLatch(1);
         this.policyChain = spy(new CountDownPolicyChain(lock));
 
         new EnrichProfilePolicy(configuration)
@@ -172,7 +172,7 @@ public class EnrichProfilePolicyTest {
 
     @Test
     public void shouldUpdateUser() throws Exception {
-        final CountDownLatch lock = new CountDownLatch(1);
+        CountDownLatch lock = new CountDownLatch(1);
         this.policyChain = spy(new CountDownPolicyChain(lock));
 
         when(configuration.getProperties())

@@ -64,7 +64,7 @@ public class InstallationCommandHandlerTest extends TestCase {
 
     @Test
     public void handle() {
-        final Installation installation = new Installation();
+        Installation installation = new Installation();
         installation.setId(INSTALLATION_ID);
         installation.getAdditionalInformation().put(CUSTOM_KEY, CUSTOM_VALUE);
 
@@ -85,7 +85,7 @@ public class InstallationCommandHandlerTest extends TestCase {
                         reply.getCommandId().equals(command.getId())
                                 && reply.getCommandStatus().equals(CommandStatus.SUCCEEDED));
 
-        final HashMap<String, String> expectedAdditionalInfos = new HashMap<>();
+        HashMap<String, String> expectedAdditionalInfos = new HashMap<>();
         expectedAdditionalInfos.put(CUSTOM_KEY, CUSTOM_VALUE);
         expectedAdditionalInfos.put(Installation.COCKPIT_INSTALLATION_STATUS, "ACCEPTED");
         verify(installationService, times(1)).setAdditionalInformation(expectedAdditionalInfos);
@@ -94,7 +94,7 @@ public class InstallationCommandHandlerTest extends TestCase {
     @Test
     public void handleWithException() {
 
-        final Installation installation = new Installation();
+        Installation installation = new Installation();
         installation.setId(INSTALLATION_ID);
         installation.getAdditionalInformation().put(CUSTOM_KEY, CUSTOM_VALUE);
 

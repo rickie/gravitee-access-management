@@ -437,7 +437,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testSearch_byUsername_paged() {
-        final String organization = "organization";
+        String organization = "organization";
         // create user
         User user1 = new User();
         user1.setReferenceType(ReferenceType.ORGANIZATION);
@@ -495,7 +495,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testScimSearch_byDate_paged() {
-        final String organization = "organization";
+        String organization = "organization";
         // create user
         Date now = new Date();
         User user1 = new User();
@@ -561,7 +561,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testScimSearch_byUsername_paged() {
-        final String organization = "organization";
+        String organization = "organization";
         // create user
         User user1 = new User();
         user1.setReferenceType(ReferenceType.ORGANIZATION);
@@ -611,7 +611,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testScimSearch_byUsername_NotPaged() {
-        final String organization = "organization";
+        String organization = "organization";
         // create user
         User user1 = new User();
         user1.setReferenceType(ReferenceType.ORGANIZATION);
@@ -637,7 +637,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         criteria.setFilterValue("testUsername");
         criteria.setOperator("sw");
         criteria.setQuoteFilterValue(true);
-        final TestSubscriber<User> testObserverP0 =
+        TestSubscriber<User> testObserverP0 =
                 organizationUserRepository
                         .search(ReferenceType.ORGANIZATION, organization, criteria)
                         .test();
@@ -650,7 +650,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testScimSearch_byGivenName_SW_paged() {
-        final String organization = "organization";
+        String organization = "organization";
         // create user
         User user1 = new User();
         user1.setReferenceType(ReferenceType.ORGANIZATION);
@@ -702,7 +702,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testScimSearch_byGivenName_EQ_paged() {
-        final String organization = "organization";
+        String organization = "organization";
         // create user
         User user1 = new User();
         user1.setReferenceType(ReferenceType.ORGANIZATION);
@@ -742,7 +742,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testScimSearch_byGivenName_PR_paged() {
-        final String organization = "organization";
+        String organization = "organization";
         // create user
         User user1 = new User();
         user1.setReferenceType(ReferenceType.ORGANIZATION);
@@ -781,7 +781,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testScimSearch_byGivenName_NE_paged() {
-        final String organization = "organization";
+        String organization = "organization";
         // create user
         User user1 = new User();
         user1.setReferenceType(ReferenceType.ORGANIZATION);
@@ -821,7 +821,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
     }
 
     private void testSearch_strict(String query) {
-        final String organization = "organization";
+        String organization = "organization";
         // create user
         User user = new User();
         user.setReferenceType(ReferenceType.ORGANIZATION);
@@ -859,7 +859,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
     }
 
     private void testSearch_wildcard(String query) {
-        final String organization = "organization";
+        String organization = "organization";
         // create user
         User user = new User();
         user.setReferenceType(ReferenceType.ORGANIZATION);
@@ -895,8 +895,8 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testDeleteByRef() throws TechnicalException {
-        final String ORG_1 = "org1";
-        final String ORG_2 = "org2";
+        String ORG_1 = "org1";
+        String ORG_2 = "org2";
 
         // create user
         User user = buildUser();
@@ -914,7 +914,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user.setReferenceType(ReferenceType.ORGANIZATION);
         organizationUserRepository.create(user).blockingGet();
 
-        final long usersDomain1 =
+        long usersDomain1 =
                 organizationUserRepository
                         .findAll(ReferenceType.ORGANIZATION, ORG_1)
                         .count()
@@ -935,7 +935,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         testObserver1.awaitTerminalEvent();
 
         // fetch user
-        final TestSubscriber<User> find =
+        TestSubscriber<User> find =
                 organizationUserRepository.findAll(ReferenceType.ORGANIZATION, ORG_1).test();
         find.awaitTerminalEvent();
         find.assertNoValues();

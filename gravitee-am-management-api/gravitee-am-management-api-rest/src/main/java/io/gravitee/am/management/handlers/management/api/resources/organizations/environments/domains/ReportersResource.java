@@ -76,7 +76,7 @@ public class ReportersResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @QueryParam("userProvider") boolean userProvider,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         User authenticatedUser = getAuthenticatedUser();
 
@@ -138,7 +138,7 @@ public class ReportersResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             NewReporter newReporter,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         User authenticatedUser = getAuthenticatedUser();
 

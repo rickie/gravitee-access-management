@@ -115,7 +115,7 @@ public class MongoAuthenticationProviderTestConfiguration implements Initializin
 
     @Bean
     public IdentityProvider identityProviderEntity() {
-        final IdentityProvider identityProvider = new IdentityProvider();
+        IdentityProvider identityProvider = new IdentityProvider();
         identityProvider.setSystem(true);
         return identityProvider;
     }

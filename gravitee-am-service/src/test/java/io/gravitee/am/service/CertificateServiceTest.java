@@ -318,8 +318,8 @@ public class CertificateServiceTest {
 
     @Test
     public void shouldRotate_defaultCertificate_Rsa() throws Exception {
-        final var now = LocalDateTime.now();
-        final Certificate certOldest = new Certificate();
+        var now = LocalDateTime.now();
+        Certificate certOldest = new Certificate();
         certOldest.setSystem(true);
         certOldest.setDomain(DOMAIN);
         certOldest.setName("Cert-1");
@@ -330,7 +330,7 @@ public class CertificateServiceTest {
         certOldest.setExpiresAt(
                 new Date(now.minusYears(2).toInstant(ZoneOffset.UTC).toEpochMilli()));
 
-        final Certificate certIntermediate = new Certificate();
+        Certificate certIntermediate = new Certificate();
         certIntermediate.setSystem(true);
         certIntermediate.setDomain(DOMAIN);
         certIntermediate.setName("Cert-2");
@@ -341,7 +341,7 @@ public class CertificateServiceTest {
         certIntermediate.setExpiresAt(
                 new Date(now.minusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli()));
 
-        final Certificate certLatest = new Certificate();
+        Certificate certLatest = new Certificate();
         certLatest.setSystem(true);
         certLatest.setId("latest-cert-id");
         certLatest.setDomain(DOMAIN);
@@ -352,7 +352,7 @@ public class CertificateServiceTest {
                 new Date(now.minusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli()));
         certLatest.setExpiresAt(new Date(now.plusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli()));
 
-        final Certificate certCustom = new Certificate();
+        Certificate certCustom = new Certificate();
         certCustom.setSystem(false);
         certCustom.setDomain(DOMAIN);
         certCustom.setName("Cert-4");
@@ -368,7 +368,7 @@ public class CertificateServiceTest {
 
         initializeCertificatSettings(2048, "SHA256withRSA");
 
-        final Certificate renewedCert = new Certificate();
+        Certificate renewedCert = new Certificate();
         renewedCert.setId("renewed-cert-id");
         when(certificateRepository.create(any())).thenReturn(Single.just(renewedCert));
         when(eventService.create(any(Event.class))).thenReturn(Single.just(new Event()));
@@ -426,9 +426,9 @@ public class CertificateServiceTest {
 
     @Test
     public void shouldRotate_defaultCertificate_Rsa_firstDefault() throws Exception {
-        final var now = LocalDateTime.now();
+        var now = LocalDateTime.now();
 
-        final Certificate certCustom = new Certificate();
+        Certificate certCustom = new Certificate();
         certCustom.setSystem(false);
         certCustom.setDomain(DOMAIN);
         certCustom.setName("Cert-4");
