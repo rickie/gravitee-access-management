@@ -81,7 +81,7 @@ public class ApplicationResourceResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("application") String application,
             @PathParam("resource") String resource,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId,

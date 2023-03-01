@@ -41,21 +41,21 @@ public class UserConsentResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetUserConsent() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final User mockUser = new User();
+        User mockUser = new User();
         mockUser.setId("user-id-1");
 
-        final Application mockClient = new Application();
+        Application mockClient = new Application();
         mockClient.setId("client-id-1");
 
-        final Scope mockScope = new Scope();
+        Scope mockScope = new Scope();
         mockScope.setId("scope-id-1");
         mockScope.setKey("scope");
 
-        final ScopeApproval scopeApproval = new ScopeApproval();
+        ScopeApproval scopeApproval = new ScopeApproval();
         scopeApproval.setId("consent-id");
         scopeApproval.setClientId("clientId");
         scopeApproval.setScope("scope");
@@ -72,7 +72,7 @@ public class UserConsentResourceTest extends JerseySpringTest {
                 .when(scopeApprovalService)
                 .findById(scopeApproval.getId());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("users")
@@ -87,12 +87,12 @@ public class UserConsentResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetUserConsent_technicalManagementException() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
         doReturn(Maybe.error(new TechnicalManagementException("error occurs")))
                 .when(domainService)
                 .findById(domainId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("users")
@@ -106,11 +106,11 @@ public class UserConsentResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldRevokeUserConsent() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final User mockUser = new User();
+        User mockUser = new User();
         mockUser.setId("user-id-1");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
@@ -118,7 +118,7 @@ public class UserConsentResourceTest extends JerseySpringTest {
                 .when(scopeApprovalService)
                 .revokeByConsent(eq(domainId), eq(mockUser.getId()), eq("consent1"), any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("users")

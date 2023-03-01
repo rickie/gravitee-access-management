@@ -269,7 +269,7 @@ public class FlowServiceTest {
 
     @Test
     public void shouldResetPostStepsWhenUpdateRoot() {
-        final String ID = "ROOT";
+        String ID = "ROOT";
 
         Flow existingFlow = new Flow();
         existingFlow.setPre(emptyList());

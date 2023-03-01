@@ -69,8 +69,8 @@ public class EnrollMfaPolicy {
     public void onRequest(
             Request request, Response response, ExecutionContext context, PolicyChain policyChain) {
         LOGGER.debug("Start enroll MFA policy");
-        final String factorId = configuration.getFactorId();
-        final String value = configuration.getValue();
+        String factorId = configuration.getFactorId();
+        String value = configuration.getValue();
 
         if (ObjectUtils.isEmpty(factorId)) {
             LOGGER.warn("No factor ID configured for the enroll MFA policy");
@@ -79,11 +79,11 @@ public class EnrollMfaPolicy {
         }
 
         try {
-            final UserService userService = context.getComponent(UserService.class);
-            final User user = (User) context.getAttribute(ConstantKeys.USER_CONTEXT_KEY);
-            final Client client = (Client) context.getAttribute(ConstantKeys.CLIENT_CONTEXT_KEY);
-            final FactorManager factorManager = context.getComponent(FactorManager.class);
-            final Optional<Factor> optFactor = factorManager.getClientFactor(client, factorId);
+            UserService userService = context.getComponent(UserService.class);
+            User user = (User) context.getAttribute(ConstantKeys.USER_CONTEXT_KEY);
+            Client client = (Client) context.getAttribute(ConstantKeys.CLIENT_CONTEXT_KEY);
+            FactorManager factorManager = context.getComponent(FactorManager.class);
+            Optional<Factor> optFactor = factorManager.getClientFactor(client, factorId);
 
             if (optFactor.isEmpty()) {
                 LOGGER.warn("No active MFA factor with ID [{}] found", factorId);
@@ -110,8 +110,8 @@ public class EnrollMfaPolicy {
             }
 
             // value is mandatory for every factor except the HTTP and OTP factors
-            final Factor factor = optFactor.get();
-            final FactorProvider factorProvider = factorManager.get(factorId);
+            Factor factor = optFactor.get();
+            FactorProvider factorProvider = factorManager.get(factorId);
 
             if (ObjectUtils.isEmpty(value)
                     && !(FactorType.HTTP.getType().equals(factor.getFactorType().getType())
@@ -180,7 +180,7 @@ public class EnrollMfaPolicy {
                         enrolledFactor.setPrimary(configuration.isPrimary());
                         switch (factor.getFactorType()) {
                             case OTP:
-                                final String otpEnrollmentValue =
+                                String otpEnrollmentValue =
                                         enrollmentValue != null
                                                 ? enrollmentValue
                                                 : SharedSecret.generate();

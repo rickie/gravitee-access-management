@@ -79,7 +79,7 @@ public class UserFactorsResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("user") String user,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)
                 .andThen(

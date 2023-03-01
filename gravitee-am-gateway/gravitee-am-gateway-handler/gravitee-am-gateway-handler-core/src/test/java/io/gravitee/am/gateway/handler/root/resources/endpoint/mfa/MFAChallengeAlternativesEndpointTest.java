@@ -184,7 +184,7 @@ public class MFAChallengeAlternativesEndpointTest extends RxWebTestBase {
                             answer -> {
                                 try {
                                     assertNotNull(routingContext.get(CLIENT_CONTEXT_KEY));
-                                    final MultiMap queryParams =
+                                    MultiMap queryParams =
                                             RequestUtils.getCleanedQueryParams(
                                                     routingContext.request());
                                     assertEquals(

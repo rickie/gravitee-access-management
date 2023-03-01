@@ -81,7 +81,7 @@ public class UserResource extends AbstractResource {
     public void get(
             @PathParam("organizationId") String organizationId,
             @PathParam("user") String user,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -112,8 +112,8 @@ public class UserResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("user") String user,
             @ApiParam(name = "user", required = true) @Valid @NotNull UpdateUser updateUser,
-            @Suspended final AsyncResponse response) {
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -150,8 +150,8 @@ public class UserResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("user") String user,
             @ApiParam(name = "status", required = true) @Valid @NotNull StatusEntity status,
-            @Suspended final AsyncResponse response) {
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -188,8 +188,8 @@ public class UserResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("user") String userId,
             @ApiParam(name = "username", required = true) @Valid @NotNull UsernameEntity username,
-            @Suspended final AsyncResponse response) {
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -219,8 +219,8 @@ public class UserResource extends AbstractResource {
     public void delete(
             @PathParam("organizationId") String organizationId,
             @PathParam("user") String user,
-            @Suspended final AsyncResponse response) {
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -251,8 +251,8 @@ public class UserResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("user") String user,
             @ApiParam(name = "password", required = true) @Valid @NotNull PasswordValue password,
-            @Suspended final AsyncResponse response) {
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

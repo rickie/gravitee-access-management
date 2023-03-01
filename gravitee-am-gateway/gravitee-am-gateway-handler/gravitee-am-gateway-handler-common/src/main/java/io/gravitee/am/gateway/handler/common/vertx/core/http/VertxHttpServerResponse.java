@@ -41,8 +41,7 @@ public class VertxHttpServerResponse implements Response {
 
     private HttpHeaders trailers;
 
-    public VertxHttpServerResponse(
-            final HttpServerRequest httpServerRequest, final Metrics metrics) {
+    public VertxHttpServerResponse(HttpServerRequest httpServerRequest, Metrics metrics) {
         this.httpServerResponse = httpServerRequest.response();
         this.version = httpServerRequest.version();
         this.headers = new VertxHttpHeaders(this.httpServerResponse.headers());

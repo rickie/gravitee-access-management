@@ -142,7 +142,7 @@ public class AlertTriggerRepositoryTest extends AbstractManagementTest {
         testObserver1.assertNoValues();
 
         alertTriggerCreated.setEnabled(false);
-        final AlertTrigger alertTriggerUpdated =
+        AlertTrigger alertTriggerUpdated =
                 alertTriggerRepository.update(alertTriggerCreated).blockingGet();
         testObserver1 =
                 alertTriggerRepository
@@ -216,7 +216,7 @@ public class AlertTriggerRepositoryTest extends AbstractManagementTest {
                 alertTriggerRepository.create(alertTriggerToCreate1).blockingGet();
         alertTriggerRepository.create(alertTriggerToCreate2).blockingGet();
 
-        final AlertTriggerCriteria criteria = new AlertTriggerCriteria();
+        AlertTriggerCriteria criteria = new AlertTriggerCriteria();
         criteria.setAlertNotifierIds(Collections.emptyList());
         testObserver1 =
                 alertTriggerRepository

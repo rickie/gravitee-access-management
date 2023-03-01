@@ -65,18 +65,18 @@ public class HelloCommandProducerTest {
     @Test
     public void produce() {
 
-        final Installation installation = new Installation();
+        Installation installation = new Installation();
         installation.setId(INSTALLATION_ID);
         installation.getAdditionalInformation().put(CUSTOM_KEY, CUSTOM_VALUE);
 
         when(node.hostname()).thenReturn(HOSTNAME);
         when(installationService.getOrInitialize()).thenReturn(Single.just(installation));
 
-        final HelloCommand command = new HelloCommand();
-        final HelloPayload payload = new HelloPayload();
+        HelloCommand command = new HelloCommand();
+        HelloPayload payload = new HelloPayload();
         payload.setNode(new io.gravitee.cockpit.api.command.Node());
         command.setPayload(payload);
-        final TestObserver<HelloCommand> obs = cut.prepare(command).test();
+        TestObserver<HelloCommand> obs = cut.prepare(command).test();
 
         obs.awaitTerminalEvent();
         obs.assertValue(
@@ -115,7 +115,7 @@ public class HelloCommandProducerTest {
 
         when(installationService.getOrInitialize())
                 .thenReturn(Single.error(new TechnicalException()));
-        final TestObserver<HelloCommand> obs = cut.prepare(new HelloCommand()).test();
+        TestObserver<HelloCommand> obs = cut.prepare(new HelloCommand()).test();
 
         obs.awaitTerminalEvent();
         obs.assertError(TechnicalException.class);

@@ -97,7 +97,7 @@ public class OAuth2GenericAuthenticationProvider
 
     protected Completable initializeAuthProvider() {
         // fetch OpenID Provider information
-        final RetryWithDelay retryHandler = new RetryWithDelay();
+        RetryWithDelay retryHandler = new RetryWithDelay();
         return Completable.fromAction(() -> getOpenIDProviderConfiguration(configuration))
                 .doOnError(
                         (error) ->

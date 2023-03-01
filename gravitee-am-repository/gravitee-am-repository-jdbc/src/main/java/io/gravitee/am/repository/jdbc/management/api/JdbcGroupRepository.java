@@ -350,7 +350,7 @@ public class JdbcGroupRepository extends AbstractJdbcRepository
     }
 
     private Mono<Integer> persistChildEntities(Mono<Integer> actionFlow, Group item) {
-        final List<String> roles = item.getRoles();
+        List<String> roles = item.getRoles();
         if (roles != null && !roles.isEmpty()) {
             actionFlow =
                     actionFlow.then(
@@ -367,7 +367,7 @@ public class JdbcGroupRepository extends AbstractJdbcRepository
                                     .reduce(Integer::sum));
         }
 
-        final List<String> members = item.getMembers();
+        List<String> members = item.getMembers();
         if (members != null && !members.isEmpty()) {
             actionFlow =
                     actionFlow.then(
