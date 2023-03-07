@@ -206,8 +206,7 @@ public class AuthenticationDeviceNotifierManagerImpl extends AbstractService
      *     date
      */
     private boolean needDeployment(AuthenticationDeviceNotifier notifier) {
-        final AuthenticationDeviceNotifier deployedNotifier =
-                this.deviceNotifiers.get(notifier.getId());
+        AuthenticationDeviceNotifier deployedNotifier = this.deviceNotifiers.get(notifier.getId());
         return (deployedNotifier == null
                 || deployedNotifier.getUpdatedAt().before(notifier.getUpdatedAt()));
     }

@@ -95,11 +95,11 @@ public class SocialAuthenticationProvider implements UserAuthProvider {
     @Override
     public void authenticate(
             RoutingContext context, JsonObject authInfo, Handler<AsyncResult<User>> resultHandler) {
-        final Client client = context.get(CLIENT_CONTEXT_KEY);
-        final AuthenticationProvider authenticationProvider = context.get(PROVIDER_CONTEXT_KEY);
-        final String authProvider = context.get(PROVIDER_ID_PARAM_KEY);
-        final String username = authInfo.getString(USERNAME_PARAM_KEY);
-        final String password = authInfo.getString(PASSWORD_PARAM_KEY);
+        Client client = context.get(CLIENT_CONTEXT_KEY);
+        AuthenticationProvider authenticationProvider = context.get(PROVIDER_CONTEXT_KEY);
+        String authProvider = context.get(PROVIDER_ID_PARAM_KEY);
+        String username = authInfo.getString(USERNAME_PARAM_KEY);
+        String password = authInfo.getString(PASSWORD_PARAM_KEY);
 
         logger.debug("Authentication attempt using social identity provider {}", authProvider);
 
@@ -213,7 +213,7 @@ public class SocialAuthenticationProvider implements UserAuthProvider {
 
     private Single<io.gravitee.am.identityprovider.api.User> checkDomainWhitelist(
             io.gravitee.am.identityprovider.api.User endUser, String identityProviderId) {
-        final IdentityProvider identityProvider =
+        IdentityProvider identityProvider =
                 this.identityProviderManager.getIdentityProvider(identityProviderId);
         var domainWhitelist = identityProvider.getDomainWhitelist();
         // No whitelist mean we let everyone

@@ -34,7 +34,7 @@ public class FactorPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetPlugin() {
-        final FactorPlugin factorPlugin = new FactorPlugin();
+        FactorPlugin factorPlugin = new FactorPlugin();
         factorPlugin.setId("res-plugin-id");
         factorPlugin.setName("res-plugin-name");
         factorPlugin.setDescription("res-desc");
@@ -42,7 +42,7 @@ public class FactorPluginResourceTest extends JerseySpringTest {
 
         doReturn(Maybe.just(factorPlugin)).when(factorPluginService).findById("res-plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("factors")
@@ -54,7 +54,7 @@ public class FactorPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetPlugin_NotFound() {
-        final FactorPlugin factorPlugin = new FactorPlugin();
+        FactorPlugin factorPlugin = new FactorPlugin();
         factorPlugin.setId("res-plugin-id");
         factorPlugin.setName("res-plugin-name");
         factorPlugin.setDescription("res-desc");
@@ -62,7 +62,7 @@ public class FactorPluginResourceTest extends JerseySpringTest {
 
         doReturn(Maybe.empty()).when(factorPluginService).findById("res-plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("factors")
@@ -78,7 +78,7 @@ public class FactorPluginResourceTest extends JerseySpringTest {
                 .when(factorPluginService)
                 .findById("res-plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("factors")
@@ -91,7 +91,7 @@ public class FactorPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema() {
-        final FactorPlugin factorPlugin = new FactorPlugin();
+        FactorPlugin factorPlugin = new FactorPlugin();
         factorPlugin.setId("res-plugin-id");
         factorPlugin.setName("res-plugin-name");
         factorPlugin.setDescription("res-desc");
@@ -100,7 +100,7 @@ public class FactorPluginResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(factorPlugin)).when(factorPluginService).findById("res-plugin-id");
         doReturn(Maybe.just("{}")).when(factorPluginService).getSchema("res-plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("factors")
@@ -114,7 +114,7 @@ public class FactorPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema_PluginNotFound() {
-        final FactorPlugin factorPlugin = new FactorPlugin();
+        FactorPlugin factorPlugin = new FactorPlugin();
         factorPlugin.setId("res-plugin-id");
         factorPlugin.setName("res-plugin-name");
         factorPlugin.setDescription("res-desc");
@@ -122,7 +122,7 @@ public class FactorPluginResourceTest extends JerseySpringTest {
 
         doReturn(Maybe.empty()).when(factorPluginService).findById("res-plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("factors")
@@ -136,7 +136,7 @@ public class FactorPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema_SchemaNotFound() {
-        final FactorPlugin factorPlugin = new FactorPlugin();
+        FactorPlugin factorPlugin = new FactorPlugin();
         factorPlugin.setId("res-plugin-id");
         factorPlugin.setName("res-plugin-name");
         factorPlugin.setDescription("res-desc");
@@ -145,7 +145,7 @@ public class FactorPluginResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(factorPlugin)).when(factorPluginService).findById("res-plugin-id");
         doReturn(Maybe.empty()).when(factorPluginService).getSchema("res-plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("factors")
@@ -159,7 +159,7 @@ public class FactorPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema_TechnicalException() {
-        final FactorPlugin factorPlugin = new FactorPlugin();
+        FactorPlugin factorPlugin = new FactorPlugin();
         factorPlugin.setId("res-plugin-id");
         factorPlugin.setName("res-plugin-name");
         factorPlugin.setDescription("res-desc");
@@ -170,7 +170,7 @@ public class FactorPluginResourceTest extends JerseySpringTest {
                 .when(factorPluginService)
                 .getSchema("res-plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("factors")

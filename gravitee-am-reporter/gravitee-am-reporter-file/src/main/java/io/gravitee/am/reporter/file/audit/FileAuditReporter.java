@@ -195,7 +195,7 @@ public class FileAuditReporter extends AbstractService implements AuditReporter,
     protected void doStart() throws Exception {
 
         // Initialize writers
-        final io.gravitee.am.reporter.file.formatter.Type type =
+        io.gravitee.am.reporter.file.formatter.Type type =
                 io.gravitee.am.reporter.file.formatter.Type.valueOf(
                         outputType.toUpperCase(Locale.ENGLISH));
         Formatter formatter = FormatterFactory.getFormatter(type);
@@ -216,7 +216,7 @@ public class FileAuditReporter extends AbstractService implements AuditReporter,
             }
         }
 
-        final String filename =
+        String filename =
                 Paths.get(
                                 reporterDirectory,
                                 config.getFilename()

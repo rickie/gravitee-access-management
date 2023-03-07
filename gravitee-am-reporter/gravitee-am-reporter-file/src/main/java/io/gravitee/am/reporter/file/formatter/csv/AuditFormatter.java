@@ -38,7 +38,7 @@ public class AuditFormatter extends SingleValueFormatter<AuditEntry> {
 
     @Override
     public Buffer format0(AuditEntry entry) {
-        final Buffer buffer = Buffer.buffer();
+        Buffer buffer = Buffer.buffer();
 
         appendLong(buffer, entry.getTimestamp().toEpochMilli());
         appendString(buffer, entry.getId());

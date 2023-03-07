@@ -45,7 +45,7 @@ public class MembersResourceTest extends JerseySpringTest {
     @Test
     public void shouldNotAddMember_organizationNotFound() {
 
-        final String organizationId = "orga-1";
+        String organizationId = "orga-1";
 
         doReturn(Single.error(new OrganizationNotFoundException(organizationId)))
                 .when(organizationService)
@@ -56,7 +56,7 @@ public class MembersResourceTest extends JerseySpringTest {
         newMembership.setMemberType(MemberType.USER);
         newMembership.setRole("role#1");
 
-        final Response response =
+        Response response =
                 target("/organizations")
                         .path(organizationId)
                         .path("members")
@@ -89,7 +89,7 @@ public class MembersResourceTest extends JerseySpringTest {
         newMembership.setMemberType(MemberType.USER);
         newMembership.setRole("role#1");
 
-        final Response response =
+        Response response =
                 target("organizations")
                         .path(organization.getId())
                         .path("members")
@@ -119,7 +119,7 @@ public class MembersResourceTest extends JerseySpringTest {
 
         NewMembership newMembership = new NewMembership(); // invalid input.
 
-        final Response response =
+        Response response =
                 target("organizations")
                         .path(organization.getId())
                         .path("members")
@@ -145,7 +145,7 @@ public class MembersResourceTest extends JerseySpringTest {
                 .findByReference(organization.getId(), ReferenceType.ORGANIZATION);
         doReturn(Single.just(new HashMap<>())).when(membershipService).getMetadata(anyList());
 
-        final Response response =
+        Response response =
                 target("organizations").path(organization.getId()).path("members").request().get();
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -163,7 +163,7 @@ public class MembersResourceTest extends JerseySpringTest {
                 .when(organizationService)
                 .findById(organization.getId());
 
-        final Response response =
+        Response response =
                 target("organizations").path(organization.getId()).path("members").request().get();
 
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());

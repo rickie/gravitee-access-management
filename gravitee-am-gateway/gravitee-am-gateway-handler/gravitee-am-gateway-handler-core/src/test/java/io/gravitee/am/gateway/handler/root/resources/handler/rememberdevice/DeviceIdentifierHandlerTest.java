@@ -86,7 +86,7 @@ public class DeviceIdentifierHandlerTest {
     public void mustDoNext_nullUser() {
         spyRoutingContext.put(CLIENT_CONTEXT_KEY, client);
 
-        final User user = new User();
+        User user = new User();
         user.setId(userId);
         spyRoutingContext.put(USER_CONTEXT_KEY, user);
 
@@ -103,7 +103,7 @@ public class DeviceIdentifierHandlerTest {
         spyRoutingContext.setMethod(HttpMethod.GET);
         spyRoutingContext.put(CLIENT_CONTEXT_KEY, client);
 
-        final User user = new User();
+        User user = new User();
         user.setId(userId);
         spyRoutingContext.put(USER_CONTEXT_KEY, user);
 
@@ -120,7 +120,7 @@ public class DeviceIdentifierHandlerTest {
         client.setMfaSettings(new MFASettings());
         spyRoutingContext.put(CLIENT_CONTEXT_KEY, client);
 
-        final User user = new User();
+        User user = new User();
         user.setId(userId);
         spyRoutingContext.put(USER_CONTEXT_KEY, user);
 
@@ -134,12 +134,12 @@ public class DeviceIdentifierHandlerTest {
 
     @Test
     public void mustDoNext_RememberDeviceSettingsIsNotActive() {
-        final MFASettings mfaSettings = new MFASettings();
+        MFASettings mfaSettings = new MFASettings();
         mfaSettings.setRememberDevice(new RememberDeviceSettings());
         client.setMfaSettings(mfaSettings);
         spyRoutingContext.put(CLIENT_CONTEXT_KEY, client);
 
-        final User user = new User();
+        User user = new User();
         user.setId(userId);
         spyRoutingContext.put(USER_CONTEXT_KEY, user);
         handler.handle(spyRoutingContext);
@@ -152,15 +152,15 @@ public class DeviceIdentifierHandlerTest {
 
     @Test
     public void mustDoNext_deviceIdIsEmpty() {
-        final MFASettings mfaSettings = new MFASettings();
-        final RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
+        MFASettings mfaSettings = new MFASettings();
+        RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
         rememberDevice.setActive(true);
         rememberDevice.setDeviceIdentifierId(deviceIdentifierId);
         mfaSettings.setRememberDevice(rememberDevice);
         client.setMfaSettings(mfaSettings);
         spyRoutingContext.put(CLIENT_CONTEXT_KEY, client);
 
-        final User user = new User();
+        User user = new User();
         user.setId(userId);
         spyRoutingContext.put(USER_CONTEXT_KEY, user);
 
@@ -174,15 +174,15 @@ public class DeviceIdentifierHandlerTest {
 
     @Test
     public void mustDoNext_DeviceAlreadyExists() {
-        final MFASettings mfaSettings = new MFASettings();
-        final RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
+        MFASettings mfaSettings = new MFASettings();
+        RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
         rememberDevice.setActive(true);
         rememberDevice.setDeviceIdentifierId(UUID.randomUUID().toString());
         mfaSettings.setRememberDevice(rememberDevice);
         client.setMfaSettings(mfaSettings);
         spyRoutingContext.put(CLIENT_CONTEXT_KEY, client);
 
-        final User user = new User();
+        User user = new User();
         user.setId(userId);
         spyRoutingContext.put(USER_CONTEXT_KEY, user);
         spyRoutingContext.putParam(DEVICE_ID, "deviceId");
@@ -198,15 +198,15 @@ public class DeviceIdentifierHandlerTest {
 
     @Test
     public void mustDoNext_DeviceNotExists() {
-        final MFASettings mfaSettings = new MFASettings();
-        final RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
+        MFASettings mfaSettings = new MFASettings();
+        RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
         rememberDevice.setActive(true);
         rememberDevice.setDeviceIdentifierId(UUID.randomUUID().toString());
         mfaSettings.setRememberDevice(rememberDevice);
         client.setMfaSettings(mfaSettings);
         spyRoutingContext.put(CLIENT_CONTEXT_KEY, client);
 
-        final User user = new User();
+        User user = new User();
         user.setId(userId);
         spyRoutingContext.put(USER_CONTEXT_KEY, user);
         spyRoutingContext.putParam(DEVICE_ID, "deviceId2");

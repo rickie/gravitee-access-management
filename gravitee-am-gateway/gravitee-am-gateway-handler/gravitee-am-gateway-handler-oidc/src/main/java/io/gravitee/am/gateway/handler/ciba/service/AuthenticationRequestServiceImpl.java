@@ -79,8 +79,8 @@ public class AuthenticationRequestServiceImpl implements AuthenticationRequestSe
     @Override
     public Single<CibaAuthRequest> register(CibaAuthenticationRequest request, Client client) {
         Instant now = Instant.now();
-        final Integer requestedExpiry = request.getRequestedExpiry();
-        final long ttl =
+        Integer requestedExpiry = request.getRequestedExpiry();
+        long ttl =
                 requestedExpiry != null
                         ? requestedExpiry
                         : domain.getOidc().getCibaSettings().getAuthReqExpiry();
@@ -125,7 +125,7 @@ public class AuthenticationRequestServiceImpl implements AuthenticationRequestSe
                                     // SlowDown error
                                     // otherwise, update the last Access date before sending the
                                     // pending exception
-                                    final int interval =
+                                    int interval =
                                             domain.getOidc()
                                                     .getCibaSettings()
                                                     .getTokenReqInterval();
@@ -178,7 +178,7 @@ public class AuthenticationRequestServiceImpl implements AuthenticationRequestSe
 
     @Override
     public Single<ADNotificationResponse> notify(ADNotificationRequest adRequest) {
-        final AuthenticationDeviceNotifierProvider notifier =
+        AuthenticationDeviceNotifierProvider notifier =
                 this.notifierManager.getAuthDeviceNotifierProvider(adRequest.getDeviceNotifierId());
 
         if (notifier == null) {
@@ -198,7 +198,7 @@ public class AuthenticationRequestServiceImpl implements AuthenticationRequestSe
                 .map(opt -> opt.get())
                 .flatMap(
                         userResponse -> {
-                            final String status =
+                            String status =
                                     userResponse.isValidated()
                                             ? AuthenticationRequestStatus.SUCCESS.name()
                                             : AuthenticationRequestStatus.REJECTED.name();

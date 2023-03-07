@@ -105,7 +105,7 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
     public void findByDomain() throws TechnicalException {
         AccessPolicy accessPolicy = new AccessPolicy();
         accessPolicy.setName("accessPolicyName");
-        final String DOMAIN_SINGLE = DOMAIN_ID + "single";
+        String DOMAIN_SINGLE = DOMAIN_ID + "single";
         accessPolicy.setDomain(DOMAIN_SINGLE);
         repository.create(accessPolicy).blockingGet();
 
@@ -125,8 +125,8 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void findByDomain_Paging() throws Exception {
-        final int totalCount = 10;
-        final String DOMAIN10 = DOMAIN_ID + "-10";
+        int totalCount = 10;
+        String DOMAIN10 = DOMAIN_ID + "-10";
         for (int i = 0; i < totalCount; i++) {
             AccessPolicy accessPolicy = new AccessPolicy();
             accessPolicy.setName("accessPolicyName" + i);

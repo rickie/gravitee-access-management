@@ -49,9 +49,9 @@ public class RegisterSubmissionEndpoint implements Handler<RoutingContext> {
     @Override
     public void handle(RoutingContext context) {
         // prepare response
-        final RegistrationResponse registrationResponse =
+        RegistrationResponse registrationResponse =
                 context.get(ConstantKeys.REGISTRATION_RESPONSE_KEY);
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(context.request());
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(context.request());
 
         // no redirect uri has been set, redirect to the default page
         if (registrationResponse.getRedirectUri() == null

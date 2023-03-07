@@ -43,7 +43,7 @@ public class AbstractTokenGranter implements TokenGranter {
 
     private boolean supportRefreshToken = true;
 
-    public AbstractTokenGranter(final String grantType) {
+    public AbstractTokenGranter(String grantType) {
         Objects.requireNonNull(grantType);
         this.grantType = grantType;
     }

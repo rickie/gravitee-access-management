@@ -476,8 +476,7 @@ public class ScopeServiceImpl implements ScopeService {
                                                         .flatMapSingle(
                                                                 application -> {
                                                                     // Remove scope from application
-                                                                    final List<
-                                                                                    ApplicationScopeSettings>
+                                                                    List<ApplicationScopeSettings>
                                                                             cleanScopes =
                                                                                     application
                                                                                             .getSettings()

@@ -226,7 +226,7 @@ public class TokenServiceImpl implements TokenService {
     private Completable storeTokens(
             JWT accessToken, JWT refreshToken, OAuth2Request oAuth2Request) {
         // store access token
-        final Completable persistAccessToken =
+        Completable persistAccessToken =
                 tokenManager.storeAccessToken(convert(accessToken, refreshToken, oAuth2Request));
         // store refresh token (if exists)
         if (refreshToken != null) {
@@ -355,7 +355,7 @@ public class TokenServiceImpl implements TokenService {
                         .plusSeconds(client.getAccessTokenValiditySeconds())
                         .getEpochSecond());
 
-        final String cnfValue = request.getConfirmationMethodX5S256();
+        String cnfValue = request.getConfirmationMethodX5S256();
         if (cnfValue != null) {
             jwt.setConfirmationMethod(
                     Maps.<String, Object>builder()

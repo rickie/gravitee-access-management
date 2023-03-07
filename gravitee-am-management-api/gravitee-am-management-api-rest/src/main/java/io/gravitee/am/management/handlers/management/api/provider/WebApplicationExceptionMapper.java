@@ -26,7 +26,7 @@ public class WebApplicationExceptionMapper
         extends AbstractExceptionMapper<WebApplicationException> {
 
     @Override
-    public Response toResponse(final WebApplicationException e) {
+    public Response toResponse(WebApplicationException e) {
         return e.getResponse();
     }
 }

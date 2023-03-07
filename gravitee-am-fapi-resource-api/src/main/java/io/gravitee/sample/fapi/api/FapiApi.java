@@ -133,29 +133,28 @@ public class FapiApi {
         certHeader.setRequired(false);
         options.addOption(certHeader);
 
-        final Option truststore_path = new Option(CONF_TRUST_STORE_PATH, true, "truststore path");
+        Option truststore_path = new Option(CONF_TRUST_STORE_PATH, true, "truststore path");
         truststore_path.setRequired(false);
         options.addOption(truststore_path);
 
-        final Option truststore_type = new Option(CONF_TRUST_STORE_TYPE, true, "truststore type");
+        Option truststore_type = new Option(CONF_TRUST_STORE_TYPE, true, "truststore type");
         truststore_type.setRequired(false);
         options.addOption(truststore_type);
 
-        final Option truststore_password =
+        Option truststore_password =
                 new Option(CONF_TRUST_STORE_PASSWORD, true, "truststore password");
         truststore_password.setRequired(false);
         options.addOption(truststore_password);
 
-        final Option keystore_path = new Option(CONF_KEY_STORE_PATH, true, "keystore path");
+        Option keystore_path = new Option(CONF_KEY_STORE_PATH, true, "keystore path");
         keystore_path.setRequired(false);
         options.addOption(keystore_path);
 
-        final Option keystore_type = new Option(CONF_KEY_STORE_TYPE, true, "keystore type");
+        Option keystore_type = new Option(CONF_KEY_STORE_TYPE, true, "keystore type");
         keystore_type.setRequired(false);
         options.addOption(keystore_type);
 
-        final Option keystore_password =
-                new Option(CONF_KEY_STORE_PASSWORD, true, "keystore password");
+        Option keystore_password = new Option(CONF_KEY_STORE_PASSWORD, true, "keystore password");
         keystore_password.setRequired(false);
         options.addOption(keystore_password);
 
