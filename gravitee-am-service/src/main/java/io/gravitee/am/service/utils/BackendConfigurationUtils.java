@@ -26,7 +26,7 @@ public class BackendConfigurationUtils {
     public static String getMongoDatabaseName(Environment environment) {
         String uri = environment.getProperty("management.mongodb.uri");
         if (uri != null && !uri.isEmpty()) {
-            final String path = URI.create(uri).getPath();
+            String path = URI.create(uri).getPath();
             if (path != null && path.length() > 1) {
                 return path.substring(1);
             }

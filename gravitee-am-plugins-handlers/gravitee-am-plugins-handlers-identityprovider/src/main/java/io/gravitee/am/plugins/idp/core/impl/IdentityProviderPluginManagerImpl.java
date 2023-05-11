@@ -106,7 +106,7 @@ public class IdentityProviderPluginManagerImpl extends IdentityProviderPluginMan
                     identityProviderRoleMapperFactory.create(
                             roleMapperClass, providerConfiguration.getRoleMapper());
 
-            final List<BeanFactoryPostProcessor> beanFactoryPostProcessors =
+            List<BeanFactoryPostProcessor> beanFactoryPostProcessors =
                     Stream.of(
                                     new IdentityProviderConfigurationBeanFactoryPostProcessor(
                                             identityProviderConfiguration),

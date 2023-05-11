@@ -212,8 +212,7 @@ public class EnrollMfaPolicyTest {
                         anyString(),
                         argThat(
                                 enrolledFactor -> {
-                                    final EnrolledFactorSecurity security =
-                                            enrolledFactor.getSecurity();
+                                    EnrolledFactorSecurity security = enrolledFactor.getSecurity();
                                     return security != null
                                             && security.getAdditionalData() != null
                                             && security.getAdditionalData()
@@ -260,7 +259,7 @@ public class EnrollMfaPolicyTest {
             ExecutionContext executionContext,
             PolicyChain policyChain)
             throws InterruptedException {
-        final CountDownLatch lock = new CountDownLatch(1);
+        CountDownLatch lock = new CountDownLatch(1);
 
         new EnrollMfaPolicy(configuration)
                 .onRequest(request, response, executionContext, policyChain);

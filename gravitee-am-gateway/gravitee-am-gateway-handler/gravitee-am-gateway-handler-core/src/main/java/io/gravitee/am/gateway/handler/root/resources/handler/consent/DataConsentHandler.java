@@ -56,7 +56,7 @@ public class DataConsentHandler implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext context) {
-        final HttpServerRequest request = context.request();
+        HttpServerRequest request = context.request();
         if (context.session() != null) {
             context.session().put(USER_CONSENT_IP_LOCATION, IMPLICIT_IP_CONSENT);
             context.session().put(USER_CONSENT_USER_AGENT, IMPLICIT_USER_AGENT_CONSENT);

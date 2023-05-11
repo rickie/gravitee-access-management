@@ -119,7 +119,7 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository
         TransactionalOperator trx = TransactionalOperator.create(tm);
         Mono<Void> insert = template.insert(toJdbcAlertTrigger(alertTrigger)).then();
 
-        final Mono<Void> storeAlertNotifiers = storeAlertNotifiers(alertTrigger, false);
+        Mono<Void> storeAlertNotifiers = storeAlertNotifiers(alertTrigger, false);
 
         return monoToSingle(
                 insert.then(storeAlertNotifiers)
@@ -134,7 +134,7 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository
 
         Mono<Void> update = template.update(toJdbcAlertTrigger(alertTrigger)).then();
 
-        final Mono<Void> storeAlertNotifiers = storeAlertNotifiers(alertTrigger, true);
+        Mono<Void> storeAlertNotifiers = storeAlertNotifiers(alertTrigger, true);
 
         return monoToSingle(
                 update.then(storeAlertNotifiers)
@@ -159,7 +159,7 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository
 
         Map<String, Object> params = new HashMap<>();
 
-        final StringBuilder queryBuilder =
+        StringBuilder queryBuilder =
                 new StringBuilder("SELECT DISTINCT t.id FROM alert_triggers t ");
 
         List<String> queryCriteria = new ArrayList<>();
@@ -229,7 +229,7 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository
             delete = deleteAlertNotifiers(alertTrigger.getId());
         }
 
-        final List<String> alertNotifiers = alertTrigger.getAlertNotifiers();
+        List<String> alertNotifiers = alertTrigger.getAlertNotifiers();
         if (alertNotifiers != null && !alertNotifiers.isEmpty()) {
             return delete.thenMany(
                             Flux.fromIterable(alertNotifiers)
@@ -244,7 +244,7 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository
                                             })
                                     .concatMap(
                                             dbAlertNotifier -> {
-                                                final DatabaseClient.GenericExecuteSpec sql =
+                                                DatabaseClient.GenericExecuteSpec sql =
                                                         template.getDatabaseClient()
                                                                 .sql(INSERT_ALERT_NOTIFIER_STMT)
                                                                 .bind(

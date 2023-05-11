@@ -59,9 +59,8 @@ public class CibaNotifierWebSockerHandler implements Handler<ServerWebSocket> {
         this.eventBus.consumer(
                 TOPIC_NOTIFICATION_REQUEST,
                 (msg) -> {
-                    final String json = msg.body().toString();
-                    final NotifierRequest notifierRequest =
-                            Json.decodeValue(json, NotifierRequest.class);
+                    String json = msg.body().toString();
+                    NotifierRequest notifierRequest = Json.decodeValue(json, NotifierRequest.class);
                     if (this.serverWebSocket.containsKey(notifierRequest.getSubject())) {
                         this.serverWebSocket
                                 .get(notifierRequest.getSubject())
@@ -83,13 +82,13 @@ public class CibaNotifierWebSockerHandler implements Handler<ServerWebSocket> {
         ws.textMessageHandler(
                 msg -> {
                     LOGGER.debug("Received user message: " + msg);
-                    final JsonObject jsonMsg = (JsonObject) Json.decodeValue(msg);
+                    JsonObject jsonMsg = (JsonObject) Json.decodeValue(msg);
 
-                    final String action = jsonMsg.getString(ACTION);
+                    String action = jsonMsg.getString(ACTION);
 
                     if (Objects.equals(action, ACTION_SIGN_IN)) {
 
-                        final String subject = jsonMsg.getString(PARAM_SUBJECT);
+                        String subject = jsonMsg.getString(PARAM_SUBJECT);
                         this.serverWebSocket.put(subject, ws);
 
                         // clean the map on final event
@@ -107,17 +106,17 @@ public class CibaNotifierWebSockerHandler implements Handler<ServerWebSocket> {
     }
 
     private void doCallback(JsonObject jsonMsg) {
-        final String action = jsonMsg.getString(ACTION);
-        final String transactionId = jsonMsg.getString(TRANSACTION_ID);
-        final String state = jsonMsg.getString(STATE);
+        String action = jsonMsg.getString(ACTION);
+        String transactionId = jsonMsg.getString(TRANSACTION_ID);
+        String state = jsonMsg.getString(STATE);
 
         try {
-            final JOSEObject parsedJWT = JOSEObject.parse(state);
-            final String domainId = parsedJWT.getPayload().toJSONObject().getAsString("iss");
+            JOSEObject parsedJWT = JOSEObject.parse(state);
+            String domainId = parsedJWT.getPayload().toJSONObject().getAsString("iss");
 
-            final Optional<DomainReference> optCallback = this.domainManager.getDomainRef(domainId);
+            Optional<DomainReference> optCallback = this.domainManager.getDomainRef(domainId);
             if (optCallback.isPresent()) {
-                final MultiMap formData = MultiMap.caseInsensitiveMultiMap();
+                MultiMap formData = MultiMap.caseInsensitiveMultiMap();
 
                 formData.set(TRANSACTION_ID, transactionId);
                 formData.set(STATE, state);

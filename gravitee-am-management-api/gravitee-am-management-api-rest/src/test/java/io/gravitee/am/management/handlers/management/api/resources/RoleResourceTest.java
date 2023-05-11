@@ -35,12 +35,12 @@ public class RoleResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetRole() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String roleId = "role-id";
-        final Role mockRole = new Role();
+        String roleId = "role-id";
+        Role mockRole = new Role();
         mockRole.setId(roleId);
         mockRole.setName("role-name");
         mockRole.setReferenceId(domainId);
@@ -48,51 +48,51 @@ public class RoleResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.just(mockRole)).when(roleService).findById(roleId);
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("roles").path(roleId).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Role role = readEntity(response, Role.class);
+        Role role = readEntity(response, Role.class);
         assertEquals(domainId, role.getReferenceId());
         assertEquals(roleId, role.getId());
     }
 
     @Test
     public void shouldGetRole_notFound() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String roleId = "role-id";
+        String roleId = "role-id";
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.empty()).when(roleService).findById(roleId);
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("roles").path(roleId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }
 
     @Test
     public void shouldGetRole_domainNotFound() {
-        final String domainId = "domain-id";
-        final String roleId = "role-id";
+        String domainId = "domain-id";
+        String roleId = "role-id";
 
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("roles").path(roleId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }
 
     @Test
     public void shouldGetRole_wrongDomain() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String roleId = "role-id";
-        final Role mockRole = new Role();
+        String roleId = "role-id";
+        Role mockRole = new Role();
         mockRole.setId(roleId);
         mockRole.setName("role-name");
         mockRole.setReferenceType(ReferenceType.DOMAIN);
@@ -101,7 +101,7 @@ public class RoleResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.just(mockRole)).when(roleService).findById(roleId);
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("roles").path(roleId).request().get();
         assertEquals(HttpStatusCode.BAD_REQUEST_400, response.getStatus());
     }

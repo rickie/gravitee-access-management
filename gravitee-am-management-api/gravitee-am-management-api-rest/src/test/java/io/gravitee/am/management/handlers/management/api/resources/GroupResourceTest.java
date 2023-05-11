@@ -35,12 +35,12 @@ public class GroupResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetGroup() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String groupId = "group-id";
-        final Group mockGroup = new Group();
+        String groupId = "group-id";
+        Group mockGroup = new Group();
         mockGroup.setId(groupId);
         mockGroup.setName("group-name");
         mockGroup.setReferenceId(domainId);
@@ -48,39 +48,39 @@ public class GroupResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.just(mockGroup)).when(groupService).findById(groupId);
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("groups").path(groupId).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Group group = readEntity(response, Group.class);
+        Group group = readEntity(response, Group.class);
         assertEquals(domainId, group.getReferenceId());
         assertEquals("group-name", group.getName());
     }
 
     @Test
     public void shouldGetGroup_notFound() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String groupId = "group-id";
+        String groupId = "group-id";
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.empty()).when(groupService).findById(groupId);
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("groups").path(groupId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }
 
     @Test
     public void shouldGetGroup_technicalManagementException() {
-        final String domainId = "domain-id";
+        String domainId = "domain-id";
         doReturn(Maybe.error(new TechnicalManagementException("error occurs")))
                 .when(domainService)
                 .findById(domainId);
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("groups").path("group-1").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }

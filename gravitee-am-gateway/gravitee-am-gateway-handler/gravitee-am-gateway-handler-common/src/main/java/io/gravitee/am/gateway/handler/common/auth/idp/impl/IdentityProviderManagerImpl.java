@@ -152,7 +152,7 @@ public class IdentityProviderManagerImpl extends AbstractService
 
     private void updateIdentityProvider(
             String identityProviderId, IdentityProviderEvent identityProviderEvent) {
-        final String eventType = identityProviderEvent.toString().toLowerCase();
+        String eventType = identityProviderEvent.toString().toLowerCase();
         logger.info(
                 "Domain {} has received {} identity provider event for {}",
                 domain.getName(),
@@ -293,7 +293,7 @@ public class IdentityProviderManagerImpl extends AbstractService
      * @return true if the IDP has never been deployed or if the deployed version is not up to date
      */
     private boolean needDeployment(IdentityProvider provider) {
-        final IdentityProvider deployedProvider = this.identities.get(provider.getId());
+        IdentityProvider deployedProvider = this.identities.get(provider.getId());
         return (deployedProvider == null
                 || deployedProvider.getUpdatedAt().before(provider.getUpdatedAt()));
     }

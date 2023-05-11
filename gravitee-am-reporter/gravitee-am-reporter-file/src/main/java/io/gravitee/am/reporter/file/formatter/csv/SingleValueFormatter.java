@@ -137,17 +137,17 @@ abstract class SingleValueFormatter<T extends ReportEntry> extends AbstractForma
         buffer.appendBytes(END_OF_LINE);
     }
 
-    private static boolean containsNone(final CharSequence cs, final char... searchChars) {
+    private static boolean containsNone(CharSequence cs, char... searchChars) {
         if (cs == null || searchChars == null) {
             return true;
         }
 
-        final int csLen = cs.length();
-        final int csLast = csLen - 1;
-        final int searchLen = searchChars.length;
-        final int searchLast = searchLen - 1;
+        int csLen = cs.length();
+        int csLast = csLen - 1;
+        int searchLen = searchChars.length;
+        int searchLast = searchLen - 1;
         for (int i = 0; i < csLen; i++) {
-            final char ch = cs.charAt(i);
+            char ch = cs.charAt(i);
             for (int j = 0; j < searchLen; j++) {
                 if (searchChars[j] == ch) {
                     if (Character.isHighSurrogate(ch)) {

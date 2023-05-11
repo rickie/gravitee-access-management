@@ -132,8 +132,8 @@ public class JdbcAuditReporterTest {
         test.assertNoErrors();
 
         test.assertValue(map -> map.size() == 2);
-        final String failureKey = "FIXED_TYPE_FAILURE".toLowerCase();
-        final String successKey = "FIXED_TYPE_SUCCESS".toLowerCase();
+        String failureKey = "FIXED_TYPE_FAILURE".toLowerCase();
+        String successKey = "FIXED_TYPE_SUCCESS".toLowerCase();
         test.assertValue(
                 map ->
                         map.get(failureKey) != null

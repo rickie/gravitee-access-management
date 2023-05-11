@@ -59,7 +59,7 @@ public class AuditResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("audit") String audit,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_AUDIT, Acl.READ)
                 .andThen(auditService.findById(domain, audit))

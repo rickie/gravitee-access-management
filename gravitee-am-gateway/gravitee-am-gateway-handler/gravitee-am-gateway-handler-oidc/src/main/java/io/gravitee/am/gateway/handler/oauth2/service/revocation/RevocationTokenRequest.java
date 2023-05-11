@@ -25,7 +25,7 @@ public class RevocationTokenRequest {
 
     private TokenTypeHint hint;
 
-    public RevocationTokenRequest(final String token) {
+    public RevocationTokenRequest(String token) {
         this.token = token;
     }
 

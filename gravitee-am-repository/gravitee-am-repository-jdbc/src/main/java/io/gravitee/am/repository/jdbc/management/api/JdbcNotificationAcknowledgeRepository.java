@@ -90,7 +90,7 @@ public class JdbcNotificationAcknowledgeRepository extends AbstractJdbcRepositor
     @Override
     public Single<NotificationAcknowledge> create(NotificationAcknowledge notificationAcknowledge) {
         LOGGER.debug("create({})", notificationAcknowledge);
-        final JdbcNotificationAcknowledge entity = toJdbcEntity(notificationAcknowledge);
+        JdbcNotificationAcknowledge entity = toJdbcEntity(notificationAcknowledge);
         entity.setId(entity.getId() == null ? RandomString.generate() : entity.getId());
         return monoToSingle(this.template.insert(entity)).map(this::toEntity);
     }
@@ -98,7 +98,7 @@ public class JdbcNotificationAcknowledgeRepository extends AbstractJdbcRepositor
     @Override
     public Single<NotificationAcknowledge> update(NotificationAcknowledge notificationAcknowledge) {
         LOGGER.debug("update({})", notificationAcknowledge);
-        final JdbcNotificationAcknowledge entity = toJdbcEntity(notificationAcknowledge);
+        JdbcNotificationAcknowledge entity = toJdbcEntity(notificationAcknowledge);
         return monoToSingle(this.template.update(entity)).map(this::toEntity);
     }
 

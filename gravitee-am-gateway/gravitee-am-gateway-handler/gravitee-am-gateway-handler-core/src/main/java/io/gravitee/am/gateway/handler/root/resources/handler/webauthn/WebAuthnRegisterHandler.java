@@ -87,8 +87,8 @@ public class WebAuthnRegisterHandler extends WebAuthnHandler {
     }
 
     private void registerV0(RoutingContext ctx) {
-        final JsonObject webauthnRegister = ctx.getBodyAsJson();
-        final Session session = ctx.session();
+        JsonObject webauthnRegister = ctx.getBodyAsJson();
+        Session session = ctx.session();
 
         // session validation
         if (session == null) {
@@ -126,7 +126,7 @@ public class WebAuthnRegisterHandler extends WebAuthnHandler {
                         return;
                     }
 
-                    final JsonObject credentialsOptions = createCredentialsOptions.result();
+                    JsonObject credentialsOptions = createCredentialsOptions.result();
                     // force user id with our own user id
                     credentialsOptions.getJsonObject("user").put("id", user.getId());
 
@@ -151,14 +151,14 @@ public class WebAuthnRegisterHandler extends WebAuthnHandler {
     }
 
     private void registerV1(RoutingContext ctx) {
-        final String assertion = ctx.request().getParam("assertion");
+        String assertion = ctx.request().getParam("assertion");
         if (StringUtils.isEmpty(assertion)) {
             logger.debug("Request missing assertion field");
             ctx.fail(400);
             return;
         }
 
-        final JsonObject webauthnResp = (JsonObject) Json.decodeValue(assertion);
+        JsonObject webauthnResp = (JsonObject) Json.decodeValue(assertion);
         // input validation
         if (isEmptyString(webauthnResp, "id")
                 || isEmptyString(webauthnResp, "rawId")
@@ -172,7 +172,7 @@ public class WebAuthnRegisterHandler extends WebAuthnHandler {
         }
 
         // session validation
-        final Session session = ctx.session();
+        Session session = ctx.session();
         if (ctx.session() == null) {
             logger.error("No session or session handler is missing.");
             ctx.fail(500);
@@ -185,13 +185,13 @@ public class WebAuthnRegisterHandler extends WebAuthnHandler {
             return;
         }
 
-        final User authenticatedUser =
+        User authenticatedUser =
                 ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
                                 ctx.user().getDelegate())
                         .getUser();
-        final Client client = ctx.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final String username = session.get(ConstantKeys.PASSWORDLESS_CHALLENGE_USERNAME_KEY);
-        final String credentialId = webauthnResp.getString("id");
+        Client client = ctx.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        String username = session.get(ConstantKeys.PASSWORDLESS_CHALLENGE_USERNAME_KEY);
+        String credentialId = webauthnResp.getString("id");
 
         // authenticate the user
         webAuthn.authenticate(
@@ -209,7 +209,7 @@ public class WebAuthnRegisterHandler extends WebAuthnHandler {
 
                     if (authenticate.succeeded()) {
                         // create the authentication context
-                        final AuthenticationContext authenticationContext =
+                        AuthenticationContext authenticationContext =
                                 createAuthenticationContext(ctx);
                         // update the credential
                         updateCredential(

@@ -76,7 +76,7 @@ public class I18nDictionariesResource extends AbstractDomainResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
         checkAnyPermission(organizationId, environmentId, domain, DOMAIN_I18N_DICTIONARY, LIST)
                 .andThen(
                         domainService
@@ -109,8 +109,8 @@ public class I18nDictionariesResource extends AbstractDomainResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @Valid @NotNull NewDictionary dictionary,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
         checkAnyPermission(organizationId, environmentId, domain, DOMAIN_I18N_DICTIONARY, CREATE)
                 .andThen(
                         domainService
