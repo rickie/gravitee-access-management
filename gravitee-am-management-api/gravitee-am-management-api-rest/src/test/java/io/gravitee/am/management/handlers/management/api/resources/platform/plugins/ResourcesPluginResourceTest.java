@@ -36,7 +36,7 @@ public class ResourcesPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldList() {
-        final ResourcePlugin resourcePlugin = new ResourcePlugin();
+        ResourcePlugin resourcePlugin = new ResourcePlugin();
         resourcePlugin.setId("res-plugin-id");
         resourcePlugin.setName("res-plugin-name");
         resourcePlugin.setDescription("res-desc");
@@ -46,8 +46,7 @@ public class ResourcesPluginResourceTest extends JerseySpringTest {
                 .when(resourcePluginService)
                 .findAll(new ArrayList<>());
 
-        final Response response =
-                target("platform").path("plugins").path("resources").request().get();
+        Response response = target("platform").path("plugins").path("resources").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
     }
 }

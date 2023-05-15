@@ -76,7 +76,7 @@ public class PreviewService implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        final FileSystemDictionaryProvider fileSystemDictionaryProvider =
+        FileSystemDictionaryProvider fileSystemDictionaryProvider =
                 new FileSystemDictionaryProvider(
                         templatesDirectory.endsWith("/")
                                 ? templatesDirectory + "i18n/"
@@ -163,7 +163,7 @@ public class PreviewService implements InitializingBean {
                 .switchIfEmpty(
                         Maybe.fromCallable(
                                 () -> {
-                                    final Theme defaultTheme = new Theme();
+                                    Theme defaultTheme = new Theme();
                                     defaultTheme.setPrimaryTextColorHex("#000000");
                                     defaultTheme.setPrimaryButtonColorHex("#6A4FF7");
                                     defaultTheme.setSecondaryTextColorHex("#000000");

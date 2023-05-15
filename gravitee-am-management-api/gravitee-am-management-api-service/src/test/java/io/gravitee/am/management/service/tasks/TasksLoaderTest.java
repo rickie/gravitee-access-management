@@ -57,7 +57,7 @@ public class TasksLoaderTest {
     @Test
     public void shouldSchedule_SimpleTask() throws Exception {
         var tasks = new ArrayList<>();
-        final int numberOfSimpleTasks = new Random().nextInt(10);
+        int numberOfSimpleTasks = new Random().nextInt(10);
         for (int i = 0; i < numberOfSimpleTasks; ++i) {
             var task = new SystemTask();
             task.setId("simple-task-" + i);
@@ -67,7 +67,7 @@ public class TasksLoaderTest {
             tasks.add(task);
         }
 
-        final int numberOfOtherTasks = new Random().nextInt(10);
+        int numberOfOtherTasks = new Random().nextInt(10);
         for (int i = 0; i < numberOfOtherTasks; ++i) {
             var task = new SystemTask();
             task.setId("other-task-" + i);

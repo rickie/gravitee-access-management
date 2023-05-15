@@ -45,7 +45,7 @@ public class SetterUtils {
      * @param value Optional value
      * @param <T> value class
      */
-    public static <T> void safeSet(final Consumer<T> setter, final Optional<T> value) {
+    public static <T> void safeSet(Consumer<T> setter, Optional<T> value) {
         if (value != null) {
             setter.accept(value.orElse(null));
         }
@@ -59,8 +59,7 @@ public class SetterUtils {
      * @param value Optional value
      * @param <T> value class
      */
-    public static <T> void safeSet(
-            final Consumer<T> setter, final Optional<T> value, final Class primitive) {
+    public static <T> void safeSet(Consumer<T> setter, Optional<T> value, Class primitive) {
         if (value != null) {
             if (value.isPresent()) {
                 setter.accept(value.get());
@@ -96,7 +95,7 @@ public class SetterUtils {
         return null;
     }
 
-    public static <T> void set(final Consumer<T> setter, final Optional<T> value) {
+    public static <T> void set(Consumer<T> setter, Optional<T> value) {
         if (value == null) {
             setter.accept(null);
         } else {

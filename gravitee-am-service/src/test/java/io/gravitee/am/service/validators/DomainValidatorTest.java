@@ -41,7 +41,7 @@ public class DomainValidatorTest {
 
     @Before
     public void before() {
-        final PathValidatorImpl pathValidator = new PathValidatorImpl();
+        PathValidatorImpl pathValidator = new PathValidatorImpl();
         domainValidator =
                 new DomainValidatorImpl(pathValidator, new VirtualHostValidatorImpl(pathValidator));
     }

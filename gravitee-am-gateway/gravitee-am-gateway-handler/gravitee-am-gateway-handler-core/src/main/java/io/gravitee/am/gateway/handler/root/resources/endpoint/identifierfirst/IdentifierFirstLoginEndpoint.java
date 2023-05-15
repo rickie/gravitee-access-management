@@ -97,13 +97,13 @@ public class IdentifierFirstLoginEndpoint extends AbstractEndpoint
     }
 
     private void renderLoginPage(RoutingContext routingContext) {
-        final Client client = routingContext.get(CLIENT_CONTEXT_KEY);
+        Client client = routingContext.get(CLIENT_CONTEXT_KEY);
         // remove sensible client data
         routingContext.put(CLIENT_CONTEXT_KEY, new ClientProperties(client));
         // put domain in context data
         routingContext.put(DOMAIN_CONTEXT_KEY, domain);
         // put request in context
-        final HttpServerRequest request = routingContext.request();
+        HttpServerRequest request = routingContext.request();
         EvaluableRequest evaluableRequest =
                 new EvaluableRequest(new VertxHttpServerRequest(request.getDelegate(), true));
         routingContext.put(REQUEST_CONTEXT_KEY, evaluableRequest);
@@ -122,8 +122,8 @@ public class IdentifierFirstLoginEndpoint extends AbstractEndpoint
                 optionalSettings.map(LoginSettings::isPasswordlessEnabled).orElse(false));
 
         // put error in context
-        final String error = request.getParam(ERROR_PARAM_KEY);
-        final String errorDescription = request.getParam(ERROR_DESCRIPTION_PARAM_KEY);
+        String error = request.getParam(ERROR_PARAM_KEY);
+        String errorDescription = request.getParam(ERROR_DESCRIPTION_PARAM_KEY);
         routingContext.put(ERROR_PARAM_KEY, error);
         routingContext.put(ERROR_DESCRIPTION_PARAM_KEY, errorDescription);
 
@@ -131,14 +131,14 @@ public class IdentifierFirstLoginEndpoint extends AbstractEndpoint
         Map<String, String> params = new HashMap<>(evaluableRequest.getParams().toSingleValueMap());
         params.put(ERROR_PARAM_KEY, error);
         params.put(ERROR_DESCRIPTION_PARAM_KEY, errorDescription);
-        final String loginHint = routingContext.request().getParam(Parameters.LOGIN_HINT);
+        String loginHint = routingContext.request().getParam(Parameters.LOGIN_HINT);
         if (loginHint != null) {
             params.put(ConstantKeys.USERNAME_PARAM_KEY, loginHint);
         }
         routingContext.put(PARAM_CONTEXT_KEY, params);
 
         // put actions in context
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(request);
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(request);
         routingContext.put(
                 ACTION_KEY,
                 resolveProxyRequest(
@@ -168,7 +168,7 @@ public class IdentifierFirstLoginEndpoint extends AbstractEndpoint
                         queryParams,
                         true));
 
-        final Map<String, Object> data = generateData(routingContext, domain, client);
+        Map<String, Object> data = generateData(routingContext, domain, client);
         data.putAll(botDetectionManager.getTemplateVariables(domain, client));
         this.renderPage(
                 routingContext,
@@ -179,16 +179,15 @@ public class IdentifierFirstLoginEndpoint extends AbstractEndpoint
     }
 
     private void redirect(RoutingContext routingContext) {
-        final String redirectUrl = routingContext.get(CONTEXT_PATH) + "/login";
-        final HttpServerRequest request = routingContext.request();
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(request);
+        String redirectUrl = routingContext.get(CONTEXT_PATH) + "/login";
+        HttpServerRequest request = routingContext.request();
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(request);
         // login_hint parameter can be duplicated from a previous step, remove it
         queryParams.remove(Parameters.LOGIN_HINT);
         queryParams.add(
                 Parameters.LOGIN_HINT,
                 UriBuilder.encodeURIComponent(request.getParam(USERNAME_PARAM_KEY)));
-        final String url =
-                UriBuilderRequest.resolveProxyRequest(request, redirectUrl, queryParams, true);
+        String url = UriBuilderRequest.resolveProxyRequest(request, redirectUrl, queryParams, true);
         doRedirect0(routingContext, url);
     }
 

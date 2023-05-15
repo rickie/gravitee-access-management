@@ -103,7 +103,7 @@ public class ErrorHandler implements Handler<RoutingContext> {
         String errorPageURL = routingContext.get(CONTEXT_PATH) + errorPage;
 
         try {
-            final HttpServerRequest request = routingContext.request();
+            HttpServerRequest request = routingContext.request();
             // prepare query parameters
             MultiMap parameters = RequestUtils.getCleanedQueryParams(routingContext.request());
             // get client if exists
@@ -119,7 +119,7 @@ public class ErrorHandler implements Handler<RoutingContext> {
                 parameters.set(ConstantKeys.ERROR_DESCRIPTION_PARAM_KEY, errorDetail);
             }
 
-            final String token = request.getParam(TOKEN_CONTEXT_KEY);
+            String token = request.getParam(TOKEN_CONTEXT_KEY);
             if (isNull(parameters.get(TOKEN_CONTEXT_KEY)) && token != null) {
                 parameters.set(TOKEN_CONTEXT_KEY, token);
             }

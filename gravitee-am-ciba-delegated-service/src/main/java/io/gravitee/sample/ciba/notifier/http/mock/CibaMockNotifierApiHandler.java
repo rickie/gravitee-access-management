@@ -64,7 +64,7 @@ public class CibaMockNotifierApiHandler implements Handler<RoutingContext> {
     public void handle(RoutingContext routingContext) {
         try {
 
-            final String auth = routingContext.request().getHeader(HttpHeaders.AUTHORIZATION);
+            String auth = routingContext.request().getHeader(HttpHeaders.AUTHORIZATION);
             if (auth != null && auth.startsWith(BEARER) && !StringUtil.isNullOrEmpty(authBearer)) {
                 // control the token
                 if (!authBearer.equals(auth.substring(BEARER.length()))) {
@@ -77,14 +77,14 @@ public class CibaMockNotifierApiHandler implements Handler<RoutingContext> {
                 }
             }
 
-            final String transactionId = routingContext.request().getFormAttribute(TRANSACTION_ID);
-            final String state = routingContext.request().getFormAttribute(STATE);
-            final JOSEObject parsedJWT = JOSEObject.parse(state);
-            final String domainId = parsedJWT.getPayload().toJSONObject().getAsString("iss");
+            String transactionId = routingContext.request().getFormAttribute(TRANSACTION_ID);
+            String state = routingContext.request().getFormAttribute(STATE);
+            JOSEObject parsedJWT = JOSEObject.parse(state);
+            String domainId = parsedJWT.getPayload().toJSONObject().getAsString("iss");
 
-            final Optional<DomainReference> optCallback = this.domainManager.getDomainRef(domainId);
+            Optional<DomainReference> optCallback = this.domainManager.getDomainRef(domainId);
             if (optCallback.isPresent()) {
-                final MultiMap formData = MultiMap.caseInsensitiveMultiMap();
+                MultiMap formData = MultiMap.caseInsensitiveMultiMap();
 
                 formData.set(TRANSACTION_ID, transactionId);
                 formData.set(STATE, state);

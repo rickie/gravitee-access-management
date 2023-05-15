@@ -86,7 +86,7 @@ public class LoginSocialAuthenticationHandler implements Handler<RoutingContext>
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final Client client = routingContext.get(CLIENT_CONTEXT_KEY);
+        Client client = routingContext.get(CLIENT_CONTEXT_KEY);
 
         // fetch client identity providers
         getSocialIdentityProviders(
@@ -126,7 +126,7 @@ public class LoginSocialAuthenticationHandler implements Handler<RoutingContext>
                                 }
 
                                 // put social providers in context data
-                                final List<SocialProviderData> socialProviderData =
+                                List<SocialProviderData> socialProviderData =
                                         resultHandler.result();
                                 if (socialProviderData != null) {
                                     List<SocialProviderData> filteredSocialProviderData =
@@ -222,7 +222,7 @@ public class LoginSocialAuthenticationHandler implements Handler<RoutingContext>
                             // Generate a state containing provider id and current query parameter
                             // string. This state will be sent back to AM after social
                             // authentication.
-                            final JWT stateJwt = new JWT();
+                            JWT stateJwt = new JWT();
                             stateJwt.put("p", identityProviderId);
                             stateJwt.put("q", context.request().query());
 
@@ -251,11 +251,9 @@ public class LoginSocialAuthenticationHandler implements Handler<RoutingContext>
                                                                 // Extract body to convert it to
                                                                 // query parameters and use POST
                                                                 // form.
-                                                                final Map<String, String>
-                                                                        queryParams =
-                                                                                getParams(
-                                                                                        request
-                                                                                                .getBody());
+                                                                Map<String, String> queryParams =
+                                                                        getParams(
+                                                                                request.getBody());
                                                                 queryParams.put(
                                                                         ACTION_KEY,
                                                                         request.getUri());

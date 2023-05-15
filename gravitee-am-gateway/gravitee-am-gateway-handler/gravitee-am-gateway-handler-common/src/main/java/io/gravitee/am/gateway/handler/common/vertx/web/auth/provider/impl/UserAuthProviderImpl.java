@@ -74,13 +74,13 @@ public class UserAuthProviderImpl implements UserAuthProvider {
                     }
 
                     // retrieve the client (application)
-                    final Client client = parseClientHandler.result();
+                    Client client = parseClientHandler.result();
 
                     // end user authentication
                     SimpleAuthenticationContext authenticationContext =
                             new SimpleAuthenticationContext(
                                     new VertxHttpServerRequest(context.request().getDelegate()));
-                    final Authentication authentication =
+                    Authentication authentication =
                             new EndUserAuthentication(username, password, authenticationContext);
 
                     authenticationContext.set(Claims.ip_address, ipAddress);

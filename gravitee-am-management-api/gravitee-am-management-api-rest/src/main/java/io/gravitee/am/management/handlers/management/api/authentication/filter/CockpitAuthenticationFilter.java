@@ -115,7 +115,7 @@ public class CockpitAuthenticationFilter extends GenericFilterBean {
                             convertToAuthentication(jwt);
                     User principal = authenticationService.onAuthenticationSuccess(authentication);
 
-                    final Environment environment =
+                    Environment environment =
                             environmentService
                                     .findById(
                                             (String) jwt.get(Claims.environment),
@@ -161,15 +161,15 @@ public class CockpitAuthenticationFilter extends GenericFilterBean {
 
     private Key getPublicKey() throws Exception {
 
-        final KeyStore trustStore = loadKeyStore();
-        final Certificate cert = trustStore.getCertificate(keyAlias);
+        KeyStore trustStore = loadKeyStore();
+        Certificate cert = trustStore.getCertificate(keyAlias);
 
         return cert.getPublicKey();
     }
 
     private KeyStore loadKeyStore() throws Exception {
 
-        final KeyStore keystore = KeyStore.getInstance(keyStoreType);
+        KeyStore keystore = KeyStore.getInstance(keyStoreType);
 
         try (InputStream is = new File(keyStorePath).toURI().toURL().openStream()) {
             keystore.load(is, null == keyStorePassword ? null : keyStorePassword.toCharArray());

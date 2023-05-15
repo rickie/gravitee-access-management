@@ -37,7 +37,7 @@ public class IdentityProvidersPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldList() {
-        final IdentityProviderPlugin identityProviderPlugin = new IdentityProviderPlugin();
+        IdentityProviderPlugin identityProviderPlugin = new IdentityProviderPlugin();
         identityProviderPlugin.setId("identityProvider-plugin-id");
         identityProviderPlugin.setName("identityProvider-plugin-name");
 
@@ -45,7 +45,7 @@ public class IdentityProvidersPluginResourceTest extends JerseySpringTest {
                 .when(identityProviderPluginService)
                 .findAll(false, new ArrayList<>());
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("identities")
@@ -61,7 +61,7 @@ public class IdentityProvidersPluginResourceTest extends JerseySpringTest {
                 .when(identityProviderPluginService)
                 .findAll(false, new ArrayList<>());
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("identities")

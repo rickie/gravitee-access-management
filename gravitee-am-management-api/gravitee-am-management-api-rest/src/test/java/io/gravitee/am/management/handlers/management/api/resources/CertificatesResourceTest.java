@@ -46,16 +46,16 @@ public class CertificatesResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetCertificates() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Certificate mockCertificate = new Certificate();
+        Certificate mockCertificate = new Certificate();
         mockCertificate.setId("certificate-1-id");
         mockCertificate.setName("certificate-1-name");
         mockCertificate.setDomain(domainId);
 
-        final Certificate mockCertificate2 = new Certificate();
+        Certificate mockCertificate2 = new Certificate();
         mockCertificate2.setId("certificate-2-id");
         mockCertificate2.setName("certificate-2-name");
         mockCertificate2.setDomain(domainId);
@@ -66,30 +66,28 @@ public class CertificatesResourceTest extends JerseySpringTest {
                 .findByDomain(domainId);
         doReturn(Flowable.empty()).when(applicationService).findByCertificate(anyString());
 
-        final Response response =
-                target("domains").path(domainId).path("certificates").request().get();
+        Response response = target("domains").path(domainId).path("certificates").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final List<Certificate> responseEntity = readEntity(response, List.class);
+        List<Certificate> responseEntity = readEntity(response, List.class);
         assertTrue(responseEntity.size() == 2);
     }
 
     @Test
     public void shouldGetCertificates_technicalManagementException() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
         doReturn(Flowable.error(new TechnicalManagementException("error occurs")))
                 .when(certificateService)
                 .findByDomain(domainId);
 
-        final Response response =
-                target("domains").path(domainId).path("certificates").request().get();
+        Response response = target("domains").path(domainId).path("certificates").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
 
     @Test
     public void shouldCreate() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         NewCertificate newCertificate = new NewCertificate();
@@ -109,7 +107,7 @@ public class CertificatesResourceTest extends JerseySpringTest {
                 .when(certificateService)
                 .create(eq(domainId), any(), any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("certificates")
@@ -120,8 +118,8 @@ public class CertificatesResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldRotate() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         Certificate certificate = new Certificate();
@@ -134,7 +132,7 @@ public class CertificatesResourceTest extends JerseySpringTest {
                 .getSchema(anyString());
         doReturn(Single.just(certificate)).when(certificateService).rotate(eq(domainId), any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("certificates")

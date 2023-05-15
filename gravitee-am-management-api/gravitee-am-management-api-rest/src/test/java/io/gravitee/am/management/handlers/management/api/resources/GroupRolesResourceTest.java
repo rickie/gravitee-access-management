@@ -38,11 +38,11 @@ public class GroupRolesResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetGroupRoles() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Group mockGroup = new Group();
+        Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
         mockGroup.setRoles(Collections.singletonList("role-1"));
 
@@ -52,7 +52,7 @@ public class GroupRolesResourceTest extends JerseySpringTest {
                 .when(roleService)
                 .findByIdIn(mockGroup.getRoles());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("groups")
@@ -66,12 +66,12 @@ public class GroupRolesResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetUserRoles_technicalManagementException() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
         doReturn(Maybe.error(new TechnicalManagementException("error occurs")))
                 .when(domainService)
                 .findById(domainId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("groups")

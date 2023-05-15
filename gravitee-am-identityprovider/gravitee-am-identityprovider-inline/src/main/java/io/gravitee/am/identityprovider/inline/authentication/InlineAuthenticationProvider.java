@@ -71,7 +71,7 @@ public class InlineAuthenticationProvider implements AuthenticationProvider, Ini
                 .flatMap(
                         inlineUsers -> {
                             String presentedPassword = authentication.getCredentials().toString();
-                            final boolean passwordValid =
+                            boolean passwordValid =
                                     passwordEncoder.matches(
                                             presentedPassword, inlineUsers.getPassword());
                             return passwordValid

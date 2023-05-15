@@ -103,7 +103,7 @@ public class TwilioVerifyResourceProvider implements MFAResourceProvider {
         Twilio.init(configuration.getAccountSid(), configuration.getAuthToken());
 
         if (configuration.isUseSystemProxy() && isProxyConfigured) {
-            final List<String> proxyExcludeHosts =
+            List<String> proxyExcludeHosts =
                     EnvironmentUtils.getPropertiesStartingWith(
                                     (ConfigurableEnvironment) env, "httpClient.proxy.exclude-hosts")
                             .values()
@@ -111,7 +111,7 @@ public class TwilioVerifyResourceProvider implements MFAResourceProvider {
                             .map(String::valueOf)
                             .collect(Collectors.toList());
 
-            final boolean ignoreProxy =
+            boolean ignoreProxy =
                     proxyExcludeHosts.stream()
                             .anyMatch(
                                     excludedHost -> {
@@ -127,7 +127,7 @@ public class TwilioVerifyResourceProvider implements MFAResourceProvider {
 
             if (!ignoreProxy) {
                 HttpClientBuilder httpClientBuild = buildHttpClient();
-                final NetworkHttpClient twilioClient = new NetworkHttpClient(httpClientBuild);
+                NetworkHttpClient twilioClient = new NetworkHttpClient(httpClientBuild);
                 Twilio.setRestClient(
                         new TwilioRestClient.Builder(
                                         configuration.getAccountSid(), configuration.getAuthToken())
@@ -282,7 +282,7 @@ public class TwilioVerifyResourceProvider implements MFAResourceProvider {
         }
 
         @Override
-        public Socket createSocket(final HttpContext context) throws IOException {
+        public Socket createSocket(HttpContext context) throws IOException {
             InetSocketAddress socksaddr = new InetSocketAddress(hostname, port);
             Proxy proxy = new Proxy(Proxy.Type.SOCKS, socksaddr);
             return new Socket(proxy);

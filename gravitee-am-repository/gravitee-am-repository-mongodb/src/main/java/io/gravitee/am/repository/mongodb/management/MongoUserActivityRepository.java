@@ -146,7 +146,7 @@ public class MongoUserActivityRepository extends AbstractManagementMongoReposito
     }
 
     private UserActivity convert(UserActivityMongo userActivityMongo) {
-        final UserActivity userActivity = new UserActivity();
+        UserActivity userActivity = new UserActivity();
         if (isNull(userActivityMongo)) {
             return userActivity;
         }
@@ -165,7 +165,7 @@ public class MongoUserActivityRepository extends AbstractManagementMongoReposito
     }
 
     private UserActivityMongo convert(UserActivity userActivity) {
-        final UserActivityMongo userActivityMongo = new UserActivityMongo();
+        UserActivityMongo userActivityMongo = new UserActivityMongo();
         if (isNull(userActivity)) {
             return userActivityMongo;
         }
