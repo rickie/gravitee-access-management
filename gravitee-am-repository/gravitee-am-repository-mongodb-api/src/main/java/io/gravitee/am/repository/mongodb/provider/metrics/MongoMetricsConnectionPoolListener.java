@@ -172,7 +172,7 @@ public class MongoMetricsConnectionPoolListener implements ConnectionPoolListene
                 .register(registry);
     }
 
-    public Iterable<Tag> connectionPoolTags(final ConnectionPoolCreatedEvent event) {
+    public Iterable<Tag> connectionPoolTags(ConnectionPoolCreatedEvent event) {
         return Tags.of(
                 Tag.of("cluster.id", event.getServerId().getClusterId().getValue()),
                 Tag.of("server.address", event.getServerId().getAddress().toString()),

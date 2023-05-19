@@ -53,12 +53,12 @@ public class ManagementApiServer extends JettyHttpServer {
     public void attachHandlers() {
 
         // Create the servlet context
-        final ServletContextHandler context =
+        ServletContextHandler context =
                 new ServletContextHandler(
                         this.server, entrypoint, ServletContextHandler.NO_SESSIONS);
 
         // REST configuration
-        final ServletHolder servletHolder = new ServletHolder(ServletContainer.class);
+        ServletHolder servletHolder = new ServletHolder(ServletContainer.class);
         servletHolder.setInitParameter(
                 "javax.ws.rs.Application", ManagementApplication.class.getName());
         servletHolder.setInitOrder(1);

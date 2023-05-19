@@ -44,7 +44,7 @@ public final class FilterCriteriaParser {
         return parse(criteria, new StringBuilder());
     }
 
-    private static String parse(FilterCriteria criteria, final StringBuilder builder) {
+    private static String parse(FilterCriteria criteria, StringBuilder builder) {
         if (criteria.getFilterComponents() != null) {
             builder.append("{");
             builder.append(convertOperator(criteria.getOperator()));

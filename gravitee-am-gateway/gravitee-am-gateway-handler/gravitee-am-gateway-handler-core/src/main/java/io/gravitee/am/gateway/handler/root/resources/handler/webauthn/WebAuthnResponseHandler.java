@@ -71,7 +71,7 @@ public class WebAuthnResponseHandler extends WebAuthnHandler {
     public void handle(RoutingContext ctx) {
         try {
             // might throw runtime exception if there's no json or is bad formed
-            final JsonObject webauthnResp = ctx.getBodyAsJson();
+            JsonObject webauthnResp = ctx.getBodyAsJson();
             // input validation
             if (isEmptyString(webauthnResp, "id")
                     || isEmptyString(webauthnResp, "rawId")
@@ -85,16 +85,16 @@ public class WebAuthnResponseHandler extends WebAuthnHandler {
             }
 
             // session validation
-            final Session session = ctx.session();
+            Session session = ctx.session();
             if (ctx.session() == null) {
                 logger.error("No session or session handler is missing.");
                 ctx.fail(500);
                 return;
             }
 
-            final Client client = ctx.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-            final String username = session.get(ConstantKeys.PASSWORDLESS_CHALLENGE_USERNAME_KEY);
-            final String credentialId = webauthnResp.getString("id");
+            Client client = ctx.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+            String username = session.get(ConstantKeys.PASSWORDLESS_CHALLENGE_USERNAME_KEY);
+            String credentialId = webauthnResp.getString("id");
 
             // authenticate the user
             webAuthn.authenticate(
@@ -113,7 +113,7 @@ public class WebAuthnResponseHandler extends WebAuthnHandler {
 
                         if (authenticate.succeeded()) {
                             // create the authentication context
-                            final AuthenticationContext authenticationContext =
+                            AuthenticationContext authenticationContext =
                                     createAuthenticationContext(ctx);
                             // authenticate the user
                             authenticateUser(
@@ -130,7 +130,7 @@ public class WebAuthnResponseHandler extends WebAuthnHandler {
                                             ctx.fail(401);
                                             return;
                                         }
-                                        final User user = h.result();
+                                        User user = h.result();
                                         // save the user into the context
                                         ctx.getDelegate().setUser(user);
                                         ctx.put(
@@ -143,7 +143,7 @@ public class WebAuthnResponseHandler extends WebAuthnHandler {
                                         // authenticated
                                         // session should be upgraded as recommended by owasp
                                         session.regenerateId();
-                                        final io.gravitee.am.model.User authenticatedUser =
+                                        io.gravitee.am.model.User authenticatedUser =
                                                 ((io.gravitee.am.gateway.handler.common.vertx.web
                                                                         .auth.user.User)
                                                                 user)

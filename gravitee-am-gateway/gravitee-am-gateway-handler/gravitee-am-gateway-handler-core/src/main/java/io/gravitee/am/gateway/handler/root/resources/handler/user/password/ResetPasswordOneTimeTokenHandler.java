@@ -37,12 +37,12 @@ public class ResetPasswordOneTimeTokenHandler extends UserRequestHandler {
 
     @Override
     public void handle(RoutingContext context) {
-        final String success = context.request().getParam(ConstantKeys.SUCCESS_PARAM_KEY);
-        final String warning = context.request().getParam(ConstantKeys.WARNING_PARAM_KEY);
-        final String error = context.request().getParam(ConstantKeys.ERROR_PARAM_KEY);
-        final User user = context.get(ConstantKeys.USER_CONTEXT_KEY);
-        final JWT jwt = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(context.request());
+        String success = context.request().getParam(ConstantKeys.SUCCESS_PARAM_KEY);
+        String warning = context.request().getParam(ConstantKeys.WARNING_PARAM_KEY);
+        String error = context.request().getParam(ConstantKeys.ERROR_PARAM_KEY);
+        User user = context.get(ConstantKeys.USER_CONTEXT_KEY);
+        JWT jwt = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(context.request());
 
         // user has been redirected due to success, warn or error, continue
         if (success != null || warning != null || error != null) {

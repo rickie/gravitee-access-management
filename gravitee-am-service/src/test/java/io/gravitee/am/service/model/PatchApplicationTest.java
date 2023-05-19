@@ -42,37 +42,37 @@ public class PatchApplicationTest {
 
     @Test
     public void updateClientName_NoSettings() {
-        final var NEW_NAME = "MyNewName";
-        final var NAME = "MyName";
+        var NEW_NAME = "MyNewName";
+        var NAME = "MyName";
 
-        final var app = new Application();
+        var app = new Application();
         app.setName(NAME);
 
-        final var patchApplication = new PatchApplication();
+        var patchApplication = new PatchApplication();
         patchApplication.setName(Optional.of(NEW_NAME));
 
-        final var updatedApp = patchApplication.patch(app);
+        var updatedApp = patchApplication.patch(app);
         assertEquals(NEW_NAME, updatedApp.getName());
         assertNull(updatedApp.getSettings());
     }
 
     @Test
     public void updateClientName_WithSettings() {
-        final var NEW_NAME = "MyNewName";
-        final var NAME = "MyName";
+        var NEW_NAME = "MyNewName";
+        var NAME = "MyName";
 
-        final var oauthSettings = new ApplicationOAuthSettings();
+        var oauthSettings = new ApplicationOAuthSettings();
         oauthSettings.setClientName(NAME);
-        final var settings = new ApplicationSettings();
+        var settings = new ApplicationSettings();
         settings.setOauth(oauthSettings);
-        final var app = new Application();
+        var app = new Application();
         app.setName(NAME);
         app.setSettings(settings);
 
-        final var patchApplication = new PatchApplication();
+        var patchApplication = new PatchApplication();
         patchApplication.setName(Optional.of(NEW_NAME));
 
-        final var updatedApp = patchApplication.patch(app);
+        var updatedApp = patchApplication.patch(app);
         assertEquals(NEW_NAME, updatedApp.getName());
         assertNotNull(updatedApp.getSettings());
         assertNotNull(updatedApp.getSettings().getOauth());
@@ -184,12 +184,12 @@ public class PatchApplicationTest {
         pwdPolicyPatcher.setPasswordHistoryEnabled(Optional.of(true));
 
         PatchApplication patch = new PatchApplication();
-        final PatchApplicationSettings patchAppSettings = new PatchApplicationSettings();
+        PatchApplicationSettings patchAppSettings = new PatchApplicationSettings();
         patch.setSettings(Optional.of(patchAppSettings));
         patchAppSettings.setPasswordSettings(Optional.of(pwdPolicyPatcher));
 
         Application toPatch = new Application();
-        final ApplicationSettings appSettings = new ApplicationSettings();
+        ApplicationSettings appSettings = new ApplicationSettings();
         appSettings.setPasswordSettings(new PasswordSettings());
         toPatch.setSettings(appSettings);
 
@@ -210,12 +210,12 @@ public class PatchApplicationTest {
         pwdPolicyPatcher.setPasswordHistoryEnabled(Optional.of(true));
 
         PatchApplication patch = new PatchApplication();
-        final PatchApplicationSettings patchAppSettings = new PatchApplicationSettings();
+        PatchApplicationSettings patchAppSettings = new PatchApplicationSettings();
         patch.setSettings(Optional.of(patchAppSettings));
         patchAppSettings.setPasswordSettings(Optional.of(pwdPolicyPatcher));
 
         Application toPatch = new Application();
-        final ApplicationSettings appSettings = new ApplicationSettings();
+        ApplicationSettings appSettings = new ApplicationSettings();
         appSettings.setPasswordSettings(new PasswordSettings());
         toPatch.setSettings(appSettings);
 
@@ -231,12 +231,12 @@ public class PatchApplicationTest {
         pwdPolicyPatcher.setPasswordHistoryEnabled(Optional.of(true));
 
         PatchApplication patch = new PatchApplication();
-        final PatchApplicationSettings patchAppSettings = new PatchApplicationSettings();
+        PatchApplicationSettings patchAppSettings = new PatchApplicationSettings();
         patch.setSettings(Optional.of(patchAppSettings));
         patchAppSettings.setPasswordSettings(Optional.of(pwdPolicyPatcher));
 
         Application toPatch = new Application();
-        final ApplicationSettings appSettings = new ApplicationSettings();
+        ApplicationSettings appSettings = new ApplicationSettings();
         appSettings.setPasswordSettings(new PasswordSettings());
         toPatch.setSettings(appSettings);
 
@@ -252,12 +252,12 @@ public class PatchApplicationTest {
         pwdPolicyPatcher.setPasswordHistoryEnabled(Optional.of(true));
 
         PatchApplication patch = new PatchApplication();
-        final PatchApplicationSettings patchAppSettings = new PatchApplicationSettings();
+        PatchApplicationSettings patchAppSettings = new PatchApplicationSettings();
         patch.setSettings(Optional.of(patchAppSettings));
         patchAppSettings.setPasswordSettings(Optional.of(pwdPolicyPatcher));
 
         Application toPatch = new Application();
-        final ApplicationSettings appSettings = new ApplicationSettings();
+        ApplicationSettings appSettings = new ApplicationSettings();
         appSettings.setPasswordSettings(new PasswordSettings());
         toPatch.setSettings(appSettings);
 

@@ -48,7 +48,7 @@ public class PolicyPluginResource {
     @ApiOperation(
             value = "Get a policy plugin",
             notes = "There is no particular permission needed. User must be authenticated.")
-    public void get(@PathParam("policy") String policyId, @Suspended final AsyncResponse response) {
+    public void get(@PathParam("policy") String policyId, @Suspended AsyncResponse response) {
 
         policyPluginService
                 .findById(policyId)
@@ -61,8 +61,7 @@ public class PolicyPluginResource {
     @Path("schema")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get a policy plugin's schema")
-    public void getSchema(
-            @PathParam("policy") String policyId, @Suspended final AsyncResponse response) {
+    public void getSchema(@PathParam("policy") String policyId, @Suspended AsyncResponse response) {
 
         // Check that the policy exists
         policyPluginService
@@ -79,7 +78,7 @@ public class PolicyPluginResource {
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Get a policy plugin's documentation")
     public void getDocumentation(
-            @PathParam("policy") String policyId, @Suspended final AsyncResponse response) {
+            @PathParam("policy") String policyId, @Suspended AsyncResponse response) {
 
         // Check that the policy exists
         policyPluginService

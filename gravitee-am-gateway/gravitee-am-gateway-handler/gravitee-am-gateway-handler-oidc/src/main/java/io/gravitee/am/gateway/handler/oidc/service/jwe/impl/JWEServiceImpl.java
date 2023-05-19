@@ -239,7 +239,7 @@ public class JWEServiceImpl implements JWEService {
             Client client,
             Predicate<JWK> filter,
             JWEDecrypterFunction<JWK, JWEDecrypter> function) {
-        final Maybe<JWKSet> jwks =
+        Maybe<JWKSet> jwks =
                 client != null ? jwkService.getKeys(client) : jwkService.getDomainPrivateKeys();
         return jwks.flatMapPublisher(jwkset -> Flowable.fromIterable(jwkset.getKeys()))
                 .filter(filter::test)

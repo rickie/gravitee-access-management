@@ -102,7 +102,7 @@ public class WebClientBuilder {
 
     public WebClient createWebClient(Vertx vertx, URL url) {
 
-        final int port =
+        int port =
                 url.getPort() != -1
                         ? url.getPort()
                         : (HTTPS_SCHEME.equals(url.getProtocol()) ? 443 : 80);
@@ -238,7 +238,7 @@ public class WebClientBuilder {
         }
 
         try {
-            final List<String> proxyExcludeHosts =
+            List<String> proxyExcludeHosts =
                     EnvironmentUtils.getPropertiesStartingWith(
                                     (ConfigurableEnvironment) environment,
                                     "httpClient.proxy.exclude-hosts")

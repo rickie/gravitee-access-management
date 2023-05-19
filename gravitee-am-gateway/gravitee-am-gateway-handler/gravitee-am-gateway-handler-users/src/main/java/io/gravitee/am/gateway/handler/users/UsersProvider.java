@@ -51,13 +51,13 @@ public class UsersProvider extends AbstractService<ProtocolProvider> implements 
         super.doStart();
 
         // Create the Users router
-        final Router usersRouter = Router.router(vertx);
+        Router usersRouter = Router.router(vertx);
 
-        final UserConsentsEndpointHandler userConsentsHandler =
+        UserConsentsEndpointHandler userConsentsHandler =
                 new UserConsentsEndpointHandler(userService, clientSyncService, domain);
-        final UserConsentEndpointHandler userConsentHandler =
+        UserConsentEndpointHandler userConsentHandler =
                 new UserConsentEndpointHandler(userService, clientSyncService, domain);
-        final OAuth2AuthHandler oAuth2AuthHandler =
+        OAuth2AuthHandler oAuth2AuthHandler =
                 OAuth2AuthHandler.create(oAuth2AuthProvider, "consent_admin");
         oAuth2AuthHandler.extractToken(true);
         oAuth2AuthHandler.selfResource(true, "userId");

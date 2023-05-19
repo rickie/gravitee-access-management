@@ -38,7 +38,7 @@ public class HashedKeyUtils {
         if (isNull(algorithm) || isNull(userId)) {
             return null;
         }
-        final byte[] userIdBytes = userId.getBytes(StandardCharsets.UTF_8);
+        byte[] userIdBytes = userId.getBytes(StandardCharsets.UTF_8);
         return getHash(algorithm, userId, salt, userIdBytes);
     }
 

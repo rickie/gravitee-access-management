@@ -221,9 +221,9 @@ public class ExtensionGrantGranter extends AbstractTokenGranter {
             AuthenticationProvider provider, TokenRequest tokenRequest, User user) {
         SimpleAuthenticationContext authenticationContext =
                 new SimpleAuthenticationContext(tokenRequest);
-        final Authentication authentication =
+        Authentication authentication =
                 new EndUserAuthentication(user, null, authenticationContext);
-        final Maybe<io.gravitee.am.identityprovider.api.User> userMaybe =
+        Maybe<io.gravitee.am.identityprovider.api.User> userMaybe =
                 provider.loadPreAuthenticatedUser(authentication);
         return userMaybe;
     }
@@ -256,7 +256,7 @@ public class ExtensionGrantGranter extends AbstractTokenGranter {
     }
 
     private boolean canHandle(Client client) {
-        final List<String> authorizedGrantTypes = client.getAuthorizedGrantTypes();
+        List<String> authorizedGrantTypes = client.getAuthorizedGrantTypes();
         return authorizedGrantTypes != null
                 && !authorizedGrantTypes.isEmpty()
                 && (authorizedGrantTypes.contains(

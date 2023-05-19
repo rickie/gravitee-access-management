@@ -44,10 +44,10 @@ public class FlowsResourceTest extends JerseySpringTest {
                 .when(flowService)
                 .findAll(ReferenceType.DOMAIN, DOMAIN_ID, true);
 
-        final Response response = target("domains").path(DOMAIN_ID).path("flows").request().get();
+        Response response = target("domains").path(DOMAIN_ID).path("flows").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final List<Entrypoint> responseEntity = readEntity(response, List.class);
+        List<Entrypoint> responseEntity = readEntity(response, List.class);
         assertEquals(2, responseEntity.size());
     }
 
@@ -57,7 +57,7 @@ public class FlowsResourceTest extends JerseySpringTest {
                 .when(flowService)
                 .findAll(ReferenceType.DOMAIN, DOMAIN_ID, true);
 
-        final Response response = target("domains").path(DOMAIN_ID).path("flows").request().get();
+        Response response = target("domains").path(DOMAIN_ID).path("flows").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
 }

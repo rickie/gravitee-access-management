@@ -31,10 +31,10 @@ import java.util.Map;
 public class FreemarkerDataHelper {
 
     public static Map<String, Object> generateData(Map<String, Object> rawData) {
-        final Map<String, Object> data = new HashMap<>(rawData);
-        final Object domain = rawData.get(ConstantKeys.DOMAIN_CONTEXT_KEY);
-        final Object client = rawData.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final Object user = rawData.get(ConstantKeys.USER_CONTEXT_KEY);
+        Map<String, Object> data = new HashMap<>(rawData);
+        Object domain = rawData.get(ConstantKeys.DOMAIN_CONTEXT_KEY);
+        Object client = rawData.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        Object user = rawData.get(ConstantKeys.USER_CONTEXT_KEY);
         if (domain != null && domain instanceof Domain) {
             data.put(ConstantKeys.DOMAIN_CONTEXT_KEY, new DomainProperties((Domain) domain));
         }

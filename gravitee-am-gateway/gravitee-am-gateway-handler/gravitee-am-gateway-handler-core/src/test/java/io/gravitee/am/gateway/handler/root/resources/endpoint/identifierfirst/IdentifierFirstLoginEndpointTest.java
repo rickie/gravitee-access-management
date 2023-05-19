@@ -82,7 +82,7 @@ public class IdentifierFirstLoginEndpointTest extends RxWebTestBase {
         clientRequestParseHandler = new ClientRequestParseHandler(clientSyncService);
         clientRequestParseHandler.setRequired(true);
 
-        final LoginSettings loginSettings = new LoginSettings();
+        LoginSettings loginSettings = new LoginSettings();
         loginSettings.setIdentifierFirstEnabled(true);
 
         appClient = new Client();
@@ -140,7 +140,7 @@ public class IdentifierFirstLoginEndpointTest extends RxWebTestBase {
         router.route(HttpMethod.POST, "/login/identifier")
                 .handler(
                         routingContext -> {
-                            final IdentityProvider idp = new IdentityProvider();
+                            IdentityProvider idp = new IdentityProvider();
                             idp.setId("provider-id");
                             routingContext.put(SOCIAL_PROVIDER_CONTEXT_KEY, List.of(idp));
                             routingContext.put(
@@ -184,7 +184,7 @@ public class IdentifierFirstLoginEndpointTest extends RxWebTestBase {
         router.route(HttpMethod.POST, "/login/identifier")
                 .handler(
                         routingContext -> {
-                            final IdentityProvider idp = new IdentityProvider();
+                            IdentityProvider idp = new IdentityProvider();
                             idp.setId("provider-id");
                             routingContext.put(SOCIAL_PROVIDER_CONTEXT_KEY, List.of(idp));
                             routingContext.put(
@@ -225,7 +225,7 @@ public class IdentifierFirstLoginEndpointTest extends RxWebTestBase {
         router.route(HttpMethod.POST, "/login/identifier")
                 .handler(
                         routingContext -> {
-                            final IdentityProvider idp = new IdentityProvider();
+                            IdentityProvider idp = new IdentityProvider();
                             idp.setId("provider-id");
                             routingContext.put(SOCIAL_PROVIDER_CONTEXT_KEY, List.of(idp));
                             routingContext.put(
@@ -288,7 +288,7 @@ public class IdentifierFirstLoginEndpointTest extends RxWebTestBase {
         router.route(HttpMethod.POST, "/login/identifier")
                 .handler(
                         routingContext -> {
-                            final IdentityProvider idp = new IdentityProvider();
+                            IdentityProvider idp = new IdentityProvider();
                             idp.setId("provider-id");
                             routingContext.put(SOCIAL_PROVIDER_CONTEXT_KEY, List.of(idp));
                             routingContext.put(
@@ -322,7 +322,7 @@ public class IdentifierFirstLoginEndpointTest extends RxWebTestBase {
         router.route(HttpMethod.POST, "/login/identifier")
                 .handler(
                         routingContext -> {
-                            final IdentityProvider idp = new IdentityProvider();
+                            IdentityProvider idp = new IdentityProvider();
                             idp.setId("provider-id");
                             routingContext.put(SOCIAL_PROVIDER_CONTEXT_KEY, List.of(idp));
                             routingContext.put(
@@ -370,7 +370,7 @@ public class IdentifierFirstLoginEndpointTest extends RxWebTestBase {
         router.route(HttpMethod.POST, "/login/identifier")
                 .handler(
                         routingContext -> {
-                            final IdentityProvider idp = new IdentityProvider();
+                            IdentityProvider idp = new IdentityProvider();
                             idp.setId("provider-id");
                             idp.setType("google");
                             routingContext.put(SOCIAL_PROVIDER_CONTEXT_KEY, List.of(idp));
@@ -420,7 +420,7 @@ public class IdentifierFirstLoginEndpointTest extends RxWebTestBase {
                                     assertNotNull(routingContext.get(CLIENT_CONTEXT_KEY));
                                     assertEquals(routingContext.get(DOMAIN_CONTEXT_KEY), domain);
                                     assertNotNull(routingContext.get(PARAM_CONTEXT_KEY));
-                                    final MultiMap queryParams =
+                                    MultiMap queryParams =
                                             RequestUtils.getCleanedQueryParams(
                                                     routingContext.request());
                                     assertEquals(

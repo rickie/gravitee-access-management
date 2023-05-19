@@ -35,7 +35,7 @@ public class BotDetectionsPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldList() {
-        final BotDetectionPlugin botDetectionPlugin = new BotDetectionPlugin();
+        BotDetectionPlugin botDetectionPlugin = new BotDetectionPlugin();
         botDetectionPlugin.setId("plugin-id");
         botDetectionPlugin.setName("plugin-name");
         botDetectionPlugin.setDescription("desc");
@@ -45,7 +45,7 @@ public class BotDetectionsPluginResourceTest extends JerseySpringTest {
                 .when(botDetectionPluginService)
                 .findAll();
 
-        final Response response =
+        Response response =
                 target("platform").path("plugins").path("bot-detections").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
     }

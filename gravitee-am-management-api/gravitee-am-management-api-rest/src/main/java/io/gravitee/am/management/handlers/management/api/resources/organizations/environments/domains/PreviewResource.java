@@ -76,11 +76,11 @@ public class PreviewResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
-            @Valid @NotNull final PreviewRequest request,
+            @Valid @NotNull PreviewRequest request,
             @Context HttpHeaders headers,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final var locale =
+        var locale =
                 headers.getAcceptableLanguages().stream()
                         .filter(l -> !"*".equalsIgnoreCase(l.getLanguage()))
                         .findFirst()

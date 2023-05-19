@@ -49,8 +49,7 @@ public class ResourcesPluginResource {
     @ApiOperation(
             value = "List resource plugins",
             notes = "There is no particular permission needed. User must be authenticated.")
-    public void list(
-            @QueryParam("expand") List<String> expand, @Suspended final AsyncResponse response) {
+    public void list(@QueryParam("expand") List<String> expand, @Suspended AsyncResponse response) {
 
         resourcePluginService
                 .findAll(expand)

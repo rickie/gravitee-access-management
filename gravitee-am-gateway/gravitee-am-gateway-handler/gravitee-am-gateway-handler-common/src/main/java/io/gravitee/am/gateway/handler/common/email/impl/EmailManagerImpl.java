@@ -159,7 +159,7 @@ public class EmailManagerImpl extends AbstractService
     }
 
     private void updateEmail(String emailId, EmailEvent emailEvent) {
-        final String eventType = emailEvent.toString().toLowerCase();
+        String eventType = emailEvent.toString().toLowerCase();
         logger.info(
                 "Domain {} has received {} email event for {}",
                 domain.getName(),

@@ -63,7 +63,7 @@ public class EmbeddedClient implements InitializingBean, DisposableBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        final MongodStarter starter = MongodStarter.getDefaultInstance();
+        MongodStarter starter = MongodStarter.getDefaultInstance();
 
         int port = Network.freeServerPort(InetAddress.getLocalHost());
         MongodConfig mongodConfig =

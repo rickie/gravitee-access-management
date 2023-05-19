@@ -486,7 +486,7 @@ public abstract class JerseySpringTest {
 
     private JerseyTest _jerseyTest;
 
-    public final WebTarget target(final String path) {
+    public final WebTarget target(String path) {
 
         if ("domains".equals(path)) {
             return _jerseyTest
@@ -511,7 +511,7 @@ public abstract class JerseySpringTest {
     }
 
     @Autowired
-    public void setApplicationContext(final ApplicationContext context) {
+    public void setApplicationContext(ApplicationContext context) {
         _jerseyTest =
                 new JerseyTest() {
                     @Override
@@ -528,7 +528,7 @@ public abstract class JerseySpringTest {
     @Priority(50)
     public static class AuthenticationFilter implements ContainerRequestFilter {
         @Override
-        public void filter(final ContainerRequestContext requestContext) throws IOException {
+        public void filter(ContainerRequestContext requestContext) throws IOException {
             requestContext.setSecurityContext(
                     new SecurityContext() {
                         @Override

@@ -493,10 +493,10 @@ public class UserServiceTest {
     public void shouldForgotPassword_MultipleMatch_onlyOne_filtered() throws Exception {
         Client client = mock(Client.class);
         when(client.getId()).thenReturn("client-id");
-        final String localClientId = "idp-client-id";
+        String localClientId = "idp-client-id";
         when(client.getIdentityProviders())
                 .thenReturn(getApplicationIdentityProviders(localClientId));
-        final IdentityProvider provider = new IdentityProvider();
+        IdentityProvider provider = new IdentityProvider();
         provider.setId(localClientId);
         when(identityProviderManager.getIdentityProvider(localClientId)).thenReturn(provider);
 
@@ -538,7 +538,7 @@ public class UserServiceTest {
                 .report(
                         argThat(
                                 builder -> {
-                                    final Audit audit = builder.build(new ObjectMapper());
+                                    Audit audit = builder.build(new ObjectMapper());
                                     return audit.getType()
                                                     .equals(EventType.FORGOT_PASSWORD_REQUESTED)
                                             && audit.getOutcome()
@@ -585,7 +585,7 @@ public class UserServiceTest {
                 .report(
                         argThat(
                                 builder -> {
-                                    final Audit audit = builder.build(new ObjectMapper());
+                                    Audit audit = builder.build(new ObjectMapper());
                                     return audit.getType()
                                                     .equals(EventType.FORGOT_PASSWORD_REQUESTED)
                                             && audit.getOutcome()
@@ -1018,7 +1018,7 @@ public class UserServiceTest {
             forgotPasswordShouldFail_userDisabled_userInactive_forgotPasswordAllowConfirmRegister() {
         when(domain.getId()).thenReturn("domain-id");
         Client client = mock(Client.class);
-        final var settings = new AccountSettings();
+        var settings = new AccountSettings();
         settings.setCompleteRegistrationWhenResetPassword(true);
         settings.setInherited(false);
         when(client.getAccountSettings()).thenReturn(settings);

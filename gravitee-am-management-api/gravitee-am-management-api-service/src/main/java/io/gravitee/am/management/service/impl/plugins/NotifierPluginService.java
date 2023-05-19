@@ -96,7 +96,7 @@ public class NotifierPluginService {
                 .map(objectMapper::readTree)
                 .doOnSuccess(
                         jsonSchema -> {
-                            final JsonNode propertiesNode = jsonSchema.get("properties");
+                            JsonNode propertiesNode = jsonSchema.get("properties");
                             JsonNode messageNode = null;
                             if (propertiesNode instanceof ObjectNode) {
                                 if (propertiesNode.has("message")) {
@@ -161,7 +161,7 @@ public class NotifierPluginService {
         notifierPlugin.setVersion(plugin.manifest().version());
 
         if (expand != null) {
-            final List<String> expandList = Arrays.asList(expand);
+            List<String> expandList = Arrays.asList(expand);
             if (expandList.contains(EXPAND_ICON)) {
                 return this.getIcon(notifierPlugin.getId())
                         .doOnSuccess(notifierPlugin::setIcon)

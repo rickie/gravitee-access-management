@@ -67,7 +67,7 @@ public class RolesResource extends AbstractResource {
     public void list(
             @PathParam("organizationId") String organizationId,
             @QueryParam("type") ReferenceType type,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -99,9 +99,9 @@ public class RolesResource extends AbstractResource {
     })
     public void create(
             @PathParam("organizationId") String organizationId,
-            @ApiParam(name = "role", required = true) @Valid @NotNull final NewRole newRole,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @ApiParam(name = "role", required = true) @Valid @NotNull NewRole newRole,
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

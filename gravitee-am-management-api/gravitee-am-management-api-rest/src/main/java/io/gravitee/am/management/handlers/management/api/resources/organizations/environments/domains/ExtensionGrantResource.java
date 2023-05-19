@@ -73,7 +73,7 @@ public class ExtensionGrantResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("extensionGrant") String extensionGrant,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId,
@@ -128,8 +128,8 @@ public class ExtensionGrantResource extends AbstractResource {
             @PathParam("extensionGrant") String extensionGrant,
             @ApiParam(name = "tokenGranter", required = true) @Valid @NotNull
                     UpdateExtensionGrant updateExtensionGrant,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,
@@ -168,9 +168,9 @@ public class ExtensionGrantResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("extensionGrant") String extensionGrant,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,
