@@ -94,7 +94,7 @@ public class MongoNodeMonitoringRepository extends AbstractManagementMongoReposi
 
     private Monitoring convert(MonitoringMongo monitoringMongo) {
 
-        final Monitoring monitoring = new Monitoring();
+        Monitoring monitoring = new Monitoring();
         monitoring.setId(monitoringMongo.getId());
         monitoring.setNodeId(monitoringMongo.getNodeId());
         monitoring.setType(monitoringMongo.getType());
@@ -108,7 +108,7 @@ public class MongoNodeMonitoringRepository extends AbstractManagementMongoReposi
 
     private MonitoringMongo convert(Monitoring monitoring) {
 
-        final MonitoringMongo monitoringMongo = new MonitoringMongo();
+        MonitoringMongo monitoringMongo = new MonitoringMongo();
         monitoringMongo.setId(monitoring.getId());
         monitoringMongo.setNodeId(monitoring.getNodeId());
         monitoringMongo.setType(monitoring.getType());

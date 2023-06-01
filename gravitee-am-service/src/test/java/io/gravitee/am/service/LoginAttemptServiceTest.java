@@ -43,7 +43,7 @@ public class LoginAttemptServiceTest {
 
     @Test
     public void shouldCreateUser_accountLockFirstConnection() {
-        final LoginAttemptCriteria loginAttemptCriteria =
+        LoginAttemptCriteria loginAttemptCriteria =
                 new LoginAttemptCriteria.Builder()
                         .client("client-1")
                         .domain("domain-1")
@@ -51,10 +51,10 @@ public class LoginAttemptServiceTest {
                         .identityProvider("idp-1")
                         .build();
 
-        final LoginAttempt loginAttempt = new LoginAttempt();
+        LoginAttempt loginAttempt = new LoginAttempt();
         loginAttempt.setAttempts(1);
 
-        final AccountSettings accountSettings = new AccountSettings();
+        AccountSettings accountSettings = new AccountSettings();
         accountSettings.setLoginAttemptsDetectionEnabled(true);
         accountSettings.setMaxLoginAttempts(1);
         accountSettings.setAccountBlockedDuration(24 * 60 * 60 * 1000);
@@ -71,7 +71,7 @@ public class LoginAttemptServiceTest {
 
     @Test
     public void shouldUpdateUser_accountLockAlreadyRegistered() {
-        final LoginAttemptCriteria loginAttemptCriteria =
+        LoginAttemptCriteria loginAttemptCriteria =
                 new LoginAttemptCriteria.Builder()
                         .client("client-1")
                         .domain("domain-1")
@@ -79,10 +79,10 @@ public class LoginAttemptServiceTest {
                         .identityProvider("idp-1")
                         .build();
 
-        final LoginAttempt loginAttempt = new LoginAttempt();
+        LoginAttempt loginAttempt = new LoginAttempt();
         loginAttempt.setAttempts(1);
 
-        final AccountSettings accountSettings = new AccountSettings();
+        AccountSettings accountSettings = new AccountSettings();
         accountSettings.setLoginAttemptsDetectionEnabled(true);
         accountSettings.setMaxLoginAttempts(1);
         accountSettings.setAccountBlockedDuration(24 * 60 * 60 * 1000);

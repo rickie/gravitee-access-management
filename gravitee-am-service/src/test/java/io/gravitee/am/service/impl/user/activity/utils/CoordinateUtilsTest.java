@@ -37,9 +37,9 @@ public class CoordinateUtilsTest {
 
     @Test
     public void must_return_IP_between_range() {
-        final double ogLat = 50.62925D;
-        final double ogLon = 3.057256;
-        final Map<String, Object> data = Map.of("lat", ogLat, "lon", ogLon);
+        double ogLat = 50.62925D;
+        double ogLon = 3.057256;
+        Map<String, Object> data = Map.of("lat", ogLat, "lon", ogLon);
 
         assertCoordinate(ogLat, data, 90, "lat", 0.07);
         assertCoordinate(ogLon, data, 180, "lon", 0.07);
@@ -47,9 +47,9 @@ public class CoordinateUtilsTest {
 
     @Test
     public void must_return_IP_between_range_negative_delta() {
-        final double ogLat = 50.62925D;
-        final double ogLon = 3.057256;
-        final Map<String, Object> data = Map.of("lat", ogLat, "lon", ogLon);
+        double ogLat = 50.62925D;
+        double ogLon = 3.057256;
+        Map<String, Object> data = Map.of("lat", ogLat, "lon", ogLon);
 
         assertCoordinate(ogLat, data, 90, "lat", Math.abs(-0.07));
         assertCoordinate(ogLon, data, 180, "lon", Math.abs(-0.07));
@@ -57,9 +57,9 @@ public class CoordinateUtilsTest {
 
     @Test
     public void must_return_IP_between_range_edge_latitude_negative() {
-        final double ogLat = -90;
-        final double ogLon = -180;
-        final Map<String, Object> data = Map.of("lat", ogLat, "lon", ogLon);
+        double ogLat = -90;
+        double ogLon = -180;
+        Map<String, Object> data = Map.of("lat", ogLat, "lon", ogLon);
 
         assertCoordinate(ogLat, data, 90, "lat", 0.07);
         assertCoordinate(ogLon, data, 180, "lon", 0.07);
@@ -67,9 +67,9 @@ public class CoordinateUtilsTest {
 
     @Test
     public void must_return_IP_between_range_edge_latitude_positive() {
-        final double ogLat = 90;
-        final double ogLon = 180;
-        final Map<String, Object> data = Map.of("lat", ogLat, "lon", ogLon);
+        double ogLat = 90;
+        double ogLon = 180;
+        Map<String, Object> data = Map.of("lat", ogLat, "lon", ogLon);
 
         assertCoordinate(ogLat, data, 90, "lat", 0.07);
         assertCoordinate(ogLon, data, 180, "lon", 0.07);
@@ -77,9 +77,9 @@ public class CoordinateUtilsTest {
 
     @Test
     public void must_return_exact_location() {
-        final double ogLat = 50.62925D;
-        final double ogLon = 3.057256;
-        final Map<String, Object> data = Map.of("lat", ogLat, "lon", ogLon);
+        double ogLat = 50.62925D;
+        double ogLon = 3.057256;
+        Map<String, Object> data = Map.of("lat", ogLat, "lon", ogLon);
 
         assertCoordinate(ogLat, data, 90, "lat", 0);
         assertCoordinate(ogLon, data, 180, "lon", 0);
@@ -91,7 +91,7 @@ public class CoordinateUtilsTest {
             int boundary,
             String key,
             double delta) {
-        final Double randomizedCoordinate = computeCoordinate(data, key, delta, boundary);
+        Double randomizedCoordinate = computeCoordinate(data, key, delta, boundary);
         assertNotNull(randomizedCoordinate);
         assertEquals(randomizedCoordinate, exactCoordinate, 2 * delta);
     }

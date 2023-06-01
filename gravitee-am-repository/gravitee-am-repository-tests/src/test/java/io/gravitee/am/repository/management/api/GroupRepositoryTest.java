@@ -120,7 +120,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         toUpdate.setId(createdGroup.getId());
 
         // update and check response
-        final TestObserver<Group> testUpdate = repository.update(toUpdate).test();
+        TestObserver<Group> testUpdate = repository.update(toUpdate).test();
         testUpdate.awaitTerminalEvent();
 
         testUpdate.assertComplete();
@@ -151,13 +151,13 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         testObserver.assertNoErrors();
         testObserver.assertValue(g -> g.getId().equals(createdGroup.getId()));
 
-        final TestObserver<Void> testDelete = repository.delete(createdGroup.getId()).test();
+        TestObserver<Void> testDelete = repository.delete(createdGroup.getId()).test();
         testDelete.awaitTerminalEvent();
 
         testDelete.assertComplete();
         testDelete.assertNoErrors();
 
-        final Group existAfterDelete = repository.findById(createdGroup.getId()).blockingGet();
+        Group existAfterDelete = repository.findById(createdGroup.getId()).blockingGet();
         assertNull(existAfterDelete);
     }
 
@@ -165,8 +165,8 @@ public class GroupRepositoryTest extends AbstractManagementTest {
     public void shouldFindByMember() {
         Group group1 = buildGroup();
         Group createdGroup1 = repository.create(group1).blockingGet();
-        final String member1 = group1.getMembers().get(0);
-        final String member2 = group1.getMembers().get(1);
+        String member1 = group1.getMembers().get(0);
+        String member2 = group1.getMembers().get(1);
 
         Group group2 = buildGroup();
         // create a second group to add the same member as group 1
@@ -204,7 +204,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         assertNotNull(emptyList);
         assertTrue(emptyList.isEmpty());
 
-        final int loop = 10;
+        int loop = 10;
         for (int i = 0; i < loop; ++i) {
             // build 10 group with random domain
             repository.create(buildGroup()).blockingGet();
@@ -212,7 +212,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
 
         for (int i = 0; i < loop; ++i) {
             // build 10 group with DOMAIN_ID
-            final Group item = buildGroup();
+            Group item = buildGroup();
             item.setReferenceId(DOMAIN_ID);
             repository.create(item).blockingGet();
         }
@@ -252,7 +252,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         assertNotNull(emptyList);
         assertTrue(emptyList.isEmpty());
 
-        final int loop = 10;
+        int loop = 10;
         for (int i = 0; i < loop; ++i) {
             // build 10 group with random domain
             repository.create(buildGroup()).blockingGet();
@@ -260,7 +260,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
 
         for (int i = 0; i < loop; ++i) {
             // build 10 group with DOMAIN_ID
-            final Group item = buildGroup();
+            Group item = buildGroup();
             item.setReferenceId(DOMAIN_ID);
             repository.create(item).blockingGet();
         }
@@ -280,7 +280,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
                                                         .equals(ReferenceType.DOMAIN))
                         .count());
 
-        final Collection<Group> data = groupOfDomain.getData();
+        Collection<Group> data = groupOfDomain.getData();
 
         groupOfDomain = repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID, 0, 5).blockingGet();
         assertNotNull(groupOfDomain);
@@ -296,7 +296,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
                                                         .equals(ReferenceType.DOMAIN))
                         .count());
 
-        final Collection<Group> data1 = groupOfDomain.getData();
+        Collection<Group> data1 = groupOfDomain.getData();
 
         groupOfDomain = repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID, 1, 5).blockingGet();
         assertNotNull(groupOfDomain);
@@ -312,7 +312,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
                                                         .equals(ReferenceType.DOMAIN))
                         .count());
 
-        final Collection<Group> data2 = groupOfDomain.getData();
+        Collection<Group> data2 = groupOfDomain.getData();
         Set<String> pagedData = new HashSet<>();
         pagedData.addAll(data1.stream().map(Group::getId).collect(Collectors.toSet()));
         pagedData.addAll(data2.stream().map(Group::getId).collect(Collectors.toSet()));
@@ -323,7 +323,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldFindIdsIn() {
-        final int loop = 10;
+        int loop = 10;
         List<String> ids = new ArrayList<>();
         for (int i = 0; i < loop; ++i) {
             // build 10 group with random domain
@@ -333,7 +333,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
             }
         }
 
-        final TestObserver<List<Group>> testObserver = repository.findByIdIn(ids).toList().test();
+        TestObserver<List<Group>> testObserver = repository.findByIdIn(ids).toList().test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(lg -> lg.size() == ids.size());

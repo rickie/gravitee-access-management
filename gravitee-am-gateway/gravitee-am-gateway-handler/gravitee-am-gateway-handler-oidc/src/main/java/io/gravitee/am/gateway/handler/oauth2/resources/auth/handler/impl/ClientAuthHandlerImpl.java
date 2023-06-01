@@ -64,7 +64,7 @@ public class ClientAuthHandlerImpl implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final HttpServerRequest request = routingContext.request();
+        HttpServerRequest request = routingContext.request();
 
         // fetch client
         resolveClient(
@@ -163,7 +163,7 @@ public class ClientAuthHandlerImpl implements Handler<RoutingContext> {
                         handler.handle(Future.failedFuture(h.cause()));
                         return;
                     }
-                    final String clientId = h.result();
+                    String clientId = h.result();
                     // client_id can be null if client authentication method is private_jwt
                     if (clientId == null) {
                         handler.handle(Future.succeededFuture());
@@ -185,7 +185,7 @@ public class ClientAuthHandlerImpl implements Handler<RoutingContext> {
     }
 
     private void parseClientId(HttpServerRequest request, Handler<AsyncResult<String>> handler) {
-        final String authorization = request.headers().get(HttpHeaders.AUTHORIZATION);
+        String authorization = request.headers().get(HttpHeaders.AUTHORIZATION);
         String clientId = null;
         try {
             if (authorization != null) {

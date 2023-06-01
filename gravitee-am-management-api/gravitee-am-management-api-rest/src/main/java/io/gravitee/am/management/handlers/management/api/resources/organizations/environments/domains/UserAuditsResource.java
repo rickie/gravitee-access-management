@@ -72,7 +72,7 @@ public class UserAuditsResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("user") String user,
             @BeanParam UserAuditParam param,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         AuditReportableCriteria.Builder queryBuilder =
                 new AuditReportableCriteria.Builder()

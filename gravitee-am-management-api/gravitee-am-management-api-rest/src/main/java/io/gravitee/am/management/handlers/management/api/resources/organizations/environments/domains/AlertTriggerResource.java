@@ -61,9 +61,9 @@ public class AlertTriggerResource extends AbstractResource {
             @PathParam("domain") String domainId,
             @ApiParam(name = "alertTrigger", required = true) @Valid @NotNull
                     PatchAlertTrigger patchAlertTrigger,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = this.getAuthenticatedUser();
+        User authenticatedUser = this.getAuthenticatedUser();
 
         checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.UPDATE)
                 .andThen(

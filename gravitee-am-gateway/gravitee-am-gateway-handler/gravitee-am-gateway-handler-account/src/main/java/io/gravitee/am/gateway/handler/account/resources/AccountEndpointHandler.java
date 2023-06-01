@@ -87,11 +87,11 @@ public class AccountEndpointHandler {
     }
 
     public void getActivity(RoutingContext routingContext) {
-        final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        final AuditReportableCriteria criteria =
+        User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
+        AuditReportableCriteria criteria =
                 new AuditReportableCriteria.Builder().userId(user.getId()).build();
-        final int page = ContextPathParamUtil.getPageNumber(routingContext);
-        final int size = ContextPathParamUtil.getPageSize(routingContext);
+        int page = ContextPathParamUtil.getPageNumber(routingContext);
+        int size = ContextPathParamUtil.getPageSize(routingContext);
 
         accountService
                 .getActivity(user, criteria, page, size)
@@ -105,16 +105,16 @@ public class AccountEndpointHandler {
     public void changePassword(RoutingContext routingContext) {
         try {
             // update user password value from parameters
-            final JsonObject bodyAsJson = routingContext.getBodyAsJson();
+            JsonObject bodyAsJson = routingContext.getBodyAsJson();
             if (isNull(bodyAsJson) || bodyAsJson.isEmpty()) {
                 routingContext.fail(new InvalidRequestException("Body is null or empty"));
                 return;
             }
 
-            final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-            final User user = getUserFromContext(routingContext);
-            final DefaultUser principal = convertUserToPrincipal(routingContext, user);
-            final String password = bodyAsJson.getString(PASSWORD_KEY);
+            Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+            User user = getUserFromContext(routingContext);
+            DefaultUser principal = convertUserToPrincipal(routingContext, user);
+            String password = bodyAsJson.getString(PASSWORD_KEY);
 
             // user password is required
             if (isEmpty(password)) {
@@ -163,8 +163,8 @@ public class AccountEndpointHandler {
     }
 
     public void redirectForgotPassword(RoutingContext routingContext) {
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final String path =
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        String path =
                 AccountRoutes.CHANGE_PASSWORD_REDIRECT.getRoute()
                         + "?client_id="
                         + client.getClientId();
@@ -200,7 +200,7 @@ public class AccountEndpointHandler {
         user.setZoneInfo(bodyAsJson.getString(StandardClaims.ZONEINFO));
         user.setLocale(bodyAsJson.getString(StandardClaims.LOCALE));
         user.setPhoneNumber(bodyAsJson.getString(StandardClaims.PHONE_NUMBER));
-        final JsonObject address = bodyAsJson.getJsonObject(StandardClaims.ADDRESS);
+        JsonObject address = bodyAsJson.getJsonObject(StandardClaims.ADDRESS);
         if (address != null) {
             user.setAddress(convertClaim(address));
         }

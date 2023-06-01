@@ -145,7 +145,7 @@ public class EntrypointRepositoryTest extends AbstractManagementTest {
         TestObserver testObserver1 = entrypointRepository.delete(entrypointCreated.getId()).test();
         testObserver1.awaitTerminalEvent();
 
-        final TestObserver<Entrypoint> testFind =
+        TestObserver<Entrypoint> testFind =
                 entrypointRepository.findById(entrypointCreated.getId()).test();
         testFind.awaitTerminalEvent();
         testFind.assertNoValues();

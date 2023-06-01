@@ -34,7 +34,7 @@ public class VertxHttpHeaders implements HttpHeaders, MultiValueMap<String, Stri
 
     private final MultiMap headers;
 
-    public VertxHttpHeaders(final MultiMap headers) {
+    public VertxHttpHeaders(MultiMap headers) {
         this.headers = headers;
     }
 
@@ -145,7 +145,7 @@ public class VertxHttpHeaders implements HttpHeaders, MultiValueMap<String, Stri
      */
     @Override
     public List<String> put(String key, List<String> value) {
-        final List<String> previousValues = headers.getAll(key);
+        List<String> previousValues = headers.getAll(key);
         for (int i = 0; i < value.size(); i++) {
             // For the first element, we need to use set to override previous value, then we use add
             // to add new ones.
@@ -164,14 +164,14 @@ public class VertxHttpHeaders implements HttpHeaders, MultiValueMap<String, Stri
      */
     @Override
     public List<String> remove(Object key) {
-        final List<String> previousValues = headers.getAll(String.valueOf(key));
+        List<String> previousValues = headers.getAll(String.valueOf(key));
         headers.remove(String.valueOf(key));
         return previousValues;
     }
 
     @Override
     public void putAll(Map<? extends String, ? extends List<String>> map) {
-        final MultiMap multimap = HeadersMultiMap.headers();
+        MultiMap multimap = HeadersMultiMap.headers();
 
         // Flatten the Map<String, List<String>> to be able to add each entry one by one to a new
         // Multimap object

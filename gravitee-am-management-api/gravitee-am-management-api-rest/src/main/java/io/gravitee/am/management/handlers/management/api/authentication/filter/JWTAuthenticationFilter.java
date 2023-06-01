@@ -101,12 +101,12 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
         String authToken;
 
         // first check Authorization request header
-        final String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authorization != null && authorization.startsWith("Bearer ")) {
             authToken = authorization.substring(7);
         } else {
             // if no authorization header found, check authorization cookie
-            final Optional<Cookie> optionalStringToken;
+            Optional<Cookie> optionalStringToken;
 
             if (request.getCookies() == null) {
                 optionalStringToken = Optional.empty();

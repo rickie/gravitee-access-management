@@ -78,8 +78,8 @@ public class RiskAssessmentConfiguration {
     private Function<Assessment, Entry<Assessment, Optional<Double>>> getThreshold(
             Environment env, String prefix) {
         return assessment -> {
-            final String key = prefix + ".thresholds." + assessment.name();
-            final Double threshold = env.getProperty(key, Double.class);
+            String key = prefix + ".thresholds." + assessment.name();
+            Double threshold = env.getProperty(key, Double.class);
             return Map.entry(assessment, ofNullable(threshold));
         };
     }

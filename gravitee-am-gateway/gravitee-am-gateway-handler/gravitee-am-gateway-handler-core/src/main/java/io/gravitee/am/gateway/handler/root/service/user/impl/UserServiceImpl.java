@@ -199,7 +199,7 @@ public class UserServiceImpl implements UserService {
             Client client, User user, io.gravitee.am.identityprovider.api.User principal) {
         // set user idp source
         AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
-        final String source =
+        String source =
                 (accountSettings != null
                                 && accountSettings.getDefaultIdentityProviderForRegistration()
                                         != null)
@@ -207,7 +207,7 @@ public class UserServiceImpl implements UserService {
                         : (user.getSource() == null
                                 ? DEFAULT_IDP_PREFIX + domain.getId()
                                 : user.getSource());
-        final var rawPassword = user.getPassword();
+        var rawPassword = user.getPassword();
         // validate user and then check user uniqueness
         return userValidator
                 .validate(user)
@@ -279,7 +279,7 @@ public class UserServiceImpl implements UserService {
                                 .doOnSuccess(
                                         registrationResponse -> {
                                             // reload principal
-                                            final User user1 = registrationResponse.getUser();
+                                            User user1 = registrationResponse.getUser();
                                             io.gravitee.am.identityprovider.api.User principal1 =
                                                     reloadPrincipal(principal, user1);
                                             auditService.report(
@@ -303,7 +303,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Single<RegistrationResponse> confirmRegistration(
             Client client, User user, io.gravitee.am.identityprovider.api.User principal) {
-        final var rawPassword = user.getPassword();
+        var rawPassword = user.getPassword();
         // user has completed his account, add it to the idp
         return identityProviderManager
                 .getUserProvider(user.getSource())
@@ -391,7 +391,7 @@ public class UserServiceImpl implements UserService {
     public Single<ResetPasswordResponse> resetPassword(
             Client client, User user, io.gravitee.am.identityprovider.api.User principal) {
         // get account settings
-        final AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
+        AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
 
         // if user registration is not completed and force registration option is disabled throw
         // invalid account exception
@@ -555,7 +555,7 @@ public class UserServiceImpl implements UserService {
             Client client,
             io.gravitee.am.identityprovider.api.User principal) {
 
-        final String email = params.getEmail();
+        String email = params.getEmail();
         if (email != null && !emailValidator.validate(email)) {
             return Completable.error(new EmailFormatInvalidException(email));
         }
@@ -622,10 +622,10 @@ public class UserServiceImpl implements UserService {
 
                                 // fixes https://graviteecommunity.atlassian.net/browse/AM-71
                                 if (client.getIdentityProviders() != null) {
-                                    final IdentityProvider identityProvider =
+                                    IdentityProvider identityProvider =
                                             identityProviderManager.getIdentityProvider(
                                                     user.getSource());
-                                    final boolean isClientHasUserIdp =
+                                    boolean isClientHasUserIdp =
                                             client.getIdentityProviders().stream()
                                                     .anyMatch(
                                                             applicationIdentityProvider ->
@@ -728,10 +728,10 @@ public class UserServiceImpl implements UserService {
                                                                     authProvider.getIdentity())
                                                             .flatMap(
                                                                     userProvider -> {
-                                                                        final String username =
+                                                                        String username =
                                                                                 params
                                                                                         .getUsername();
-                                                                        final Maybe<
+                                                                        Maybe<
                                                                                         io.gravitee
                                                                                                 .am
                                                                                                 .identityprovider
@@ -775,7 +775,7 @@ public class UserServiceImpl implements UserService {
                                                     return Single.error(
                                                             new UserNotFoundException());
                                                 }
-                                                final UserAuthentication idpUser = optional.get();
+                                                UserAuthentication idpUser = optional.get();
                                                 return userService
                                                         .findByDomainAndUsernameAndSource(
                                                                 domain.getId(),
@@ -912,7 +912,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Completable setMfaEnrollmentSkippedTime(Client client, User user) {
         var mfaEnrollmentSettings = getMfaEnrollmentSettings(client);
-        final Boolean active =
+        Boolean active =
                 Optional.ofNullable(mfaEnrollmentSettings.getForceEnrollment()).orElse(false);
         if (FALSE.equals(active) && nonNull(user)) {
             Date now = new Date();

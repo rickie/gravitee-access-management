@@ -113,7 +113,7 @@ public class UserAuthenticationServiceTest {
         when(updatedUser.isEnabled()).thenReturn(true);
 
         when(domain.getId()).thenReturn(domainId);
-        final User foundUser = new User();
+        User foundUser = new User();
         foundUser.setAccountNonLocked(true);
 
         when(userService.findByDomainAndExternalIdAndSource(domainId, id, source))
@@ -146,7 +146,7 @@ public class UserAuthenticationServiceTest {
         when(updatedUser.isEnabled()).thenReturn(true);
 
         when(domain.getId()).thenReturn(domainId);
-        final User foundUser = new User();
+        User foundUser = new User();
         foundUser.setAccountNonLocked(false);
         foundUser.setAccountLockedUntil(new Date(Instant.now().minusSeconds(60).toEpochMilli()));
 
@@ -177,7 +177,7 @@ public class UserAuthenticationServiceTest {
         when(user.getAdditionalInformation()).thenReturn(additionalInformation);
 
         when(domain.getId()).thenReturn(domainId);
-        final User foundUser = mock(User.class);
+        User foundUser = mock(User.class);
         when(foundUser.isAccountNonLocked()).thenReturn(false);
         when(userService.findByDomainAndExternalIdAndSource(domainId, id, source))
                 .thenReturn(Maybe.just(foundUser));
@@ -205,7 +205,7 @@ public class UserAuthenticationServiceTest {
         when(updatedUser.isEnabled()).thenReturn(false);
 
         when(domain.getId()).thenReturn(domainId);
-        final User foundUser = mock(User.class);
+        User foundUser = mock(User.class);
         when(foundUser.isAccountNonLocked()).thenReturn(true);
         when(userService.findByDomainAndExternalIdAndSource(domainId, id, source))
                 .thenReturn(Maybe.just(foundUser));
@@ -275,7 +275,7 @@ public class UserAuthenticationServiceTest {
         when(updatedUser.getRoles()).thenReturn(Arrays.asList("idp-role", "idp2-role"));
 
         when(domain.getId()).thenReturn(domainId);
-        final User foundUser = mock(User.class);
+        User foundUser = mock(User.class);
         when(foundUser.isAccountNonLocked()).thenReturn(true);
         when(userService.findByDomainAndExternalIdAndSource(domainId, id, source))
                 .thenReturn(Maybe.just(foundUser));
@@ -311,7 +311,7 @@ public class UserAuthenticationServiceTest {
 
         when(domain.getId()).thenReturn(domainId);
 
-        final User foundUser = mock(User.class);
+        User foundUser = mock(User.class);
         when(foundUser.isAccountNonLocked()).thenReturn(true);
         when(userService.findByDomainAndExternalIdAndSource(domainId, id, source))
                 .thenReturn(Maybe.just(foundUser));
@@ -346,7 +346,7 @@ public class UserAuthenticationServiceTest {
         when(updatedUser.isEnabled()).thenReturn(true);
 
         when(domain.getId()).thenReturn(domainId);
-        final User existingUser = new User();
+        User existingUser = new User();
         HashMap<String, Object> existingAdditionalInformation = new HashMap<>();
         existingAdditionalInformation.put("source", source);
         existingAdditionalInformation.put("op_id_token", "token1");
@@ -392,7 +392,7 @@ public class UserAuthenticationServiceTest {
         when(updatedUser.isEnabled()).thenReturn(true);
 
         when(domain.getId()).thenReturn(domainId);
-        final User existingUser = new User();
+        User existingUser = new User();
         HashMap<String, Object> existingAdditionalInformation = new HashMap<>();
         existingAdditionalInformation.put("source", source);
         existingAdditionalInformation.put("op_id_token", "token1");
@@ -431,7 +431,7 @@ public class UserAuthenticationServiceTest {
         when(user.getAdditionalInformation()).thenReturn(additionalInformation);
 
         when(domain.getId()).thenReturn(domainId);
-        final User existingUser = new User();
+        User existingUser = new User();
         HashMap<String, Object> existingAdditionalInformation = new HashMap<>();
         existingAdditionalInformation.put("source", source);
         existingAdditionalInformation.put("op_id_token", "token1");
@@ -465,7 +465,7 @@ public class UserAuthenticationServiceTest {
         when(user.getAdditionalInformation()).thenReturn(additionalInformation);
 
         when(domain.getId()).thenReturn(domainId);
-        final User existingUser = new User();
+        User existingUser = new User();
         HashMap<String, Object> existingAdditionalInformation = new HashMap<>();
         existingAdditionalInformation.put("source", source);
         existingAdditionalInformation.put("op_id_token", "token1");
@@ -500,7 +500,7 @@ public class UserAuthenticationServiceTest {
 
     @Test
     public void shouldNotLoadPreAuthenticatedUser_subjectRequest() {
-        final User existingUser = new User();
+        User existingUser = new User();
         existingUser.setId(UUID.randomUUID().toString());
         existingUser.setUsername("username");
         existingUser.setAccountNonLocked(false);
@@ -521,7 +521,7 @@ public class UserAuthenticationServiceTest {
 
     @Test
     public void shouldLoadPreAuthenticatedUser_subjectRequest_enhance_defer() {
-        final User existingUser = new User();
+        User existingUser = new User();
         existingUser.setId(UUID.randomUUID().toString());
         existingUser.setUsername("username");
         existingUser.setAccountNonLocked(true);
@@ -560,7 +560,7 @@ public class UserAuthenticationServiceTest {
     @Test
     public void
             shouldLoadPreAuthenticatedUser_subjectRequest_enhance_defer_with_AuthenticationProvider() {
-        final User existingUser = new User();
+        User existingUser = new User();
         existingUser.setId(UUID.randomUUID().toString());
         existingUser.setUsername("username");
         existingUser.setAccountNonLocked(true);

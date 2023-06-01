@@ -37,7 +37,7 @@ public class CertificatesPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldList() {
-        final CertificatePlugin certificatePlugin = new CertificatePlugin();
+        CertificatePlugin certificatePlugin = new CertificatePlugin();
         certificatePlugin.setId("certificate-plugin-id");
         certificatePlugin.setName("certificate-plugin-name");
 
@@ -45,8 +45,7 @@ public class CertificatesPluginResourceTest extends JerseySpringTest {
                 .when(certificatePluginService)
                 .findAll();
 
-        final Response response =
-                target("platform").path("plugins").path("certificates").request().get();
+        Response response = target("platform").path("plugins").path("certificates").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
     }
 
@@ -56,8 +55,7 @@ public class CertificatesPluginResourceTest extends JerseySpringTest {
                 .when(certificatePluginService)
                 .findAll();
 
-        final Response response =
-                target("platform").path("plugins").path("certificates").request().get();
+        Response response = target("platform").path("plugins").path("certificates").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
 }

@@ -479,7 +479,7 @@ public class DomainServiceImpl implements DomainService {
                 .flatMapSingle(
                         oldDomain -> {
                             Domain toPatch = patchDomain.patch(oldDomain);
-                            final AccountSettings accountSettings = toPatch.getAccountSettings();
+                            AccountSettings accountSettings = toPatch.getAccountSettings();
                             if (!accountSettingsValidator.validate(accountSettings)) {
                                 return Single.error(
                                         new InvalidParameterException(
@@ -845,7 +845,7 @@ public class DomainServiceImpl implements DomainService {
         return Observable.fromArray(io.gravitee.am.common.oidc.Scope.values())
                 .flatMapSingle(
                         systemScope -> {
-                            final String scopeKey = systemScope.getKey();
+                            String scopeKey = systemScope.getKey();
                             NewSystemScope scope = new NewSystemScope();
                             scope.setKey(scopeKey);
                             scope.setClaims(systemScope.getClaims());
@@ -970,7 +970,7 @@ public class DomainServiceImpl implements DomainService {
         if (domain.getOidc() != null && domain.getOidc().getPostLogoutRedirectUris() != null) {
             for (String logoutRedirectUri : domain.getOidc().getPostLogoutRedirectUris()) {
                 try {
-                    final URI uri =
+                    URI uri =
                             logoutRedirectUri.contains("*")
                                     ? new URI(logoutRedirectUri)
                                     : UriBuilder.fromURIString(logoutRedirectUri).build();
@@ -982,8 +982,7 @@ public class DomainServiceImpl implements DomainService {
                                         + " is malformed");
                     }
 
-                    final String host =
-                            isHttp(uri.getScheme()) ? uri.toURL().getHost() : uri.getHost();
+                    String host = isHttp(uri.getScheme()) ? uri.toURL().getHost() : uri.getHost();
 
                     // check localhost allowed
                     if (!domain.isRedirectUriLocalhostAllowed()
@@ -1019,7 +1018,7 @@ public class DomainServiceImpl implements DomainService {
         if (domain.getOidc() != null && domain.getOidc().getRequestUris() != null) {
             for (String requestUri : domain.getOidc().getRequestUris()) {
                 try {
-                    final URI uri =
+                    URI uri =
                             requestUri.contains("*")
                                     ? new URI(requestUri)
                                     : UriBuilder.fromURIString(requestUri).build();
@@ -1029,8 +1028,7 @@ public class DomainServiceImpl implements DomainService {
                                 "request_uri : " + requestUri + " is malformed");
                     }
 
-                    final String host =
-                            isHttp(uri.getScheme()) ? uri.toURL().getHost() : uri.getHost();
+                    String host = isHttp(uri.getScheme()) ? uri.toURL().getHost() : uri.getHost();
 
                     // check localhost allowed
                     if (!domain.isRedirectUriLocalhostAllowed()

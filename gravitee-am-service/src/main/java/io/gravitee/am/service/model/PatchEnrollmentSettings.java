@@ -36,7 +36,7 @@ public class PatchEnrollmentSettings {
         EnrollmentSettings toPatch =
                 _toPatch == null ? new EnrollmentSettings() : new EnrollmentSettings(_toPatch);
         SetterUtils.safeSet(toPatch::setForceEnrollment, this.getForceEnrollment());
-        final Optional<Long> skipTimeSeconds =
+        Optional<Long> skipTimeSeconds =
                 isNull(this.getSkipTimeSeconds())
                         ? Optional.empty()
                         : this.getSkipTimeSeconds().filter(Objects::nonNull).map(Math::abs);

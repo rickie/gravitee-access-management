@@ -63,7 +63,7 @@ public class TagResource extends AbstractResource {
     public void get(
             @PathParam("organizationId") String organizationId,
             @PathParam("tag") String tagId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -93,10 +93,10 @@ public class TagResource extends AbstractResource {
     })
     public void update(
             @PathParam("organizationId") String organizationId,
-            @ApiParam(name = "tag", required = true) @Valid @NotNull final UpdateTag tagToUpdate,
+            @ApiParam(name = "tag", required = true) @Valid @NotNull UpdateTag tagToUpdate,
             @PathParam("tag") String tagId,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -119,8 +119,8 @@ public class TagResource extends AbstractResource {
     public void delete(
             @PathParam("organizationId") String organizationId,
             @PathParam("tag") String tag,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

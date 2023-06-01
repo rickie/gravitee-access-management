@@ -76,7 +76,7 @@ public class RoleResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("role") String role,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.READ)
                 .andThen(
@@ -121,9 +121,9 @@ public class RoleResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("role") String role,
             @ApiParam(name = "role", required = true) @Valid @NotNull UpdateRole updateRole,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.UPDATE)
@@ -160,8 +160,8 @@ public class RoleResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @PathParam("role") String role,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.DELETE)

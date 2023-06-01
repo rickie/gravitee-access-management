@@ -49,10 +49,10 @@ public class UserServiceTest {
 
     @Test
     public void shouldFindUserConsents() {
-        final String userId = "userId";
-        final String domainId = "domainId";
+        String userId = "userId";
+        String domainId = "domainId";
 
-        final ScopeApproval scopeApproval = new ScopeApproval();
+        ScopeApproval scopeApproval = new ScopeApproval();
         scopeApproval.setId("consentId");
         scopeApproval.setUserId(userId);
         scopeApproval.setClientId("");
@@ -72,7 +72,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldFindUserConsent() {
-        final ScopeApproval scopeApproval = new ScopeApproval();
+        ScopeApproval scopeApproval = new ScopeApproval();
         scopeApproval.setId("consentId");
 
         when(scopeApprovalService.findById("consentId")).thenReturn(Maybe.just(scopeApproval));
@@ -86,7 +86,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldNotFindUserConsent_consentNotFound() {
-        final ScopeApproval scopeApproval = new ScopeApproval();
+        ScopeApproval scopeApproval = new ScopeApproval();
         scopeApproval.setId("consentId");
 
         when(scopeApprovalService.findById(anyString())).thenReturn(Maybe.empty());
@@ -99,10 +99,10 @@ public class UserServiceTest {
 
     @Test
     public void shouldRevokeConsents() {
-        final String userId = "userId";
-        final String domainId = "domainId";
+        String userId = "userId";
+        String domainId = "domainId";
 
-        final ScopeApproval scopeApproval = new ScopeApproval();
+        ScopeApproval scopeApproval = new ScopeApproval();
         scopeApproval.setId("consentId");
 
         when(domain.getId()).thenReturn(domainId);
@@ -117,9 +117,9 @@ public class UserServiceTest {
 
     @Test
     public void shouldRevokeConsent() {
-        final String domainId = "domainId";
-        final String userId = "userId";
-        final String consentId = "consentId";
+        String domainId = "domainId";
+        String userId = "userId";
+        String consentId = "consentId";
 
         when(domain.getId()).thenReturn(domainId);
         when(scopeApprovalService.revokeByConsent(domainId, userId, consentId, null))

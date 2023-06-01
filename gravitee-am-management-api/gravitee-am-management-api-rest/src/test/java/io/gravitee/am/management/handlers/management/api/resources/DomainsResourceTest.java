@@ -43,11 +43,11 @@ public class DomainsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetDomains() {
-        final Domain mockDomain = new Domain();
+        Domain mockDomain = new Domain();
         mockDomain.setId("domain-id-1");
         mockDomain.setName("domain-name-1");
 
-        final Domain mockDomain2 = new Domain();
+        Domain mockDomain2 = new Domain();
         mockDomain2.setId("domain-id-2");
         mockDomain2.setName("domain-name-2");
 
@@ -55,10 +55,10 @@ public class DomainsResourceTest extends JerseySpringTest {
                 .when(domainService)
                 .findAllByEnvironment(eq(Organization.DEFAULT), eq(Environment.DEFAULT));
 
-        final Response response = target("domains").request().get();
+        Response response = target("domains").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Map responseEntity = readEntity(response, Map.class);
+        Map responseEntity = readEntity(response, Map.class);
         assertTrue(((List) responseEntity.get("data")).size() == 2);
     }
 
@@ -68,7 +68,7 @@ public class DomainsResourceTest extends JerseySpringTest {
                 .when(domainService)
                 .findAll();
 
-        final Response response = target("domains").request().get();
+        Response response = target("domains").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
 
@@ -89,7 +89,7 @@ public class DomainsResourceTest extends JerseySpringTest {
                 .create(domain.getId());
         doReturn(Single.just(new Reporter())).when(reporterService).createDefault(domain.getId());
 
-        final Response response = target("domains").request().post(Entity.json(newDomain));
+        Response response = target("domains").request().post(Entity.json(newDomain));
         assertEquals(HttpStatusCode.CREATED_201, response.getStatus());
     }
 }

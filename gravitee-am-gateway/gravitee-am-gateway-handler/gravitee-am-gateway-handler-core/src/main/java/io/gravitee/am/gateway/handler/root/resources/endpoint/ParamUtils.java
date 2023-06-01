@@ -68,14 +68,14 @@ public class ParamUtils {
 
     public static String getOAuthParameter(RoutingContext context, String paramName) {
         Optional<String> value = Optional.empty();
-        final JWT requestObject = context.get(ConstantKeys.REQUEST_OBJECT_KEY);
+        JWT requestObject = context.get(ConstantKeys.REQUEST_OBJECT_KEY);
         if (requestObject != null) {
             try {
                 // return parameter from the request object first as When the request parameter (or
                 // request_uri) is used,
                 // the OpenID Connect request parameter values contained in the JWT supersede those
                 // passed using the OAuth 2.0 request syntax.
-                final Object claim = requestObject.getJWTClaimsSet().getClaim(paramName);
+                Object claim = requestObject.getJWTClaimsSet().getClaim(paramName);
                 if (Parameters.CLAIMS.equals(paramName) && claim != null) {
                     value = Optional.ofNullable(Json.encode(claim));
                 } else {
@@ -107,8 +107,8 @@ public class ParamUtils {
             var requestedUrl = new URL(requestedRedirect);
             var registeredUrl = new URL(registeredClientUri);
 
-            final String requestedProtocol = requestedUrl.getProtocol();
-            final String requestHost = requestedUrl.getHost();
+            String requestedProtocol = requestedUrl.getProtocol();
+            String requestHost = requestedUrl.getHost();
 
             int requestedPort =
                     requestedUrl.getPort() != -1
@@ -119,7 +119,7 @@ public class ParamUtils {
                             ? registeredUrl.getPort()
                             : registeredUrl.getDefaultPort();
 
-            final String hostPattern = buildPattern(registeredUrl.getHost());
+            String hostPattern = buildPattern(registeredUrl.getHost());
             boolean portsMatch = registeredPort == requestedPort;
 
             if (registeredUrl.getProtocol().equals(requestedProtocol) && portsMatch) {
@@ -130,8 +130,8 @@ public class ParamUtils {
                 }
                 // else we use the enhanced wildcard feature
                 else if (nonNull(hostPattern) && requestHost.matches(hostPattern)) {
-                    final String requestedUrlPath = requestedUrl.getPath();
-                    final String registeredUrlPath = registeredUrl.getPath();
+                    String requestedUrlPath = requestedUrl.getPath();
+                    String registeredUrlPath = registeredUrl.getPath();
                     if (requestedUrlPath.isEmpty()
                             && (registeredUrlPath.isEmpty()
                                     || registeredUrlPath.startsWith("*")
@@ -153,7 +153,7 @@ public class ParamUtils {
             return null;
         }
         var patternBuilder = new StringBuilder();
-        final char[] patternArray = patternPath.toCharArray();
+        char[] patternArray = patternPath.toCharArray();
         int firstIndex = 0;
         for (int i = 0; i < patternArray.length; i++) {
             char c = patternArray[i];
@@ -174,11 +174,11 @@ public class ParamUtils {
 
     public static String appendQueryParameter(String redirectTo, MultiMap queryParams) {
         try {
-            final var query = new URL(redirectTo).getQuery();
-            final var redirectQueryParams =
+            var query = new URL(redirectTo).getQuery();
+            var redirectQueryParams =
                     isNullOrEmpty(query) ? Collections.emptyMap() : URLEncodedUtils.format(query);
 
-            final var uriBuilder = UriBuilder.fromHttpUrl(redirectTo);
+            var uriBuilder = UriBuilder.fromHttpUrl(redirectTo);
             queryParams.forEach(
                     entry -> {
                         if (!redirectQueryParams.containsKey(entry.getKey())) {
