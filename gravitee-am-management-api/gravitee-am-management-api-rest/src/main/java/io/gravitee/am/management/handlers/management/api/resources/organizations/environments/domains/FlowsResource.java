@@ -75,7 +75,7 @@ public class FlowsResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         User authenticatedUser = getAuthenticatedUser();
 
@@ -124,10 +124,10 @@ public class FlowsResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @ApiParam(name = "flows", required = true) @Valid @NotNull
-                    final List<io.gravitee.am.service.model.Flow> flows,
-            @Suspended final AsyncResponse response) {
+                    List<io.gravitee.am.service.model.Flow> flows,
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.UPDATE)

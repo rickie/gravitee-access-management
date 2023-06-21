@@ -78,7 +78,7 @@ public class CibaTokenGranter extends AbstractTokenGranter {
     @Override
     protected Single<TokenRequest> parseRequest(TokenRequest tokenRequest, Client client) {
         MultiValueMap<String, String> parameters = tokenRequest.parameters();
-        final String authReqId = parameters.getFirst(Parameters.AUTH_REQ_ID);
+        String authReqId = parameters.getFirst(Parameters.AUTH_REQ_ID);
 
         if (isEmpty(authReqId)) {
             return Single.error(new InvalidRequestException("Missing parameter: auth_req_id"));

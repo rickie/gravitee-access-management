@@ -39,7 +39,7 @@ public class AuthenticationRequestCallbackHandler implements Handler<RoutingCont
 
     @Override
     public void handle(RoutingContext context) {
-        final ADCallbackContext adCallbackContext =
+        ADCallbackContext adCallbackContext =
                 new ADCallbackContext(context.request().headers(), context.request().params());
         authRequestService
                 .validateUserResponse(adCallbackContext)

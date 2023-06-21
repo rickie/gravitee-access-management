@@ -111,7 +111,7 @@ public class LoginCallbackParseHandler implements Handler<RoutingContext> {
     private void restoreInitialQueryParams(
             RoutingContext context, Handler<AsyncResult<Boolean>> handler) {
 
-        final String state =
+        String state =
                 context.request().getParam(Parameters.STATE) != null
                         ? context.request().getParam(Parameters.STATE)
                         : (context.request().getParam(RELAY_STATE_PARAM_KEY) != null
@@ -129,7 +129,7 @@ public class LoginCallbackParseHandler implements Handler<RoutingContext> {
                 .decodeAndVerify(state, certificateManager.defaultCertificateProvider())
                 .doOnSuccess(
                         stateJwt -> {
-                            final MultiMap initialQueryParams =
+                            MultiMap initialQueryParams =
                                     RequestUtils.getQueryParams(
                                             (String) stateJwt.getOrDefault("q", ""), false);
                             context.put(ConstantKeys.PARAM_CONTEXT_KEY, initialQueryParams);
@@ -155,7 +155,7 @@ public class LoginCallbackParseHandler implements Handler<RoutingContext> {
             return;
         }
 
-        final String clientId =
+        String clientId =
                 ((MultiMap) context.get(ConstantKeys.PARAM_CONTEXT_KEY)).get(Parameters.CLIENT_ID);
         clientSyncService
                 .findByClientId(clientId)
@@ -176,7 +176,7 @@ public class LoginCallbackParseHandler implements Handler<RoutingContext> {
     private void parseSocialProvider(
             RoutingContext context, Handler<AsyncResult<AuthenticationProvider>> handler) {
 
-        final String providerId = context.get(ConstantKeys.PROVIDER_ID_PARAM_KEY);
+        String providerId = context.get(ConstantKeys.PROVIDER_ID_PARAM_KEY);
 
         if (StringUtils.isEmpty(providerId)) {
             logger.error("No provider identifier on login callback");

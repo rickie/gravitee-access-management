@@ -118,7 +118,7 @@ public class AzureADAuthenticationProviderTest {
         when(configuration.getClientId()).thenReturn("testClientId");
         when(configuration.getTenantId()).thenReturn(TEST_TENANT_ID);
 
-        final String state = RandomString.generate();
+        String state = RandomString.generate();
         Request request = provider.signInUrl("https://gravitee.io", state);
 
         Assert.assertNotNull(request);
@@ -141,7 +141,7 @@ public class AzureADAuthenticationProviderTest {
         when(configuration.getClientId()).thenReturn("testClientId");
         when(configuration.getTenantId()).thenReturn(TEST_TENANT_ID);
 
-        final String state = RandomString.generate();
+        String state = RandomString.generate();
         Request request = provider.asyncSignInUrl("https://gravitee.io", state).blockingGet();
 
         Assert.assertNotNull(request);
@@ -170,7 +170,7 @@ public class AzureADAuthenticationProviderTest {
 
         forceProviderInfoForTest();
 
-        final String state = RandomString.generate();
+        String state = RandomString.generate();
         Request request = provider.signInUrl("https://gravitee.io", state);
 
         Assert.assertNotNull(request);
@@ -310,7 +310,7 @@ public class AzureADAuthenticationProviderTest {
     public void shouldAuthenticate_invalidJwt() throws Exception {
         forceProviderInfoForTest();
 
-        final String badJwt =
+        String badJwt =
                 "eyJraWQiOiJkZWZhdWx0LWdyYXZpdGVlLUFNLWtleSIsImFsZyI6IkhTMjU2In0.eyJzdWIiOiJzdWJqb2huZG9lIiwiYXVkIjoiYXVkc3Viam9obmRvZSIsImF1dGhfdGltZSI6MTU5NDkxMjU1MywiaXNzIjoiaHR0cDovL2dyYXZpdGVlLmlvL2RvbWFpbi10ZXN0L29pZGMiLCJuYW1lIjoiSm9obiBEb2UiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJqb2huLmRvZUBncmF2aXRlZXNvdXJjZS5jb20iLCJleHAiOjE1OTQ5MjY5ODEsImdpdmVuX25hbWUiOiJKb2huIiwiaWF0IjoxNTk0OTEyNTgxLCJmYW1pbHlfbmFtZSI6IkRvZSJ9.Kgr8PkN9GRtfeASpBF1uvUlK14SEQRIk-XtvwloGzdo";
 
         Authentication authentication = mock(Authentication.class);

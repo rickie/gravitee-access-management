@@ -37,7 +37,7 @@ public class UserConsentPostEndpoint implements Handler<RoutingContext> {
     public void handle(RoutingContext routingContext) {
         // consent has been processed, replay authorization request
         try {
-            final String authorizationRequestUrl =
+            String authorizationRequestUrl =
                     UriBuilderRequest.resolveProxyRequest(
                             routingContext.request(),
                             routingContext.get(CONTEXT_PATH) + "/oauth/authorize",

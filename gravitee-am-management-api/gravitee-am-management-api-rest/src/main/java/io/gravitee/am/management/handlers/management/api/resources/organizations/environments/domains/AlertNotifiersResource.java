@@ -66,7 +66,7 @@ public class AlertNotifiersResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST)
@@ -99,9 +99,9 @@ public class AlertNotifiersResource extends AbstractResource {
             @PathParam("domain") String domainId,
             @ApiParam(name = "alertNotifier", required = true) @Valid @NotNull
                     NewAlertNotifier newAlertNotifier,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = this.getAuthenticatedUser();
+        User authenticatedUser = this.getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.CREATE)

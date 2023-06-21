@@ -70,10 +70,10 @@ public class AlertTriggerServiceTest {
 
     @Test
     public void getById() {
-        final AlertTrigger alertTrigger = new AlertTrigger();
+        AlertTrigger alertTrigger = new AlertTrigger();
         when(alertTriggerRepository.findById(ALERT_TRIGGER_ID))
                 .thenReturn(Maybe.just(alertTrigger));
-        final TestObserver<AlertTrigger> obs = cut.getById(ALERT_TRIGGER_ID).test();
+        TestObserver<AlertTrigger> obs = cut.getById(ALERT_TRIGGER_ID).test();
 
         obs.awaitTerminalEvent();
         obs.assertValue(alertTrigger);
@@ -82,7 +82,7 @@ public class AlertTriggerServiceTest {
     @Test
     public void getByIdNotFound() {
         when(alertTriggerRepository.findById(ALERT_TRIGGER_ID)).thenReturn(Maybe.empty());
-        final TestObserver<AlertTrigger> obs = cut.getById(ALERT_TRIGGER_ID).test();
+        TestObserver<AlertTrigger> obs = cut.getById(ALERT_TRIGGER_ID).test();
 
         obs.awaitTerminalEvent();
         obs.assertError(AlertTriggerNotFoundException.class);
@@ -90,12 +90,11 @@ public class AlertTriggerServiceTest {
 
     @Test
     public void findByDomainAndCriteria() {
-        final AlertTrigger alertTrigger = new AlertTrigger();
-        final AlertTriggerCriteria criteria = new AlertTriggerCriteria();
+        AlertTrigger alertTrigger = new AlertTrigger();
+        AlertTriggerCriteria criteria = new AlertTriggerCriteria();
         when(alertTriggerRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria))
                 .thenReturn(Flowable.just(alertTrigger));
-        final TestSubscriber<AlertTrigger> obs =
-                cut.findByDomainAndCriteria(DOMAIN_ID, criteria).test();
+        TestSubscriber<AlertTrigger> obs = cut.findByDomainAndCriteria(DOMAIN_ID, criteria).test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -104,11 +103,11 @@ public class AlertTriggerServiceTest {
 
     @Test
     public void create() {
-        final AlertTriggerCriteria criteria = new AlertTriggerCriteria();
+        AlertTriggerCriteria criteria = new AlertTriggerCriteria();
         criteria.setType(AlertTriggerType.TOO_MANY_LOGIN_FAILURES);
 
-        final List<String> alertNotifierIds = Collections.singletonList("alertNotifier#1");
-        final PatchAlertTrigger patchAlertTrigger = new PatchAlertTrigger();
+        List<String> alertNotifierIds = Collections.singletonList("alertNotifier#1");
+        PatchAlertTrigger patchAlertTrigger = new PatchAlertTrigger();
         patchAlertTrigger.setType(AlertTriggerType.TOO_MANY_LOGIN_FAILURES);
         patchAlertTrigger.setEnabled(Optional.of(true));
         patchAlertTrigger.setAlertNotifiers(Optional.of(alertNotifierIds));
@@ -119,7 +118,7 @@ public class AlertTriggerServiceTest {
                 .thenAnswer(i -> Single.just(i.getArgument(0)));
         when(eventService.create(any(Event.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
 
-        final TestObserver<AlertTrigger> obs =
+        TestObserver<AlertTrigger> obs =
                 cut.createOrUpdate(
                                 ReferenceType.DOMAIN,
                                 DOMAIN_ID,
@@ -147,16 +146,16 @@ public class AlertTriggerServiceTest {
 
     @Test
     public void update() {
-        final AlertTriggerCriteria criteria = new AlertTriggerCriteria();
+        AlertTriggerCriteria criteria = new AlertTriggerCriteria();
         criteria.setType(AlertTriggerType.TOO_MANY_LOGIN_FAILURES);
 
-        final List<String> alertNotifierIds = Collections.singletonList("alertNotifier#1");
-        final PatchAlertTrigger patchAlertTrigger = new PatchAlertTrigger();
+        List<String> alertNotifierIds = Collections.singletonList("alertNotifier#1");
+        PatchAlertTrigger patchAlertTrigger = new PatchAlertTrigger();
         patchAlertTrigger.setType(AlertTriggerType.TOO_MANY_LOGIN_FAILURES);
         patchAlertTrigger.setEnabled(Optional.of(true));
         patchAlertTrigger.setAlertNotifiers(Optional.of(alertNotifierIds));
 
-        final AlertTrigger existingAlertTrigger = new AlertTrigger();
+        AlertTrigger existingAlertTrigger = new AlertTrigger();
         existingAlertTrigger.setId(ALERT_TRIGGER_ID);
         existingAlertTrigger.setType(AlertTriggerType.TOO_MANY_LOGIN_FAILURES);
         when(alertTriggerRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria))
@@ -165,7 +164,7 @@ public class AlertTriggerServiceTest {
                 .thenAnswer(i -> Single.just(i.getArgument(0)));
         when(eventService.create(any(Event.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
 
-        final TestObserver<AlertTrigger> obs =
+        TestObserver<AlertTrigger> obs =
                 cut.createOrUpdate(
                                 ReferenceType.DOMAIN,
                                 DOMAIN_ID,

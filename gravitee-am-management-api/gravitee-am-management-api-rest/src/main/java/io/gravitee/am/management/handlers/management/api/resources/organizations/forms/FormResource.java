@@ -63,8 +63,8 @@ public class FormResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("form") String form,
             @ApiParam(name = "form", required = true) @Valid @NotNull UpdateForm updateForm,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -93,8 +93,8 @@ public class FormResource extends AbstractResource {
     public void delete(
             @PathParam("organizationId") String organizationId,
             @PathParam("form") String form,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

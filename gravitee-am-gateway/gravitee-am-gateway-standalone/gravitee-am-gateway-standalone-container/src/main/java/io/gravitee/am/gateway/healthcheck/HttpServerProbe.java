@@ -47,7 +47,7 @@ public class HttpServerProbe implements Probe {
 
     @Override
     public CompletableFuture<Result> check() {
-        final CompletableFuture<Result> future = new CompletableFuture<>();
+        CompletableFuture<Result> future = new CompletableFuture<>();
 
         NetClientOptions options = new NetClientOptions().setConnectTimeout(500);
         NetClient client = vertx.createNetClient(options);

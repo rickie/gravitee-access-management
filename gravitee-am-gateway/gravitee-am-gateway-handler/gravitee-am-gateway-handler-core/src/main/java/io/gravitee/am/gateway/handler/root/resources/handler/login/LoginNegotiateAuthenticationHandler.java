@@ -70,8 +70,8 @@ public class LoginNegotiateAuthenticationHandler implements Handler<RoutingConte
                 return;
             }
 
-            final String ipAddress = RequestUtils.remoteAddress(context.request());
-            final String userAgent = RequestUtils.userAgent(context.request());
+            String ipAddress = RequestUtils.remoteAddress(context.request());
+            String userAgent = RequestUtils.userAgent(context.request());
 
             JsonObject authInfo =
                     new JsonObject()
@@ -100,14 +100,14 @@ public class LoginNegotiateAuthenticationHandler implements Handler<RoutingConte
                                 // mutual authentication is requested by client,
                                 // update the context with the challenge token
                                 // redirect to login page
-                                final MultiMap queryParams =
+                                MultiMap queryParams =
                                         RequestUtils.getCleanedQueryParams(context.request())
                                                 .add(ASK_FOR_NEGOTIATE_KEY, "true")
                                                 .add(
                                                         NEGOTIATE_CONTINUE_TOKEN_KEY,
                                                         ((NegotiateContinueException) res.cause())
                                                                 .getToken());
-                                final String redirectUri =
+                                String redirectUri =
                                         UriBuilderRequest.resolveProxyRequest(
                                                 context.request(),
                                                 context.get(CONTEXT_PATH) + "/login",
@@ -126,7 +126,7 @@ public class LoginNegotiateAuthenticationHandler implements Handler<RoutingConte
 
                         // authentication success
                         // set user into the context and continue
-                        final User result = res.result();
+                        User result = res.result();
                         context.getDelegate().setUser(result);
                         context.put(ConstantKeys.USER_CONTEXT_KEY, result.getUser());
                         context.next();
@@ -135,7 +135,7 @@ public class LoginNegotiateAuthenticationHandler implements Handler<RoutingConte
             LOGGER.debug("SPNEGO token is missing, continue flow to display login form");
 
             // create post action url.
-            final MultiMap queryParams =
+            MultiMap queryParams =
                     RequestUtils.getCleanedQueryParams(context.request())
                             .add(ASK_FOR_NEGOTIATE_KEY, "true");
             context.put(

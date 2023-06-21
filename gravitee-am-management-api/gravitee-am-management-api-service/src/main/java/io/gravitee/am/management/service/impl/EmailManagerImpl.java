@@ -138,8 +138,8 @@ public class EmailManagerImpl extends AbstractService<EmailManager>
                 .map(
                         customEmail -> {
                             // try to found email template in the local map
-                            final String templateName = getTemplateName(customEmail);
-                            final Email localEmailTemplate = emailTemplates.get(templateName);
+                            String templateName = getTemplateName(customEmail);
+                            Email localEmailTemplate = emailTemplates.get(templateName);
                             if (localEmailTemplate != null
                                     && localEmailTemplate.getUpdatedAt().getTime()
                                             >= customEmail.getUpdatedAt().getTime()) {
@@ -184,7 +184,7 @@ public class EmailManagerImpl extends AbstractService<EmailManager>
     }
 
     public void loadEmail(Email email) {
-        final String templateName = getTemplateName(email);
+        String templateName = getTemplateName(email);
         if (email.isEnabled()) {
             reloadTemplate(templateName + TEMPLATE_SUFFIX, email.getContent());
             emailTemplates.put(templateName, email);

@@ -99,11 +99,11 @@ public class EnrichAuthFlowPolicy {
             data.put(property.getKey(), value);
         }
 
-        final Instant now = Instant.now();
-        final AuthenticationFlowContextRepository authContextRepository =
+        Instant now = Instant.now();
+        AuthenticationFlowContextRepository authContextRepository =
                 executionContext.getComponent(AuthenticationFlowContextRepository.class);
-        final Environment environment = executionContext.getComponent(Environment.class);
-        final Integer expiration =
+        Environment environment = executionContext.getComponent(Environment.class);
+        Integer expiration =
                 environment.getProperty("authenticationFlow.expirationTimeOut", Integer.class, 300);
 
         AuthenticationFlowContext authContext =

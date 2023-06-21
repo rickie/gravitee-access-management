@@ -85,7 +85,7 @@ public class ThemeResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
             @PathParam("themeId") String themeId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
         checkAnyPermission(
                         organizationId, environmentId, domainId, Permission.DOMAIN_THEME, Acl.READ)
                 .andThen(
@@ -121,11 +121,10 @@ public class ThemeResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
             @PathParam("themeId") String themeId,
-            @ApiParam(name = "theme", required = true) @Valid @NotNull
-                    final ThemeEntity updateTheme,
-            @Suspended final AsyncResponse response) {
+            @ApiParam(name = "theme", required = true) @Valid @NotNull ThemeEntity updateTheme,
+            @Suspended AsyncResponse response) {
 
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         if (isNull(updateTheme.getId())) {
             updateTheme.setId(themeId);
@@ -140,7 +139,7 @@ public class ThemeResource extends AbstractResource {
         if (!(themeId.equals(updateTheme.getId())
                 && domainId.equals(updateTheme.getReferenceId())
                 && ReferenceType.DOMAIN.equals(updateTheme.getReferenceType()))) {
-            final ErrorEntity error = new ErrorEntity();
+            ErrorEntity error = new ErrorEntity();
             error.setHttpCode(BAD_REQUEST.getStatusCode());
             error.setMessage("ThemeId or ReferenceId mismatch");
             response.resume(
@@ -185,8 +184,8 @@ public class ThemeResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
             @PathParam("themeId") String theme,
-            @Suspended final AsyncResponse response) {
-        final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,

@@ -189,7 +189,7 @@ public class OpenIDDiscoveryServiceImpl implements OpenIDDiscoveryService, Initi
         // request_object
         openIDProviderMetadata.setRequestObjectSigningAlgValuesSupported(
                 JWAlgorithmUtils.getSupportedRequestObjectSigningAlg());
-        final List<String> supportedRequestObjectAlg =
+        List<String> supportedRequestObjectAlg =
                 new ArrayList<>(JWAlgorithmUtils.getSupportedRequestObjectAlg());
         if (domain.useFapiBrazilProfile()) {
             // FAPI Brazil conformance test requires this alg (even if we specify RSA_OAEP_256 as
@@ -216,10 +216,9 @@ public class OpenIDDiscoveryServiceImpl implements OpenIDDiscoveryService, Initi
         }
 
         // certificate bound accessToken requires TLS & Client Auth
-        final Boolean secured = env.getProperty("http.secured", Boolean.class, false);
-        final String clientAuth = env.getProperty("http.ssl.clientAuth", String.class, "none");
-        final String clientCert =
-                env.getProperty(ConstantKeys.HTTP_SSL_CERTIFICATE_HEADER, String.class);
+        Boolean secured = env.getProperty("http.secured", Boolean.class, false);
+        String clientAuth = env.getProperty("http.ssl.clientAuth", String.class, "none");
+        String clientCert = env.getProperty(ConstantKeys.HTTP_SSL_CERTIFICATE_HEADER, String.class);
 
         if (domain.useCiba()) {
             openIDProviderMetadata.setBackchannelAuthenticationSigningAlg(
@@ -231,15 +230,14 @@ public class OpenIDDiscoveryServiceImpl implements OpenIDDiscoveryService, Initi
             openIDProviderMetadata.setBackchannelUserCodeSupported(false);
         }
 
-        final boolean mtlsEnabled =
+        boolean mtlsEnabled =
                 clientCert != null || (secured && !clientAuth.equalsIgnoreCase("none"));
         openIDProviderMetadata.setTlsClientCertificateBoundAccessTokens(mtlsEnabled);
 
         if (mtlsEnabled && this.mtlsAliasEndpoints != null && !this.mtlsAliasEndpoints.isEmpty()) {
             MtlsEndpointAliases aliases = new MtlsEndpointAliases();
 
-            final String endpoint =
-                    getMtlsAliasFor(ConstantKeys.HTTP_SSL_ALIASES_BASE_URL, basePath);
+            String endpoint = getMtlsAliasFor(ConstantKeys.HTTP_SSL_ALIASES_BASE_URL, basePath);
             if (isMtlsAliasEnabledFor(ConstantKeys.HTTP_SSL_ALIASES_ENDPOINTS_TOKEN)) {
                 aliases.setTokenEndpoint(getEndpointAbsoluteURL(endpoint, TOKEN_ENDPOINT));
             }

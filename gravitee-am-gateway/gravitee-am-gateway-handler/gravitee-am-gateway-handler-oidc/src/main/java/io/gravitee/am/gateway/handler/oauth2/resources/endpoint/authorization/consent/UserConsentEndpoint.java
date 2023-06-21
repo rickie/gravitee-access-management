@@ -61,17 +61,17 @@ public class UserConsentEndpoint implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext routingContext) {
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final io.gravitee.am.model.User user =
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        io.gravitee.am.model.User user =
                 routingContext.user() != null
                         ? ((User) routingContext.user().getDelegate()).getUser()
                         : null;
-        final String action =
+        String action =
                 UriBuilderRequest.resolveProxyRequest(
                         routingContext.request(), routingContext.request().uri());
-        final AuthorizationRequest authorizationRequest =
+        AuthorizationRequest authorizationRequest =
                 routingContext.get(ConstantKeys.AUTHORIZATION_REQUEST_CONTEXT_KEY);
-        final boolean prompt = authorizationRequest.getPrompts().contains("consent");
+        boolean prompt = authorizationRequest.getPrompts().contains("consent");
 
         // fetch scope information (name + description)
         fetchConsentInformation(
@@ -112,7 +112,7 @@ public class UserConsentEndpoint implements Handler<RoutingContext> {
             io.gravitee.am.model.User user,
             Handler<AsyncResult<List<Scope>>> handler) {
 
-        final Single<List<Scope>> consentInformation;
+        Single<List<Scope>> consentInformation;
 
         if (prompt) {
             consentInformation = userConsentService.getConsentInformation(requestedConsents);

@@ -63,8 +63,8 @@ public class WebAuthnLoginCredentialsEndpoint extends WebAuthnHandler {
     private void createCredentialRequestOptions(RoutingContext ctx) {
         try {
             // might throw runtime exception if there's no json or is bad formed
-            final JsonObject webauthnLogin = ctx.getBodyAsJson();
-            final Session session = ctx.session();
+            JsonObject webauthnLogin = ctx.getBodyAsJson();
+            Session session = ctx.session();
 
             // input validation
             if (isEmptyString(webauthnLogin, "name")) {
@@ -80,7 +80,7 @@ public class WebAuthnLoginCredentialsEndpoint extends WebAuthnHandler {
                 return;
             }
 
-            final String username = webauthnLogin.getString("name");
+            String username = webauthnLogin.getString("name");
 
             // STEP 18 Generate assertion
             webAuthn.getCredentialsOptions(
@@ -93,7 +93,7 @@ public class WebAuthnLoginCredentialsEndpoint extends WebAuthnHandler {
                             return;
                         }
 
-                        final JsonObject getAssertion = generateServerGetAssertion.result();
+                        JsonObject getAssertion = generateServerGetAssertion.result();
 
                         session.put(
                                         ConstantKeys.PASSWORDLESS_CHALLENGE_KEY,

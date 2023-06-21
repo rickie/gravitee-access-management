@@ -68,7 +68,7 @@ public class GroupServiceTest {
 
     @Test
     public void shouldCreateGroup() {
-        final String domainId = "domain";
+        String domainId = "domain";
 
         Group newGroup = mock(Group.class);
         when(newGroup.getDisplayName()).thenReturn("my-group");
@@ -90,7 +90,7 @@ public class GroupServiceTest {
 
     @Test
     public void shouldCreateGroup_with_members() {
-        final String domainId = "domain";
+        String domainId = "domain";
 
         User user = mock(User.class);
         when(user.getId()).thenReturn("12345");
@@ -123,7 +123,7 @@ public class GroupServiceTest {
 
     @Test
     public void shouldNotCreateGroup_already_exist() {
-        final String domainId = "domain";
+        String domainId = "domain";
 
         Group newGroup = mock(Group.class);
         when(newGroup.getDisplayName()).thenReturn("my-group");
@@ -141,9 +141,9 @@ public class GroupServiceTest {
 
     @Test
     public void shouldPatchGroup() throws Exception {
-        final String domainId = "domain";
-        final String domainName = "domainName";
-        final String groupId = "groupId";
+        String domainId = "domain";
+        String domainName = "domainName";
+        String groupId = "groupId";
 
         ObjectNode groupNode = mock(ObjectNode.class);
         when(groupNode.get("displayName")).thenReturn(new TextNode("my group"));
@@ -189,9 +189,9 @@ public class GroupServiceTest {
 
     @Test
     public void shouldPatchGroup_PreserveRoles() throws Exception {
-        final String domainId = "domain";
-        final String domainName = "domainName";
-        final String groupId = "groupId";
+        String domainId = "domain";
+        String domainName = "domainName";
+        String groupId = "groupId";
 
         ObjectNode groupNode = mock(ObjectNode.class);
         when(groupNode.get("displayName")).thenReturn(new TextNode("my group"));
@@ -217,7 +217,7 @@ public class GroupServiceTest {
         when(objectMapper.convertValue(any(), eq(ObjectNode.class))).thenReturn(groupNode);
         when(objectMapper.treeToValue(groupNode, Group.class)).thenReturn(patchGroup);
 
-        final io.gravitee.am.model.Group existingGroup = new io.gravitee.am.model.Group();
+        io.gravitee.am.model.Group existingGroup = new io.gravitee.am.model.Group();
         existingGroup.setRoles(List.of("role1"));
         existingGroup.setDescription("group description");
         existingGroup.setId("my-group-id");

@@ -59,7 +59,7 @@ public class UserNotificationRepositoryTest extends AbstractManagementTest {
         userNotification.setStatus(UserNotificationStatus.UNREAD);
         repository.create(userNotification).blockingGet();
 
-        final TestSubscriber<UserNotification> testSubscriber =
+        TestSubscriber<UserNotification> testSubscriber =
                 repository
                         .findAllByAudienceAndStatus("audid", UserNotificationStatus.UNREAD)
                         .test();
@@ -86,7 +86,7 @@ public class UserNotificationRepositoryTest extends AbstractManagementTest {
         testSubscriber.assertNoErrors();
         testSubscriber.assertValueCount(1);
 
-        final TestObserver<Void> update =
+        TestObserver<Void> update =
                 repository
                         .updateNotificationStatus(
                                 createdNotification.getId(), UserNotificationStatus.READ)
@@ -131,7 +131,7 @@ public class UserNotificationRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testNotFoundById() throws TechnicalException {
-        final TestObserver<UserNotification> test = repository.findById("test").test();
+        TestObserver<UserNotification> test = repository.findById("test").test();
         test.awaitTerminalEvent();
         test.assertNoValues();
         test.assertNoErrors();
@@ -213,8 +213,7 @@ public class UserNotificationRepositoryTest extends AbstractManagementTest {
         testObserver.assertNoErrors();
 
         // fetch tag
-        final TestObserver<UserNotification> test =
-                repository.findById(notification.getId()).test();
+        TestObserver<UserNotification> test = repository.findById(notification.getId()).test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
         test.assertNoValues();
