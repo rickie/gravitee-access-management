@@ -63,8 +63,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public User onAuthenticationSuccess(Authentication auth) {
-        final DefaultUser principal = (DefaultUser) auth.getPrincipal();
-        final EndUserAuthentication authentication =
+        DefaultUser principal = (DefaultUser) auth.getPrincipal();
+        EndUserAuthentication authentication =
                 new EndUserAuthentication(
                         principal.getUsername(), null, new SimpleAuthenticationContext());
         Map<String, String> details =
@@ -75,7 +75,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String organizationId = details.get(Claims.organization);
 
-        final String source = details.get(SOURCE);
+        String source = details.get(SOURCE);
         io.gravitee.am.model.User endUser =
                 userService
                         .findByExternalIdAndSource(
@@ -117,7 +117,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         .onErrorResumeNext(
                                 ex -> {
                                     if (ex instanceof UserNotFoundException) {
-                                        final io.gravitee.am.model.User newUser =
+                                        io.gravitee.am.model.User newUser =
                                                 new io.gravitee.am.model.User();
                                         newUser.setInternal(false);
                                         newUser.setExternalId(principal.getId());
@@ -196,7 +196,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         // role to update if it's different from the current one
-        final String roleId = principal.getRoles().get(0);
+        String roleId = principal.getRoles().get(0);
 
         // update membership if necessary
         return membershipService

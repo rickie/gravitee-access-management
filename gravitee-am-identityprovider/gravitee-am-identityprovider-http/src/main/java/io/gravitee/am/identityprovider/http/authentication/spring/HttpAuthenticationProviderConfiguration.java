@@ -54,7 +54,7 @@ public class HttpAuthenticationProviderConfiguration {
                 .setConnectTimeout(configuration.getConnectTimeout())
                 .setMaxPoolSize(configuration.getMaxPoolSize());
 
-        final boolean ssl =
+        boolean ssl =
                 configuration.getAuthenticationResource().getBaseURL() != null
                         && configuration
                                 .getAuthenticationResource()

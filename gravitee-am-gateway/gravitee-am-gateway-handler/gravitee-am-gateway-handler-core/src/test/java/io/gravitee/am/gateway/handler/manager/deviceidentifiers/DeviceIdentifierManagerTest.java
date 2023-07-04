@@ -75,7 +75,7 @@ public class DeviceIdentifierManagerTest {
     @Test
     public void mustAdd_RememberDeviceIsNotActive_RememberDeviceSettingsNull() {
         var client = new Client();
-        final MFASettings mfaSettings = new MFASettings();
+        MFASettings mfaSettings = new MFASettings();
         client.setMfaSettings(mfaSettings);
         var map = cut.getTemplateVariables(client);
         assertFalse((boolean) map.get(REMEMBER_DEVICE_IS_ACTIVE));
@@ -86,7 +86,7 @@ public class DeviceIdentifierManagerTest {
     @Test
     public void mustAdd_RememberDeviceIsNotActive_RememberDeviceSettings_notEnabled() {
         var client = new Client();
-        final MFASettings mfaSettings = new MFASettings();
+        MFASettings mfaSettings = new MFASettings();
         mfaSettings.setRememberDevice(new RememberDeviceSettings());
         client.setMfaSettings(mfaSettings);
         var map = cut.getTemplateVariables(client);
@@ -98,8 +98,8 @@ public class DeviceIdentifierManagerTest {
     @Test
     public void mustAdd_RememberDeviceIsNotActive_RememberDeviceSettings_noRememberDevice() {
         var client = new Client();
-        final MFASettings mfaSettings = new MFASettings();
-        final RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
+        MFASettings mfaSettings = new MFASettings();
+        RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
         rememberDevice.setActive(true);
         mfaSettings.setRememberDevice(rememberDevice);
         client.setMfaSettings(mfaSettings);
@@ -112,8 +112,8 @@ public class DeviceIdentifierManagerTest {
     @Test
     public void mustAdd_RememberDeviceActiveAndCallProvider() {
         var client = new Client();
-        final MFASettings mfaSettings = new MFASettings();
-        final RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
+        MFASettings mfaSettings = new MFASettings();
+        RememberDeviceSettings rememberDevice = new RememberDeviceSettings();
         rememberDevice.setActive(true);
         rememberDevice.setDeviceIdentifierId(REMEMBER_DEVICE_ID);
         mfaSettings.setRememberDevice(rememberDevice);

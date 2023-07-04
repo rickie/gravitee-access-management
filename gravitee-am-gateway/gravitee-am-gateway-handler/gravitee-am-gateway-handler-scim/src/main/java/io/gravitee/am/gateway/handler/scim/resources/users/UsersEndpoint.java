@@ -63,7 +63,7 @@ public class UsersEndpoint extends AbstractUserEndpoint {
         // The 1-based index of the first query result.
         // A value less than 1 SHALL be interpreted as 1.
         try {
-            final String startIndex = context.request().getParam("startIndex");
+            String startIndex = context.request().getParam("startIndex");
             page = Integer.valueOf(startIndex);
         } catch (Exception ex) {
         }
@@ -72,14 +72,14 @@ public class UsersEndpoint extends AbstractUserEndpoint {
         // A value of "0"  indicates that no resource results are to be returned except for
         // "totalResults".
         try {
-            final String count = context.request().getParam("count");
+            String count = context.request().getParam("count");
             size = Integer.min(Integer.valueOf(count), MAX_ITEMS_PER_PAGE);
         } catch (Exception ex) {
 
         }
 
         // Filter results
-        final String filterParam = context.request().getParam("filter");
+        String filterParam = context.request().getParam("filter");
         if (filterParam != null && !filterParam.isEmpty()) {
             try {
                 filter = SCIMFilterParser.parse(filterParam);
@@ -144,20 +144,20 @@ public class UsersEndpoint extends AbstractUserEndpoint {
      */
     public void create(RoutingContext context) {
         try {
-            final String body = context.getBodyAsString();
+            String body = context.getBodyAsString();
             if (body == null) {
                 context.fail(new InvalidSyntaxException("Unable to parse body message"));
                 return;
             }
 
             // determine the User resource type via the schemas value
-            final Map<String, Object> payload = Json.decodeValue(body, Map.class);
-            final List<String> schemas =
+            Map<String, Object> payload = Json.decodeValue(body, Map.class);
+            List<String> schemas =
                     (List<String>)
                             Optional.ofNullable(payload.get("schemas"))
                                     .orElse(Collections.emptyList());
 
-            final User user = evaluateUser(schemas, body);
+            User user = evaluateUser(schemas, body);
 
             // username is required
             if (user.getUserName() == null || user.getUserName().isEmpty()) {
@@ -175,9 +175,9 @@ public class UsersEndpoint extends AbstractUserEndpoint {
             }
 
             // handle identity provider source
-            final String source = userSource(context);
-            final JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
-            final String baseUrl = location(context.request());
+            String source = userSource(context);
+            JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
+            String baseUrl = location(context.request());
             userService
                     .get(accessToken.getSub(), baseUrl)
                     .map(scimUser -> new DefaultUser(UserMapper.convert(scimUser)))

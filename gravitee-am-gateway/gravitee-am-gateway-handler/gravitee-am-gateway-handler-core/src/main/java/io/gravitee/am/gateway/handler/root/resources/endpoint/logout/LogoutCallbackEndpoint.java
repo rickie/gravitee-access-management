@@ -93,7 +93,7 @@ public class LogoutCallbackEndpoint extends AbstractLogoutEndpoint {
                                     routingContext.fail(sessionHandler.cause());
                                     return;
                                 }
-                                final UserToken currentSession = sessionHandler.result();
+                                UserToken currentSession = sessionHandler.result();
                                 // current session shouldn't be null in this logoutCallbackEndpoint
                                 // but for safety we test it.
                                 if (currentSession != null) {
@@ -117,7 +117,7 @@ public class LogoutCallbackEndpoint extends AbstractLogoutEndpoint {
     }
 
     private void restoreState(RoutingContext context, Handler<AsyncResult<Boolean>> handler) {
-        final String state = context.request().getParam(Parameters.STATE);
+        String state = context.request().getParam(Parameters.STATE);
 
         if (StringUtils.isEmpty(state)) {
             logger.error("No state on login callback");
@@ -130,7 +130,7 @@ public class LogoutCallbackEndpoint extends AbstractLogoutEndpoint {
                 .decodeAndVerify(state, certificateManager.defaultCertificateProvider())
                 .doOnSuccess(
                         stateJwt -> {
-                            final MultiMap initialQueryParams =
+                            MultiMap initialQueryParams =
                                     RequestUtils.getQueryParams(
                                             (String) stateJwt.getOrDefault("q", ""), false);
                             context.put(ConstantKeys.PARAM_CONTEXT_KEY, initialQueryParams);
@@ -157,11 +157,10 @@ public class LogoutCallbackEndpoint extends AbstractLogoutEndpoint {
         // The OP SHOULD accept ID Tokens when the RP identified by the ID Token's aud claim and/or
         // sid claim has a current session
         // or had a recent session at the OP, even when the exp time has passed.
-        final MultiMap originalLogoutQueryParams =
-                routingContext.get(ConstantKeys.PARAM_CONTEXT_KEY);
+        MultiMap originalLogoutQueryParams = routingContext.get(ConstantKeys.PARAM_CONTEXT_KEY);
         if (originalLogoutQueryParams != null
                 && originalLogoutQueryParams.contains(ConstantKeys.ID_TOKEN_HINT_KEY)) {
-            final String idToken = originalLogoutQueryParams.get(ConstantKeys.ID_TOKEN_HINT_KEY);
+            String idToken = originalLogoutQueryParams.get(ConstantKeys.ID_TOKEN_HINT_KEY);
             userService
                     .extractSessionFromIdToken(idToken)
                     .map(
@@ -193,13 +192,13 @@ public class LogoutCallbackEndpoint extends AbstractLogoutEndpoint {
             return;
         }
 
-        final User endUser =
+        User endUser =
                 routingContext.user() != null
                         ? ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
                                         routingContext.user().getDelegate())
                                 .getUser()
                         : null;
-        final String clientId = routingContext.get(Parameters.CLIENT_ID);
+        String clientId = routingContext.get(Parameters.CLIENT_ID);
         clientSyncService
                 .findByClientId(clientId)
                 .subscribe(

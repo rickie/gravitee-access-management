@@ -93,7 +93,7 @@ public class FacebookAuthenticationProvider
     protected Maybe<Token> authenticate(Authentication authentication) {
 
         // Prepare body request parameters.
-        final String authorizationCode =
+        String authorizationCode =
                 authentication
                         .getContext()
                         .request()

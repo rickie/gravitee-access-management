@@ -292,7 +292,7 @@ public class JdbcRoleRepository extends AbstractJdbcRepository
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        final List<String> resourceScopes = item.getOauthScopes();
+        List<String> resourceScopes = item.getOauthScopes();
         if (resourceScopes != null && !resourceScopes.isEmpty()) {
             action =
                     action.then(
@@ -355,7 +355,7 @@ public class JdbcRoleRepository extends AbstractJdbcRepository
 
         Mono<Integer> action = update.fetch().rowsUpdated();
 
-        final List<String> resourceScopes = item.getOauthScopes();
+        List<String> resourceScopes = item.getOauthScopes();
         if (resourceScopes != null && !resourceScopes.isEmpty()) {
             action =
                     action.then(

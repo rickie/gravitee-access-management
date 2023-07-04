@@ -39,8 +39,8 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void must_find_by_id() {
-        final String id = UUID.randomUUID().toString();
-        final String key = "key-" + UUID.randomUUID();
+        String id = UUID.randomUUID().toString();
+        String key = "key-" + UUID.randomUUID();
         var userActivity = buildUserActivity(id, key, "domainId");
         var createdUserActivity = userActivityRepository.create(userActivity).blockingGet();
         var testSubscriber = userActivityRepository.findById(id).test();
@@ -71,7 +71,7 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void must_not_find_by_id() {
-        final String id = UUID.randomUUID().toString();
+        String id = UUID.randomUUID().toString();
         var testSubscriber = userActivityRepository.findById(id).test();
 
         testSubscriber.assertEmpty();
@@ -79,8 +79,8 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void must_not_find_by_id_expired() {
-        final String id = UUID.randomUUID().toString();
-        final String key = "key-" + UUID.randomUUID();
+        String id = UUID.randomUUID().toString();
+        String key = "key-" + UUID.randomUUID();
         var userActivity = buildUserActivity(id, key, "domainId");
         userActivity.setExpireAt(new Date(System.currentTimeMillis() - 1000));
         userActivityRepository.create(userActivity).blockingGet();
@@ -91,7 +91,7 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void must_create_user_activity() {
-        final String key = "key-" + UUID.randomUUID();
+        String key = "key-" + UUID.randomUUID();
         var userActivity = buildUserActivity(UUID.randomUUID().toString(), key, "domainId");
         var testSubscriber = userActivityRepository.create(userActivity).test();
 
@@ -118,8 +118,8 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void must_update_user_activity() {
-        final String id = UUID.randomUUID().toString();
-        final String key = "key-" + UUID.randomUUID();
+        String id = UUID.randomUUID().toString();
+        String key = "key-" + UUID.randomUUID();
         var userActivity = buildUserActivity(id, key, "domainId");
         var createdUser = userActivityRepository.create(userActivity).blockingGet();
 
@@ -139,7 +139,7 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void must_find_by_domain_and_key() {
-        final String key = "key-" + UUID.randomUUID();
+        String key = "key-" + UUID.randomUUID();
         userActivityRepository.create(buildUserActivity(null, key, "domainId")).blockingGet();
         userActivityRepository.create(buildUserActivity(null, key, "domainId")).blockingGet();
         userActivityRepository.create(buildUserActivity(null, "key-2", "domainId2")).blockingGet();
@@ -156,7 +156,7 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void must_find_by_domain_and_key_limit_1() {
-        final String key = "key-" + UUID.randomUUID();
+        String key = "key-" + UUID.randomUUID();
         userActivityRepository.create(buildUserActivity(null, key, "domainId")).blockingGet();
         userActivityRepository.create(buildUserActivity(null, key, "domainId")).blockingGet();
         userActivityRepository.create(buildUserActivity(null, "key-2", "domainId2")).blockingGet();
@@ -173,7 +173,7 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void must_not_find_by_domain_and_key_expired() {
-        final String key = "key-" + UUID.randomUUID();
+        String key = "key-" + UUID.randomUUID();
         userActivityRepository
                 .create(
                         buildUserActivity(null, key, "domainId")
@@ -195,7 +195,7 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void must_delete_by_id() {
-        final String key = "key-" + UUID.randomUUID();
+        String key = "key-" + UUID.randomUUID();
         userActivityRepository.create(buildUserActivity(null, key, "domainId")).blockingGet();
         userActivityRepository.delete(key).test().awaitTerminalEvent();
 
@@ -204,7 +204,7 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void must_delete_by_domain_and_key() {
-        final String key = "key-" + UUID.randomUUID();
+        String key = "key-" + UUID.randomUUID();
         userActivityRepository.create(buildUserActivity(null, key, "domainId")).blockingGet();
         userActivityRepository.deleteByDomainAndKey("domainId", key).test().awaitTerminalEvent();
 
@@ -216,7 +216,7 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void must_delete_by_domain() {
-        final String key = "key-" + UUID.randomUUID();
+        String key = "key-" + UUID.randomUUID();
         userActivityRepository.create(buildUserActivity(null, key, "domainId")).blockingGet();
         userActivityRepository.deleteByDomain("domainId").test().awaitTerminalEvent();
 
@@ -227,7 +227,7 @@ public class UserActivityRepositoryTest extends AbstractManagementTest {
     }
 
     public UserActivity buildUserActivity(String id, String key, String refId) {
-        final ZonedDateTime now = ZonedDateTime.now(Clock.systemUTC());
+        ZonedDateTime now = ZonedDateTime.now(Clock.systemUTC());
         var instant = now.toInstant();
         return new UserActivity()
                 .setId(id)

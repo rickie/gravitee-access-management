@@ -39,14 +39,14 @@ public class FingerprintJsV3CommunityProviderTest {
 
     @Test
     public void mustNotAddAnythingToConfiguration_nullMap() {
-        final Map<String, Object> variables = null;
+        Map<String, Object> variables = null;
         provider.addConfigurationVariables(variables, null);
         assertNull(variables);
     }
 
     @Test
     public void mustNotAddAnythingToConfiguration_nullConfiguration() {
-        final Map<String, Object> variables = new HashMap<>();
+        Map<String, Object> variables = new HashMap<>();
         provider.addConfigurationVariables(variables, null);
         assertEquals(
                 variables.get(DEVICE_IDENTIFIER_PROVIDER_KEY),
@@ -55,7 +55,7 @@ public class FingerprintJsV3CommunityProviderTest {
 
     @Test
     public void mustNotAddAnythingToConfiguration_nullEmpty() {
-        final Map<String, Object> variables = new HashMap<>();
+        Map<String, Object> variables = new HashMap<>();
         provider.addConfigurationVariables(variables, "{}");
         assertEquals(
                 variables.get(DEVICE_IDENTIFIER_PROVIDER_KEY),
@@ -64,7 +64,7 @@ public class FingerprintJsV3CommunityProviderTest {
 
     @Test
     public void mustAddConfiguration_onlyBrowserToken() {
-        final Map<String, Object> variables = new HashMap<>();
+        Map<String, Object> variables = new HashMap<>();
         provider.addConfigurationVariables(variables, "{\"browserToken\" : \"myToken\"}");
         assertEquals(
                 variables.get(DEVICE_IDENTIFIER_PROVIDER_KEY),
@@ -73,7 +73,7 @@ public class FingerprintJsV3CommunityProviderTest {
 
     @Test
     public void mustNotAddAnythingToConfiguration_fullConfig() {
-        final Map<String, Object> variables = new HashMap<>();
+        Map<String, Object> variables = new HashMap<>();
         provider.addConfigurationVariables(
                 variables, "{\"browserToken\" : \"myToken\", \"region\" : \"eu\"}");
         assertEquals(

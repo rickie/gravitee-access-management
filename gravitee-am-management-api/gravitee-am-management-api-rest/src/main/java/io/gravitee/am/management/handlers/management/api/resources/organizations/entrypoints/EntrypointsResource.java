@@ -64,8 +64,7 @@ public class EntrypointsResource extends AbstractResource {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     public void list(
-            @PathParam("organizationId") String organizationId,
-            @Suspended final AsyncResponse response) {
+            @PathParam("organizationId") String organizationId, @Suspended AsyncResponse response) {
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -95,9 +94,9 @@ public class EntrypointsResource extends AbstractResource {
     public void create(
             @PathParam("organizationId") String organizationId,
             @ApiParam(name = "entrypoint", required = true) @Valid @NotNull
-                    final NewEntrypoint newEntrypoint,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+                    NewEntrypoint newEntrypoint,
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

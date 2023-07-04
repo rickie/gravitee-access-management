@@ -45,7 +45,7 @@ public class ManagementRepositoryConfiguration extends AbstractRepositoryConfigu
 
     @Bean(name = "managementMongoTemplate")
     public MongoDatabase mongoOperations() {
-        final MongoClient mongo =
+        MongoClient mongo =
                 connectionProvider.getClientWrapper(Scope.MANAGEMENT.getName()).getClient();
         return mongo.getDatabase(getDatabaseName());
     }
@@ -53,7 +53,7 @@ public class ManagementRepositoryConfiguration extends AbstractRepositoryConfigu
     private String getDatabaseName() {
         String uri = environment.getProperty("management.mongodb.uri");
         if (uri != null && !uri.isEmpty()) {
-            final String path = URI.create(uri).getPath();
+            String path = URI.create(uri).getPath();
             if (path != null && path.length() > 1) {
                 return path.substring(1);
             }

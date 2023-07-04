@@ -47,7 +47,7 @@ public class ConfigurationResource {
     @ApiOperation(
             value = "Get the Policy Studio flow schema",
             notes = "There is no particular permission needed. User must be authenticated.")
-    public void list(@Suspended final AsyncResponse response) {
+    public void list(@Suspended AsyncResponse response) {
         flowService.getSchema().subscribe(response::resume, response::resume);
     }
 
@@ -64,7 +64,7 @@ public class ConfigurationResource {
                 response = AlertServiceStatusEntity.class),
         @ApiResponse(code = 500, message = "Internal server error")
     })
-    public void getAlertServiceStatus(@Suspended final AsyncResponse response) {
+    public void getAlertServiceStatus(@Suspended AsyncResponse response) {
 
         alertService
                 .isAlertingAvailable()
@@ -78,7 +78,7 @@ public class ConfigurationResource {
     @ApiOperation(
             value = "Get the spel grammar",
             notes = "There is no particular permission needed. User must be authenticated.")
-    public void getSpelGrammar(@Suspended final AsyncResponse response) {
+    public void getSpelGrammar(@Suspended AsyncResponse response) {
         spelService.getGrammar().subscribe(response::resume, response::resume);
     }
 }

@@ -54,21 +54,21 @@ public class ScopeUpgraderTest {
 
     @Test
     public void shouldCreateScopes_withRoleAndClientScopes() {
-        final Scope domainScope = new Scope();
+        Scope domainScope = new Scope();
         domainScope.setId("domain-scope-key");
         domainScope.setKey("domain-scope-key");
 
-        final String domainId = "domain-id";
-        final String domainName = "domain-name";
-        final Domain domain = new Domain();
+        String domainId = "domain-id";
+        String domainName = "domain-name";
+        Domain domain = new Domain();
         domain.setId(domainId);
         domain.setName(domainName);
 
-        final Scope clientScope = new Scope();
+        Scope clientScope = new Scope();
         clientScope.setId("client-scope-key");
         clientScope.setKey("client-scope-key");
 
-        final Application app = new Application();
+        Application app = new Application();
         app.setId("client-id");
         ApplicationSettings settings = new ApplicationSettings();
         ApplicationOAuthSettings oauth = new ApplicationOAuthSettings();
@@ -76,11 +76,11 @@ public class ScopeUpgraderTest {
         settings.setOauth(oauth);
         app.setSettings(settings);
 
-        final Scope roleScope = new Scope();
+        Scope roleScope = new Scope();
         roleScope.setId("role-scope-key");
         roleScope.setKey("role-scope-key");
 
-        final Role role = new Role();
+        Role role = new Role();
         role.setId("role-id");
         role.setOauthScopes(Collections.singletonList(roleScope.getKey()));
 
@@ -106,13 +106,13 @@ public class ScopeUpgraderTest {
 
     @Test
     public void shouldNotCreateScopes_domainHasScopes() {
-        final Scope domainScope = new Scope();
+        Scope domainScope = new Scope();
         domainScope.setId("domain-scope-key");
         domainScope.setKey("domain-scope-key");
 
-        final String domainId = "domain-id";
-        final String domainName = "domain-name";
-        final Domain domain = new Domain();
+        String domainId = "domain-id";
+        String domainName = "domain-name";
+        Domain domain = new Domain();
         domain.setId(domainId);
         domain.setName(domainName);
 
@@ -131,13 +131,13 @@ public class ScopeUpgraderTest {
 
     @Test
     public void shouldNotCreateScopes_noClientAndNoRole() {
-        final Scope domainScope = new Scope();
+        Scope domainScope = new Scope();
         domainScope.setId("domain-scope-key");
         domainScope.setKey("domain-scope-key");
 
-        final String domainId = "domain-id";
-        final String domainName = "domain-name";
-        final Domain domain = new Domain();
+        String domainId = "domain-id";
+        String domainName = "domain-name";
+        Domain domain = new Domain();
         domain.setId(domainId);
         domain.setName(domainName);
 
@@ -161,20 +161,20 @@ public class ScopeUpgraderTest {
 
     @Test
     public void shouldNotCreateScopes_clientsAndRolesHaveNoScopes() {
-        final Scope domainScope = new Scope();
+        Scope domainScope = new Scope();
         domainScope.setId("domain-scope-key");
         domainScope.setKey("domain-scope-key");
 
-        final String domainId = "domain-id";
-        final String domainName = "domain-name";
-        final Domain domain = new Domain();
+        String domainId = "domain-id";
+        String domainName = "domain-name";
+        Domain domain = new Domain();
         domain.setId(domainId);
         domain.setName(domainName);
 
-        final Application app = new Application();
+        Application app = new Application();
         app.setId("client-id");
 
-        final Role role = new Role();
+        Role role = new Role();
         role.setId("role-id");
         role.setPermissionAcls(null);
 

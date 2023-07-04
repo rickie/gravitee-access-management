@@ -65,9 +65,9 @@ public class NewsletterResource extends AbstractResource {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     public void subscribeNewsletter(
-            @ApiParam(name = "email", required = true) @Valid @NotNull final EmailValue emailValue,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @ApiParam(name = "email", required = true) @Valid @NotNull EmailValue emailValue,
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         // Get the organization the current user is logged on.
         String organizationId =
@@ -100,7 +100,7 @@ public class NewsletterResource extends AbstractResource {
         @ApiResponse(code = 200, message = "Retrieved taglines", response = List.class),
         @ApiResponse(code = 500, message = "Internal server error")
     })
-    public void getTaglines(@Suspended final AsyncResponse response) {
+    public void getTaglines(@Suspended AsyncResponse response) {
 
         newsletterService
                 .getTaglines()

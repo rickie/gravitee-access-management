@@ -78,7 +78,7 @@ public class SocialAuthHandlerImpl implements SocialAuthHandler {
                         clientCredentials,
                         authN -> {
                             if (authN.succeeded()) {
-                                final User authenticated = authN.result();
+                                User authenticated = authN.result();
                                 ctx.getDelegate().setUser(authenticated);
                                 ctx.put(ConstantKeys.USER_CONTEXT_KEY, authenticated.getUser());
                                 ctx.next();
@@ -106,13 +106,13 @@ public class SocialAuthHandlerImpl implements SocialAuthHandler {
     }
 
     private boolean handlePreflight(RoutingContext ctx) {
-        final HttpServerRequest request = ctx.request();
+        HttpServerRequest request = ctx.request();
         // See: https://www.w3.org/TR/cors/#cross-origin-request-with-preflight-0
         // Preflight requests should not be subject to security due to the reason UAs will remove
         // the Authorization header
         if (request.method() == HttpMethod.OPTIONS) {
             // check if there is a access control request header
-            final String accessControlRequestHeader =
+            String accessControlRequestHeader =
                     ctx.request().getHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
             if (accessControlRequestHeader != null) {
                 // lookup for the Authorization header

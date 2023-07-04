@@ -44,9 +44,9 @@ public class EmailResourceTest extends JerseySpringTest {
     @Test
     @Ignore
     public void shouldUpdate() {
-        final String emailId = "email-1";
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String emailId = "email-1";
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         UpdateEmail updateEmail = new UpdateEmail();
@@ -60,7 +60,7 @@ public class EmailResourceTest extends JerseySpringTest {
                 .when(emailTemplateService)
                 .update(eq(domainId), eq(emailId), any(), any(User.class));
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("emails")
@@ -72,24 +72,24 @@ public class EmailResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldDelete() {
-        final String emailId = "email-1";
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String emailId = "email-1";
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Completable.complete()).when(emailTemplateService).delete(eq(emailId), any());
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("emails").path(emailId).request().delete();
         assertEquals(HttpStatusCode.NO_CONTENT_204, response.getStatus());
     }
 
     @Test
     public void shouldDelete_emailNotFound() {
-        final String emailId = "email-1";
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String emailId = "email-1";
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
@@ -97,7 +97,7 @@ public class EmailResourceTest extends JerseySpringTest {
                 .when(emailTemplateService)
                 .delete(eq(emailId), any());
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("emails").path(emailId).request().delete();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
     }

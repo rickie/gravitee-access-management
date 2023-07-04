@@ -54,13 +54,13 @@ public class FormsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetForm() {
-        final Form mockForm = new Form();
+        Form mockForm = new Form();
         mockForm.setId("form-1-id");
         mockForm.setTemplate(Template.LOGIN.template());
         mockForm.setReferenceType(ReferenceType.DOMAIN);
         mockForm.setReferenceId(DOMAIN_ID);
 
-        final Form defaultMockForm = new Form();
+        Form defaultMockForm = new Form();
         defaultMockForm.setId("default-form-1-id");
         defaultMockForm.setTemplate(Template.LOGIN.template());
         defaultMockForm.setReferenceType(ReferenceType.DOMAIN);
@@ -73,7 +73,7 @@ public class FormsResourceTest extends JerseySpringTest {
                 .when(formService)
                 .getDefaultByDomainAndTemplate(DOMAIN_ID, Template.LOGIN.template());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(DOMAIN_ID)
                         .path("forms")
@@ -82,13 +82,13 @@ public class FormsResourceTest extends JerseySpringTest {
                         .get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Form responseEntity = readEntity(response, Form.class);
+        Form responseEntity = readEntity(response, Form.class);
         assertTrue(responseEntity.getId().equals("form-1-id"));
     }
 
     @Test
     public void shouldGetDefaultForm() {
-        final Form defaultMockForm = new Form();
+        Form defaultMockForm = new Form();
         defaultMockForm.setId("default-form-1-id");
         defaultMockForm.setTemplate(Template.LOGIN.template());
         defaultMockForm.setReferenceType(ReferenceType.DOMAIN);
@@ -101,7 +101,7 @@ public class FormsResourceTest extends JerseySpringTest {
                 .when(formService)
                 .getDefaultByDomainAndTemplate(DOMAIN_ID, Template.LOGIN.template());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(DOMAIN_ID)
                         .path("forms")
@@ -110,7 +110,7 @@ public class FormsResourceTest extends JerseySpringTest {
                         .get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Form responseEntity = readEntity(response, Form.class);
+        Form responseEntity = readEntity(response, Form.class);
         assertTrue(responseEntity.getId().equals("default-form-1-id"));
     }
 
@@ -120,7 +120,7 @@ public class FormsResourceTest extends JerseySpringTest {
                 .when(formService)
                 .findByDomainAndTemplate(DOMAIN_ID, Template.LOGIN.template());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(DOMAIN_ID)
                         .path("forms")
@@ -142,7 +142,7 @@ public class FormsResourceTest extends JerseySpringTest {
                 .when(formService)
                 .create(eq(DOMAIN_ID), any(), any(User.class));
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(DOMAIN_ID)
                         .path("forms")

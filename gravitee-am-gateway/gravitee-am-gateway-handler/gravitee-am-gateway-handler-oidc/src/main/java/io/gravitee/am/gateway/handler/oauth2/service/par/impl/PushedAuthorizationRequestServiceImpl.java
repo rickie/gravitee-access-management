@@ -97,7 +97,7 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
                                                 && req.getExpireAt() != null
                                                 && req.getExpireAt().after(new Date())) {
 
-                                            final String request =
+                                            String request =
                                                     req.getParameters()
                                                             .getFirst(
                                                                     io.gravitee.am.common.oidc
@@ -111,7 +111,7 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
                                             } else {
                                                 // request object isn't specified, create a PlainJWT
                                                 // based on the parameters
-                                                final JWTClaimsSet.Builder builder =
+                                                JWTClaimsSet.Builder builder =
                                                         new JWTClaimsSet.Builder()
                                                                 .audience(oidcMetadata.getIssuer())
                                                                 .expirationTime(req.getExpireAt());
@@ -158,7 +158,7 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
                             }
                         });
 
-        final String request =
+        String request =
                 par.getParameters().getFirst(io.gravitee.am.common.oidc.Parameters.REQUEST);
         if (request != null) {
             registrationValidation =
@@ -181,11 +181,11 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
                 .andThen(Single.defer(() -> parRepository.create(par)))
                 .map(
                         parPersisted -> {
-                            final PushedAuthorizationRequestResponse response =
+                            PushedAuthorizationRequestResponse response =
                                     new PushedAuthorizationRequestResponse();
                             response.setRequestUri(PAR_URN_PREFIX + parPersisted.getId());
                             // the lifetime of the request URI in seconds as a positive integer
-                            final long exp =
+                            long exp =
                                     (parPersisted.getExpireAt().getTime()
                                                     - Instant.now().toEpochMilli())
                                             / 1000;
@@ -319,10 +319,10 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
     }
 
     private void checkRedirectUri(Client client, String requestedRedirectUri) {
-        final List<String> registeredClientRedirectUris = client.getRedirectUris();
-        final boolean hasRegisteredClientRedirectUris =
+        List<String> registeredClientRedirectUris = client.getRedirectUris();
+        boolean hasRegisteredClientRedirectUris =
                 registeredClientRedirectUris != null && !registeredClientRedirectUris.isEmpty();
-        final boolean hasRequestedRedirectUri =
+        boolean hasRequestedRedirectUri =
                 requestedRedirectUri != null && !requestedRedirectUri.isEmpty();
 
         // if no requested redirect_uri and no registered client redirect_uris

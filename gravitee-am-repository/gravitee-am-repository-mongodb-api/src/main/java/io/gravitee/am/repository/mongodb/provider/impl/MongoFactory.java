@@ -79,8 +79,8 @@ public class MongoFactory implements FactoryBean<MongoClient> {
     public static MongoClient createClient(MongoConnectionConfiguration configuration) {
         MongoClient mongoClient;
 
-        final MeterRegistry amRegistry = Metrics.getDefaultRegistry();
-        final MongoMetricsConnectionPoolListener connectionPoolListener =
+        MeterRegistry amRegistry = Metrics.getDefaultRegistry();
+        MongoMetricsConnectionPoolListener connectionPoolListener =
                 new MongoMetricsConnectionPoolListener(amRegistry, "idp-mongo");
 
         if ((configuration.getUri() != null) && (!configuration.getUri().isEmpty())) {
@@ -135,12 +135,12 @@ public class MongoFactory implements FactoryBean<MongoClient> {
 
         builder.codecRegistry(fromRegistries(defaultCodecRegistry, pojoCodecRegistry));
 
-        final MeterRegistry amRegistry = Metrics.getDefaultRegistry();
-        final MongoMetricsConnectionPoolListener connectionPoolListener =
+        MeterRegistry amRegistry = Metrics.getDefaultRegistry();
+        MongoMetricsConnectionPoolListener connectionPoolListener =
                 new MongoMetricsConnectionPoolListener(amRegistry, "common-pool");
 
-        final SslSettings sslSettings = buildSslSettings();
-        final ServerSettings serverSettings = buildServerSettings();
+        SslSettings sslSettings = buildSslSettings();
+        ServerSettings serverSettings = buildServerSettings();
 
         // Trying to get the MongoClientURI if uri property is defined
         String uri = readPropertyValue(propertyPrefix + "uri");
@@ -262,9 +262,8 @@ public class MongoFactory implements FactoryBean<MongoClient> {
     }
 
     private SslSettings buildSslSettings() {
-        final SslSettings.Builder sslBuilder = SslSettings.builder();
-        final boolean sslEnabled =
-                readPropertyValue(propertyPrefix + "sslEnabled", Boolean.class, false);
+        SslSettings.Builder sslBuilder = SslSettings.builder();
+        boolean sslEnabled = readPropertyValue(propertyPrefix + "sslEnabled", Boolean.class, false);
         sslBuilder.enabled(sslEnabled);
         if (sslEnabled) {
             try {
@@ -278,7 +277,7 @@ public class MongoFactory implements FactoryBean<MongoClient> {
                 throw new IllegalStateException("Error creating the SSLContext for mongodb", e);
             }
         }
-        final SslSettings sslSettings = sslBuilder.build();
+        SslSettings sslSettings = sslBuilder.build();
         return sslSettings;
     }
 

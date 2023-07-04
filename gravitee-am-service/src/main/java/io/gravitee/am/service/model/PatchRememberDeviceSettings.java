@@ -70,7 +70,7 @@ public class PatchRememberDeviceSettings {
                         : new RememberDeviceSettings(_toPatch);
         SetterUtils.safeSet(toPatch::setDeviceIdentifierId, this.getDeviceIdentifierId());
         SetterUtils.safeSet(toPatch::setActive, this.getActive());
-        final Optional<Long> expirationTimeSeconds =
+        Optional<Long> expirationTimeSeconds =
                 isNull(this.getExpirationTimeSeconds())
                         ? Optional.empty()
                         : this.getExpirationTimeSeconds();
