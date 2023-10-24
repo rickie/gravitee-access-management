@@ -67,7 +67,7 @@ public class RoleResource extends AbstractResource {
     public void get(
             @PathParam("organizationId") String organizationId,
             @PathParam("role") String role,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -99,8 +99,8 @@ public class RoleResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("role") String role,
             @ApiParam(name = "role", required = true) @Valid @NotNull UpdateRole updateRole,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -132,8 +132,8 @@ public class RoleResource extends AbstractResource {
     public void delete(
             @PathParam("organizationId") String organizationId,
             @PathParam("role") String role,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

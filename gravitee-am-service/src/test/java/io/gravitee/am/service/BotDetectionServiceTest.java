@@ -232,7 +232,7 @@ public class BotDetectionServiceTest {
         when(botDetectionRepository.findById(detection.getId())).thenReturn(Maybe.just(detection));
         when(botDetectionRepository.delete(detection.getId())).thenReturn(Completable.complete());
         when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(domain));
         when(applicationService.findByDomain(DOMAIN))
                 .thenReturn(Single.just(Collections.emptySet()));
@@ -252,8 +252,8 @@ public class BotDetectionServiceTest {
         BotDetection detection = new BotDetection();
         detection.setId("detection-id");
         when(botDetectionRepository.findById(detection.getId())).thenReturn(Maybe.just(detection));
-        final Domain domain = new Domain();
-        final AccountSettings accountSettings = new AccountSettings();
+        Domain domain = new Domain();
+        AccountSettings accountSettings = new AccountSettings();
         accountSettings.setBotDetectionPlugin(detection.getId());
         domain.setAccountSettings(accountSettings);
         when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(domain));
@@ -271,12 +271,12 @@ public class BotDetectionServiceTest {
         BotDetection detection = new BotDetection();
         detection.setId("detection-id");
         when(botDetectionRepository.findById(detection.getId())).thenReturn(Maybe.just(detection));
-        final Domain domain = new Domain();
+        Domain domain = new Domain();
         when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(domain));
         Application app = new Application();
-        final AccountSettings accountSettings = new AccountSettings();
+        AccountSettings accountSettings = new AccountSettings();
         accountSettings.setBotDetectionPlugin(detection.getId());
-        final ApplicationSettings settings = new ApplicationSettings();
+        ApplicationSettings settings = new ApplicationSettings();
         settings.setAccount(accountSettings);
         app.setSettings(settings);
         when(applicationService.findByDomain(DOMAIN)).thenReturn(Single.just(Sets.newHashSet(app)));

@@ -37,34 +37,34 @@ public class ThemeValidatorTest {
 
     @Test
     public void shouldValidate_NewTheme() {
-        final TestObserver<Void> observer = themeValidator.validate(new Theme()).test();
+        TestObserver<Void> observer = themeValidator.validate(new Theme()).test();
         observer.awaitTerminalEvent();
         observer.assertNoErrors();
     }
 
     @Test
     public void shouldValidate_Favicon() {
-        final Theme theme = new Theme();
+        Theme theme = new Theme();
         theme.setFaviconUrl("http://comewhere/image.png");
-        final TestObserver<Void> observer = themeValidator.validate(theme).test();
+        TestObserver<Void> observer = themeValidator.validate(theme).test();
         observer.awaitTerminalEvent();
         observer.assertNoErrors();
     }
 
     @Test
     public void shouldValidate_Logo() {
-        final Theme theme = new Theme();
+        Theme theme = new Theme();
         theme.setLogoUrl("http://comewhere/image.png");
-        final TestObserver<Void> observer = themeValidator.validate(theme).test();
+        TestObserver<Void> observer = themeValidator.validate(theme).test();
         observer.awaitTerminalEvent();
         observer.assertNoErrors();
     }
 
     @Test
     public void shouldNotValidate_Logo() {
-        final Theme theme = new Theme();
+        Theme theme = new Theme();
         theme.setLogoUrl("file://comewhere/image.png");
-        final TestObserver<Void> observer = themeValidator.validate(theme).test();
+        TestObserver<Void> observer = themeValidator.validate(theme).test();
         observer.awaitTerminalEvent();
         observer.assertError(ThemeInvalidException.class);
     }

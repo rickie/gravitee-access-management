@@ -144,8 +144,7 @@ public class AlertNotifierServiceImpl implements io.gravitee.am.service.AlertNot
                 referenceId,
                 newAlertNotifier);
 
-        final AlertNotifier alertNotifier =
-                newAlertNotifier.toAlertNotifier(referenceType, referenceId);
+        AlertNotifier alertNotifier = newAlertNotifier.toAlertNotifier(referenceType, referenceId);
         return this.createInternal(alertNotifier, byUser);
     }
 

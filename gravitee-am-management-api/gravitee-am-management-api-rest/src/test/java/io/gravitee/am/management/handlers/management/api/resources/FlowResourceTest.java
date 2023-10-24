@@ -44,7 +44,7 @@ public class FlowResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetFlow() {
-        final Flow mockFlow = new Flow();
+        Flow mockFlow = new Flow();
         mockFlow.setId(FLOW_ID);
         mockFlow.setName("name");
 
@@ -52,11 +52,11 @@ public class FlowResourceTest extends JerseySpringTest {
                 .when(flowService)
                 .findById(ReferenceType.DOMAIN, DOMAIN_ID, FLOW_ID);
 
-        final Response response =
+        Response response =
                 target("domains").path(DOMAIN_ID).path("flows").path(FLOW_ID).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Flow flow = readEntity(response, Flow.class);
+        Flow flow = readEntity(response, Flow.class);
         assertEquals(mockFlow.getId(), flow.getId());
         assertEquals(mockFlow.getName(), flow.getName());
     }
@@ -67,7 +67,7 @@ public class FlowResourceTest extends JerseySpringTest {
                 .when(flowService)
                 .findById(ReferenceType.DOMAIN, DOMAIN_ID, FLOW_ID);
 
-        final Response response =
+        Response response =
                 target("domains").path(DOMAIN_ID).path("flows").path(FLOW_ID).request().get();
 
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -93,12 +93,12 @@ public class FlowResourceTest extends JerseySpringTest {
                         any(Flow.class),
                         any(User.class));
 
-        final Response response =
+        Response response =
                 put(target("domains").path(DOMAIN_ID).path("flows").path(FLOW_ID), flowToUpdate);
 
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final FlowEntity flow = readEntity(response, FlowEntity.class);
+        FlowEntity flow = readEntity(response, FlowEntity.class);
         assertEquals(flowToUpdate.getName(), flow.getName());
     }
 
@@ -118,7 +118,7 @@ public class FlowResourceTest extends JerseySpringTest {
                         any(Flow.class),
                         any(User.class));
 
-        final Response response =
+        Response response =
                 put(target("domains").path(DOMAIN_ID).path("flows").path(FLOW_ID), flowToUpdate);
 
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());

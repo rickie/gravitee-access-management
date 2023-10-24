@@ -41,7 +41,7 @@ public class ClientRequestParseHandler implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext context) {
-        final String clientId = context.request().getParam(Parameters.CLIENT_ID);
+        String clientId = context.request().getParam(Parameters.CLIENT_ID);
         if (clientId == null || clientId.isEmpty()) {
             if (required) {
                 context.fail(

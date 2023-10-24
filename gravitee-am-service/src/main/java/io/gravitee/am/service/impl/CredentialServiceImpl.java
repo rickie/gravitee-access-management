@@ -227,13 +227,13 @@ public class CredentialServiceImpl implements CredentialService {
                                         .findById(credential.getUserId())
                                         .flatMapCompletable(
                                                 user -> {
-                                                    final List<EnrolledFactor> factors =
+                                                    List<EnrolledFactor> factors =
                                                             user.getFactors();
                                                     if (factors == null || factors.isEmpty()) {
                                                         return credentialRepository.delete(id);
                                                     }
 
-                                                    final Optional<EnrolledFactor> fido2Factor =
+                                                    Optional<EnrolledFactor> fido2Factor =
                                                             factors.stream()
                                                                     .filter(
                                                                             enrolledFactor ->

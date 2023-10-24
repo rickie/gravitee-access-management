@@ -63,8 +63,8 @@ public class CurrentUserResource extends AbstractResource {
                 response = User.class),
         @ApiResponse(code = 500, message = "Internal server error")
     })
-    public void get(@Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+    public void get(@Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         // Get the organization the current user is logged on.
         String organizationId =
@@ -73,13 +73,13 @@ public class CurrentUserResource extends AbstractResource {
                                 .getAdditionalInformation()
                                 .getOrDefault(Claims.organization, Organization.DEFAULT);
 
-        final Single<List<String>> organizationPermissions =
+        Single<List<String>> organizationPermissions =
                 permissionService
                         .findAllPermissions(
                                 authenticatedUser, ReferenceType.ORGANIZATION, organizationId)
                         .map(Permission::flatten);
 
-        final Single<List<String>> platformPermissions =
+        Single<List<String>> platformPermissions =
                 permissionService
                         .findAllPermissions(
                                 authenticatedUser, ReferenceType.PLATFORM, Platform.DEFAULT)

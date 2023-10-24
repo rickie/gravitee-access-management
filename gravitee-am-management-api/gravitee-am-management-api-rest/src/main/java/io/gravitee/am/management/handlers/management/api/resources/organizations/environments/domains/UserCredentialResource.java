@@ -68,7 +68,7 @@ public class UserCredentialResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("user") String user,
             @PathParam("credential") String credential,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)
                 .andThen(
@@ -98,7 +98,7 @@ public class UserCredentialResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("user") String user,
             @PathParam("credential") String credential,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)
                 .andThen(

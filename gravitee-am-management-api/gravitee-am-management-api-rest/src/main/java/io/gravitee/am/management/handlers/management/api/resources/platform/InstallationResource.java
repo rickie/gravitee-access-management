@@ -63,7 +63,7 @@ public class InstallationResource extends AbstractResource {
                 response = ErrorEntity.class),
         @ApiResponse(code = 500, message = "Internal server error")
     })
-    public void get(@Suspended final AsyncResponse response) {
+    public void get(@Suspended AsyncResponse response) {
 
         checkPermission(ReferenceType.PLATFORM, Platform.DEFAULT, Permission.INSTALLATION, Acl.READ)
                 .andThen(installationService.get().map(InstallationEntity::new))

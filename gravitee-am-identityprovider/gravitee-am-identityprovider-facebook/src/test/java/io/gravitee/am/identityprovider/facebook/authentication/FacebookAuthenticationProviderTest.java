@@ -93,7 +93,7 @@ public class FacebookAuthenticationProviderTest {
         when(configuration.getResponseType()).thenReturn("code");
         when(configuration.getScopes()).thenReturn(Collections.emptySet());
 
-        final String state = RandomString.generate();
+        String state = RandomString.generate();
         Request request = cut.signInUrl("https://gravitee.io", state);
 
         assertNotNull(request);
@@ -114,7 +114,7 @@ public class FacebookAuthenticationProviderTest {
         when(configuration.getResponseType()).thenReturn("code");
         when(configuration.getScopes()).thenReturn(Collections.emptySet());
 
-        final String state = RandomString.generate();
+        String state = RandomString.generate();
         Request request = (Request) cut.asyncSignInUrl("https://gravitee.io", state).blockingGet();
 
         assertNotNull(request);
@@ -136,7 +136,7 @@ public class FacebookAuthenticationProviderTest {
         when(configuration.getScopes())
                 .thenReturn(new HashSet<>(Arrays.asList("scope1", "scope2", "scope3")));
 
-        final String state = RandomString.generate();
+        String state = RandomString.generate();
         Request request = cut.signInUrl("https://gravitee.io", state);
 
         assertNotNull(request);

@@ -36,8 +36,8 @@ public class DynamicClientAccessTokenHandler implements Handler<RoutingContext> 
 
     @Override
     public void handle(RoutingContext context) {
-        final JWT token = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
-        final Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        JWT token = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
+        Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
         if (token.hasScope(Scope.DCR_ADMIN.getKey())) {
             context.next();
@@ -45,7 +45,7 @@ public class DynamicClientAccessTokenHandler implements Handler<RoutingContext> 
         }
 
         // if not dcr admin, access token must match client registration token
-        final String rawToken = context.get(ConstantKeys.RAW_TOKEN_CONTEXT_KEY);
+        String rawToken = context.get(ConstantKeys.RAW_TOKEN_CONTEXT_KEY);
         if (rawToken == null || !rawToken.equals(client.getRegistrationAccessToken())) {
             context.fail(
                     new ClientRegistrationForbiddenException(
@@ -54,7 +54,7 @@ public class DynamicClientAccessTokenHandler implements Handler<RoutingContext> 
         }
 
         // registration token sub must match the client_id parameter
-        final String clientIdPathParameter = context.request().getParam(Parameters.CLIENT_ID);
+        String clientIdPathParameter = context.request().getParam(Parameters.CLIENT_ID);
         if (!isRequestPathClientIdMatching(token, clientIdPathParameter)) {
             context.fail(
                     new ClientRegistrationForbiddenException(

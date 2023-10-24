@@ -309,7 +309,7 @@ public class IDTokenServiceImpl implements IDTokenService {
     private boolean processScopesRequest(
             Set<String> scopes,
             Map<String, Object> userClaims,
-            final Map<String, Object> fullProfileClaims,
+            Map<String, Object> fullProfileClaims,
             Map<String, Object> requestedClaims) {
         // if full_profile requested, continue
         // if legacy mode is enabled, also return all if only openid scope is provided
@@ -322,7 +322,7 @@ public class IDTokenServiceImpl implements IDTokenService {
         }
 
         // get requested scopes claims
-        final List<String> scopesClaims =
+        List<String> scopesClaims =
                 scopes.stream()
                         .map(String::toUpperCase)
                         .filter(
@@ -359,7 +359,7 @@ public class IDTokenServiceImpl implements IDTokenService {
      * @return true if id_token claims have been found
      */
     private boolean processClaimsRequest(
-            String claimsValue, final Map<String, Object> fullProfileClaims, IDToken idToken) {
+            String claimsValue, Map<String, Object> fullProfileClaims, IDToken idToken) {
         try {
             ClaimsRequest claimsRequest = objectMapper.readValue(claimsValue, ClaimsRequest.class);
             if (claimsRequest != null && claimsRequest.getIdTokenClaims() != null) {

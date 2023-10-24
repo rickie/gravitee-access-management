@@ -353,7 +353,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         if (ApplicationType.SERVICE != application.getType()) {
             if (!ObjectUtils.isEmpty(newApplication.getRedirectUris())) {
                 try {
-                    final String url = newApplication.getRedirectUris().get(0);
+                    String url = newApplication.getRedirectUris().get(0);
                     ApplicationSAMLSettings samlSettings = new ApplicationSAMLSettings();
                     samlSettings.setEntityId(UriBuilder.fromHttpUrl(url).buildRootUrl());
                     samlSettings.setAttributeConsumeServiceUrl(url);
@@ -483,8 +483,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                         existingApplication -> {
                             Application toPatch = patchApplication.patch(existingApplication);
                             applicationTemplateManager.apply(toPatch);
-                            final AccountSettings accountSettings =
-                                    toPatch.getSettings().getAccount();
+                            AccountSettings accountSettings = toPatch.getSettings().getAccount();
                             if (!accountSettingsValidator.validate(accountSettings)) {
                                 return Single.error(
                                         new InvalidParameterException(
@@ -980,7 +979,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private Completable checkApplicationUniqueness(String domain, Application application) {
-        final String clientId =
+        String clientId =
                 application.getSettings() != null && application.getSettings().getOauth() != null
                         ? application.getSettings().getOauth().getClientId()
                         : null;
@@ -1088,7 +1087,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                                                                     + " is malformed"));
                                         }
 
-                                        final String host =
+                                        String host =
                                                 isHttp(uri.getScheme())
                                                         ? uri.toURL().getHost()
                                                         : uri.getHost();
@@ -1304,7 +1303,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                                 for (String logoutRedirectUri :
                                         oAuthSettings.getPostLogoutRedirectUris()) {
                                     try {
-                                        final URI uri =
+                                        URI uri =
                                                 logoutRedirectUri.contains("*")
                                                         ? new URI(logoutRedirectUri)
                                                         : UriBuilder.fromURIString(
@@ -1319,7 +1318,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                                                                     + " is malformed"));
                                         }
 
-                                        final String host =
+                                        String host =
                                                 isHttp(uri.getScheme())
                                                         ? uri.toURL().getHost()
                                                         : uri.getHost();
@@ -1378,7 +1377,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                             if (oAuthSettings.getRequestUris() != null) {
                                 for (String requestUri : oAuthSettings.getRequestUris()) {
                                     try {
-                                        final URI uri =
+                                        URI uri =
                                                 requestUri.contains("*")
                                                         ? new URI(requestUri)
                                                         : UriBuilder.fromURIString(requestUri)
@@ -1392,7 +1391,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                                                                     + " is malformed"));
                                         }
 
-                                        final String host =
+                                        String host =
                                                 isHttp(uri.getScheme())
                                                         ? uri.toURL().getHost()
                                                         : uri.getHost();

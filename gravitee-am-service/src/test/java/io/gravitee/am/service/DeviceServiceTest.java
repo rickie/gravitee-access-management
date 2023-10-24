@@ -108,8 +108,7 @@ public class DeviceServiceTest {
                 .when(deviceRepository)
                 .findByDomainAndClientAndUser(DOMAIN, USER);
 
-        final TestSubscriber<Device> testFull =
-                deviceService.findByDomainAndUser(DOMAIN, USER).test();
+        TestSubscriber<Device> testFull = deviceService.findByDomainAndUser(DOMAIN, USER).test();
         testFull.awaitTerminalEvent();
         testFull.assertNoErrors();
         testFull.assertValueCount(2);
@@ -123,8 +122,7 @@ public class DeviceServiceTest {
                 .when(deviceRepository)
                 .findByDomainAndClientAndUser(DOMAIN2, USER);
 
-        final TestSubscriber<Device> testEmpty =
-                deviceService.findByDomainAndUser(DOMAIN2, USER).test();
+        TestSubscriber<Device> testEmpty = deviceService.findByDomainAndUser(DOMAIN2, USER).test();
         testEmpty.awaitTerminalEvent();
         testEmpty.assertNoErrors();
         testEmpty.assertValueCount(0);
@@ -136,7 +134,7 @@ public class DeviceServiceTest {
     public void mustCreate_Device() {
         doReturn(Single.just(device1)).when(deviceRepository).create(any());
 
-        final TestObserver<Device> testObserver =
+        TestObserver<Device> testObserver =
                 deviceService
                         .create(DOMAIN, CLIENT, USER, DEVICE_IDENTIFIER, TYPE, 7200L, DEVICE1)
                         .test();
@@ -156,13 +154,13 @@ public class DeviceServiceTest {
                 .findByDomainAndClientAndUserAndDeviceIdentifierAndDeviceId(
                         DOMAIN2, CLIENT, USER, DEVICE_IDENTIFIER, DEVICE1);
 
-        final TestObserver<Boolean> testObserverEmpty =
+        TestObserver<Boolean> testObserverEmpty =
                 deviceService.deviceExists(DOMAIN, CLIENT, USER, DEVICE_IDENTIFIER, DEVICE1).test();
         testObserverEmpty.awaitTerminalEvent();
         testObserverEmpty.assertNoErrors();
         testObserverEmpty.assertValue(TRUE::equals);
 
-        final TestObserver<Boolean> testObserver =
+        TestObserver<Boolean> testObserver =
                 deviceService
                         .deviceExists(DOMAIN2, CLIENT, USER, DEVICE_IDENTIFIER, DEVICE1)
                         .test();

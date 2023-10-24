@@ -40,7 +40,7 @@ public class DatabaseDialectHelperTest {
         criteria.setFilterName("emails.value");
         criteria.setFilterValue("test@acme.fr");
         criteria.setOperator("eq");
-        final String BASE_CLAUSE =
+        String BASE_CLAUSE =
                 " FROM users WHERE reference_id = :refId AND reference_type = :refType AND ";
         ScimUserSearch search =
                 helper.prepareScimSearchUserQuery(new StringBuilder(BASE_CLAUSE), criteria, 0, 10);
@@ -62,7 +62,7 @@ public class DatabaseDialectHelperTest {
         criteria.setFilterName("emails.value");
         criteria.setFilterValue("test@acme.fr");
         criteria.setOperator("pr");
-        final String BASE_CLAUSE =
+        String BASE_CLAUSE =
                 " FROM users WHERE reference_id = :refId AND reference_type = :refType AND ";
         ScimUserSearch search =
                 helper.prepareScimSearchUserQuery(new StringBuilder(BASE_CLAUSE), criteria, 0, 10);
@@ -93,7 +93,7 @@ public class DatabaseDialectHelperTest {
         or.setOperator("or");
         or.setFilterComponents(Arrays.asList(emailEq, createdAfter));
 
-        final String BASE_CLAUSE =
+        String BASE_CLAUSE =
                 " FROM users WHERE reference_id = :refId AND reference_type = :refType AND ";
         ScimUserSearch search =
                 helper.prepareScimSearchUserQuery(new StringBuilder(BASE_CLAUSE), or, 0, 10);
@@ -132,7 +132,7 @@ public class DatabaseDialectHelperTest {
         or.setOperator("or");
         or.setFilterComponents(Arrays.asList(emailEq, emailEq2));
 
-        final String BASE_CLAUSE =
+        String BASE_CLAUSE =
                 " FROM users WHERE reference_id = :refId AND reference_type = :refType AND ";
         ScimUserSearch search =
                 helper.prepareScimSearchUserQuery(new StringBuilder(BASE_CLAUSE), or, 0, 10);
