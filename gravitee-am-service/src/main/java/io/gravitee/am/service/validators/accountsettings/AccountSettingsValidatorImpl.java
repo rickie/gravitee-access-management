@@ -42,7 +42,7 @@ public class AccountSettingsValidatorImpl implements AccountSettingsValidator {
 
     private boolean hasInvalidResetPasswordFields(AccountSettings settings) {
         if (settings != null && settings.isResetPasswordCustomForm()) {
-            final List<FormField> fields =
+            List<FormField> fields =
                     Optional.ofNullable(settings.getResetPasswordCustomFormFields())
                             .orElse(List.of());
             return fields.stream().anyMatch(field -> !AUTHORIZED_FIELDS.contains(field.getKey()));

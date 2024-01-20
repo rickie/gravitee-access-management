@@ -73,7 +73,7 @@ public class AuthenticationDeviceNotifiersResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(
                         organizationId,
@@ -112,10 +112,10 @@ public class AuthenticationDeviceNotifiersResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @ApiParam(name = "notifier", required = true) @Valid @NotNull
-                    final NewAuthenticationDeviceNotifier newDeviceNotifier,
-            @Suspended final AsyncResponse response) {
+                    NewAuthenticationDeviceNotifier newDeviceNotifier,
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,

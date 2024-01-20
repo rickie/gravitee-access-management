@@ -110,7 +110,7 @@ public class CertificatesResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @QueryParam("use") String use,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         processExpiryThresholds();
 
@@ -128,7 +128,7 @@ public class CertificatesResource extends AbstractResource {
                                 .filter(
                                         c -> {
                                             if (!StringUtils.isEmpty(use)) {
-                                                final JsonObject config =
+                                                JsonObject config =
                                                         JsonObject.mapFrom(
                                                                 Json.decodeValue(
                                                                         c.getConfiguration(),
@@ -175,7 +175,7 @@ public class CertificatesResource extends AbstractResource {
                 .findByCertificate(cert.getId())
                 .map(
                         app -> {
-                            final Application minimalAppDefinition = new Application();
+                            Application minimalAppDefinition = new Application();
                             minimalAppDefinition.setId(app.getId());
                             minimalAppDefinition.setName(app.getName());
                             return minimalAppDefinition;
@@ -189,7 +189,7 @@ public class CertificatesResource extends AbstractResource {
     }
 
     private void processExpiryThresholds() {
-        final String expiryThresholds =
+        String expiryThresholds =
                 environment.getProperty(
                         "services.certificate.expiryThresholds",
                         String.class,
@@ -226,9 +226,9 @@ public class CertificatesResource extends AbstractResource {
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
             @ApiParam(name = "certificate", required = true) @Valid @NotNull
-                    final NewCertificate newCertificate,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+                    NewCertificate newCertificate,
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId,
@@ -283,7 +283,7 @@ public class CertificatesResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
         var principal = getAuthenticatedUser();
 
         checkAnyPermission(
@@ -332,7 +332,7 @@ public class CertificatesResource extends AbstractResource {
         filteredCertificate.setStatus(CertificateStatus.VALID);
         filteredCertificate.setSystem(certificate.isSystem());
         if (certificate.getExpiresAt() != null) {
-            final Instant now = Instant.now();
+            Instant now = Instant.now();
             if (certificate.getExpiresAt().getTime() <= now.toEpochMilli()) {
                 filteredCertificate.setStatus(CertificateStatus.EXPIRED);
             } else if (certificate.getExpiresAt().getTime()

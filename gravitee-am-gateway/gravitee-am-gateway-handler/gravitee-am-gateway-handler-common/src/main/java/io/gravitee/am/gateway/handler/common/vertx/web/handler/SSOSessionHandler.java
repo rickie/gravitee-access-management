@@ -181,7 +181,7 @@ public class SSOSessionHandler implements Handler<RoutingContext> {
             RoutingContext context,
             io.gravitee.am.model.User user,
             Handler<AsyncResult<Void>> handler) {
-        final String clientId = context.request().getParam(Parameters.CLIENT_ID);
+        String clientId = context.request().getParam(Parameters.CLIENT_ID);
         // no client to check, continue
         if (clientId == null) {
             handler.handle(Future.succeededFuture());

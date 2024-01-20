@@ -65,9 +65,8 @@ public class UnknownDeviceAlert extends RiskAssessmentAlert {
                 AUTHENTICATION_SOURCE,
                 alertTrigger.isEnabled());
 
-        final String name = environment.getProperty(ALERT_NAME_KEY, DEFAULT_NAME);
-        final String description =
-                environment.getProperty(ALERT_DESCRIPTION_KEY, DEFAULT_DESCRIPTION);
+        String name = environment.getProperty(ALERT_NAME_KEY, DEFAULT_NAME);
+        String description = environment.getProperty(ALERT_DESCRIPTION_KEY, DEFAULT_DESCRIPTION);
 
         this.setId(alertTrigger.getId() + "-" + this.getClass().getSimpleName());
         this.setName(name);
@@ -79,7 +78,7 @@ public class UnknownDeviceAlert extends RiskAssessmentAlert {
                 singletonList(
                         super.getCondition(environment, PROPERTY_UNKNOWN_DEVICES, HIGH.name())));
 
-        final StringCondition domainFilter =
+        StringCondition domainFilter =
                 StringCondition.equals(PROPERTY_DOMAIN, alertTrigger.getReferenceId()).build();
         this.setFilters(singletonList(domainFilter));
 

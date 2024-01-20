@@ -99,7 +99,7 @@ public class RepositoryRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldFindAll() {
-        final int loop = 10;
+        int loop = 10;
         for (int i = 0; i < loop; ++i) {
             Reporter reporter = buildReporter();
             repository.create(reporter).blockingGet();
@@ -114,8 +114,8 @@ public class RepositoryRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldFindByDomain() {
-        final int loop = 10;
-        final String domain = "fixedDomainId";
+        int loop = 10;
+        String domain = "fixedDomainId";
         for (int i = 0; i < loop; ++i) {
             Reporter reporter = buildReporter();
             if (i % 2 == 0) reporter.setDomain(domain);

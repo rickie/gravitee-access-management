@@ -51,7 +51,7 @@ public class LoginCallbackOpenIDConnectFlowHandler implements Handler<RoutingCon
 
     @Override
     public void handle(RoutingContext context) {
-        final HttpServerRequest request = context.request();
+        HttpServerRequest request = context.request();
 
         // if request contains query parameters, authorization_code flow is used, continue
         if (request.method().equals(HttpMethod.GET)
@@ -64,14 +64,14 @@ public class LoginCallbackOpenIDConnectFlowHandler implements Handler<RoutingCon
         // either SAML 2.0 protocol is used and RelayState must be present
         // or the OpenID Connect implicit flow response hash url must be present
         if (request.method().equals(HttpMethod.POST)) {
-            final String relayState = request.getParam(RELAY_STATE_PARAM_KEY);
+            String relayState = request.getParam(RELAY_STATE_PARAM_KEY);
             // if SAML 2.0 is used, continue
             if (relayState != null) {
                 context.next();
                 return;
             }
             // else check OpenID Connect flow validity
-            final String hashValue = request.getParam(HASH_VALUE_PARAMETER);
+            String hashValue = request.getParam(HASH_VALUE_PARAMETER);
             if (hashValue == null) {
                 context.fail(new InternalAuthenticationServiceException("No URL hash value found"));
                 return;

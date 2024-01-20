@@ -39,7 +39,7 @@ public class GraviteeAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
-        final AuthenticationContext context = authentication.getContext();
+        AuthenticationContext context = authentication.getContext();
         if (context == null || context.get(KEY_ORGANIZATION_ID) == null) {
             return Maybe.empty();
         }

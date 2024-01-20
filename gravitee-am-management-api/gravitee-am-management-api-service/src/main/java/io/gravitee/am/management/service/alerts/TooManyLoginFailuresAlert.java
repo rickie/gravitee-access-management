@@ -52,30 +52,29 @@ public class TooManyLoginFailuresAlert extends Trigger {
                 DEFAULT_SEVERITY,
                 AUTHENTICATION_SOURCE,
                 alertTrigger.isEnabled());
-        final double threshold =
+        double threshold =
                 environment.getProperty(
                         "alerts.too_many_login_failures.threshold",
                         Double.class,
                         DEFAULT_THRESHOLD);
-        final int sampleSize =
+        int sampleSize =
                 environment.getProperty(
                         "alerts.too_many_login_failures.sampleSize",
                         Integer.class,
                         DEFAULT_SAMPLE_SIZE);
-        final int windowSeconds =
+        int windowSeconds =
                 environment.getProperty(
                         "alerts.too_many_login_failures.window",
                         Integer.class,
                         DEFAULT_WINDOW_SECONDS);
-        final String name =
-                environment.getProperty("alerts.too_many_login_failures.name", DEFAULT_NAME);
-        final String description =
+        String name = environment.getProperty("alerts.too_many_login_failures.name", DEFAULT_NAME);
+        String description =
                 environment
                         .getProperty(
                                 "alerts.too_many_login_failures.description", DEFAULT_DESCRIPTION)
                         .replace("{threshold}", "" + threshold)
                         .replace("{window}", "" + windowSeconds);
-        final String severity =
+        String severity =
                 environment.getProperty(
                         "alerts.too_many_login_failures.severity", DEFAULT_SEVERITY.name());
 
@@ -95,7 +94,7 @@ public class TooManyLoginFailuresAlert extends Trigger {
                                 .build()));
 
         // For now we only support alert at domain level.
-        final StringCondition domainFilter =
+        StringCondition domainFilter =
                 StringCondition.equals(PROPERTY_DOMAIN, alertTrigger.getReferenceId()).build();
         this.setFilters(singletonList(domainFilter));
         this.setDampening(Dampening.strictCount(DEFAULT_DAMPENING));

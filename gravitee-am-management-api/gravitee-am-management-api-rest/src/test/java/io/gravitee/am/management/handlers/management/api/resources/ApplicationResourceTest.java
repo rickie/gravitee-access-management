@@ -50,11 +50,11 @@ public class ApplicationResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetApp() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Application mockApplication = buildApplicationMock();
+        Application mockApplication = buildApplicationMock();
 
         doReturn(Single.just(true))
                 .when(permissionService)
@@ -68,7 +68,7 @@ public class ApplicationResourceTest extends JerseySpringTest {
                 .findById(mockApplication.getId());
 
         // Check all data are returned when having all permissions.
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("applications")
@@ -77,7 +77,7 @@ public class ApplicationResourceTest extends JerseySpringTest {
                         .get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Application application = readEntity(response, Application.class);
+        Application application = readEntity(response, Application.class);
         assertEquals(mockApplication.getId(), application.getId());
         assertEquals(mockApplication.getName(), application.getName());
         assertEquals(mockApplication.getDomain(), application.getDomain());
@@ -104,11 +104,11 @@ public class ApplicationResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetFilteredApp() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Application mockApplication = buildApplicationMock();
+        Application mockApplication = buildApplicationMock();
 
         doReturn(Single.just(true))
                 .when(permissionService)
@@ -125,7 +125,7 @@ public class ApplicationResourceTest extends JerseySpringTest {
                 .findById(mockApplication.getId());
 
         // Check data are filtered according to permissions.
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("applications")
@@ -134,7 +134,7 @@ public class ApplicationResourceTest extends JerseySpringTest {
                         .get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Application application = readEntity(response, Application.class);
+        Application application = readEntity(response, Application.class);
         assertEquals(mockApplication.getId(), application.getId());
         assertEquals(mockApplication.getName(), application.getName());
         assertEquals(mockApplication.getDomain(), application.getDomain());
@@ -155,16 +155,16 @@ public class ApplicationResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetApplication_notFound() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String clientId = "client-id";
+        String clientId = "client-id";
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.empty()).when(applicationService).findById(clientId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("applications")
@@ -176,12 +176,12 @@ public class ApplicationResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetClient_domainNotFound() {
-        final String domainId = "domain-id";
-        final String clientId = "client-id";
+        String domainId = "domain-id";
+        String clientId = "client-id";
 
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("applications")
@@ -193,12 +193,12 @@ public class ApplicationResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetApplication_wrongDomain() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String applicationId = "application-id";
-        final Application mockClient = new Application();
+        String applicationId = "application-id";
+        Application mockClient = new Application();
         mockClient.setId(applicationId);
         mockClient.setName("client-name");
         mockClient.setDomain("wrong-domain");
@@ -212,7 +212,7 @@ public class ApplicationResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Maybe.just(mockClient)).when(applicationService).findById(applicationId);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("applications")
@@ -225,15 +225,15 @@ public class ApplicationResourceTest extends JerseySpringTest {
     @Test
     public void shouldUpdateApplication() {
 
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Application mockApplication = buildApplicationMock();
+        Application mockApplication = buildApplicationMock();
         PatchApplication patchApplication = new PatchApplication();
         patchApplication.setDescription(Optional.of("New description"));
 
-        final PatchApplicationSettings applicationSettings = new PatchApplicationSettings();
+        PatchApplicationSettings applicationSettings = new PatchApplicationSettings();
         applicationSettings.setRiskAssessment(Optional.of(new RiskAssessmentSettings()));
         patchApplication.setSettings(Optional.of(applicationSettings));
 
@@ -253,7 +253,7 @@ public class ApplicationResourceTest extends JerseySpringTest {
                         any(User.class));
 
         // heck all data are returned when having all permissions.
-        final Response response =
+        Response response =
                 put(
                         target("domains")
                                 .path(domainId)
@@ -262,7 +262,7 @@ public class ApplicationResourceTest extends JerseySpringTest {
                         patchApplication);
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Application application = readEntity(response, Application.class);
+        Application application = readEntity(response, Application.class);
         assertEquals(mockApplication.getId(), application.getId());
         assertEquals(mockApplication.getName(), application.getName());
         assertEquals(mockApplication.getDomain(), application.getDomain());
@@ -292,11 +292,11 @@ public class ApplicationResourceTest extends JerseySpringTest {
     @Test
     public void shouldUpdateFilteredApplication() {
 
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Application mockApplication = buildApplicationMock();
+        Application mockApplication = buildApplicationMock();
         PatchApplication patchApplication = new PatchApplication();
         patchApplication.setDescription(Optional.of("New description"));
 
@@ -319,7 +319,7 @@ public class ApplicationResourceTest extends JerseySpringTest {
                         any(User.class));
 
         // Check all data are returned when having all permissions.
-        final Response response =
+        Response response =
                 put(
                         target("domains")
                                 .path(domainId)
@@ -328,7 +328,7 @@ public class ApplicationResourceTest extends JerseySpringTest {
                         patchApplication);
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final Application application = readEntity(response, Application.class);
+        Application application = readEntity(response, Application.class);
         assertEquals(mockApplication.getId(), application.getId());
         assertEquals(mockApplication.getName(), application.getName());
         assertEquals(mockApplication.getDomain(), application.getDomain());
@@ -351,11 +351,11 @@ public class ApplicationResourceTest extends JerseySpringTest {
     @Test
     public void shouldUpdateApplication_domainNotFound() {
 
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Application mockApplication = buildApplicationMock();
+        Application mockApplication = buildApplicationMock();
         PatchApplication patchApplication = new PatchApplication();
         patchApplication.setDescription(Optional.of("New description"));
 
@@ -370,7 +370,7 @@ public class ApplicationResourceTest extends JerseySpringTest {
                         anyString()); // only application read permission
         doReturn(Maybe.empty()).when(domainService).findById(domainId);
 
-        final Response response =
+        Response response =
                 put(
                         target("domains")
                                 .path(domainId)
@@ -383,11 +383,11 @@ public class ApplicationResourceTest extends JerseySpringTest {
     @Test
     public void shouldUpdateApplication_forbidden() {
 
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Application mockApplication = buildApplicationMock();
+        Application mockApplication = buildApplicationMock();
         PatchApplication patchApplication = new PatchApplication();
         patchApplication.setDescription(Optional.of("New description"));
 
@@ -396,7 +396,7 @@ public class ApplicationResourceTest extends JerseySpringTest {
                 .hasPermission(any(User.class), any(PermissionAcls.class));
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
 
-        final Response response =
+        Response response =
                 put(
                         target("domains")
                                 .path(domainId)
@@ -412,7 +412,7 @@ public class ApplicationResourceTest extends JerseySpringTest {
         // Empty patch should result in 400 bad request.
         PatchApplication patchApplication = new PatchApplication();
 
-        final Response response =
+        Response response =
                 put(
                         target("domains")
                                 .path("domain-id")
@@ -424,12 +424,12 @@ public class ApplicationResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldRenewClientSecret() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String clientId = "client-id";
-        final Application mockClient = new Application();
+        String clientId = "client-id";
+        Application mockClient = new Application();
         mockClient.setId(clientId);
         mockClient.setName("client-name");
         mockClient.setDomain(domainId);
@@ -442,7 +442,7 @@ public class ApplicationResourceTest extends JerseySpringTest {
                 .when(applicationService)
                 .renewClientSecret(eq(domainId), eq(clientId), any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("applications")
@@ -455,12 +455,12 @@ public class ApplicationResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldRenewClientSecret_appNotFound() {
-        final String domainId = "domain-id";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-id";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final String clientId = "client-id";
-        final Application mockClient = new Application();
+        String clientId = "client-id";
+        Application mockClient = new Application();
         mockClient.setId(clientId);
         mockClient.setName("client-name");
         mockClient.setDomain(domainId);
@@ -470,7 +470,7 @@ public class ApplicationResourceTest extends JerseySpringTest {
                 .when(applicationService)
                 .renewClientSecret(eq(domainId), eq(clientId), any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("applications")

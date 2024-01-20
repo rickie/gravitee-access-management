@@ -54,7 +54,7 @@ public class IdentityProvidersPluginResource {
     public void list(
             @QueryParam("external") Boolean external,
             @QueryParam("expand") List<String> expand,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         identityProviderPluginService
                 .findAll(external, expand)

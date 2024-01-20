@@ -72,7 +72,7 @@ public class PolicyChainHandlerImpl implements Handler<RoutingContext> {
     public void handle(RoutingContext context) {
         // do not call the policy chain if there is error, success or warning parameters
         // it means that the policy chain has been already executed
-        final HttpServerRequest request = context.request();
+        HttpServerRequest request = context.request();
         if (request.params() != null
                 && (request.params().contains(ConstantKeys.ERROR_PARAM_KEY)
                         || request.params().contains(ConstantKeys.WARNING_PARAM_KEY)
@@ -135,7 +135,7 @@ public class PolicyChainHandlerImpl implements Handler<RoutingContext> {
                                                                 if (ConstantKeys
                                                                         .AUTH_FLOW_CONTEXT_KEY
                                                                         .equals(k)) {
-                                                                    final AuthenticationFlowContext
+                                                                    AuthenticationFlowContext
                                                                             authFlowContext =
                                                                                     (AuthenticationFlowContext)
                                                                                             v;

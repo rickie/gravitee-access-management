@@ -39,7 +39,7 @@ public class NotificationDefinitionUtils {
 
     public static Date getCertificateExpirationDate(NotificationDefinition definition) {
         Date expiry = null;
-        final Map<String, Object> data = definition.getData();
+        Map<String, Object> data = definition.getData();
         if (data != null && data.containsKey(NOTIFIER_DATA_CERTIFICATE)) {
             expiry = ((CertificateProperties) data.get(NOTIFIER_DATA_CERTIFICATE)).getExpiresAt();
         }

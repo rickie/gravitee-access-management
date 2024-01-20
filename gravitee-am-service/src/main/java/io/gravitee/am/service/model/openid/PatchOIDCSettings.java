@@ -125,8 +125,8 @@ public class PatchOIDCSettings {
 
         if (getSecurityProfileSettings() != null) {
             if (getSecurityProfileSettings().isPresent()) {
-                final PatchSecurityProfileSettings patcher = getSecurityProfileSettings().get();
-                final SecurityProfileSettings source = toPatch.getSecurityProfileSettings();
+                PatchSecurityProfileSettings patcher = getSecurityProfileSettings().get();
+                SecurityProfileSettings source = toPatch.getSecurityProfileSettings();
                 toPatch.setSecurityProfileSettings(patcher.patch(source));
             } else {
                 toPatch.setSecurityProfileSettings(SecurityProfileSettings.defaultSettings());
@@ -135,8 +135,8 @@ public class PatchOIDCSettings {
 
         if (getCibaSettings() != null) {
             if (getCibaSettings().isPresent()) {
-                final PatchCIBASettings patcher = getCibaSettings().get();
-                final CIBASettings source = toPatch.getCibaSettings();
+                PatchCIBASettings patcher = getCibaSettings().get();
+                CIBASettings source = toPatch.getCibaSettings();
                 toPatch.setCibaSettings(patcher.patch(source));
             } else {
                 toPatch.setCibaSettings(CIBASettings.defaultSettings());

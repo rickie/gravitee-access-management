@@ -89,7 +89,7 @@ public class NodeMonitoringRepositoryTest extends AbstractManagementTest {
         monitoringToCreate = buildMonitoring();
         monitoringToCreate.setNodeId(NODE_ID);
         monitoringToCreate.setType(MONITORING_TYPE);
-        final Monitoring monitoringCreated =
+        Monitoring monitoringCreated =
                 nodeMonitoringRepository.create(monitoringToCreate).blockingGet();
 
         TestObserver<Monitoring> obs =

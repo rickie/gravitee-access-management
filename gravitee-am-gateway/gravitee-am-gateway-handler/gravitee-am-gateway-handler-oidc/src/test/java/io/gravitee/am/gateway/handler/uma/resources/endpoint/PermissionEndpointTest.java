@@ -103,7 +103,7 @@ public class PermissionEndpointTest {
     @Test
     public void success_simpleRequest() {
         PermissionTicket success = new PermissionTicket().setId("success");
-        final String simpleRequest =
+        String simpleRequest =
                 "{\"resource_id\":\"{{set_one}}\", \"resource_scopes\":[\"profile:read\"]}";
 
         when(context.getBody()).thenReturn(Buffer.buffer(simpleRequest));
@@ -123,7 +123,7 @@ public class PermissionEndpointTest {
     @Test
     public void success_extendedRequest() {
         PermissionTicket success = new PermissionTicket().setId("success");
-        final String extendedRequest =
+        String extendedRequest =
                 "[{\"resource_id\":\"{{set_one}}\", \"resource_scopes\":[\"profile:read\"]}, {\"resource_id\":\"{{set_two}}\",\"resource_scopes\":[\"avatar:write\"]}]";
 
         when(context.getBody()).thenReturn(Buffer.buffer(extendedRequest));

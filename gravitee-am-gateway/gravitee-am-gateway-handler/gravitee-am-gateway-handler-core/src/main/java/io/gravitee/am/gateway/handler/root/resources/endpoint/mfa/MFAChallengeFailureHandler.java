@@ -60,8 +60,8 @@ public class MFAChallengeFailureHandler implements Handler<RoutingContext> {
 
     private void handleException(RoutingContext context, String errorDescription) {
         logoutUser(context);
-        final MultiMap queryParams = updateQueryParams(context, errorDescription);
-        final String uri =
+        MultiMap queryParams = updateQueryParams(context, errorDescription);
+        String uri =
                 UriBuilderRequest.resolveProxyRequest(
                         context.request(), context.get(CONTEXT_PATH) + "/login", queryParams, true);
 
@@ -69,7 +69,7 @@ public class MFAChallengeFailureHandler implements Handler<RoutingContext> {
     }
 
     private MultiMap updateQueryParams(RoutingContext context, String errorDescription) {
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(context.request());
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(context.request());
         queryParams.set(ConstantKeys.ERROR_PARAM_KEY, "mfa_challenge_failed");
         queryParams.set(ConstantKeys.ERROR_CODE_PARAM_KEY, ERROR_CODE_VALUE);
         queryParams.set(ConstantKeys.ERROR_DESCRIPTION_PARAM_KEY, errorDescription);

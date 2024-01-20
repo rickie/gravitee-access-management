@@ -56,8 +56,8 @@ public class WebAuthnRegisterPostEndpoint extends AbstractEndpoint
     private void registerV1(RoutingContext ctx) {
         // at this stage the registration has been done
         // redirect the user to the original request
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(ctx.request());
-        final String redirectUri = getReturnUrl(ctx, queryParams);
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(ctx.request());
+        String redirectUri = getReturnUrl(ctx, queryParams);
 
         ctx.response()
                 .putHeader(io.vertx.core.http.HttpHeaders.LOCATION, redirectUri)

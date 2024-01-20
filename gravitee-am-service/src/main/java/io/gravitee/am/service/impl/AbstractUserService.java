@@ -395,7 +395,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository>
                             tmpUser.setAdditionalInformation(updateUser.getAdditionalInformation());
                             UserFactorUpdater.updateFactors(oldUser.getFactors(), oldUser, tmpUser);
 
-                            final boolean generatedDisplayName = hasGeneratedDisplayName(oldUser);
+                            boolean generatedDisplayName = hasGeneratedDisplayName(oldUser);
 
                             oldUser.setClient(updateUser.getClient());
                             oldUser.setExternalId(updateUser.getExternalId());

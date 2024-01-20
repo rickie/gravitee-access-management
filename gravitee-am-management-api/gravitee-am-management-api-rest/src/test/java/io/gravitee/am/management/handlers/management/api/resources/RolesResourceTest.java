@@ -48,27 +48,27 @@ public class RolesResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetRoles() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Role mockRole = new Role();
+        Role mockRole = new Role();
         mockRole.setId("role-1-id");
         mockRole.setName("role-1-name");
         mockRole.setReferenceId(domainId);
 
-        final Role mockRole2 = new Role();
+        Role mockRole2 = new Role();
         mockRole2.setId("role-2-id");
         mockRole2.setName("role-2-name");
         mockRole2.setReferenceId(domainId);
 
-        final Set<Role> roles = new HashSet<>(Arrays.asList(mockRole, mockRole2));
-        final Page<Role> pagedRoles = new Page<>(roles, 0, 2);
+        Set<Role> roles = new HashSet<>(Arrays.asList(mockRole, mockRole2));
+        Page<Role> pagedRoles = new Page<>(roles, 0, 2);
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Single.just(pagedRoles)).when(roleService).findByDomain(domainId, 0, 50);
 
-        final Response response = target("domains").path(domainId).path("roles").request().get();
+        Response response = target("domains").path(domainId).path("roles").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
         JsonArray pageArray =
                 new JsonObject(readEntity(response, String.class)).getJsonArray("data");
@@ -77,22 +77,22 @@ public class RolesResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldSearchRoles() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Role mockRole = new Role();
+        Role mockRole = new Role();
         mockRole.setId("role-1-id");
         mockRole.setName("role-1-name");
         mockRole.setReferenceId(domainId);
 
-        final Role mockRole2 = new Role();
+        Role mockRole2 = new Role();
         mockRole2.setId("role-2-id");
         mockRole2.setName("role-2-name");
         mockRole2.setReferenceId(domainId);
 
-        final Set<Role> roles = new HashSet<>(Arrays.asList(mockRole, mockRole2));
-        final Page<Role> pagedRoles = new Page<>(roles, 0, 2);
+        Set<Role> roles = new HashSet<>(Arrays.asList(mockRole, mockRole2));
+        Page<Role> pagedRoles = new Page<>(roles, 0, 2);
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Single.just(roles)).when(roleService).findByDomain(domainId);
@@ -100,7 +100,7 @@ public class RolesResourceTest extends JerseySpringTest {
                 .when(roleService)
                 .searchByDomain(domainId, "*role-2-name*", 0, 50);
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("roles")
@@ -115,19 +115,19 @@ public class RolesResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetRoles_technicalManagementException() {
-        final String domainId = "domain-1";
+        String domainId = "domain-1";
         doReturn(Single.error(new TechnicalManagementException("error occurs")))
                 .when(roleService)
                 .findByDomain(domainId);
 
-        final Response response = target("domains").path(domainId).path("roles").request().get();
+        Response response = target("domains").path(domainId).path("roles").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
 
     @Test
     public void shouldCreate() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         NewRole newRole = new NewRole();
@@ -140,7 +140,7 @@ public class RolesResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
         doReturn(Single.just(role)).when(roleService).create(eq(domainId), any(), any());
 
-        final Response response =
+        Response response =
                 target("domains").path(domainId).path("roles").request().post(Entity.json(newRole));
         assertEquals(HttpStatusCode.CREATED_201, response.getStatus());
     }

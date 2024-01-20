@@ -104,7 +104,7 @@ public class CibaAuthenticationRequestResolver
                                                 });
                             } else {
                                 // login_hint is provided (look for username or email)
-                                final FilterCriteria criteria = new FilterCriteria();
+                                FilterCriteria criteria = new FilterCriteria();
 
                                 criteria.setQuoteFilterValue(true);
                                 criteria.setFilterName(
@@ -159,7 +159,7 @@ public class CibaAuthenticationRequestResolver
                 .flatMap(
                         jwk -> {
                             try {
-                                final Date expirationTime =
+                                Date expirationTime =
                                         signedJwt.getJWTClaimsSet().getExpirationTime();
                                 if (expirationTime != null) {
                                     evaluateExp(
@@ -204,12 +204,12 @@ public class CibaAuthenticationRequestResolver
     private Single<CibaAuthenticationRequest> validateLoginHintToken(
             CibaAuthenticationRequest authRequest, JWT jwt) {
         try {
-            final Date expirationTime = jwt.getJWTClaimsSet().getExpirationTime();
+            Date expirationTime = jwt.getJWTClaimsSet().getExpirationTime();
             if (expirationTime != null) {
                 evaluateExp(expirationTime.toInstant().getEpochSecond(), Instant.now(), 0);
             }
 
-            final JSONObject subIdObject = jwt.getJWTClaimsSet().getJSONObjectClaim("sub_id");
+            JSONObject subIdObject = jwt.getJWTClaimsSet().getJSONObjectClaim("sub_id");
             /*
                sub_id is an object specifying the field identifying the user (through format entry)
                Supported format : email and username
@@ -220,9 +220,9 @@ public class CibaAuthenticationRequestResolver
                  }
                }
             */
-            final FilterCriteria criteria = new FilterCriteria();
+            FilterCriteria criteria = new FilterCriteria();
             criteria.setQuoteFilterValue(false);
-            final String field = subIdObject.getAsString("format");
+            String field = subIdObject.getAsString("format");
             if (!"email".equals(field) && !"username".equals(field)) {
                 return Single.error(
                         new InvalidRequestException(

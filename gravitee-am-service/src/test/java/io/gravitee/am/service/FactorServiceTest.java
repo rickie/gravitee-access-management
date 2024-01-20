@@ -310,9 +310,9 @@ public class FactorServiceTest {
 
     @Test
     public void shouldEnroll() {
-        final io.gravitee.am.model.User user = new io.gravitee.am.model.User();
+        io.gravitee.am.model.User user = new io.gravitee.am.model.User();
         user.setId("anyId");
-        final EnrolledFactor enrolledFactor = new EnrolledFactor();
+        EnrolledFactor enrolledFactor = new EnrolledFactor();
         when(userService.upsertFactor(anyString(), any(EnrolledFactor.class), any(User.class)))
                 .thenReturn(Single.just(new io.gravitee.am.model.User()));
 
