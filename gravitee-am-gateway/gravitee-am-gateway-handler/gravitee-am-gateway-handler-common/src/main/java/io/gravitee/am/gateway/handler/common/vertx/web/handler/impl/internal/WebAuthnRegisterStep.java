@@ -56,11 +56,11 @@ public class WebAuthnRegisterStep extends AuthenticationFlowStep {
     @Override
     public void execute(RoutingContext routingContext, AuthenticationFlowChain flow) {
         if (isEnrollingFido2Factor(routingContext)) {
-            final User endUser =
+            User endUser =
                     ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
                                     routingContext.user().getDelegate())
                             .getUser();
-            final Single<List<Credential>> userCredentials =
+            Single<List<Credential>> userCredentials =
                     credentialService
                             .findByUserId(ReferenceType.DOMAIN, domain.getId(), endUser.getId())
                             .toList();
@@ -75,8 +75,8 @@ public class WebAuthnRegisterStep extends AuthenticationFlowStep {
                         }
                     });
         } else {
-            final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-            final Session session = routingContext.session();
+            Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+            Session session = routingContext.session();
 
             LoginSettings loginSettings = LoginSettings.getInstance(domain, client);
             if (loginSettings == null || !loginSettings.isPasswordlessEnabled()) {
@@ -99,7 +99,7 @@ public class WebAuthnRegisterStep extends AuthenticationFlowStep {
     }
 
     private boolean isEnrollingFido2Factor(RoutingContext ctx) {
-        final String factorId = ctx.session().get(ENROLLED_FACTOR_ID_KEY);
+        String factorId = ctx.session().get(ENROLLED_FACTOR_ID_KEY);
         if (factorId != null) {
             return factorManager.getFactor(factorId).is(FIDO2);
         }

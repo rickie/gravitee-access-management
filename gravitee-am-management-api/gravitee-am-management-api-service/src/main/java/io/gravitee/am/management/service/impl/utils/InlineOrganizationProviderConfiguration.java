@@ -57,7 +57,7 @@ public class InlineOrganizationProviderConfiguration extends OrganizationProvide
             RoleService roleService, Environment env, int index) {
         super(MEMORY_TYPE, env, index);
         this.roleService = roleService;
-        final String propertyBase = this.getPropertyBase(index);
+        String propertyBase = this.getPropertyBase(index);
         this.passwordEncoder =
                 env.getProperty(propertyBase + "password-encoding-algo", String.class, "BCrypt");
 
@@ -65,8 +65,8 @@ public class InlineOrganizationProviderConfiguration extends OrganizationProvide
         int idx = 0;
 
         while (found) {
-            final String userPropertyBase = propertyBase + "users[" + idx + "].";
-            final String username = env.getProperty(userPropertyBase + "username");
+            String userPropertyBase = propertyBase + "users[" + idx + "].";
+            String username = env.getProperty(userPropertyBase + "username");
             found = (username != null);
             if (found) {
                 UserDefinition user = new UserDefinition();
@@ -134,13 +134,13 @@ public class InlineOrganizationProviderConfiguration extends OrganizationProvide
     private Map<String, String[]> generateRoleMapper() {
         Map<String, String[]> result = new HashMap<>();
 
-        final List<String> roleNames =
+        List<String> roleNames =
                 Arrays.asList(
                         SystemRole.ORGANIZATION_PRIMARY_OWNER.name(),
                         ORGANIZATION_OWNER.name(),
                         ORGANIZATION_USER.name());
 
-        final Map<String, Role> organizationRoles =
+        Map<String, Role> organizationRoles =
                 Flowable.merge(
                                 roleService.findRolesByName(
                                         ReferenceType.PLATFORM,

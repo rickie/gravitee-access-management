@@ -122,8 +122,7 @@ public class MongoUserProviderTest {
         userToUpdate.getAdditionalInformation().put("given_name", userToUpdate.getFirstName());
         userToUpdate.getAdditionalInformation().put("family_name", userToUpdate.getLastName());
 
-        final TestObserver<User> observer =
-                userProvider.update(createdUser.getId(), userToUpdate).test();
+        TestObserver<User> observer = userProvider.update(createdUser.getId(), userToUpdate).test();
         observer.awaitTerminalEvent();
         observer.assertNoErrors();
         observer.assertValue(u -> assertUserMatch(userToUpdate, u));
@@ -152,8 +151,7 @@ public class MongoUserProviderTest {
         userToUpdate.getAdditionalInformation().put("given_name", userToUpdate.getFirstName());
         userToUpdate.getAdditionalInformation().put("family_name", userToUpdate.getLastName());
 
-        final TestObserver<User> observer =
-                userProvider.update(createdUser.getId(), userToUpdate).test();
+        TestObserver<User> observer = userProvider.update(createdUser.getId(), userToUpdate).test();
         observer.awaitTerminalEvent();
         observer.assertNoErrors();
         observer.assertValue(u -> assertUserMatch(userToUpdate, u));
@@ -176,8 +174,7 @@ public class MongoUserProviderTest {
         userToUpdate.getAdditionalInformation().put("given_name", userToUpdate.getFirstName());
         userToUpdate.getAdditionalInformation().put("family_name", userToUpdate.getLastName());
 
-        final TestObserver<User> observer =
-                userProvider.updatePassword(userToUpdate, "something").test();
+        TestObserver<User> observer = userProvider.updatePassword(userToUpdate, "something").test();
         observer.awaitTerminalEvent();
         observer.assertNoErrors();
         observer.assertValue(u -> assertUserMatch(user, u));
@@ -197,7 +194,7 @@ public class MongoUserProviderTest {
     }
 
     private DefaultUser createUserBean() {
-        final String username = RandomString.generate();
+        String username = RandomString.generate();
         DefaultUser user = new DefaultUser();
         user.setEmail(username + "@acme.com");
         user.setUsername(username);

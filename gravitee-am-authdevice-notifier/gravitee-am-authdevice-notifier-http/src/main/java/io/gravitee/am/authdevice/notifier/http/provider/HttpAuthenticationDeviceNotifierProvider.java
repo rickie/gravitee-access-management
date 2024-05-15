@@ -73,7 +73,7 @@ public class HttpAuthenticationDeviceNotifierProvider
 
     @Override
     public Single<ADNotificationResponse> notify(ADNotificationRequest request) {
-        final MultiMap formData = MultiMap.caseInsensitiveMultiMap();
+        MultiMap formData = MultiMap.caseInsensitiveMultiMap();
 
         formData.set(TRANSACTION_ID, request.getTransactionId());
         formData.set(STATE, request.getState());
@@ -89,7 +89,7 @@ public class HttpAuthenticationDeviceNotifierProvider
             formData.set(PARAM_MESSAGE, request.getMessage());
         }
 
-        final HttpRequest<Buffer> notificationRequest =
+        HttpRequest<Buffer> notificationRequest =
                 this.client.requestAbs(HttpMethod.POST, this.configuration.getEndpoint());
         if (!StringUtils.isEmpty(this.configuration.getHeaderValue())) {
             notificationRequest.putHeader(
@@ -120,7 +120,7 @@ public class HttpAuthenticationDeviceNotifierProvider
                                                 "Device notification fails"));
                             }
 
-                            final JsonObject result = response.bodyAsJsonObject();
+                            JsonObject result = response.bodyAsJsonObject();
                             if (!request.getTransactionId().equals(result.getString(TRANSACTION_ID))
                                     || !request.getState().equals(result.getString(STATE))) {
                                 LOGGER.warn(
@@ -132,9 +132,9 @@ public class HttpAuthenticationDeviceNotifierProvider
                                                 "Invalid device notification response"));
                             }
 
-                            final ADNotificationResponse notificationResponse =
+                            ADNotificationResponse notificationResponse =
                                     new ADNotificationResponse(request.getTransactionId());
-                            final JsonObject extraData = result.getJsonObject(RESPONSE_ATTR_DATA);
+                            JsonObject extraData = result.getJsonObject(RESPONSE_ATTR_DATA);
                             if (extraData != null) {
                                 notificationResponse.setExtraData(extraData.getMap());
                             }
@@ -144,9 +144,9 @@ public class HttpAuthenticationDeviceNotifierProvider
 
     @Override
     public Single<Optional<ADUserResponse>> extractUserResponse(ADCallbackContext callbackContext) {
-        final String state = callbackContext.getParam(STATE);
-        final String tid = callbackContext.getParam(TRANSACTION_ID);
-        final String validated = callbackContext.getParam(CALLBACK_VALIDATE);
+        String state = callbackContext.getParam(STATE);
+        String tid = callbackContext.getParam(TRANSACTION_ID);
+        String validated = callbackContext.getParam(CALLBACK_VALIDATE);
         if (isEmpty(state) || isEmpty(tid) || isEmpty(validated)) {
             return Single.just(Optional.empty());
         } else {

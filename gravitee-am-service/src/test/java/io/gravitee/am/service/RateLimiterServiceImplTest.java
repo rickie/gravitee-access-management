@@ -111,7 +111,7 @@ public class RateLimiterServiceImplTest {
 
     @Test
     public void shouldThrow_TechnicalManagementException_wrong_timeUnit() {
-        final String wrongTimeUnit = "minute";
+        String wrongTimeUnit = "minute";
         ReflectionTestUtils.setField(rateLimiterService, "timeUnit", wrongTimeUnit);
         ReflectionTestUtils.setField(rateLimiterService, "timePeriod", 2);
         ReflectionTestUtils.setField(rateLimiterService, "limit", 2);
@@ -303,13 +303,13 @@ public class RateLimiterServiceImplTest {
     }
 
     private RateLimit createRateLimit() {
-        final RateLimit rateLimit = new RateLimit();
-        final String random = UUID.randomUUID().toString();
+        RateLimit rateLimit = new RateLimit();
+        String random = UUID.randomUUID().toString();
         rateLimit.setClient("client-id" + random);
         rateLimit.setUserId("user-id" + random);
         rateLimit.setFactorId("factor-id" + random);
         rateLimit.setTokenLeft(10);
-        final Date date = new Date();
+        Date date = new Date();
         rateLimit.setCreatedAt(date);
         rateLimit.setUpdatedAt(date);
 

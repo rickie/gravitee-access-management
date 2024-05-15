@@ -60,9 +60,9 @@ public class TaskManagerTest {
     @Test
     public void shouldSchedule_task() {
 
-        final var task =
+        var task =
                 new AssignSystemCertificate(applicationService, certificateRepository, taskManager);
-        final var definition =
+        var definition =
                 new AssignSystemCertificateDefinition("domainid", "nexcertid", "deprecatedcertid");
         definition.setDelay(1);
         definition.setUnit(TimeUnit.HOURS);

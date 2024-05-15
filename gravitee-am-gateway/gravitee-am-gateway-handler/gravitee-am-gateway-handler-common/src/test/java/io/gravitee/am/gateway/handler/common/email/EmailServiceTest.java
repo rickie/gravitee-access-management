@@ -92,12 +92,12 @@ public class EmailServiceTest {
 
     @Test
     public void sendEmail_i18n_fr() throws Exception {
-        final User user = new User();
+        User user = new User();
         user.setFirstName("John");
         user.setLastName("Doe");
         user.setPreferredLanguage("fr");
 
-        final var email = new Email();
+        var email = new Email();
         email.setFrom("no-reply@gravitee.io");
         email.setFromName("no-reply@gravitee.io");
         email.setSubject("${msg('reset.password.email.subject')}");
@@ -120,12 +120,12 @@ public class EmailServiceTest {
 
     @Test
     public void sendEmail_i18n_en() throws Exception {
-        final User user = new User();
+        User user = new User();
         user.setFirstName("John");
         user.setLastName("Doe");
         user.setPreferredLanguage("en");
 
-        final var email = new Email();
+        var email = new Email();
         email.setFrom("no-reply@gravitee.io");
         email.setFromName("no-reply@gravitee.io");
         email.setSubject("${msg('reset.password.email.subject')}");

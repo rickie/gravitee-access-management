@@ -132,7 +132,7 @@ public class LogoutEndpointHandlerTest extends RxWebTestBase {
         when(clientSyncService.findById("client-id")).thenReturn(Maybe.just(client));
         when(userService.logout(any(), eq(false), any())).thenReturn(Completable.complete());
 
-        final OIDCSettings oidcSettings = new OIDCSettings();
+        OIDCSettings oidcSettings = new OIDCSettings();
         // redirect logout URI defined at domain level
         oidcSettings.setPostLogoutRedirectUris(List.of("https://test"));
         when(domain.getOidc()).thenReturn(oidcSettings);
@@ -176,7 +176,7 @@ public class LogoutEndpointHandlerTest extends RxWebTestBase {
         when(clientSyncService.findById("client-id")).thenReturn(Maybe.just(client));
         when(userService.logout(any(), eq(false), any())).thenReturn(Completable.complete());
 
-        final OIDCSettings oidcSettings = new OIDCSettings();
+        OIDCSettings oidcSettings = new OIDCSettings();
         // redirect logout URI defined at domain level
         oidcSettings.setPostLogoutRedirectUris(List.of("https://test"));
         when(domain.getOidc()).thenReturn(oidcSettings);
@@ -219,7 +219,7 @@ public class LogoutEndpointHandlerTest extends RxWebTestBase {
         when(clientSyncService.findById("client-id")).thenReturn(Maybe.just(client));
         when(userService.logout(any(), eq(false), any())).thenReturn(Completable.complete());
 
-        final OIDCSettings oidcSettings = new OIDCSettings();
+        OIDCSettings oidcSettings = new OIDCSettings();
         // redirect logout URI defined at domain level
         oidcSettings.setPostLogoutRedirectUris(List.of("https://test"));
         when(domain.getOidc()).thenReturn(oidcSettings);
@@ -636,8 +636,8 @@ public class LogoutEndpointHandlerTest extends RxWebTestBase {
         when(clientSyncService.findById("client-id")).thenReturn(Maybe.empty());
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
 
-        final SocialAuthenticationProvider authProvider = mock(SocialAuthenticationProvider.class);
-        final Request req = new Request();
+        SocialAuthenticationProvider authProvider = mock(SocialAuthenticationProvider.class);
+        Request req = new Request();
         req.setUri("https://oidc/logout");
         req.setMethod(io.gravitee.common.http.HttpMethod.GET);
         when(authProvider.signOutUrl(any())).thenReturn(Maybe.just(req));
@@ -649,7 +649,7 @@ public class LogoutEndpointHandlerTest extends RxWebTestBase {
                         routingContext -> {
                             User endUser = new User();
                             endUser.setClient("client-id");
-                            final HashMap<String, Object> additionalInformation = new HashMap<>();
+                            HashMap<String, Object> additionalInformation = new HashMap<>();
                             additionalInformation.put(
                                     ConstantKeys.OIDC_PROVIDER_ID_TOKEN_KEY, "opidtokenvalue");
                             endUser.setAdditionalInformation(additionalInformation);
@@ -695,8 +695,8 @@ public class LogoutEndpointHandlerTest extends RxWebTestBase {
         when(clientSyncService.findById("client-id")).thenReturn(Maybe.empty());
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
 
-        final SocialAuthenticationProvider authProvider = mock(SocialAuthenticationProvider.class);
-        final Request req = new Request();
+        SocialAuthenticationProvider authProvider = mock(SocialAuthenticationProvider.class);
+        Request req = new Request();
         req.setUri("https://oidc/logout");
         req.setMethod(io.gravitee.common.http.HttpMethod.GET);
         when(authProvider.signOutUrl(any())).thenReturn(Maybe.just(req));
@@ -708,7 +708,7 @@ public class LogoutEndpointHandlerTest extends RxWebTestBase {
                         routingContext -> {
                             User endUser = new User();
                             endUser.setClient("client-id");
-                            final HashMap<String, Object> additionalInformation = new HashMap<>();
+                            HashMap<String, Object> additionalInformation = new HashMap<>();
                             additionalInformation.put(
                                     ConstantKeys.OIDC_PROVIDER_ID_TOKEN_KEY, "opidtokenvalue");
                             endUser.setAdditionalInformation(additionalInformation);
@@ -758,8 +758,8 @@ public class LogoutEndpointHandlerTest extends RxWebTestBase {
         when(clientSyncService.findById("client-id")).thenReturn(Maybe.empty());
         when(clientSyncService.findByClientId("client-id")).thenReturn(Maybe.just(client));
 
-        final SocialAuthenticationProvider authProvider = mock(SocialAuthenticationProvider.class);
-        final Request req = new Request();
+        SocialAuthenticationProvider authProvider = mock(SocialAuthenticationProvider.class);
+        Request req = new Request();
         req.setUri("https://oidc/logout");
         req.setMethod(io.gravitee.common.http.HttpMethod.GET);
         when(authProvider.signOutUrl(any())).thenReturn(Maybe.just(req));
@@ -781,7 +781,7 @@ public class LogoutEndpointHandlerTest extends RxWebTestBase {
                         routingContext -> {
                             User endUser = new User();
                             endUser.setClient("client-id");
-                            final HashMap<String, Object> additionalInformation = new HashMap<>();
+                            HashMap<String, Object> additionalInformation = new HashMap<>();
                             additionalInformation.put(
                                     ConstantKeys.OIDC_PROVIDER_ID_TOKEN_KEY, "opidtokenvalue");
                             endUser.setAdditionalInformation(additionalInformation);

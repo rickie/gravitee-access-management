@@ -26,7 +26,7 @@ public class PolicyChainProcessorFailure implements ProcessorFailure {
 
     private final PolicyResult policyResult;
 
-    public PolicyChainProcessorFailure(final PolicyResult policyResult) {
+    public PolicyChainProcessorFailure(PolicyResult policyResult) {
         this.policyResult = policyResult;
     }
 

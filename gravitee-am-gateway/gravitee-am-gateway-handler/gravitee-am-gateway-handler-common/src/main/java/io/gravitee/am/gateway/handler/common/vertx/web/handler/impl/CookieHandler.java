@@ -65,7 +65,7 @@ public class CookieHandler implements Handler<RoutingContext> {
      * @param cookie the cookie to rewrite.
      */
     private void finalizeCookie(RoutingContext context, ServerCookie cookie) {
-        final String cookiePath = context.get(CONTEXT_PATH);
+        String cookiePath = context.get(CONTEXT_PATH);
         String forwardedPath = context.request().getHeader(X_FORWARDED_PREFIX);
         if (forwardedPath != null && !forwardedPath.isEmpty()) {
             // Remove trailing slash.

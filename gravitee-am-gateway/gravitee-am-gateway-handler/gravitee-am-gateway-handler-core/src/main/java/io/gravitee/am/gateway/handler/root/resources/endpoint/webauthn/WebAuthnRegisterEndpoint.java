@@ -75,14 +75,13 @@ public class WebAuthnRegisterEndpoint extends WebAuthnHandler {
                 return;
             }
 
-            final MultiMap queryParams =
-                    RequestUtils.getCleanedQueryParams(routingContext.request());
+            MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
 
             // check if user has skipped this step
-            final HttpServerRequest request = routingContext.request();
+            HttpServerRequest request = routingContext.request();
             if (Boolean.parseBoolean(request.getParam(SKIP_WEBAUTHN_PARAM_KEY))) {
                 queryParams.remove(SKIP_WEBAUTHN_PARAM_KEY);
-                final String returnURL = getReturnUrl(routingContext, queryParams);
+                String returnURL = getReturnUrl(routingContext, queryParams);
                 routingContext.session().put(ConstantKeys.WEBAUTHN_SKIPPED_KEY, true);
                 // Now redirect back to the original url
                 doRedirect(routingContext.response(), returnURL);
@@ -90,20 +89,20 @@ public class WebAuthnRegisterEndpoint extends WebAuthnHandler {
             }
 
             // prepare the context
-            final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-            final User user =
+            Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+            User user =
                     ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User)
                                     routingContext.user().getDelegate())
                             .getUser();
-            final UserProperties userProperties = new UserProperties(user);
+            UserProperties userProperties = new UserProperties(user);
 
-            final String action =
+            String action =
                     UriBuilderRequest.resolveProxyRequest(
                             routingContext.request(),
                             routingContext.request().path(),
                             queryParams,
                             true);
-            final String skipAction =
+            String skipAction =
                     UriBuilderRequest.resolveProxyRequest(
                             routingContext.request(),
                             routingContext.request().path(),

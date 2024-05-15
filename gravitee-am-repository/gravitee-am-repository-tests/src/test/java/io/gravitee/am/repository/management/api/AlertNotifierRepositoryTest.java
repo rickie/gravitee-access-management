@@ -130,7 +130,7 @@ public class AlertNotifierRepositoryTest extends AbstractManagementTest {
         testObserver1.assertNoValues();
 
         alertNotifierCreated.setEnabled(false);
-        final AlertNotifier alertNotifierUpdated =
+        AlertNotifier alertNotifierUpdated =
                 alertNotifierRepository.update(alertNotifierCreated).blockingGet();
         testObserver1 =
                 alertNotifierRepository
@@ -183,7 +183,7 @@ public class AlertNotifierRepositoryTest extends AbstractManagementTest {
                 alertNotifierRepository.create(alertNotifierToCreate1).blockingGet();
         alertNotifierRepository.create(alertNotifierToCreate2).blockingGet();
 
-        final AlertNotifierCriteria criteria = new AlertNotifierCriteria();
+        AlertNotifierCriteria criteria = new AlertNotifierCriteria();
         criteria.setIds(Collections.emptyList());
         testObserver1 =
                 alertNotifierRepository

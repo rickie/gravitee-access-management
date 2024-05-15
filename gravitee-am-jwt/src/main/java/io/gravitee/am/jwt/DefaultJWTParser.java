@@ -54,7 +54,7 @@ public class DefaultJWTParser implements JWTParser {
     public static final String NO_MATCHING_JWT_PARSER_FOR_KEY = "No matching JWT parser for key : ";
     private JWSVerifier verifier;
 
-    public DefaultJWTParser(final Key key) throws InvalidKeyException {
+    public DefaultJWTParser(Key key) throws InvalidKeyException {
         if (key instanceof PublicKey) {
             initialiseVerifier((PublicKey) key);
             // if JCA doesn't support at least the PS256 algorithm (jdk <= 8)

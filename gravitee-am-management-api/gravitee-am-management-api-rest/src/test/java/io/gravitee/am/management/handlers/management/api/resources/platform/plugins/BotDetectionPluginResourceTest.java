@@ -34,7 +34,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetPlugin() {
-        final BotDetectionPlugin plugin = new BotDetectionPlugin();
+        BotDetectionPlugin plugin = new BotDetectionPlugin();
         plugin.setId("plugin-id");
         plugin.setName("plugin-name");
         plugin.setDescription("desc");
@@ -42,7 +42,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
 
         doReturn(Maybe.just(plugin)).when(botDetectionPluginService).findById("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("bot-detections")
@@ -54,12 +54,12 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetPlugin_NotFound() {
-        final BotDetectionPlugin plugin = new BotDetectionPlugin();
+        BotDetectionPlugin plugin = new BotDetectionPlugin();
         plugin.setId("plugin-id");
 
         doReturn(Maybe.empty()).when(botDetectionPluginService).findById("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("bot-detections")
@@ -76,7 +76,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
                 .when(botDetectionPluginService)
                 .findById("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("bot-detections")
@@ -89,7 +89,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema() {
-        final BotDetectionPlugin plugin = new BotDetectionPlugin();
+        BotDetectionPlugin plugin = new BotDetectionPlugin();
         plugin.setId("plugin-id");
         plugin.setName("plugin-name");
         plugin.setDescription("desc");
@@ -98,7 +98,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(plugin)).when(botDetectionPluginService).findById("plugin-id");
         doReturn(Maybe.just("{}")).when(botDetectionPluginService).getSchema("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("bot-detections")
@@ -112,7 +112,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema_PluginNotFound() {
-        final BotDetectionPlugin plugin = new BotDetectionPlugin();
+        BotDetectionPlugin plugin = new BotDetectionPlugin();
         plugin.setId("plugin-id");
         plugin.setName("plugin-name");
         plugin.setDescription("desc");
@@ -120,7 +120,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
 
         doReturn(Maybe.empty()).when(botDetectionPluginService).findById("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("bot-detections")
@@ -134,7 +134,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema_SchemaNotFound() {
-        final BotDetectionPlugin plugin = new BotDetectionPlugin();
+        BotDetectionPlugin plugin = new BotDetectionPlugin();
         plugin.setId("plugin-id");
         plugin.setName("plugin-name");
         plugin.setDescription("desc");
@@ -143,7 +143,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(plugin)).when(botDetectionPluginService).findById("plugin-id");
         doReturn(Maybe.empty()).when(botDetectionPluginService).getSchema("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("bot-detections")
@@ -157,7 +157,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema_TechnicalException() {
-        final BotDetectionPlugin plugin = new BotDetectionPlugin();
+        BotDetectionPlugin plugin = new BotDetectionPlugin();
         plugin.setId("plugin-id");
         plugin.setName("plugin-name");
         plugin.setDescription("desc");
@@ -168,7 +168,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
                 .when(botDetectionPluginService)
                 .getSchema("plugin-id");
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("bot-detections")

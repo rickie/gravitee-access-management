@@ -68,8 +68,8 @@ public class AuthenticationRequestAcknowledgeHandlerTest extends RxWebTestBase {
     public void setUp() throws Exception {
         super.setUp();
 
-        final OIDCSettings oidcSettings = OIDCSettings.defaultSettings();
-        final CIBASettingNotifier notifierSetting = new CIBASettingNotifier();
+        OIDCSettings oidcSettings = OIDCSettings.defaultSettings();
+        CIBASettingNotifier notifierSetting = new CIBASettingNotifier();
         notifierSetting.setId("notifierid");
         oidcSettings.getCibaSettings().setDeviceNotifiers(List.of(notifierSetting));
         when(domain.getOidc()).thenReturn(oidcSettings);
@@ -80,7 +80,7 @@ public class AuthenticationRequestAcknowledgeHandlerTest extends RxWebTestBase {
                 .handler(handlerUnderTest)
                 .failureHandler(
                         rc -> {
-                            final Throwable failure = rc.failure();
+                            Throwable failure = rc.failure();
                             if (failure instanceof OAuth2Exception) {
                                 rc.response()
                                         .setStatusCode(
@@ -117,7 +117,7 @@ public class AuthenticationRequestAcknowledgeHandlerTest extends RxWebTestBase {
 
         when(jwtService.encode(any(JWT.class), any(Client.class)))
                 .thenReturn(Single.just("signed_jwt"));
-        final CibaAuthRequest req = new CibaAuthRequest();
+        CibaAuthRequest req = new CibaAuthRequest();
         req.setCreatedAt(new Date());
         req.setExpireAt(new Date());
         when(authReqService.register(any(), any())).thenReturn(Single.just(req));

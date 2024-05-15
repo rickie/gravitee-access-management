@@ -57,8 +57,7 @@ public class CSPHandlerFactory implements FactoryBean<CSPHandler> {
             var directives = getDirectives();
             var scriptInlineNonce =
                     environment.getProperty(HTTP_CSP_SCRIPT_INLINE_NONCE, Boolean.class, true);
-            final boolean notEnabled =
-                    !environment.getProperty(HTTP_CSP_ENABLED, Boolean.class, true);
+            boolean notEnabled = !environment.getProperty(HTTP_CSP_ENABLED, Boolean.class, true);
             if ((isNull(reportOnly) && isNull(directives) && !scriptInlineNonce) || notEnabled) {
                 INSTANCE = new NoOpCspHandler();
             } else {

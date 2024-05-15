@@ -105,7 +105,7 @@ public class ThemeManager extends AbstractService<ThemeManager>
     }
 
     private void update(String id, ThemeEvent event) {
-        final String eventType = event.toString().toLowerCase();
+        String eventType = event.toString().toLowerCase();
         logger.info(
                 "Domain {} has received {} theme event for {}", domain.getName(), eventType, id);
         themeRepository

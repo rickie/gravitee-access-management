@@ -62,9 +62,9 @@ public class ResourceAccessPoliciesEndpoint {
     }
 
     public void list(RoutingContext context) {
-        final JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
-        final Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final String resource = context.request().getParam(RESOURCE_ID);
+        JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
+        Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        String resource = context.request().getParam(RESOURCE_ID);
 
         resourceService
                 .findAccessPolicies(domain.getId(), client.getId(), accessToken.getSub(), resource)
@@ -87,10 +87,10 @@ public class ResourceAccessPoliciesEndpoint {
     }
 
     public void create(RoutingContext context) {
-        final JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
-        final Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final String resource = context.request().getParam(RESOURCE_ID);
-        final String basePath = UriBuilderRequest.resolveProxyRequest(context);
+        JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
+        Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        String resource = context.request().getParam(RESOURCE_ID);
+        String basePath = UriBuilderRequest.resolveProxyRequest(context);
 
         // extract access policy payload
         AccessPolicy accessPolicy = extractRequest(context);
@@ -119,10 +119,10 @@ public class ResourceAccessPoliciesEndpoint {
     }
 
     public void get(RoutingContext context) {
-        final JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
-        final Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final String resource = context.request().getParam(RESOURCE_ID);
-        final String accessPolicyId = context.request().getParam(POLICY_ID);
+        JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
+        Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        String resource = context.request().getParam(RESOURCE_ID);
+        String accessPolicyId = context.request().getParam(POLICY_ID);
 
         resourceService
                 .findAccessPolicy(
@@ -145,10 +145,10 @@ public class ResourceAccessPoliciesEndpoint {
     }
 
     public void update(RoutingContext context) {
-        final JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
-        final Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final String resource = context.request().getParam(RESOURCE_ID);
-        final String accessPolicyId = context.request().getParam(POLICY_ID);
+        JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
+        Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        String resource = context.request().getParam(RESOURCE_ID);
+        String accessPolicyId = context.request().getParam(POLICY_ID);
 
         // extract access policy payload
         AccessPolicy accessPolicy = extractRequest(context);
@@ -175,10 +175,10 @@ public class ResourceAccessPoliciesEndpoint {
     }
 
     public void delete(RoutingContext context) {
-        final JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
-        final Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
-        final String resource = context.request().getParam(RESOURCE_ID);
-        final String accessPolicy = context.request().getParam(POLICY_ID);
+        JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
+        Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        String resource = context.request().getParam(RESOURCE_ID);
+        String accessPolicy = context.request().getParam(POLICY_ID);
 
         resourceService
                 .deleteAccessPolicy(
