@@ -269,8 +269,8 @@ public class EmailTemplateServiceTest {
     @Test
     public void copyFromClient() {
 
-        final String sourceUid = "sourceUid";
-        final String targetUid = "targetUid";
+        String sourceUid = "sourceUid";
+        String targetUid = "targetUid";
 
         Email mailOne = new Email();
         mailOne.setId("templateId");
@@ -338,8 +338,8 @@ public class EmailTemplateServiceTest {
     @Test
     public void copyFromClient_duplicateFound() {
 
-        final String sourceUid = "sourceUid";
-        final String targetUid = "targetUid";
+        String sourceUid = "sourceUid";
+        String targetUid = "targetUid";
 
         Email mailOne = new Email();
         mailOne.setId("templateId");

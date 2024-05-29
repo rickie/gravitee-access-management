@@ -74,7 +74,7 @@ public class EmailManagerTest {
                         eq(Template.REGISTRATION_CONFIRMATION.template())))
                 .thenReturn(Maybe.empty());
 
-        final User user = new User();
+        User user = new User();
         user.setReferenceType(ReferenceType.DOMAIN);
         user.setReferenceId(REFERENCE_ID);
         user.setClient(CLIENT);
@@ -115,7 +115,7 @@ public class EmailManagerTest {
                         eq(Template.REGISTRATION_CONFIRMATION.template())))
                 .thenReturn(Maybe.empty());
 
-        final User user = new User();
+        User user = new User();
         user.setReferenceType(ReferenceType.DOMAIN);
         user.setReferenceId(REFERENCE_ID);
         user.setClient(CLIENT);
@@ -167,7 +167,7 @@ public class EmailManagerTest {
                         eq(Template.RESET_PASSWORD.template())))
                 .thenReturn(Maybe.just(clientEmail));
 
-        final User user = new User();
+        User user = new User();
         user.setReferenceType(ReferenceType.DOMAIN);
         user.setReferenceId(REFERENCE_ID);
         user.setClient(CLIENT);

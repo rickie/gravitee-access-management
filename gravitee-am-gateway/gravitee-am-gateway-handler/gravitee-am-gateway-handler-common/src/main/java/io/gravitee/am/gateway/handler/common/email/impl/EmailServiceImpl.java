@@ -130,11 +130,10 @@ public class EmailServiceImpl implements EmailService {
                 }
 
                 // sanitize data
-                final Map<String, Object> params =
-                        FreemarkerDataHelper.generateData(email.getParams());
+                Map<String, Object> params = FreemarkerDataHelper.generateData(email.getParams());
 
                 // compute email to
-                final List<String> to = new ArrayList<>();
+                List<String> to = new ArrayList<>();
                 for (String emailTo : email.getTo()) {
                     to.add(
                             processTemplate(
@@ -146,7 +145,7 @@ public class EmailServiceImpl implements EmailService {
                                     language));
                 }
                 // compute email from
-                final String from =
+                String from =
                         processTemplate(
                                 new Template(
                                         "from",
@@ -155,7 +154,7 @@ public class EmailServiceImpl implements EmailService {
                                 params,
                                 language);
                 // compute email fromName
-                final String fromName =
+                String fromName =
                         processTemplate(
                                 new Template(
                                         "fromName",
@@ -164,7 +163,7 @@ public class EmailServiceImpl implements EmailService {
                                 params,
                                 language);
                 // compute email subject
-                final String subject =
+                String subject =
                         processTemplate(
                                 new Template(
                                         "subject",
@@ -173,7 +172,7 @@ public class EmailServiceImpl implements EmailService {
                                 params,
                                 language);
                 // compute email content
-                final String content =
+                String content =
                         processTemplate(
                                 new Template(
                                         "content",
@@ -182,7 +181,7 @@ public class EmailServiceImpl implements EmailService {
                                 params,
                                 language);
                 // send the email
-                final Email emailToSend = new Email(email);
+                Email emailToSend = new Email(email);
                 emailToSend.setFrom(from);
                 emailToSend.setFromName(fromName);
                 emailToSend.setTo(to.toArray(new String[0]));
@@ -205,22 +204,22 @@ public class EmailServiceImpl implements EmailService {
 
     private void sendEmail(Email email, User user, Client client) {
         try {
-            final Locale preferredLanguage = preferredLanguage(user, Locale.ENGLISH);
+            Locale preferredLanguage = preferredLanguage(user, Locale.ENGLISH);
 
             // compute email subject
-            final Template plainTextTemplate =
+            Template plainTextTemplate =
                     new Template(
                             "subject",
                             new StringReader(email.getSubject()),
                             freemarkerConfiguration);
-            final String subject =
+            String subject =
                     processTemplate(plainTextTemplate, email.getParams(), preferredLanguage);
 
             // compute email content
-            final Template template = freemarkerConfiguration.getTemplate(email.getTemplate());
-            final String content = processTemplate(template, email.getParams(), preferredLanguage);
+            Template template = freemarkerConfiguration.getTemplate(email.getTemplate());
+            String content = processTemplate(template, email.getParams(), preferredLanguage);
 
-            final Email emailToSend = new Email(email);
+            Email emailToSend = new Email(email);
             emailToSend.setSubject(subject);
             emailToSend.setContent(content);
             emailService.send(emailToSend);
@@ -230,7 +229,7 @@ public class EmailServiceImpl implements EmailService {
                             .client(client)
                             .email(email)
                             .user(user));
-        } catch (final Exception ex) {
+        } catch (Exception ex) {
             auditService.report(
                     AuditBuilder.builder(EmailAuditBuilder.class)
                             .domain(domain.getId())
@@ -263,7 +262,7 @@ public class EmailServiceImpl implements EmailService {
     private Map<String, Object> prepareEmailParams(
             User user, Client client, Integer expiresAfter, String redirectUri) {
         // generate a JWT to store user's information and for security purpose
-        final Map<String, Object> claims = new HashMap<>();
+        Map<String, Object> claims = new HashMap<>();
         Instant now = Instant.now();
         claims.put(Claims.iat, now.getEpochSecond());
         claims.put(Claims.exp, now.plusSeconds(expiresAfter).getEpochSecond());
@@ -309,7 +308,7 @@ public class EmailServiceImpl implements EmailService {
             throws IOException, TemplateException {
         io.gravitee.am.model.Email emailTpl = getEmailTemplate(template, client);
         params.putIfAbsent("expireAfterSeconds", emailTpl.getExpiresAfter());
-        final long expiresAt =
+        long expiresAt =
                 Instant.now().plus(emailTpl.getExpiresAfter(), ChronoUnit.SECONDS).toEpochMilli();
         params.putIfAbsent("expireAt", expiresAt);
 
@@ -322,7 +321,7 @@ public class EmailServiceImpl implements EmailService {
                         .build();
 
         // compute email subject
-        final Template plainTextTemplate =
+        Template plainTextTemplate =
                 new Template(
                         "subject",
                         new StringReader(emailTpl.getSubject()),
@@ -330,7 +329,7 @@ public class EmailServiceImpl implements EmailService {
         email.setSubject(processTemplate(plainTextTemplate, params, preferredLanguage));
 
         // compute email content
-        final Template subjectTemplate = freemarkerConfiguration.getTemplate(email.getTemplate());
+        Template subjectTemplate = freemarkerConfiguration.getTemplate(email.getTemplate());
         email.setContent(processTemplate(subjectTemplate, params, preferredLanguage));
 
         EmailWrapper wrapper = new EmailWrapper(email);

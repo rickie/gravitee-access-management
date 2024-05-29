@@ -56,7 +56,7 @@ public class SignerUtils {
             String url,
             Map<String, String> parameters,
             Map<String, String> oauthParams) {
-        final TreeMap<String, String> sortedMap = new TreeMap<>(oauthParams);
+        TreeMap<String, String> sortedMap = new TreeMap<>(oauthParams);
         sortedMap.putAll(parameters);
         String parametersString =
                 sortedMap.entrySet().stream()
@@ -95,8 +95,8 @@ public class SignerUtils {
             Map<String, String> oauthParams,
             OAuthCredentials credentials) {
         // add generated oauth param (nonce and timestamp)
-        final long timestamp = Instant.now().getEpochSecond();
-        final String nonce = UUID.randomUUID().toString().replace("-", "");
+        long timestamp = Instant.now().getEpochSecond();
+        String nonce = UUID.randomUUID().toString().replace("-", "");
         oauthParams.put(OAUTH_NONCE, nonce);
         oauthParams.put(OAUTH_TIMESTAMP, String.valueOf(timestamp));
 

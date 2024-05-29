@@ -68,8 +68,8 @@ public class AuthorizationRequestEndUserConsentHandlerTest extends RxWebTestBase
 
     @Test
     public void shouldApproveRequest_clientAutoApproval() throws Exception {
-        final String clientId = "client_id";
-        final String autoApproveScope = "read";
+        String clientId = "client_id";
+        String autoApproveScope = "read";
         Client client = new Client();
         client.setClientId(clientId);
         client.setAutoApproveScopes(Collections.singletonList(autoApproveScope));
@@ -99,9 +99,9 @@ public class AuthorizationRequestEndUserConsentHandlerTest extends RxWebTestBase
 
     @Test
     public void shouldNotApproveRequest_noClientAutoApproval() throws Exception {
-        final String clientId = "client_id";
-        final String userId = "user_id";
-        final String autoApproveScope = "read";
+        String clientId = "client_id";
+        String userId = "user_id";
+        String autoApproveScope = "read";
         Client client = new Client();
         client.setClientId(clientId);
         client.setAutoApproveScopes(null);
@@ -146,9 +146,9 @@ public class AuthorizationRequestEndUserConsentHandlerTest extends RxWebTestBase
 
     @Test
     public void shouldApproveRequest_noClientAutoApproval_userApproval() throws Exception {
-        final String clientId = "client_id";
-        final String userId = "user_id";
-        final String autoApproveScope = "read";
+        String clientId = "client_id";
+        String userId = "user_id";
+        String autoApproveScope = "read";
         Client client = new Client();
         client.setClientId(clientId);
         client.setAutoApproveScopes(null);
@@ -184,9 +184,9 @@ public class AuthorizationRequestEndUserConsentHandlerTest extends RxWebTestBase
 
     @Test
     public void shouldNotApproveRequest_promptConsent() throws Exception {
-        final String clientId = "client_id";
-        final String userId = "user_id";
-        final String autoApproveScope = "read";
+        String clientId = "client_id";
+        String userId = "user_id";
+        String autoApproveScope = "read";
         Client client = new Client();
         client.setClientId(clientId);
         client.setAutoApproveScopes(Collections.singletonList(autoApproveScope));
@@ -230,9 +230,9 @@ public class AuthorizationRequestEndUserConsentHandlerTest extends RxWebTestBase
 
     @Test
     public void shouldNotApproveRequest_promptNone() throws Exception {
-        final String clientId = "client_id";
-        final String userId = "user_id";
-        final String scope = "read";
+        String clientId = "client_id";
+        String userId = "user_id";
+        String scope = "read";
         Client client = new Client();
         client.setClientId(clientId);
 
@@ -270,9 +270,9 @@ public class AuthorizationRequestEndUserConsentHandlerTest extends RxWebTestBase
 
     @Test
     public void shouldNotApproveRequest_noClientAutoApproval_userDenial() throws Exception {
-        final String clientId = "client_id";
-        final String userId = "user_id";
-        final String autoApproveScope = "read";
+        String clientId = "client_id";
+        String userId = "user_id";
+        String autoApproveScope = "read";
         Client client = new Client();
         client.setClientId(clientId);
         client.setAutoApproveScopes(null);
@@ -311,10 +311,10 @@ public class AuthorizationRequestEndUserConsentHandlerTest extends RxWebTestBase
 
     @Test
     public void shouldApproveRequest_userApprovalChoice() throws Exception {
-        final String clientId = "client_id";
-        final String userId = "user_id";
-        final String readScope = "read";
-        final String writeScope = "write";
+        String clientId = "client_id";
+        String userId = "user_id";
+        String readScope = "read";
+        String writeScope = "write";
         Client client = new Client();
         client.setClientId(clientId);
         client.setAutoApproveScopes(Collections.singletonList(readScope));

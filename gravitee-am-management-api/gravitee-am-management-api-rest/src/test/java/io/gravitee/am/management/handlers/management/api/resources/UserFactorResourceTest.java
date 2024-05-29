@@ -39,14 +39,14 @@ public class UserFactorResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldRemoveUserFactor() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
         EnrolledFactor enrolledFactor = new EnrolledFactor();
         enrolledFactor.setFactorId("factor1");
 
-        final User mockUser = new User();
+        User mockUser = new User();
         mockUser.setId("user-id-1");
         mockUser.setFactors(Collections.singletonList(enrolledFactor));
 
@@ -54,7 +54,7 @@ public class UserFactorResourceTest extends JerseySpringTest {
         doReturn(Maybe.just(mockUser)).when(userService).findById(mockUser.getId());
         doReturn(Single.just(mockUser)).when(userService).enrollFactors(any(), any(), any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("users")

@@ -47,7 +47,7 @@ public class LoginSSOPOSTEndpoint implements Handler<RoutingContext> {
     public void handle(RoutingContext routingContext) {
 
         // Prepare context to render post form.
-        final MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
+        MultiMap queryParams = RequestUtils.getCleanedQueryParams(routingContext.request());
 
         routingContext.put(ACTION_KEY, queryParams.get(ACTION_KEY));
         routingContext.put(FORM_PARAMETERS, queryParams.remove(ACTION_KEY));

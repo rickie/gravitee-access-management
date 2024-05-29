@@ -168,7 +168,7 @@ public class DefaultOrganizationUpgrader implements Upgrader, Ordered {
 
             if (useDefaultAdmin) {
                 // Need to check that inline idp and default admin user has 'admin' role.
-                final List<String> identities =
+                List<String> identities =
                         Optional.ofNullable(organization.getIdentities())
                                 .orElse(Collections.emptyList());
 
@@ -252,7 +252,7 @@ public class DefaultOrganizationUpgrader implements Upgrader, Ordered {
 
     private User createAdminUser(IdentityProvider inlineIdp) {
 
-        final User newUser = new User();
+        User newUser = new User();
         newUser.setInternal(false);
         newUser.setUsername(ADMIN_USERNAME);
         newUser.setSource(inlineIdp.getId());

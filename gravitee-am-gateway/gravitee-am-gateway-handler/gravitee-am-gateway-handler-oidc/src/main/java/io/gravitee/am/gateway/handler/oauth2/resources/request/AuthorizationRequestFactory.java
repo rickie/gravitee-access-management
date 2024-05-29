@@ -156,7 +156,7 @@ public final class AuthorizationRequestFactory {
     }
 
     private MultiValueMap<String, String> extractAdditionalParameters(HttpServerRequest request) {
-        final Set<String> restrictedParameters =
+        Set<String> restrictedParameters =
                 Stream.concat(
                                 Parameters.values.stream(),
                                 io.gravitee.am.common.oidc.Parameters.values.stream())

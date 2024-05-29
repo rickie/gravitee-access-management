@@ -60,11 +60,11 @@ public class LoginAttemptHandlerTest {
     @Before
     public void setUp() {
 
-        final IdentityProvider internal = new IdentityProvider();
+        IdentityProvider internal = new IdentityProvider();
         internal.setId(UUID.randomUUID().toString());
         internal.setExternal(false);
 
-        final IdentityProvider external = new IdentityProvider();
+        IdentityProvider external = new IdentityProvider();
         external.setId(UUID.randomUUID().toString());
         external.setExternal(true);
 
@@ -78,7 +78,7 @@ public class LoginAttemptHandlerTest {
         client.setIdentityProviders(
                 getApplicationIdentityProviders(internal.getId(), external.getId()));
 
-        final LoginAttempt attempts = new LoginAttempt();
+        LoginAttempt attempts = new LoginAttempt();
         attempts.setAttempts(5);
         doReturn(Maybe.just(attempts)).when(loginAttemptService).checkAccount(any(), any());
 
@@ -107,7 +107,7 @@ public class LoginAttemptHandlerTest {
         spyRoutingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
         spyRoutingContext.putParam(USERNAME_PARAM_KEY, "username");
 
-        final MFASettings mfaSettings = new MFASettings();
+        MFASettings mfaSettings = new MFASettings();
         mfaSettings.setAdaptiveAuthenticationRule("{#variable == true}");
         client.setMfaSettings(mfaSettings);
 
@@ -119,7 +119,7 @@ public class LoginAttemptHandlerTest {
     public void mustDoNextNoLoginAttemptApplied_noUsername() {
         spyRoutingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
 
-        final MFASettings mfaSettings = new MFASettings();
+        MFASettings mfaSettings = new MFASettings();
         mfaSettings.setAdaptiveAuthenticationRule("{#variable == true}");
         client.setMfaSettings(mfaSettings);
 
@@ -132,7 +132,7 @@ public class LoginAttemptHandlerTest {
         spyRoutingContext.put(ConstantKeys.CLIENT_CONTEXT_KEY, client);
         spyRoutingContext.putParam(USERNAME_PARAM_KEY, "username");
 
-        final MFASettings mfaSettings = new MFASettings();
+        MFASettings mfaSettings = new MFASettings();
         mfaSettings.setAdaptiveAuthenticationRule("{#variable == true}");
         client.setMfaSettings(mfaSettings);
 
