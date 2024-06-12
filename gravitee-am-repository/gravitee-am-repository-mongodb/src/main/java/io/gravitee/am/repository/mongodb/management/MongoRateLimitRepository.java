@@ -119,7 +119,7 @@ public class MongoRateLimitRepository extends AbstractManagementMongoRepository
     }
 
     private Bson query(RateLimitCriteria criteria) {
-        final List<Bson> filters = new ArrayList<>();
+        List<Bson> filters = new ArrayList<>();
 
         if (criteria.client() != null && !criteria.client().isEmpty()) {
             filters.add(eq(FIELD_CLIENT, criteria.client()));
@@ -141,7 +141,7 @@ public class MongoRateLimitRepository extends AbstractManagementMongoRepository
             return null;
         }
 
-        final RateLimit rateLimit = new RateLimit();
+        RateLimit rateLimit = new RateLimit();
         rateLimit.setId(rateLimitMongo.getId());
         rateLimit.setUserId(rateLimitMongo.getUserId());
         rateLimit.setFactorId(rateLimitMongo.getFactorId());
@@ -161,7 +161,7 @@ public class MongoRateLimitRepository extends AbstractManagementMongoRepository
             return null;
         }
 
-        final RateLimitMongo rateLimitMongo = new RateLimitMongo();
+        RateLimitMongo rateLimitMongo = new RateLimitMongo();
         rateLimitMongo.setId(
                 rateLimit.getId() != null ? rateLimit.getId() : RandomString.generate());
         rateLimitMongo.setUserId(rateLimit.getUserId());

@@ -52,8 +52,8 @@ public abstract class AbstractSensitiveProxy {
                         }
                         if (isSensitiveUri(entry)
                                 && configurationNode.get(entry.getKey()) instanceof TextNode) {
-                            final String uri = configurationNode.get(entry.getKey()).asText();
-                            final String userInfo = URI.create(uri).getUserInfo();
+                            String uri = configurationNode.get(entry.getKey()).asText();
+                            String userInfo = URI.create(uri).getUserInfo();
                             extractUriPassword(userInfo)
                                     .ifPresent(
                                             passwordToHide ->
@@ -119,10 +119,10 @@ public abstract class AbstractSensitiveProxy {
                         .set(entry.getKey(), oldConfigurationNode.get(entry.getKey()));
             }
             if (isSensitiveUri(entry) && updatedConfigurationNode.isObject()) {
-                final JsonNode newUri = updatedConfigurationNode.get(entry.getKey());
+                JsonNode newUri = updatedConfigurationNode.get(entry.getKey());
                 if (newUri != null && !Strings.isNullOrEmpty(newUri.asText())) {
-                    final String incomingUserInfo = URI.create(newUri.asText()).getUserInfo();
-                    final JsonNode olrUriNode = oldConfigurationNode.get(entry.getKey());
+                    String incomingUserInfo = URI.create(newUri.asText()).getUserInfo();
+                    JsonNode olrUriNode = oldConfigurationNode.get(entry.getKey());
                     if (olrUriNode != null && !Strings.isNullOrEmpty(olrUriNode.asText())) {
                         extractUriPassword(incomingUserInfo)
                                 .ifPresent(
@@ -130,7 +130,7 @@ public abstract class AbstractSensitiveProxy {
                                             if (SENSITIVE_VALUE_PATTERN
                                                     .matcher(newPassword)
                                                     .matches()) {
-                                                final String oldUserInfo =
+                                                String oldUserInfo =
                                                         URI.create(olrUriNode.asText())
                                                                 .getUserInfo();
                                                 extractUriPassword(oldUserInfo)
@@ -158,9 +158,9 @@ public abstract class AbstractSensitiveProxy {
     private Optional<String> extractUriPassword(String userInfo) {
         Optional<String> result = Optional.empty();
         if (!Strings.isNullOrEmpty(userInfo)) {
-            final int index = userInfo.indexOf(":");
+            int index = userInfo.indexOf(":");
             if (index != -1) {
-                final String pwd = userInfo.substring(index + 1);
+                String pwd = userInfo.substring(index + 1);
                 result = Optional.of(pwd.trim());
             }
         }
@@ -181,7 +181,7 @@ public abstract class AbstractSensitiveProxy {
         if (configNode == null) {
             return true;
         }
-        final JsonNode valueNode = configNode.get(entry.getKey());
+        JsonNode valueNode = configNode.get(entry.getKey());
         var value = valueNode == null ? null : valueNode.asText();
         var safeValue = value == null ? "" : value.trim();
         return !SENSITIVE_VALUE_PATTERN.matcher(safeValue).matches();

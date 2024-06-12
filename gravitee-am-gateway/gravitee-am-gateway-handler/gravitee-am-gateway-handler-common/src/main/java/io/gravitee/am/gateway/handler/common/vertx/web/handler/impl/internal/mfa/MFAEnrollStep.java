@@ -43,7 +43,7 @@ public class MFAEnrollStep extends MFAStep {
 
     @Override
     public void execute(RoutingContext routingContext, AuthenticationFlowChain flow) {
-        final Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
+        Client client = routingContext.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         var context = new MfaFilterContext(routingContext, client, factorManager);
 
         // Rules that makes you skip MFA enroll

@@ -70,8 +70,8 @@ public class UserFactorResource extends AbstractResource {
             @PathParam("domain") String domain,
             @PathParam("user") String user,
             @PathParam("factor") String factor,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)

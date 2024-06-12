@@ -43,23 +43,22 @@ public class TagsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetTags() {
-        final Tag mockRole = new Tag();
+        Tag mockRole = new Tag();
         mockRole.setId("role-1-id");
         mockRole.setName("role-1-name");
         mockRole.setOrganizationId("orga#1");
 
-        final Tag mockRole2 = new Tag();
+        Tag mockRole2 = new Tag();
         mockRole2.setId("role-2-id");
         mockRole2.setName("role-2-name");
         mockRole2.setOrganizationId(ORGANIZATION_ID);
 
         doReturn(Flowable.just(mockRole, mockRole2)).when(tagService).findAll(anyString());
 
-        final Response response =
-                target("organizations").path("DEFAULT").path("tags").request().get();
+        Response response = target("organizations").path("DEFAULT").path("tags").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final List<Tag> responseEntity = readEntity(response, List.class);
+        List<Tag> responseEntity = readEntity(response, List.class);
         assertEquals(2, responseEntity.size());
     }
 
@@ -69,8 +68,7 @@ public class TagsResourceTest extends JerseySpringTest {
                 .when(tagService)
                 .findAll(anyString());
 
-        final Response response =
-                target("organizations").path("DEFAULT").path("tags").request().get();
+        Response response = target("organizations").path("DEFAULT").path("tags").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
     }
 
@@ -85,7 +83,7 @@ public class TagsResourceTest extends JerseySpringTest {
 
         doReturn(Single.just(tag)).when(tagService).create(any(), anyString(), any());
 
-        final Response response =
+        Response response =
                 target("organizations")
                         .path("DEFAULT")
                         .path("tags")

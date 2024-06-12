@@ -70,8 +70,8 @@ public class ThymeleafDataHelperTest {
     }
 
     private void defineDefaultRequestMock() {
-        final HttpServerRequest serverRequest = mock(HttpServerRequest.class);
-        final io.vertx.core.http.HttpServerRequest delegatedServerRequest =
+        HttpServerRequest serverRequest = mock(HttpServerRequest.class);
+        io.vertx.core.http.HttpServerRequest delegatedServerRequest =
                 mock(io.vertx.core.http.HttpServerRequest.class);
         given(delegatedServerRequest.method()).willReturn(HttpMethod.POST);
         given(delegatedServerRequest.params()).willReturn(MultiMap.caseInsensitiveMultiMap());
@@ -81,8 +81,8 @@ public class ThymeleafDataHelperTest {
 
     @Test
     public void shouldProvideRequestParameters() {
-        final HttpServerRequest serverRequest = mock(HttpServerRequest.class);
-        final io.vertx.core.http.HttpServerRequest delegatedServerRequest =
+        HttpServerRequest serverRequest = mock(HttpServerRequest.class);
+        io.vertx.core.http.HttpServerRequest delegatedServerRequest =
                 mock(io.vertx.core.http.HttpServerRequest.class);
         given(delegatedServerRequest.method()).willReturn(HttpMethod.POST);
         given(delegatedServerRequest.params())
@@ -113,8 +113,8 @@ public class ThymeleafDataHelperTest {
 
     @Test
     public void shouldProvideRequestParameters_NoOverride() {
-        final HttpServerRequest serverRequest = mock(HttpServerRequest.class);
-        final io.vertx.core.http.HttpServerRequest delegatedServerRequest =
+        HttpServerRequest serverRequest = mock(HttpServerRequest.class);
+        io.vertx.core.http.HttpServerRequest delegatedServerRequest =
                 mock(io.vertx.core.http.HttpServerRequest.class);
         given(delegatedServerRequest.method()).willReturn(HttpMethod.POST);
         given(delegatedServerRequest.params())
@@ -126,8 +126,8 @@ public class ThymeleafDataHelperTest {
         given(serverRequest.getDelegate()).willReturn(delegatedServerRequest);
         given(routingContext.request()).willReturn(serverRequest);
 
-        final var dataFromContext = new HashMap<String, Object>();
-        final var params = new HashMap<>();
+        var dataFromContext = new HashMap<String, Object>();
+        var params = new HashMap<>();
         params.put("param2", "original");
         dataFromContext.put(PARAM_CONTEXT_KEY, params);
         given(routingContext.data()).willReturn(dataFromContext);

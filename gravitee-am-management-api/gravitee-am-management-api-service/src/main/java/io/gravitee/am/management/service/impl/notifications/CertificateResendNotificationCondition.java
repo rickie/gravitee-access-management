@@ -51,12 +51,12 @@ public class CertificateResendNotificationCondition implements ResendNotificatio
     }
 
     private boolean hasExpiredInterval(Date expirationDate, Date lastUpdate) {
-        final long remainingDays =
+        long remainingDays =
                 lastUpdate.toInstant().isBefore(expirationDate.toInstant())
                         ? ChronoUnit.DAYS.between(
                                 lastUpdate.toInstant(), expirationDate.toInstant())
                         : 0;
-        final int currentIndex =
+        int currentIndex =
                 this.certificateExpiryThresholds.size()
                         - (int)
                                 this.certificateExpiryThresholds.stream()

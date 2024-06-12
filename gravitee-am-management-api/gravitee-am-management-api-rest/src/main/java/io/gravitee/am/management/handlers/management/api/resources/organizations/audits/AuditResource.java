@@ -59,7 +59,7 @@ public class AuditResource extends AbstractResource {
     public void get(
             @PathParam("organizationId") String organizationId,
             @PathParam("audit") String audit,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

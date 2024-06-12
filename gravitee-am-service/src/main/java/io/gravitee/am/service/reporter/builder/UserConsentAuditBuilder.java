@@ -50,7 +50,7 @@ public class UserConsentAuditBuilder extends ManagementAuditBuilder<UserConsentA
     }
 
     private String getDisplayName(User user) {
-        final String displayName =
+        String displayName =
                 // display name
                 user.getDisplayName() != null
                         ? user.getDisplayName()

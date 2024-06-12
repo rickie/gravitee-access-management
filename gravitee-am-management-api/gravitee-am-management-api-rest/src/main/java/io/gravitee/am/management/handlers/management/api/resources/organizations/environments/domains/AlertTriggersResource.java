@@ -64,7 +64,7 @@ public class AlertTriggersResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domainId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.LIST)
                 .andThen(
@@ -97,9 +97,9 @@ public class AlertTriggersResource extends AbstractResource {
             @PathParam("domain") String domainId,
             @ApiParam(name = "alertTriggers", required = true) @Valid @NotNull
                     List<PatchAlertTrigger> patchAlertTriggers,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
-        final User authenticatedUser = this.getAuthenticatedUser();
+        User authenticatedUser = this.getAuthenticatedUser();
 
         checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.UPDATE)
                 .andThen(Flowable.fromIterable(patchAlertTriggers))

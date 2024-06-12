@@ -53,7 +53,7 @@ public class CspHandlerImpl implements CSPHandler {
 
     private void addDirectives(List<String> directives) {
         if (nonNull(directives) && directives.size() > 0) {
-            final Map<String, String> mapOfDirectives = buildDirectivesMap(directives);
+            Map<String, String> mapOfDirectives = buildDirectivesMap(directives);
 
             if (mapOfDirectives.containsKey(SCRIPT_SRC_DIRECTIVE)) {
                 this.staticScriptSrcDirective = mapOfDirectives.get(SCRIPT_SRC_DIRECTIVE);
@@ -84,7 +84,7 @@ public class CspHandlerImpl implements CSPHandler {
     @Override
     public void handle(RoutingContext event) {
         if (this.scriptInlineNonce) {
-            final String nonce = SecureRandomString.randomAlphaNumeric(NONCE_LENGTH);
+            String nonce = SecureRandomString.randomAlphaNumeric(NONCE_LENGTH);
             event.put(CSP_SCRIPT_INLINE_NONCE, nonce);
             // reset the scriptDirective to avoid accumulation of nonce values
             this.delegate.setDirective(SCRIPT_SRC_DIRECTIVE, this.staticScriptSrcDirective);

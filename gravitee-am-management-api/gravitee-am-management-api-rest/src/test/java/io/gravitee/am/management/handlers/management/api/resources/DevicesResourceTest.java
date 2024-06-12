@@ -37,9 +37,9 @@ public class DevicesResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetDevices() {
-        final String userId = "domain-1";
-        final String domainId = "user-1";
-        final Domain mockDomain = new Domain();
+        String userId = "domain-1";
+        String domainId = "user-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
         var device = new Device().setDeviceId("deviceID");
         var device2 = new Device().setDeviceId("deviceID2");
@@ -52,7 +52,7 @@ public class DevicesResourceTest extends JerseySpringTest {
                 .findByDomainAndUser(domainId, userId);
         doReturn(Flowable.empty()).when(deviceService).findByDomainAndUser(domainId, "wrong user");
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("users")

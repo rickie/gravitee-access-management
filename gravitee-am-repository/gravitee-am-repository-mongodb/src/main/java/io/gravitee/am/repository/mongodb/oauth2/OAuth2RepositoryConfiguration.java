@@ -45,8 +45,7 @@ public class OAuth2RepositoryConfiguration extends AbstractRepositoryConfigurati
 
     @Bean(name = "oauth2MongoTemplate")
     public MongoDatabase mongoOperations() {
-        final MongoClient mongo =
-                connectionProvider.getClientWrapper(Scope.OAUTH2.getName()).getClient();
+        MongoClient mongo = connectionProvider.getClientWrapper(Scope.OAUTH2.getName()).getClient();
         return mongo.getDatabase(getDatabaseName());
     }
 
@@ -58,7 +57,7 @@ public class OAuth2RepositoryConfiguration extends AbstractRepositoryConfigurati
                 useManagementSettings ? Scope.MANAGEMENT.getName() : Scope.OAUTH2.getName();
         String uri = environment.getProperty(propertyPrefix + ".mongodb.uri");
         if (uri != null && !uri.isEmpty()) {
-            final String path = URI.create(uri).getPath();
+            String path = URI.create(uri).getPath();
             if (path != null && path.length() > 1) {
                 return path.substring(1);
             }

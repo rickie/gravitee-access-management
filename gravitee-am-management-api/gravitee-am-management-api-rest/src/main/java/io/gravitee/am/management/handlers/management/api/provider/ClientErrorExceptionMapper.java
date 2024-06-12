@@ -26,9 +26,9 @@ import javax.ws.rs.ext.Provider;
 public class ClientErrorExceptionMapper extends AbstractExceptionMapper<ClientErrorException> {
 
     @Override
-    public Response toResponse(final ClientErrorException e) {
+    public Response toResponse(ClientErrorException e) {
 
-        final Response.Status status = e.getResponse().getStatusInfo().toEnum();
+        Response.Status status = e.getResponse().getStatusInfo().toEnum();
 
         return Response.status(status)
                 .type(MediaType.APPLICATION_JSON_TYPE)

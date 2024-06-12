@@ -74,8 +74,8 @@ public class ElasticsearchFormatter<T extends ReportEntry> extends AbstractForma
      * @param audit A request audit
      * @return ES bulk line
      */
-    private Buffer getSource(final AuditEntry audit) {
-        final Map<String, Object> data = new HashMap<>(5);
+    private Buffer getSource(AuditEntry audit) {
+        Map<String, Object> data = new HashMap<>(5);
 
         data.put("date", sdf.format(audit.getTimestamp()));
         data.put(Fields.SPECIAL_TIMESTAMP, dtf.format(audit.getTimestamp()));

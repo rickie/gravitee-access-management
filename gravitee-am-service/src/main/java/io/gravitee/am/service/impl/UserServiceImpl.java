@@ -456,9 +456,9 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
     }
 
     private boolean needToAuditUserFactorsOperation(User newUser, User oldUser) {
-        final List<EnrolledFactor> newEnrolledFactors =
+        List<EnrolledFactor> newEnrolledFactors =
                 newUser.getFactors() != null ? newUser.getFactors() : Collections.emptyList();
-        final List<EnrolledFactor> oldEnrolledFactors =
+        List<EnrolledFactor> oldEnrolledFactors =
                 oldUser.getFactors() != null ? oldUser.getFactors() : Collections.emptyList();
 
         // if new enrolled factor, create an audit
@@ -517,17 +517,15 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
         }
 
         // if email list not match, create an audit
-        final List<Attribute> newEmails =
-                ofNullable(newUser.getEmails()).orElse(Collections.emptyList());
-        final List<Attribute> oldEmails =
-                ofNullable(oldUser.getEmails()).orElse(Collections.emptyList());
+        List<Attribute> newEmails = ofNullable(newUser.getEmails()).orElse(Collections.emptyList());
+        List<Attribute> oldEmails = ofNullable(oldUser.getEmails()).orElse(Collections.emptyList());
         return newEmails.size() != oldEmails.size();
     }
 
     private boolean phoneNumberInformationHasChanged(User newUser, User oldUser) {
-        final List<Attribute> newPhoneNumbers =
+        List<Attribute> newPhoneNumbers =
                 ofNullable(newUser.getPhoneNumbers()).orElse(Collections.emptyList());
-        final List<Attribute> oldPhoneNumbers =
+        List<Attribute> oldPhoneNumbers =
                 ofNullable(oldUser.getPhoneNumbers()).orElse(Collections.emptyList());
         return newPhoneNumbers.size() != oldPhoneNumbers.size();
     }

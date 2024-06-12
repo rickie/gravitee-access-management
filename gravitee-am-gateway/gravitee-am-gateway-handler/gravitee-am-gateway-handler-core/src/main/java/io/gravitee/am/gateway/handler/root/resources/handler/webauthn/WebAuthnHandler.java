@@ -139,7 +139,7 @@ public abstract class WebAuthnHandler extends AbstractEndpoint implements Handle
                 ctx.next();
             } else {
                 // save the fido factor
-                final EnrolledFactor enrolledFactor =
+                EnrolledFactor enrolledFactor =
                         createEnrolledFactor(clientFido2Factor.get().getId(), credentialId);
                 enrollFido2Factor(ctx, authenticatedUser, enrolledFactor);
             }
@@ -151,7 +151,7 @@ public abstract class WebAuthnHandler extends AbstractEndpoint implements Handle
 
     protected void enrollFido2Factor(
             RoutingContext ctx, User authenticatedUser, EnrolledFactor enrolledFactor) {
-        final var credentialId = enrolledFactor.getSecurity().getValue();
+        var credentialId = enrolledFactor.getSecurity().getValue();
         factorService
                 .enrollFactor(authenticatedUser, enrolledFactor)
                 .ignoreElement()
@@ -170,12 +170,12 @@ public abstract class WebAuthnHandler extends AbstractEndpoint implements Handle
     }
 
     protected boolean isEnrollingFido2Factor(RoutingContext ctx) {
-        final String factorId = ctx.session().get(ENROLLED_FACTOR_ID_KEY);
+        String factorId = ctx.session().get(ENROLLED_FACTOR_ID_KEY);
         if (factorId == null) {
             return false;
         }
 
-        final Factor factor = factorManager.getFactor(factorId);
+        Factor factor = factorManager.getFactor(factorId);
         return factor != null && factor.is(FIDO2);
     }
 
@@ -217,7 +217,7 @@ public abstract class WebAuthnHandler extends AbstractEndpoint implements Handle
     }
 
     protected EnrolledFactor createEnrolledFactor(String factorId, String credentialId) {
-        final EnrolledFactor enrolledFactor = new EnrolledFactor();
+        EnrolledFactor enrolledFactor = new EnrolledFactor();
         enrolledFactor.setFactorId(factorId);
         enrolledFactor.setStatus(ACTIVATED);
         enrolledFactor.setCreatedAt(new Date());

@@ -56,7 +56,7 @@ public final class SecureRandomString {
                     "Requested random string length " + length + " is less than or equals to 0.");
         }
 
-        final char[] buffer = new char[length];
+        char[] buffer = new char[length];
         for (int i = 0; i < length; ++i) {
             buffer[i] = SYMBOLS[random.nextInt(SYMBOLS.length)];
         }
@@ -70,7 +70,7 @@ public final class SecureRandomString {
                     "Requested random string count " + count + " is less than or equals to 0.");
         }
 
-        final ArrayList<String> stringList = new ArrayList<>();
+        ArrayList<String> stringList = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             stringList.add(randomAlphaNumeric(length));
         }

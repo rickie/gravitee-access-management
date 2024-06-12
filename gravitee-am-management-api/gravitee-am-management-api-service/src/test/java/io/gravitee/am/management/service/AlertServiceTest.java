@@ -49,7 +49,7 @@ public class AlertServiceTest {
 
         when(triggerProviderManager.findAll())
                 .thenReturn(Collections.singleton(mock(TriggerProvider.class)));
-        final TestObserver<Boolean> obs = cut.isAlertingAvailable().test();
+        TestObserver<Boolean> obs = cut.isAlertingAvailable().test();
 
         obs.awaitTerminalEvent();
         obs.assertValue(true);
@@ -59,7 +59,7 @@ public class AlertServiceTest {
     public void assertAlertIsNotAvailable() {
 
         when(triggerProviderManager.findAll()).thenReturn(Collections.emptyList());
-        final TestObserver<Boolean> obs = cut.isAlertingAvailable().test();
+        TestObserver<Boolean> obs = cut.isAlertingAvailable().test();
 
         obs.awaitTerminalEvent();
         obs.assertValue(false);

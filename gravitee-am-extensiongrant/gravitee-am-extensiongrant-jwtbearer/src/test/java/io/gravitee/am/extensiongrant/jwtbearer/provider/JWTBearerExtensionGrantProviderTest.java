@@ -53,10 +53,10 @@ public class JWTBearerExtensionGrantProviderTest {
 
     @Test
     public void testParseKey() {
-        final String key = "ssh-rsa AAAAE2VjZHNhLXNoYTItbmlzdHAyNTY=";
-        final String key2 = "ssh-rsa AAAAE2VjZHNhLXNoYTItbmlzdHAyNTY= test@test.com";
-        final String key3 = "ssh";
-        final String key4 = "ssh-rsa";
+        String key = "ssh-rsa AAAAE2VjZHNhLXNoYTItbmlzdHAyNTY=";
+        String key2 = "ssh-rsa AAAAE2VjZHNhLXNoYTItbmlzdHAyNTY= test@test.com";
+        String key3 = "ssh";
+        String key4 = "ssh-rsa";
         assertTrue(SSH_PUB_KEY.matcher(key).matches());
         assertTrue(SSH_PUB_KEY.matcher(key2).matches());
         assertFalse(SSH_PUB_KEY.matcher(key3).matches());
