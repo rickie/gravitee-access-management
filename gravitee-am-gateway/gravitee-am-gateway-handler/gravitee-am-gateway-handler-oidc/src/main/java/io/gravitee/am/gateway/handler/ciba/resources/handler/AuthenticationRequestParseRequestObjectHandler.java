@@ -65,7 +65,7 @@ public class AuthenticationRequestParseRequestObjectHandler implements Handler<R
     }
 
     private Maybe<JWT> handleRequestObjectValue(RoutingContext context) {
-        final String request = context.request().getParam(Parameters.REQUEST);
+        String request = context.request().getParam(Parameters.REQUEST);
 
         if (request != null) {
             // Ensure that the request_uri is not propagated to the next authorization flow step
@@ -112,11 +112,11 @@ public class AuthenticationRequestParseRequestObjectHandler implements Handler<R
             OpenIDProviderMetadata oidcMeta = context.get(PROVIDER_METADATA_CONTEXT_KEY);
             Client client = context.get(CLIENT_CONTEXT_KEY);
 
-            final JWTClaimsSet claims = jwt.getJWTClaimsSet();
+            JWTClaimsSet claims = jwt.getJWTClaimsSet();
 
             // aud : The Audience claim MUST contain the value of the Issuer Identifier for the OP,
             // which identifies the Authorization Server as an intended audience.
-            final Object aud = claims.getClaim(Claims.aud);
+            Object aud = claims.getClaim(Claims.aud);
             if (aud == null
                     || (aud instanceof String && !oidcMeta.getIssuer().equals(aud))
                     || (aud instanceof Collection
@@ -127,27 +127,27 @@ public class AuthenticationRequestParseRequestObjectHandler implements Handler<R
             }
 
             // iss : The Issuer claim MUST be the client_id of the OAuth Client.
-            final String iss = claims.getStringClaim(Claims.iss);
+            String iss = claims.getStringClaim(Claims.iss);
             if (iss == null || !client.getClientId().equals(iss)) {
                 return Single.error(new InvalidRequestException("iss is missing or invalid"));
             }
 
             // exp : An expiration time that limits the validity lifetime of the signed
             // authentication request.
-            final Date exp = claims.getDateClaim(Claims.exp);
+            Date exp = claims.getDateClaim(Claims.exp);
             if (exp == null) {
                 return Single.error(new InvalidRequestException("exp is missing"));
             }
             DefaultJWTParser.evaluateExp(exp.getTime() / 1000, Instant.now(), 0);
 
             // iat : The time at which the signed authentication request was created.
-            final Date iat = claims.getDateClaim(Claims.iat);
+            Date iat = claims.getDateClaim(Claims.iat);
             if (iat == null) {
                 return Single.error(new InvalidRequestException("iat is missing"));
             }
 
             // nbf : The time before which the signed authentication request is unacceptable.
-            final Date nbf = claims.getDateClaim(Claims.nbf);
+            Date nbf = claims.getDateClaim(Claims.nbf);
             if (nbf == null) {
                 return Single.error(new InvalidRequestException("nbf is missing"));
             }

@@ -34,7 +34,7 @@ public class UserConsentEndpointHandler extends AbstractUserConsentEndpointHandl
 
     /** Retrieve specific consent for a user */
     public void get(RoutingContext context) {
-        final String consentId = context.request().getParam("consentId");
+        String consentId = context.request().getParam("consentId");
         userService
                 .consent(consentId)
                 .subscribe(
@@ -51,8 +51,8 @@ public class UserConsentEndpointHandler extends AbstractUserConsentEndpointHandl
 
     /** Revoke specific consent for a user */
     public void revoke(RoutingContext context) {
-        final String userId = context.request().getParam("userId");
-        final String consentId = context.request().getParam("consentId");
+        String userId = context.request().getParam("userId");
+        String consentId = context.request().getParam("consentId");
 
         getPrincipal(context)
                 .flatMapCompletable(

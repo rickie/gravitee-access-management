@@ -51,7 +51,7 @@ public class TaskManager {
         logger.debug("schedule {} task of type {}", task.type(), task.kind());
 
         try {
-            final var systemTask = new SystemTask();
+            var systemTask = new SystemTask();
             systemTask.setId(task.getId());
             systemTask.setCreatedAt(new Date());
             systemTask.setUpdatedAt(systemTask.getCreatedAt());

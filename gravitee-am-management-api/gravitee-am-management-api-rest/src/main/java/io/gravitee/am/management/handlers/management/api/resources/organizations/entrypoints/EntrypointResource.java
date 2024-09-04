@@ -61,7 +61,7 @@ public class EntrypointResource extends AbstractResource {
     public void get(
             @PathParam("organizationId") String organizationId,
             @PathParam("entrypointId") String entrypointId,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -89,10 +89,10 @@ public class EntrypointResource extends AbstractResource {
     public void update(
             @PathParam("organizationId") String organizationId,
             @ApiParam(name = "entrypoint", required = true) @Valid @NotNull
-                    final UpdateEntrypoint entrypointToUpdate,
+                    UpdateEntrypoint entrypointToUpdate,
             @PathParam("entrypointId") String entrypointId,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,
@@ -120,8 +120,8 @@ public class EntrypointResource extends AbstractResource {
     public void delete(
             @PathParam("organizationId") String organizationId,
             @PathParam("entrypointId") String entrypointId,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkPermission(
                         ReferenceType.ORGANIZATION,

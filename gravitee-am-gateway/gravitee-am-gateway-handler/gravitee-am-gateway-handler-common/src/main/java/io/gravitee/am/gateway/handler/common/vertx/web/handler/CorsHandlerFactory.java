@@ -61,8 +61,7 @@ public class CorsHandlerFactory implements FactoryBean<CorsHandler> {
         return CorsHandler.class;
     }
 
-    private Set<String> getStringPropertiesAsList(
-            final String propertyKey, final String defaultValue) {
+    private Set<String> getStringPropertiesAsList(String propertyKey, String defaultValue) {
         String property = environment.getProperty(propertyKey);
         if (property == null) {
             property = defaultValue;
@@ -70,8 +69,7 @@ public class CorsHandlerFactory implements FactoryBean<CorsHandler> {
         return new HashSet<>(asList(property.replaceAll("\\s+", "").split(",")));
     }
 
-    private Set<HttpMethod> getHttpMethodPropertiesAsList(
-            final String propertyKey, final String defaultValue) {
+    private Set<HttpMethod> getHttpMethodPropertiesAsList(String propertyKey, String defaultValue) {
         String property = environment.getProperty(propertyKey);
         if (property == null) {
             property = defaultValue;

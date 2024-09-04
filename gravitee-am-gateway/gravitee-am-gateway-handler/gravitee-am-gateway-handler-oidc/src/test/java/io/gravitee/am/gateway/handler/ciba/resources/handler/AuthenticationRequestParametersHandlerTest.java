@@ -104,7 +104,7 @@ public class AuthenticationRequestParametersHandlerTest extends RxWebTestBase {
         this.client = new Client();
         this.client.setAuthorizedGrantTypes(Collections.singletonList(GrantType.CIBA_GRANT_TYPE));
         this.client.setClientId("client_id_iss");
-        final ApplicationScopeSettings scope = new ApplicationScopeSettings();
+        ApplicationScopeSettings scope = new ApplicationScopeSettings();
         scope.setScope("openid");
         this.client.setScopeSettings(List.of(scope));
     }
@@ -322,7 +322,7 @@ public class AuthenticationRequestParametersHandlerTest extends RxWebTestBase {
 
         handlerUnderTest.setCibaRequest(cibaRequest);
 
-        final User user = new User();
+        User user = new User();
         user.setId(UUID.randomUUID().toString());
         when(userService.findByDomainAndCriteria(any(), any()))
                 .thenReturn(Single.just(List.of(user)));
@@ -359,7 +359,7 @@ public class AuthenticationRequestParametersHandlerTest extends RxWebTestBase {
 
         handlerUnderTest.setCibaRequest(cibaRequest);
 
-        final User user = new User();
+        User user = new User();
         user.setId(UUID.randomUUID().toString());
         when(userService.findByDomainAndCriteria(any(), any()))
                 .thenReturn(Single.just(List.of(user, user)));
@@ -386,8 +386,8 @@ public class AuthenticationRequestParametersHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldRejectRequest_TooManyUsers_LoginTokenHint() throws Exception {
-        final JSONObject jwtBody = new JSONObject();
-        final JSONObject subId = new JSONObject();
+        JSONObject jwtBody = new JSONObject();
+        JSONObject subId = new JSONObject();
         subId.put("format", "email");
         subId.put("email", "user@email.com");
         jwtBody.put("sub_id", subId);
@@ -403,16 +403,16 @@ public class AuthenticationRequestParametersHandlerTest extends RxWebTestBase {
 
         handlerUnderTest.setCibaRequest(cibaRequest);
 
-        final io.gravitee.am.model.jose.RSAKey jwk = new io.gravitee.am.model.jose.RSAKey();
+        io.gravitee.am.model.jose.RSAKey jwk = new io.gravitee.am.model.jose.RSAKey();
         jwk.setKid(KID);
-        final JWKSet jwks = new JWKSet();
+        JWKSet jwks = new JWKSet();
         jwks.setKeys(List.of(jwk));
 
         when(jwkService.getKeys(any(Client.class))).thenReturn(Maybe.just(jwks));
         when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(jwk));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
-        final User user = new User();
+        User user = new User();
         user.setId(UUID.randomUUID().toString());
         when(userService.findByDomainAndCriteria(any(), any()))
                 .thenReturn(Single.just(List.of(user, user)));
@@ -439,8 +439,8 @@ public class AuthenticationRequestParametersHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldRejectRequest_LoginTokenHint_Expired() throws Exception {
-        final JSONObject jwtBody = new JSONObject();
-        final JSONObject subId = new JSONObject();
+        JSONObject jwtBody = new JSONObject();
+        JSONObject subId = new JSONObject();
         subId.put("format", "email");
         subId.put("email", "user@email.com");
         jwtBody.put("sub_id", subId);
@@ -457,9 +457,9 @@ public class AuthenticationRequestParametersHandlerTest extends RxWebTestBase {
 
         handlerUnderTest.setCibaRequest(cibaRequest);
 
-        final io.gravitee.am.model.jose.RSAKey jwk = new io.gravitee.am.model.jose.RSAKey();
+        io.gravitee.am.model.jose.RSAKey jwk = new io.gravitee.am.model.jose.RSAKey();
         jwk.setKid(KID);
-        final JWKSet jwks = new JWKSet();
+        JWKSet jwks = new JWKSet();
         jwks.setKeys(List.of(jwk));
 
         when(jwkService.getKeys(any(Client.class))).thenReturn(Maybe.just(jwks));
@@ -488,8 +488,8 @@ public class AuthenticationRequestParametersHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldAcceptRequest_LoginTokenHint() throws Exception {
-        final JSONObject jwtBody = new JSONObject();
-        final JSONObject subId = new JSONObject();
+        JSONObject jwtBody = new JSONObject();
+        JSONObject subId = new JSONObject();
         subId.put("format", "email");
         subId.put("email", "user@email.com");
         jwtBody.put("sub_id", subId);
@@ -505,16 +505,16 @@ public class AuthenticationRequestParametersHandlerTest extends RxWebTestBase {
 
         handlerUnderTest.setCibaRequest(cibaRequest);
 
-        final io.gravitee.am.model.jose.RSAKey jwk = new io.gravitee.am.model.jose.RSAKey();
+        io.gravitee.am.model.jose.RSAKey jwk = new io.gravitee.am.model.jose.RSAKey();
         jwk.setKid(KID);
-        final JWKSet jwks = new JWKSet();
+        JWKSet jwks = new JWKSet();
         jwks.setKeys(List.of(jwk));
 
         when(jwkService.getKeys(any(Client.class))).thenReturn(Maybe.just(jwks));
         when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(jwk));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
-        final User user = new User();
+        User user = new User();
         user.setId(UUID.randomUUID().toString());
         when(userService.findByDomainAndCriteria(any(), any()))
                 .thenReturn(Single.just(List.of(user)));
@@ -541,7 +541,7 @@ public class AuthenticationRequestParametersHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldAcceptRequest_IdTokenHint() throws Exception {
-        final JSONObject jwtBody = new JSONObject();
+        JSONObject jwtBody = new JSONObject();
         jwtBody.put("sub", UUID.randomUUID().toString());
         jwtBody.put(Claims.exp, Instant.now().plusSeconds(10).getEpochSecond());
         JwtHintBuilder hint = new JwtHintBuilder(jwtBody);
@@ -556,16 +556,16 @@ public class AuthenticationRequestParametersHandlerTest extends RxWebTestBase {
 
         handlerUnderTest.setCibaRequest(cibaRequest);
 
-        final io.gravitee.am.model.jose.RSAKey jwk = new io.gravitee.am.model.jose.RSAKey();
+        io.gravitee.am.model.jose.RSAKey jwk = new io.gravitee.am.model.jose.RSAKey();
         jwk.setKid(KID);
-        final JWKSet jwks = new JWKSet();
+        JWKSet jwks = new JWKSet();
         jwks.setKeys(List.of(jwk));
 
         when(jwkService.getKeys()).thenReturn(Single.just(jwks));
         when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(jwk));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
-        final User user = new User();
+        User user = new User();
         user.setId(UUID.randomUUID().toString());
         when(userService.findById(any())).thenReturn(Maybe.just(user));
 

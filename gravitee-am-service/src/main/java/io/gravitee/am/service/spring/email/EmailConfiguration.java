@@ -61,7 +61,7 @@ public class EmailConfiguration {
 
     @Bean
     public JavaMailSender mailSender() {
-        final JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
+        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
         javaMailSender.setHost(host);
         try {
             javaMailSender.setPort(Integer.valueOf(this.port));
@@ -122,7 +122,7 @@ public class EmailConfiguration {
     }
 
     private <T> T getProperty(String propName, T defaultValue, Class<T> clazz) {
-        final Map<String, Object> emailProperties =
+        Map<String, Object> emailProperties =
                 EnvironmentUtils.getPropertiesStartingWith(environment, EMAIL_PROPERTIES_PREFIX);
         if (emailProperties.containsKey(EMAIL_PROPERTIES_PREFIX + "." + propName)) {
             return (T) emailProperties.get(EMAIL_PROPERTIES_PREFIX + "." + propName);

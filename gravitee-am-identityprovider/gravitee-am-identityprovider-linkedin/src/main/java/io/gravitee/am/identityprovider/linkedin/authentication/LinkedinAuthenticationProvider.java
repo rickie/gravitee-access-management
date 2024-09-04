@@ -96,7 +96,7 @@ public class LinkedinAuthenticationProvider
     @Override
     protected Maybe<Token> authenticate(Authentication authentication) {
         // prepare body request parameters
-        final String authorizationCode =
+        String authorizationCode =
                 authentication
                         .getContext()
                         .request()

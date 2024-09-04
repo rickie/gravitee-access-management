@@ -41,7 +41,7 @@ public class RegisterFailureHandler implements Handler<RoutingContext> {
     public void handle(RoutingContext context) {
         if (context.failed()) {
             // prepare response
-            final MultiMap queryParams = RequestUtils.getCleanedQueryParams(context.request());
+            MultiMap queryParams = RequestUtils.getCleanedQueryParams(context.request());
             // if failure, return to the register page with an error
             Throwable cause = context.failure();
             if (cause instanceof InvalidUserException) {

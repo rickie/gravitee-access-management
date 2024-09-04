@@ -84,7 +84,7 @@ public class RolesResource extends AbstractResource {
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue(MAX_ROLES_SIZE_PER_PAGE_STRING) int size,
             @QueryParam("q") String query,
-            @Suspended final AsyncResponse response) {
+            @Suspended AsyncResponse response) {
 
         checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.LIST)
                 .andThen(
@@ -123,9 +123,9 @@ public class RolesResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("environmentId") String environmentId,
             @PathParam("domain") String domain,
-            @ApiParam(name = "role", required = true) @Valid @NotNull final NewRole newRole,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+            @ApiParam(name = "role", required = true) @Valid @NotNull NewRole newRole,
+            @Suspended AsyncResponse response) {
+        User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission(
                         organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.CREATE)

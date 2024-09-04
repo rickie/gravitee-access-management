@@ -34,8 +34,8 @@ public class IdentityProviderPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGet() {
-        final String identityProviderPluginId = "identityProvider-plugin-id";
-        final IdentityProviderPlugin identityProviderPlugin = new IdentityProviderPlugin();
+        String identityProviderPluginId = "identityProvider-plugin-id";
+        IdentityProviderPlugin identityProviderPlugin = new IdentityProviderPlugin();
         identityProviderPlugin.setId(identityProviderPluginId);
         identityProviderPlugin.setName("identityProvider-plugin-name");
 
@@ -43,7 +43,7 @@ public class IdentityProviderPluginResourceTest extends JerseySpringTest {
                 .when(identityProviderPluginService)
                 .findById(identityProviderPluginId);
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("identities")
@@ -55,12 +55,12 @@ public class IdentityProviderPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGet_technicalManagementException() {
-        final String identityProviderPluginId = "identityProvider-plugin-id";
+        String identityProviderPluginId = "identityProvider-plugin-id";
         doReturn(Maybe.error(new TechnicalManagementException("Error occurs")))
                 .when(identityProviderPluginService)
                 .findById(identityProviderPluginId);
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("identities")
@@ -72,12 +72,12 @@ public class IdentityProviderPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetSchema() {
-        final String identityProviderPluginId = "identityProvider-plugin-id";
-        final IdentityProviderPlugin identityProviderPlugin = new IdentityProviderPlugin();
+        String identityProviderPluginId = "identityProvider-plugin-id";
+        IdentityProviderPlugin identityProviderPlugin = new IdentityProviderPlugin();
         identityProviderPlugin.setId(identityProviderPluginId);
         identityProviderPlugin.setName("identityProvider-plugin-name");
 
-        final String schema = "identityProvider-plugin-schema";
+        String schema = "identityProvider-plugin-schema";
 
         doReturn(Maybe.just(identityProviderPlugin))
                 .when(identityProviderPluginService)
@@ -86,7 +86,7 @@ public class IdentityProviderPluginResourceTest extends JerseySpringTest {
                 .when(identityProviderPluginService)
                 .getSchema(identityProviderPluginId);
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("identities")
@@ -96,18 +96,18 @@ public class IdentityProviderPluginResourceTest extends JerseySpringTest {
                         .get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
 
-        final String responseEntity = readEntity(response, String.class);
+        String responseEntity = readEntity(response, String.class);
         assertEquals(schema, responseEntity);
     }
 
     @Test
     public void shouldGetSchema_technicalManagementException() {
-        final String identityProviderPluginId = "identityProvider-plugin-id";
+        String identityProviderPluginId = "identityProvider-plugin-id";
         doReturn(Maybe.error(new TechnicalManagementException("Error occurs")))
                 .when(identityProviderPluginService)
                 .findById(identityProviderPluginId);
 
-        final Response response =
+        Response response =
                 target("platform")
                         .path("plugins")
                         .path("identities")

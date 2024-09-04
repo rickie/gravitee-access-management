@@ -42,7 +42,7 @@ public final class X509CertUtils {
      *     null}.
      * @return The X.509 certificate, {@code null} if not specified or parsing failed.
      */
-    public static X509Certificate parse(final byte[] derEncodedCert) {
+    public static X509Certificate parse(byte[] derEncodedCert) {
 
         try {
             return parseWithException(derEncodedCert);
@@ -59,7 +59,7 @@ public final class X509CertUtils {
      * @return The X.509 certificate, {@code null} if not specified.
      * @throws CertificateException If parsing failed.
      */
-    public static X509Certificate parseWithException(final byte[] derEncodedCert)
+    public static X509Certificate parseWithException(byte[] derEncodedCert)
             throws CertificateException {
 
         if (derEncodedCert == null || derEncodedCert.length == 0) {
@@ -67,7 +67,7 @@ public final class X509CertUtils {
         }
 
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        final java.security.cert.Certificate cert =
+        java.security.cert.Certificate cert =
                 cf.generateCertificate(new ByteArrayInputStream(derEncodedCert));
 
         if (!(cert instanceof X509Certificate)) {
@@ -84,13 +84,13 @@ public final class X509CertUtils {
      *     if not specified.
      * @return The X.509 certificate, {@code null} if parsing failed.
      */
-    public static X509Certificate parse(final String pemEncodedCert) {
+    public static X509Certificate parse(String pemEncodedCert) {
 
         if (pemEncodedCert == null || pemEncodedCert.isEmpty()) {
             return null;
         }
 
-        final int markerStart = pemEncodedCert.indexOf(PEM_BEGIN_MARKER);
+        int markerStart = pemEncodedCert.indexOf(PEM_BEGIN_MARKER);
 
         if (markerStart < 0) {
             return null;
@@ -98,7 +98,7 @@ public final class X509CertUtils {
 
         String buf = pemEncodedCert.substring(markerStart + PEM_BEGIN_MARKER.length());
 
-        final int markerEnd = buf.indexOf(PEM_END_MARKER);
+        int markerEnd = buf.indexOf(PEM_END_MARKER);
 
         if (markerEnd < 0) {
             return null;
@@ -118,14 +118,14 @@ public final class X509CertUtils {
      *     if not specified.
      * @return The X.509 certificate, {@code null} if parsing failed.
      */
-    public static X509Certificate parseWithException(final String pemEncodedCert)
+    public static X509Certificate parseWithException(String pemEncodedCert)
             throws CertificateException {
 
         if (pemEncodedCert == null || pemEncodedCert.isEmpty()) {
             return null;
         }
 
-        final int markerStart = pemEncodedCert.indexOf(PEM_BEGIN_MARKER);
+        int markerStart = pemEncodedCert.indexOf(PEM_BEGIN_MARKER);
 
         if (markerStart < 0) {
             throw new CertificateException("PEM begin marker not found");
@@ -133,7 +133,7 @@ public final class X509CertUtils {
 
         String buf = pemEncodedCert.substring(markerStart + PEM_BEGIN_MARKER.length());
 
-        final int markerEnd = buf.indexOf(PEM_END_MARKER);
+        int markerEnd = buf.indexOf(PEM_END_MARKER);
 
         if (markerEnd < 0) {
             throw new CertificateException("PEM end marker not found");
@@ -152,7 +152,7 @@ public final class X509CertUtils {
      * @param cert The X.509 certificate. Must not be {@code null}.
      * @return The PEM-encoded X.509 certificate, {@code null} if encoding failed.
      */
-    public static String toPEMString(final X509Certificate cert) {
+    public static String toPEMString(X509Certificate cert) {
         return toPEMString(cert, true);
     }
 
@@ -163,7 +163,7 @@ public final class X509CertUtils {
      * @param withLineBreaks {@code false} to suppress line breaks.
      * @return The PEM-encoded X.509 certificate, {@code null} if encoding failed.
      */
-    public static String toPEMString(final X509Certificate cert, final boolean withLineBreaks) {
+    public static String toPEMString(X509Certificate cert, boolean withLineBreaks) {
 
         StringBuilder sb = new StringBuilder();
         sb.append(PEM_BEGIN_MARKER);

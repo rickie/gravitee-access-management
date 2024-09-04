@@ -40,11 +40,11 @@ public class GroupRoleResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldRevokeGroupRole() {
-        final String domainId = "domain-1";
-        final Domain mockDomain = new Domain();
+        String domainId = "domain-1";
+        Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        final Group mockGroup = new Group();
+        Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
 
         doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
@@ -57,7 +57,7 @@ public class GroupRoleResourceTest extends JerseySpringTest {
                         eq(Collections.singletonList("role-1")),
                         any());
 
-        final Response response =
+        Response response =
                 target("domains")
                         .path(domainId)
                         .path("groups")
